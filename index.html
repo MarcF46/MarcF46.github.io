@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marc Fahlbusch | IT-Portfolio</title>
-  <meta name="description" content="IT-Portfolio von Marc Fahlbusch mit Praxisprojekten zu Microsoft 365, PowerShell, Linux, Docker, DevOps, Monitoring, Backup und Automatisierung.">
+  <meta name="description" content="IT-Portfolio von Marc Fahlbusch mit Praxisprojekten zu Microsoft 365, PowerShell, Windows Server, Active Directory, Hyper-V, Linux, Docker, DevOps, Monitoring, Backup und Automatisierung.">
   <link rel="stylesheet" href="assets/styles.css">
 
   <script data-goatcounter="https://marcf46-portfolio.goatcounter.com/count"
@@ -35,7 +35,7 @@
         <p class="hero-text">
           Dieses Portfolio bündelt meine technischen Labs und dokumentiert, was ich praktisch aufgebaut,
           getestet und nachvollzogen habe. Die Projekte reichen von Microsoft 365 und PowerShell über
-          Linux-Administration bis zu Docker, Monitoring, Backup und DevOps-Grundlagen.
+          Windows Server, Active Directory und Hyper-V bis zu Linux, Docker, Monitoring, Backup und DevOps-Grundlagen.
         </p>
 
         <div class="hero-actions">
@@ -48,6 +48,7 @@
         <p class="card-kicker">Schwerpunkte</p>
         <ul>
           <li><strong>Microsoft 365 & PowerShell</strong><span>Administration und Lifecycle-Automatisierung</span></li>
+          <li><strong>Windows Infrastructure</strong><span>Active Directory, Hyper-V und Server-Automatisierung</span></li>
           <li><strong>Linux Administration</strong><span>Dienste, Netzwerk, Logs und Betriebsdiagnose</span></li>
           <li><strong>Docker & DevOps</strong><span>Containerbetrieb, Security und CI/CD</span></li>
           <li><strong>Monitoring & Operations</strong><span>Prometheus, Grafana, Alerting und Recovery</span></li>
@@ -91,6 +92,34 @@
           <div class="project-actions">
             <a data-goatcounter-click="click-repo-m365-lifecycle-lab" class="button primary" href="https://github.com/MarcF46/m365-lifecycle-automation-lab" target="_blank" rel="noopener noreferrer">Repository öffnen</a>
             <a data-goatcounter-click="click-doc-m365-architecture" class="text-link" href="https://github.com/MarcF46/m365-lifecycle-automation-lab/blob/main/docs/architecture.md" target="_blank" rel="noopener noreferrer">Architektur ansehen →</a>
+          </div>
+        </article>
+
+        <article class="project-card featured-project">
+          <div class="project-topline">
+            <span class="project-type">Windows Server · PowerShell</span>
+            <span class="project-state">Infrastructure Automation</span>
+          </div>
+          <h3>Windows Infrastructure Automation Lab</h3>
+          <p class="project-summary">
+            Automatisiertes Drei-VM-Lab mit Hyper-V und AutomatedLab für Active Directory, Dateidienste,
+            Netzwerk, Gruppenrichtlinien und eine überprüfbare Windows-Sicherheitsbaseline.
+          </p>
+
+          <div class="tag-list" aria-label="Technologien im Windows Infrastructure Lab">
+            <span>Hyper-V</span><span>AutomatedLab</span><span>Active Directory</span><span>PowerShell</span><span>GPO</span>
+          </div>
+
+          <ol class="project-points">
+            <li><strong>Bereitstellung:</strong> Domain Controller, Datei-/DHCP-Server und Windows-Client werden reproduzierbar aufgebaut.</li>
+            <li><strong>Identitäten & Rechte:</strong> OU-Struktur, Benutzer, Gruppen, AGDLP sowie SMB- und NTFS-Berechtigungen werden automatisiert konfiguriert.</li>
+            <li><strong>Netzwerk & GPO:</strong> DNS, DHCP, NAT und rollenbezogene Netzlaufwerke greifen als zusammenhängende Infrastruktur ineinander.</li>
+            <li><strong>Sicherheit & Prüfung:</strong> Firewall, Defender, SMB-Härtung und abschließende Sollzustandsprüfungen ergänzen die Bereitstellung.</li>
+          </ol>
+
+          <div class="project-actions">
+            <a data-goatcounter-click="click-repo-windows-infrastructure-lab" class="button primary" href="https://github.com/MarcF46/windows_infrastructure_automation_lab" target="_blank" rel="noopener noreferrer">Repository öffnen</a>
+            <a data-goatcounter-click="click-doc-windows-infrastructure-architecture" class="text-link" href="https://github.com/MarcF46/windows_infrastructure_automation_lab/blob/main/docs/architektur.md" target="_blank" rel="noopener noreferrer">Architektur ansehen →</a>
           </div>
         </article>
 
@@ -215,12 +244,12 @@
         <div class="skill-card">
           <span>01</span>
           <h3>Administration</h3>
-          <p>Microsoft 365, Entra ID, Exchange Online, Linux-Dienste, Benutzer, Gruppen und Berechtigungen.</p>
+          <p>Microsoft 365, Entra ID, Windows Server, Active Directory, Hyper-V, Linux-Dienste, Benutzer, Gruppen und Berechtigungen.</p>
         </div>
         <div class="skill-card">
           <span>02</span>
           <h3>Automatisierung</h3>
-          <p>PowerShell, wiederholbare Abläufe, Validierung, DryRun, Reporting und kontrollierte Änderungen.</p>
+          <p>PowerShell, AutomatedLab, wiederholbare Abläufe, Validierung, DryRun, Reporting und kontrollierte Änderungen.</p>
         </div>
         <div class="skill-card">
           <span>03</span>
