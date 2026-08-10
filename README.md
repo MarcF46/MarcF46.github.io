@@ -14,6 +14,8 @@ erreichbar.
 
 - Microsoft 365 & PowerShell
 - Microsoft Graph & Exchange Online
+- Windows Server & Active Directory
+- Hyper-V & AutomatedLab
 - Linux Administration
 - Docker & DevOps
 - Monitoring & Operations
