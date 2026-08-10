@@ -2,6 +2,14 @@
 
 Zentrale GitHub-Pages-Startseite für meine technischen Praxisprojekte und Labs.
 
+## Portfolio
+
+Die veröffentlichte Portfolio-Seite ist unter
+
+`https://marcf46.github.io/`
+
+erreichbar.
+
 ## Themen
 
 - Microsoft 365 & PowerShell
@@ -12,8 +20,6 @@ Zentrale GitHub-Pages-Startseite für meine technischen Praxisprojekte und Labs.
 - Backup & Recovery
 - Automatisierung
 
-## Portfolio
+## Struktur
 
-Die veröffentlichte Portfolio-Seite ist unter `https://marcf46.github.io/` vorgesehen.
-
-Die einzelnen Projekte bleiben in eigenen Repositories. Dieses Repository enthält ausschließlich die zentrale Portfolio-Webseite.
+Die einzelnen Labs bleiben in eigenen Repositories. Dieses Repository enthält ausschließlich die zentrale Portfolio-Webseite und dient als Einstiegspunkt zu den technischen Projekten.
