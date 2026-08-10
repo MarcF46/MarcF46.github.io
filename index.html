@@ -31,11 +31,11 @@
     <section class="hero">
       <div class="hero-content">
         <p class="eyebrow">IT-Systemintegration · Cloud · Automation</p>
-        <h1>Praxisprojekte statt Stichwortsammlung.</h1>
+        <h1>Meine IT-Projekte im Überblick.</h1>
         <p class="hero-text">
-          Dieses Portfolio bündelt meine technischen Labs und dokumentiert, was ich praktisch aufgebaut,
-          getestet und nachvollzogen habe. Die Projekte reichen von Microsoft 365 und PowerShell über
-          Windows Server, Active Directory und Hyper-V bis zu Linux, Docker, Monitoring, Backup und DevOps-Grundlagen.
+          Hier dokumentiere ich Projekte, die ich selbst aufgebaut, automatisiert und getestet habe.
+          Schwerpunkte sind Microsoft 365 und PowerShell, Windows Server und Active Directory sowie
+          Linux, Docker, Monitoring, Backup und DevOps-Grundlagen.
         </p>
 
         <div class="hero-actions">
@@ -48,7 +48,7 @@
         <p class="card-kicker">Schwerpunkte</p>
         <ul>
           <li><strong>Microsoft 365 & PowerShell</strong><span>Administration und Lifecycle-Automatisierung</span></li>
-          <li><strong>Windows Infrastructure</strong><span>Active Directory, Hyper-V und Server-Automatisierung</span></li>
+          <li><strong>Windows Server & Active Directory</strong><span>Hyper-V, Gruppenrichtlinien und Server-Automatisierung</span></li>
           <li><strong>Linux Administration</strong><span>Dienste, Netzwerk, Logs und Betriebsdiagnose</span></li>
           <li><strong>Docker & DevOps</strong><span>Containerbetrieb, Security und CI/CD</span></li>
           <li><strong>Monitoring & Operations</strong><span>Prometheus, Grafana, Alerting und Recovery</span></li>
@@ -59,10 +59,10 @@
     <section class="section" id="projects">
       <div class="section-heading">
         <p class="eyebrow">Portfolio-Projekte</p>
-        <h2>Aktuelle Labs und technische Nachweise</h2>
+        <h2>Ausgewählte Projekte</h2>
         <p>
-          Jedes Projekt steht für einen eigenen Lern- und Praxisbereich. Die Kurzbeschreibungen zeigen
-          den Kern des Labs, die Repositories enthalten den Code, die Dokumentation und die technischen Details.
+          Die Projekte zeigen unterschiedliche Bereiche meiner praktischen Arbeit. Die Kurzbeschreibungen erklären
+          den jeweiligen Schwerpunkt, die Repositories enthalten Code, Dokumentation und technische Details.
         </p>
       </div>
 
@@ -72,21 +72,21 @@
             <span class="project-type">Microsoft 365 · PowerShell</span>
             <span class="project-state">Lifecycle Automation</span>
           </div>
-          <h3>Microsoft 365 Lifecycle Automation Lab</h3>
+          <h3>Microsoft 365 Lifecycle Automation</h3>
           <p class="project-summary">
-            PowerShell-Lab für kontrolliertes Onboarding und Offboarding in Microsoft 365 mit Microsoft Graph,
-            Exchange Online und nachvollziehbaren Reports.
+            PowerShell-Automatisierung für kontrolliertes Onboarding und Offboarding in Microsoft 365.
+            Microsoft Graph und Exchange Online übernehmen klar getrennte Aufgaben, Änderungen werden geprüft und dokumentiert.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im Microsoft 365 Lab">
+          <div class="tag-list" aria-label="Technologien im Microsoft-365-Projekt">
             <span>PowerShell</span><span>Microsoft Graph</span><span>Exchange Online</span><span>Entra ID</span>
           </div>
 
           <ol class="project-points">
-            <li><strong>Onboarding:</strong> Benutzer, Lizenzen und Gruppen werden aus vorbereiteten CSV-Daten geprüft und verarbeitet.</li>
-            <li><strong>Klare Aufgabenteilung:</strong> Microsoft Graph und Exchange Online übernehmen jeweils die Aufgaben, für die sie gedacht sind.</li>
+            <li><strong>Onboarding:</strong> Benutzerdaten prüfen, Konto anlegen, Lizenz zuweisen und Gruppenmitgliedschaften setzen.</li>
+            <li><strong>Dienstetrennung:</strong> Microsoft Graph und Exchange Online werden gezielt für ihre jeweiligen Verwaltungsaufgaben eingesetzt.</li>
             <li><strong>Offboarding:</strong> Anmeldung sperren, Sitzungen beenden und Mitgliedschaften sowie Lizenzen kontrolliert entfernen.</li>
-            <li><strong>Kontrolle:</strong> DryRun, Verifikation und Reports machen Änderungen vor und nach der Ausführung nachvollziehbar.</li>
+            <li><strong>Nachvollziehbarkeit:</strong> DryRun, Verifikation und Reports machen Änderungen vor und nach der Ausführung sichtbar.</li>
           </ol>
 
           <div class="project-actions">
@@ -100,21 +100,21 @@
             <span class="project-type">Windows Server · PowerShell</span>
             <span class="project-state">Infrastructure Automation</span>
           </div>
-          <h3>Windows Infrastructure Automation Lab</h3>
+          <h3>Windows Infrastructure Automation</h3>
           <p class="project-summary">
-            Automatisiertes Drei-VM-Lab mit Hyper-V und AutomatedLab für Active Directory, Dateidienste,
-            Netzwerk, Gruppenrichtlinien und eine überprüfbare Windows-Sicherheitsbaseline.
+            Reproduzierbare Windows-Infrastruktur aus Domain Controller, Datei-/DHCP-Server und Client.
+            Hyper-V und AutomatedLab übernehmen die Bereitstellung, PowerShell konfiguriert AD, Rechte, Netzwerk, GPOs und Sicherheitsmaßnahmen.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im Windows Infrastructure Lab">
+          <div class="tag-list" aria-label="Technologien im Windows-Infrastruktur-Projekt">
             <span>Hyper-V</span><span>AutomatedLab</span><span>Active Directory</span><span>PowerShell</span><span>GPO</span>
           </div>
 
           <ol class="project-points">
-            <li><strong>Bereitstellung:</strong> Domain Controller, Datei-/DHCP-Server und Windows-Client werden reproduzierbar aufgebaut.</li>
-            <li><strong>Identitäten & Rechte:</strong> OU-Struktur, Benutzer, Gruppen, AGDLP sowie SMB- und NTFS-Berechtigungen werden automatisiert konfiguriert.</li>
-            <li><strong>Netzwerk & GPO:</strong> DNS, DHCP, NAT und rollenbezogene Netzlaufwerke greifen als zusammenhängende Infrastruktur ineinander.</li>
-            <li><strong>Sicherheit & Prüfung:</strong> Firewall, Defender, SMB-Härtung und abschließende Sollzustandsprüfungen ergänzen die Bereitstellung.</li>
+            <li><strong>Infrastruktur:</strong> Domain Controller, Datei-/DHCP-Server und Windows-Client werden reproduzierbar bereitgestellt.</li>
+            <li><strong>Active Directory & Rechte:</strong> OU-Struktur, Benutzer, Gruppen, AGDLP sowie SMB- und NTFS-Berechtigungen werden automatisiert konfiguriert.</li>
+            <li><strong>Netzwerk & Benutzerumgebung:</strong> DNS, DHCP, NAT und rollenbezogene Netzlaufwerke greifen als zusammenhängende Infrastruktur ineinander.</li>
+            <li><strong>Sicherheit & Prüfung:</strong> Firewall, Defender, SMB-Härtung und Sollzustandsprüfungen ergänzen die Bereitstellung.</li>
           </ol>
 
           <div class="project-actions">
@@ -126,15 +126,15 @@
         <article class="project-card">
           <div class="project-topline">
             <span class="project-type">Docker · DevOps</span>
-            <span class="project-state">Operations Lab</span>
+            <span class="project-state">Container Operations</span>
           </div>
-          <h3>Docker Portfolio Lab</h3>
+          <h3>Docker Operations & DevOps</h3>
           <p class="project-summary">
-            Container- und Betriebs-Lab mit Web-App, Redis, NGINX, HTTPS, Healthchecks, Backup/Restore,
+            Container- und Betriebsprojekt mit Web-App, Redis, NGINX, HTTPS, Healthchecks, Backup/Restore,
             Security-Grundlagen und CI/CD.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im Docker Lab">
+          <div class="tag-list" aria-label="Technologien im Docker-Projekt">
             <span>Docker</span><span>NGINX</span><span>Redis</span><span>GitHub Actions</span>
           </div>
 
@@ -153,15 +153,15 @@
         <article class="project-card">
           <div class="project-topline">
             <span class="project-type">Monitoring · Operations</span>
-            <span class="project-state">Sensor Simulation</span>
+            <span class="project-state">Monitoring & Alerting</span>
           </div>
-          <h3>Grafana Monitoring & Sensor Operations Lab</h3>
+          <h3>Grafana Monitoring & Sensor Operations</h3>
           <p class="project-summary">
-            Monitoring-Lab mit Prometheus, Grafana, cAdvisor, Alerting, Webhook-Receiver und simulierten
+            Monitoring-Projekt mit Prometheus, Grafana, cAdvisor, Alerting, Webhook-Receiver und simulierten
             Sensorzuständen für nachvollziehbare Betriebs- und Fehlerbilder.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im Monitoring Lab">
+          <div class="tag-list" aria-label="Technologien im Monitoring-Projekt">
             <span>Prometheus</span><span>Grafana</span><span>Alerting</span><span>GeoJSON</span>
           </div>
 
@@ -172,22 +172,22 @@
           </ul>
 
           <div class="project-actions">
-            <a data-goatcounter-click="click-doc-grafana-monitoring" class="button primary" href="https://github.com/MarcF46/docker-portfolio-lab/blob/main/docs/operations/grafana-monitoring-lab.md" target="_blank" rel="noopener noreferrer">Monitoring Lab öffnen</a>
+            <a data-goatcounter-click="click-doc-grafana-monitoring" class="button primary" href="https://github.com/MarcF46/docker-portfolio-lab/blob/main/docs/operations/grafana-monitoring-lab.md" target="_blank" rel="noopener noreferrer">Monitoring öffnen</a>
           </div>
         </article>
 
         <article class="project-card">
           <div class="project-topline">
             <span class="project-type">Linux Administration</span>
-            <span class="project-state">Junior Admin Lab</span>
+            <span class="project-state">Linux Administration</span>
           </div>
-          <h3>Ubuntu Lab Baseline</h3>
+          <h3>Ubuntu Administration</h3>
           <p class="project-summary">
-            Linux-Admin-Lab mit Healthchecks, systemd, SSH, Firewall, Logs, Backup/Restore,
+            Linux-Administrationsprojekt mit Healthchecks, systemd, SSH, Firewall, Logs, Backup/Restore,
             Security-Basics und strukturierter Betriebsdiagnose.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im Ubuntu Lab">
+          <div class="tag-list" aria-label="Technologien im Ubuntu-Projekt">
             <span>Ubuntu</span><span>systemd</span><span>SSH</span><span>UFW</span><span>journalctl</span>
           </div>
 
@@ -205,15 +205,15 @@
         <article class="project-card">
           <div class="project-topline">
             <span class="project-type">Linux · Backup</span>
-            <span class="project-state">Recovery Lab</span>
+            <span class="project-state">Backup & Recovery</span>
           </div>
-          <h3>Linux Borg Backup & Restore Lab</h3>
+          <h3>Borg Backup & Restore</h3>
           <p class="project-summary">
-            Backup- und Recovery-Lab mit BorgBackup unter Linux/WSL2. Der Schwerpunkt liegt auf einem
+            Backup- und Recovery-Projekt mit BorgBackup unter Linux/WSL2. Der Schwerpunkt liegt auf einem
             vollständigen Ablauf von der Sicherung bis zur überprüften Wiederherstellung.
           </p>
 
-          <div class="tag-list" aria-label="Technologien im BorgBackup Lab">
+          <div class="tag-list" aria-label="Technologien im BorgBackup-Projekt">
             <span>BorgBackup</span><span>Linux</span><span>Backup</span><span>Restore</span>
           </div>
 
@@ -235,7 +235,7 @@
         <p class="eyebrow">Kompetenzbereiche</p>
         <h2>Was sich durch die Projekte zieht</h2>
         <p>
-          Die Labs sind unterschiedlich, folgen aber demselben Grundgedanken: Systeme nicht nur konfigurieren,
+          Die Projekte sind unterschiedlich, folgen aber demselben Grundgedanken: Systeme nicht nur konfigurieren,
           sondern Zustände prüfen, Änderungen nachvollziehbar machen und Fehler strukturiert eingrenzen.
         </p>
       </div>
@@ -278,7 +278,7 @@
         <div class="profile-links">
           <a data-goatcounter-click="click-github-profile" class="profile-link" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">
             <strong>GitHub</strong>
-            <span>Öffentliche Repositories und technische Labs</span>
+            <span>Öffentliche Repositories und technische Projekte</span>
           </a>
           <a data-goatcounter-click="click-linkedin-profile" class="profile-link" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">
             <strong>LinkedIn</strong>
