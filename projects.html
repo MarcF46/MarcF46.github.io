@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="assets/styles.css">
+  <title>Technische Projektberichte | IT-Portfolio</title>
+  <meta name="description" content="Technische Fallstudien der Praxis-Labs zu Microsoft 365, Windows, Docker, Monitoring und Linux.">
+</head>
+<body id="top">
+  <header class="site-header">
+    <nav class="nav" aria-label="Hauptnavigation">
+      <a class="logo" href="index.html#projects"><span class="logo-mark">MF</span><span>Marc Fahlbusch · Projektberichte</span></a>
+      <div class="nav-links"><a href="index.html#projects">Alle Labs</a><a href="index.html#skills">Kompetenzen</a><a href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div>
+    </nav>
+  </header>
+  <main>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Technische Projektdokumentation</p>
+        <h1>Projektberichte statt vollständiger Codefreigabe.</h1>
+        <p>Diese Berichte beschreiben eigenständig aufgebaute Lernumgebungen, technische Entscheidungen, Prüfschritte und Erkenntnisse. Die vollständigen Skripte, Konfigurationen und internen Arbeitsstände werden nicht generell öffentlich bereitgestellt. Bei einem Fachgespräch können Aufbau und Umsetzung erläutert und demonstriert werden.</p>
+        <p>Alle Projekte sind <strong>Labs</strong>, keine als produktionsreif freigegebenen Unternehmenslösungen.</p>
+      </div>
+      <div class="tag-list"><a href="#m365">Microsoft 365</a><a href="#windows">Windows-Infrastruktur</a><a href="#docker">Docker</a><a href="#monitoring">Monitoring</a><a href="#ubuntu">Ubuntu</a><a href="#borg">BorgBackup</a></div>
+    </section>
+    <section class="section" id="m365">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Microsoft 365 · PowerShell · Microsoft Graph</span><span class="project-state">Lifecycle-Automatisierung</span></div>
+        <h2>Microsoft 365 – Onboarding und Offboarding</h2>
+        <p>Praxis-Lab zur kontrollierten Bearbeitung von Joiner-/Leaver-Vorgängen. Der Schwerpunkt liegt auf dem Prozess, der Trennung der Verwaltungsdienste sowie überprüfbaren Änderungen.</p>
+        <h3>Prozess und Architektur</h3>
+        <ol>
+          <li>CSV-Eingabedaten einlesen und auf Pflichtfelder und Zielobjekte prüfen.</li>
+          <li>Geplante Änderungen als DryRun vor der Ausführung bewerten.</li>
+          <li>Freigegebene Benutzervorgänge über Microsoft Graph durchführen: Konto, Gruppen, Lizenzen.</li>
+          <li>Exchange-Verteilerlisten getrennt mit Exchange Online PowerShell bearbeiten.</li>
+          <li>Ergebnisse mit Verify-/Retry-Mechanismen prüfen und als Report dokumentieren.</li>
+        </ol>
+        <h3>Sicherheits- und Betriebsentscheidungen</h3>
+        <p>Zertifikatsbasierte App-only-Anmeldung, bewusster <code>-Execute</code>-Schalter, Prüfung der Eingangsdaten und getrennte Verwaltung von Graph-/Exchange-Objekten. Beim Offboarding werden Anmeldung und Sitzungen entzogen und Berechtigungen kontrolliert entfernt; ein Benutzerkonto wird nicht automatisch sofort gelöscht.</p>
+        <h3>Abgrenzung</h3>
+        <p>Ein vollständiger HR-gesteuerter Workflow mit IT-Freigabe, rollenbasierter Provisionierung, Intune/Autopilot, zentralem Secret-Management und Audit-Trail ist ein Entwicklungsziel, nicht der abgeschlossene Stand dieses Labs.</p>
+      </article>
+    </section>
+    <section class="section" id="windows">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Windows Server · Hyper-V · AutomatedLab</span><span class="project-state">Infrastruktur-Automatisierung</span></div>
+        <h2>Windows-Infrastruktur – Bereitstellung und Validierung</h2>
+        <p>Reproduzierbares Drei-VM-Lab aus Domain Controller, Datei-/DHCP-Server und Windows-Client. Aufbau und Konfiguration dienen dazu, Infrastrukturzusammenhänge praktisch nachzuweisen.</p>
+        <h3>Technischer Ablauf</h3>
+        <ol><li>Voraussetzungen und Konfiguration prüfen; virtuelle Maschinen in Hyper-V mit AutomatedLab bereitstellen.</li><li>Active Directory und OU-/Gruppenstruktur einrichten.</li><li>SMB-/NTFS-Berechtigungen und Fileserver-Freigaben konfigurieren.</li><li>DNS, DHCP, NAT und GPO-Netzlaufwerke abstimmen.</li><li>Firewall-, Defender- und Sicherheitsprüfungen sowie Sollzustandskontrollen durchführen.</li></ol>
+        <h3>Qualitätsnachweis</h3>
+        <p>Prüfskripte und definierte Kontrollpunkte trennen die reine Bereitstellung von der anschließenden Zustandsvalidierung. Produktiver Einsatz erfordert individuelle Netzwerk-, Sicherheits- und Berechtigungskonzepte.</p>
+      </article>
+    </section>
+    <section class="section" id="docker">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Docker · DevOps · CI/CD</span><span class="project-state">Container-Betrieb</span></div>
+        <h2>Docker – Betrieb, Sicherheit und Wiederherstellung</h2>
+        <p>Container-Lab mit Webanwendung, Redis, NGINX, Healthchecks, lokalem HTTPS, Backup/Restore und GitHub-Actions-Pipelines.</p>
+        <h3>Beispielhafte Prüffälle</h3>
+        <ol><li>Services und Abhängigkeiten mit Docker Compose bereitstellen.</li><li>Healthchecks, Logs und Readiness unabhängig vom reinen Containerstatus bewerten.</li><li>Redis-Ausfälle simulieren und Wiederherstellbarkeit überprüfen.</li><li>Image-Scanning, Secret-Handling und Container-Härtung dokumentieren.</li></ol>
+        <p>Der Schwerpunkt ist nachvollziehbarer technischer Betrieb, nicht das Ausliefern eines fertigen Produkt-Stacks.</p>
+      </article>
+    </section>
+    <section class="section" id="monitoring">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Prometheus · Grafana · cAdvisor</span><span class="project-state">Monitoring und Alarmierung</span></div>
+        <h2>Monitoring – Zustände erkennen und Incidents bearbeiten</h2>
+        <p>Überwachung eines Docker-Labs mit Prometheus, Grafana, Webhook-Receiver, Alarmregeln und simulierten Sensorsignalen.</p>
+        <h3>Nachvollziehbare Tests</h3>
+        <ol><li>Metrik-Targets und Erreichbarkeit prüfen.</li><li>Störungen und Warnzustände gezielt simulieren.</li><li>Grafana-Dashboards, Alarme und Webhook-Zustellung verifizieren.</li><li>Ergebnisse und Fehlerbilder für einen betrieblichen Runbook-Ablauf dokumentieren.</li></ol>
+      </article>
+    </section>
+    <section class="section" id="ubuntu">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Ubuntu · systemd · SSH · UFW</span><span class="project-state">Linux-Administration</span></div>
+        <h2>Ubuntu – Betriebsbaseline und Fehlersuche</h2>
+        <p>Junior-Admin-Lab zu Benutzern und Rechten, Diensten, Netzwerk, Logging, Updates, Firewall, Backup-/Restore-Prüfungen und Security-Baselines.</p>
+        <h3>Diagnosemethode</h3>
+        <p>Die Störungsbearbeitung erfolgt strukturiert vom Systemstatus über Dienste, Ports, Firewall, Netzwerkpfad und Logs bis zur Konfiguration. Runbooks und Incident Cards halten die Schritte wiederholbar fest.</p>
+        <p>Die Orientierung an Sicherheitsgrundlagen stellt keine Zertifizierung oder vollständige BSI-Konformität dar.</p>
+      </article>
+    </section>
+    <section class="section" id="borg">
+      <article class="project-card">
+        <div class="project-topline"><span class="project-type">Linux · BorgBackup · Restore</span><span class="project-state">Datensicherung</span></div>
+        <h2>BorgBackup – Sicherung und erfolgreicher Restore</h2>
+        <p>Backup- und Wiederherstellungs-Lab unter Linux/WSL2 mit verschlüsseltem Borg-Repository und neutralen Testdaten.</p>
+        <h3>Validierter Ablauf</h3>
+        <ol><li>Backup-Repository initialisieren und Testdaten sichern.</li><li>Eine Quelldatei absichtlich löschen.</li><li>Datei aus dem Archiv in ein separates Verzeichnis wiederherstellen.</li><li>Inhalt prüfen und das Repository mit <code>borg check</code> kontrollieren.</li></ol>
+        <p>Ein Backup gilt erst nach einem erfolgreichen Restore-Test als praktisch überprüft.</p>
+      </article>
+    </section>
+    <section class="section">
+      <p><a class="button primary" href="index.html#projects">← Zur Projektübersicht</a></p>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Marc Fahlbusch · IT-Portfolio</span><a href="#top">Nach oben ↑</a></footer>
+</body>
+</html>
