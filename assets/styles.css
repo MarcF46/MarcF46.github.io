@@ -787,3 +787,8 @@ h3 {
   font-size: clamp(2.15rem, 4.5vw, 3.9rem);
   letter-spacing: -0.04em;
 }
+
+
+#topics .project-card {
+  border-color: rgba(11, 111, 220, 0.32);
+}
