@@ -557,3 +557,204 @@ h3 {
     flex-direction: column;
   }
 }
+
+
+/* Ergänzungen für die lernorientierte Website-Struktur */
+.hero-text-secondary {
+  margin-top: -0.85rem;
+  font-size: 1rem;
+}
+
+.share-note {
+  max-width: 760px;
+  margin: -0.8rem 0 2rem;
+  color: var(--text);
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.method-card {
+  padding: 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.method-card > span {
+  display: inline-grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  margin-bottom: 0.85rem;
+  border-radius: 0.7rem;
+  color: #ffffff;
+  background: var(--brand);
+  font-weight: 850;
+  font-size: 0.82rem;
+}
+
+.method-card h3 {
+  margin-bottom: 0.45rem;
+  font-size: 1.1rem;
+}
+
+.method-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.development-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+  padding: 1.75rem;
+  border: 1px solid rgba(11, 111, 220, 0.28);
+  border-radius: 28px;
+  background: linear-gradient(145deg, #ffffff 0%, #f3f9ff 100%);
+  box-shadow: var(--shadow);
+}
+
+.development-copy p {
+  color: var(--muted);
+}
+
+.active-state {
+  color: var(--brand-dark);
+  border-color: rgba(11, 111, 220, 0.28);
+  background: var(--surface-soft);
+}
+
+.workflow-card {
+  padding: 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.workflow-step {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.workflow-step strong,
+.workflow-step span {
+  display: block;
+}
+
+.workflow-step span {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.workflow-core {
+  border-color: rgba(11, 111, 220, 0.38);
+  background: var(--surface-soft);
+}
+
+.workflow-arrow {
+  padding: 0.42rem 0;
+  color: var(--brand);
+  text-align: center;
+  font-weight: 850;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.device-card {
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  min-height: 5.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.device-card > span {
+  font-size: 1.55rem;
+}
+
+.report-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.report-nav a {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand);
+  background: var(--surface);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.report-nav a:hover {
+  border-color: rgba(11, 111, 220, 0.38);
+  background: var(--surface-soft);
+}
+
+.report-hint {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.report-section {
+  display: none;
+  padding-top: 1rem;
+}
+
+.report-section:target {
+  display: block;
+}
+
+.report-section .project-card {
+  max-width: 980px;
+}
+
+.report-section .project-card > p,
+.report-section .project-card > ol {
+  color: var(--muted);
+}
+
+.report-workflow {
+  margin: 1.5rem 0;
+}
+
+.report-back {
+  padding-top: 1rem;
+}
+
+@media (max-width: 980px) {
+  .development-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .method-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .method-grid,
+  .device-grid {
+    grid-template-columns: 1fr;
+  }
+}
