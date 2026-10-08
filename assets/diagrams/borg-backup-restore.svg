@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">BorgBackup Sicherung und Wiederherstellung</title>
+  <desc id="desc">Quelldaten werden über ein Backup-Skript in ein verschlüsseltes Borg-Repository gesichert. Ein Restore-Test stellt Daten separat wieder her und Validierung prüft Inhalt und Repository.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0b6fdc"/>
+    </marker>
+    <style>
+      .bg{fill:#ffffff}
+      .box{fill:#ffffff;stroke:#dce5ef;stroke-width:2}
+      .accent{fill:#edf5ff;stroke:#0b6fdc;stroke-width:2}
+      .dark{fill:#142033}
+      .muted{fill:#607087}
+      .line{stroke:#0b6fdc;stroke-width:3;fill:none;marker-end:url(#arrow)}
+      .line-dashed{stroke:#0b6fdc;stroke-width:2.5;fill:none;stroke-dasharray:8 7;marker-end:url(#arrow)}
+      .title{font:700 30px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#142033}
+      .h{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#142033}
+      .t{font:500 17px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#607087}
+      .s{font:600 15px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#607087}
+      .label{font:700 15px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0b6fdc}
+    </style>
+  </defs>
+  <rect class="bg" width="100%" height="100%"/>
+
+  <text class="title" x="60" y="58">BorgBackup – Sicherung und Wiederherstellung</text>
+  <text class="t" x="60" y="88">Backup erst durch erfolgreichen Restore praktisch verifizieren</text>
+
+  <rect class="box" x="55" y="200" rx="18" ry="18" width="220" height="110"/>
+  <text class="h" x="104" y="242">Quelldaten</text>
+  <text class="t" x="88" y="274">Testdateien · Config</text>
+
+  <rect class="accent" x="345" y="200" rx="18" ry="18" width="235" height="110"/>
+  <text class="h" x="396" y="242">backup.sh</text>
+  <text class="t" x="380" y="274">Borg create · Log</text>
+
+  <rect class="accent" x="650" y="200" rx="18" ry="18" width="260" height="110"/>
+  <text class="h" x="695" y="242">Borg-Repository</text>
+  <text class="t" x="686" y="274">verschlüsselt · Archive</text>
+
+  <rect class="box" x="980" y="200" rx="18" ry="18" width="170" height="110"/>
+  <text class="h" x="1011" y="242">Restore</text>
+  <text class="t" x="1005" y="274">Testordner</text>
+
+  <path class="line" d="M275 255 H345"/>
+  <path class="line" d="M580 255 H650"/>
+  <path class="line" d="M910 255 H980"/>
+
+  <rect class="box" x="810" y="430" rx="18" ry="18" width="300" height="105"/>
+  <text class="h" x="858" y="472">Validierung</text>
+  <text class="t" x="845" y="504">Inhalt prüfen · borg check</text>
+
+  <rect class="box" x="110" y="430" rx="18" ry="18" width="300" height="105"/>
+  <text class="h" x="163" y="472">Lab-Kontext</text>
+  <text class="t" x="152" y="504">Ubuntu unter WSL2</text>
+
+  <path class="line-dashed" d="M1065 310 V430"/>
+  <path class="line-dashed" d="M780 310 L900 430"/>
+  <text class="label" x="875" y="370">Restore prüfen</text>
+</svg>
