@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Microsoft 365 Lifecycle Automation | Technische Fallstudie – Marc Fahlbusch</title>
+  <meta name="description" content="Technische Fallstudie eines PowerShell-Labs für Microsoft 365 Onboarding und Offboarding: Architektur, Graph, Exchange Online, Validierung, Sicherheit, Fehleranalyse und Roadmap.">
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/m365-case-study.css">
+</head>
+<body id="top" class="case-page">
+  <a class="skip-link" href="#main">Zum Hauptinhalt springen</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Hauptnavigation">
+      <a class="logo" href="index.html" aria-label="Zur Portfolio-Startseite"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Portfolio</span></a>
+      <div class="nav-links">
+        <a href="index.html#projects">Alle Labs</a>
+        <a href="projects.html">Projektberichte</a>
+        <a class="nav-button" href="index.html#profiles">Kontakt &amp; Profile</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="case-hero" aria-labelledby="case-title">
+      <div class="case-hero-inner">
+        <div class="case-breadcrumb"><a href="index.html#projects">Praxisprojekte</a><span aria-hidden="true">/</span><span>Microsoft 365</span></div>
+        <div class="case-kicker"><span class="case-dot" aria-hidden="true"></span> Technische Fallstudie · Praxis-Lab</div>
+        <h1 id="case-title">Microsoft 365<br><span>Lifecycle Automation</span></h1>
+        <p class="case-lead">Benutzer nicht einfach nur anlegen oder sperren: Änderungen <strong>vorher prüfen</strong>, <strong>kontrolliert ausführen</strong> und den Zielzustand <strong>nachvollziehbar dokumentieren</strong>.</p>
+        <div class="case-tags" aria-label="Verwendete Technologien"><span>PowerShell 7</span><span>Microsoft Graph</span><span>Exchange Online</span><span>Entra ID</span><span>App-only</span></div>
+        <div class="case-hero-actions">
+          <a class="button primary" href="#architecture">Architektur ansehen ↓</a>
+          <a class="button case-outline" href="#roadmap">Entwicklungsroadmap</a>
+        </div>
+        <p class="case-hero-disclaimer">Status: <strong>Lab-Prototyp mit dokumentierten Funktionstests</strong>. Kein freigegebenes Enterprise-System. Die vollständige Implementierung liegt in privaten Repositories.</p>
+      </div>
+    </section>
+
+    <section class="case-content" aria-label="Projektüberblick">
+      <div class="case-facts">
+        <div class="case-fact"><span>Ausgangspunkt</span><strong>CSV-basierter Admin-Prozess</strong><small>Strukturierte Benutzerdaten statt Einzelbefehle</small></div>
+        <div class="case-fact"><span>Technisches Prinzip</span><strong>Plan → Execute → Verify</strong><small>Bewusst ausgelöste Änderungen</small></div>
+        <div class="case-fact"><span>Implementierte Prozesse</span><strong>Joiner &amp; Leaver</strong><small>Mover als späterer Ausbauschritt</small></div>
+        <div class="case-fact"><span>Veröffentlichung</span><strong>Architektur öffentlich</strong><small>Quellcode und interne Testdaten privat</small></div>
+      </div>
+
+      <div class="case-section-heading" id="overview">
+        <span class="case-overline">01 / Die Aufgabenstellung</span>
+        <h2>Wiederholbare Änderungen statt manueller Einzelarbeit.</h2>
+        <p>Im Microsoft-365-Betrieb müssen Identitäten, Lizenzen, Gruppen und Exchange-Objekte aufeinander abgestimmt werden. Das Lab untersucht, wie sich typische Eintritts- und Austrittsvorgänge durch PowerShell in prüfbare Arbeitsschritte zerlegen lassen.</p>
+      </div>
+      <div class="case-two-col">
+        <article class="case-panel"><div class="case-panel-number">01</div><h3>Joiner · Eintritt</h3><p>Benutzer aus strukturierten Datensätzen prüfen, bei Bedarf anlegen, Nutzungsland, Lizenz und geeignete Gruppenmitgliedschaften setzen.</p><p class="case-micro">Microsoft Graph für Identitätsobjekte · Exchange Online für Verteilerlisten</p></article>
+        <article class="case-panel"><div class="case-panel-number">02</div><h3>Leaver · Austritt</h3><p>Anmeldung blockieren, Sitzungen widerrufen, Gruppen und Verteilerlisten bereinigen sowie direkte Lizenzen entziehen – ohne sofortiges Löschen des Kontos.</p><p class="case-micro">Kontrollierter Rechteentzug · nachgelagerte Prüfung</p></article>
+      </div>
+    </section>
+
+    <section class="case-band" id="architecture" aria-labelledby="architecture-title">
+      <div class="case-band-inner">
+        <div class="case-section-heading">
+          <span class="case-overline">02 / Architektur</span>
+          <h2 id="architecture-title">Zwei Verwaltungsdienste.<br>Ein nachvollziehbarer Lifecycle.</h2>
+          <p>Microsoft Graph und Exchange Online sind funktional getrennt. Genau diese Grenze ist im Lab eine zentrale Architekturentscheidung.</p>
+        </div>
+        <figure class="case-architecture" aria-labelledby="arch-label">
+          <figcaption id="arch-label">Vereinfachter logischer Datenfluss – die Bausteine sind bislang separate PowerShell-Skripte, noch keine durchgängige Workflow-Orchestrierung.</figcaption>
+          <div class="architecture-intake">
+            <div class="arch-node arch-input"><span class="arch-eyebrow">01 · Eingang</span><strong>CSV-Datensatz</strong><small>Benutzer · Rolle · Gruppen · Lizenz</small></div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-node arch-check"><span class="arch-eyebrow">02 · Vorprüfung</span><strong>Validierung &amp; DryRun</strong><small>Pflichtfelder · Zielobjekte · Planung</small></div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+            <div class="arch-node arch-gate"><span class="arch-eyebrow">03 · Bedienentscheidung</span><strong>Manuelle Prüfung + -Execute</strong><small>Ausführung ausdrücklich aktivieren</small></div>
+            <div class="arch-arrow" aria-hidden="true">↓</div>
+          </div>
+          <div class="arch-branches">
+            <div class="arch-node arch-service arch-graph">
+              <span class="arch-eyebrow">04A · Identität und Gruppen</span>
+              <strong>Microsoft Graph</strong>
+              <ul><li>Benutzerkonten</li><li>Lizenzen</li><li>Sicherheitsgruppen</li><li>Microsoft-365-Gruppen</li></ul>
+            </div>
+            <div class="arch-node arch-service arch-exchange">
+              <span class="arch-eyebrow">04B · Mailbezogene Objekte</span>
+              <strong>Exchange Online</strong>
+              <ul><li>Empfängerprüfung</li><li>Verteilerlisten</li><li>Mitgliedschaftsverwaltung</li><li>Retry / Sichtbarkeitsprüfung</li></ul>
+            </div>
+          </div>
+          <div class="architecture-outcome"><div class="arch-arrow" aria-hidden="true">↓</div><div class="arch-node arch-result"><span class="arch-eyebrow">05 · Ergebnis</span><strong>Nachprüfung &amp; Markdown-Report</strong><small>Verarbeitete Schritte und beobachteter Zielzustand</small></div></div>
+        </figure>
+        <p class="case-note"><strong>Architekturgrenze:</strong> Eine einheitliche Freigabe-Engine, transaktionale Rollbacks und eine zentrale Ablaufsteuerung sind noch <em>nicht</em> implementiert. Die Grafik zeigt die fachliche Abfolge der vorhandenen Einzelbausteine.</p>
+      </div>
+    </section>
+
+    <section class="case-content" id="capabilities">
+      <div class="case-section-heading">
+        <span class="case-overline">03 / Funktionsumfang</span>
+        <h2>Umgesetzt, erprobt, geplant – klar getrennt.</h2>
+        <p>Eine belastbare Projektdarstellung unterscheidet implementierte Funktionen von dokumentierten Tests und offenen Entwicklungsaufgaben.</p>
+      </div>
+      <div class="case-table-wrap"><table class="case-capabilities">
+        <caption>Funktionsstand des M365-Labs auf Basis von Skripten und Entwicklungsdokumentation</caption>
+        <thead><tr><th scope="col">Bereich</th><th scope="col">Technischer Umfang</th><th scope="col">Stand</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">CSV &amp; DryRun</th><td>Eingabedaten und Ziele prüfen, Aktionen planen, Report erzeugen</td><td><span class="case-status done">Implementiert</span></td></tr>
+          <tr><th scope="row">Graph-Onboarding</th><td>Benutzeranlage, Nutzungsland, direkte Lizenzen, Graph-Gruppen</td><td><span class="case-status done">Implementiert</span></td></tr>
+          <tr><th scope="row">Graph-Offboarding</th><td>Anmeldung, Sitzungen, Gruppen und direkte Lizenzen bearbeiten</td><td><span class="case-status done">Implementiert</span></td></tr>
+          <tr><th scope="row">Exchange-Verteilerlisten</th><td>Getrennter Joiner-/Leaver-Baustein inklusive Nachprüfung</td><td><span class="case-status done">Implementiert</span></td></tr>
+          <tr><th scope="row">Nachweisberichte</th><td>Markdown-Reports und lesende Bestandsübersicht</td><td><span class="case-status done">Implementiert</span></td></tr>
+          <tr><th scope="row">Retry &amp; Verify</th><td>Für ausgewählte cloudbedingte Verzögerungen und Fehlerfälle</td><td><span class="case-status partial">Teilweise</span></td></tr>
+          <tr><th scope="row">Zentraler Workflow</th><td>Orchestrierung über Graph und Exchange, Freigabe und Statusführung</td><td><span class="case-status planned">Geplant</span></td></tr>
+          <tr><th scope="row">Rollback / Recovery</th><td>Verlässliche Rückabwicklung von Teilfehlern und Wiederanlauf</td><td><span class="case-status planned">Geplant</span></td></tr>
+          <tr><th scope="row">Mover &amp; Endgeräte</th><td>Rollenwechsel, Intune, Autopilot und Gerätebereitstellung</td><td><span class="case-status planned">Geplant</span></td></tr>
+        </tbody>
+      </table></div>
+      <p class="case-note">„Implementiert“ bedeutet: entsprechende Logik ist im privaten Lab-Code vorhanden; es ist <strong>keine</strong> Aussage über Produktionsfreigabe, flächendeckende automatisierte Tests oder garantierte Ausfallsicherheit.</p>
+    </section>
+
+    <section class="case-band case-band-white" id="decisions">
+      <div class="case-band-inner">
+        <div class="case-section-heading"><span class="case-overline">04 / Architekturentscheidungen</span><h2>Warum die Schutzmechanismen wichtig sind.</h2></div>
+        <div class="case-three-col">
+          <article class="case-decision"><span class="case-decision-icon" aria-hidden="true">01</span><h3>Default: keine Änderung</h3><p>Ohne <code>-Execute</code> bleibt der Prozess im Planungsmodus. Der Schreibzugriff benötigt eine bewusste Entscheidung.</p></article>
+          <article class="case-decision"><span class="case-decision-icon" aria-hidden="true">02</span><h3>Zertifikat statt Passwort</h3><p>Graph- und Exchange-Bausteine verwenden eine App-only-Anmeldung mit Zertifikat für wiederholbare Administrationsabläufe.</p></article>
+          <article class="case-decision"><span class="case-decision-icon" aria-hidden="true">03</span><h3>Zielzustand prüfen</h3><p>Asynchrone Cloud-Änderungen können verzögert sichtbar sein. Deshalb reichen erfolgreiche Schreibbefehle allein nicht als Nachweis.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-content" id="incidents">
+      <div class="case-section-heading"><span class="case-overline">05 / Fehleranalyse aus dem Lab</span><h2>Interessant wird Automatisierung dort, wo etwas nicht wie geplant läuft.</h2><p>Zwei dokumentierte Situationen waren besonders lehrreich. Beide führten zu konkreten technischen Konsequenzen.</p></div>
+      <div class="case-two-col">
+        <article class="case-incident"><div class="incident-label">Fallstudie A · Microsoft Graph</div><h3>Directory_ConcurrencyViolation</h3><p>Beim Lizenzentzug meldete Microsoft Graph einen Konflikt, während andere Offboarding-Schritte bereits erfolgreich waren. Eine spätere Zustandsprüfung zeigte, dass die Lizenz dennoch entfernt worden war.</p><div class="incident-lesson"><strong>Konsequenz</strong><span>Fehlerbehandlung muss zwischen Rückgabewert und tatsächlichem Zielzustand unterscheiden. Zeitversetzte Verifikation und gezielte Wiederholungen sind entscheidend.</span></div></article>
+        <article class="case-incident"><div class="incident-label">Fallstudie B · Exchange Online</div><h3>Empfängertyp nach Lizenzentzug</h3><p>Nach Entfernen einer Lizenz war eine Verteilerlistenmitgliedschaft noch sichtbar, die bisherige primäre SMTP-Adresse aber nicht mehr zuverlässig verfügbar. Der Eintrag erschien als <code>DisabledUser</code>.</p><div class="incident-lesson"><strong>Konsequenz</strong><span>Verteilerlisten nach Möglichkeit vor dem Lizenzentzug bereinigen; im Ausnahmefall über stabile Identifikatoren statt ausschließlich über SMTP suchen.</span></div></article>
+      </div>
+    </section>
+
+    <section class="case-band" id="roadmap">
+      <div class="case-band-inner">
+        <div class="case-section-heading"><span class="case-overline">06 / Entwicklungsroadmap</span><h2>Vom funktionalen Lab zum betrieblich kontrollierten System.</h2><p>Die Roadmap beschreibt die technische Priorität – keine Behauptung, dass die folgenden Bausteine bereits fertig sind.</p></div>
+        <ol class="case-roadmap">
+          <li><span class="case-roadmap-step">01</span><div><strong>Konfiguration und Berechtigungen härten</strong><p>Tenant-/App-Parameter aus dem Code lösen, Zertifikats- und Berechtigungsmodell prüfen, Geheimnisprüfung und Testumgebung standardisieren.</p></div><span class="roadmap-stage">Nächster Schritt</span></li>
+          <li><span class="case-roadmap-step">02</span><div><strong>Zuverlässigkeit und Recovery nachweisen</strong><p>Idempotenz, einheitliche Retry-/Verify-Regeln, Fehlerklassen, ausführliche Tests und einen realen Rollback-/Wiederanlaufmechanismus entwickeln.</p></div><span class="roadmap-stage">Ausbau</span></li>
+          <li><span class="case-roadmap-step">03</span><div><strong>Joiner–Mover–Leaver orchestrieren</strong><p>Freigaben, Rollenprofile, Schrittprotokolle, konsistente Graph-/Exchange-Reihenfolge und einen zentralen Workflow ergänzen.</p></div><span class="roadmap-stage">Ausbau</span></li>
+          <li><span class="case-roadmap-step">04</span><div><strong>Hybrid- und Geräte-Lifecycle erweitern</strong><p>Intune/Autopilot, Endgeräte, anwendungsbezogene Berechtigungen und weitere Unternehmensdienste an ein kontrolliertes Zielbild anbinden.</p></div><span class="roadmap-stage">Zielbild</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="case-content" id="evidence">
+      <div class="case-section-heading"><span class="case-overline">07 / Technische Einordnung und Nachweise</span><h2>Was die Arbeit zeigt – und was nicht.</h2></div>
+      <div class="case-two-col">
+        <article class="case-panel"><h3>Nachvollziehbare Lab-Arbeit</h3><ul class="case-bullets"><li>PowerShell-Bausteine für Identitäten, Gruppen und Lizenzen</li><li>Getrennte Exchange-Online-Verteilerlistenverwaltung</li><li>CSV-Validierung, Planungsmodus und Ausführungsgrenze</li><li>Markdown-Reports und dokumentierte Lab-Testfälle</li><li>Analysierte Sonderfälle statt ausschließlich Happy-Path-Betrachtung</li></ul></article>
+        <article class="case-panel"><h3>Bewusste Grenzen</h3><ul class="case-bullets"><li>Keine Produktivfreigabe oder garantierte Fehlerfreiheit</li><li>Kein vollständig automatisiertes Freigabeverfahren</li><li>Kein fertig implementierter Rollback</li><li>Keine zentrale Mover- oder Endgerätebereitstellung</li><li>Kein öffentliches Repository mit Quellcode oder Tenantdetails</li></ul></article>
+      </div>
+      <div class="case-closing"><div><span class="case-overline">Projektprinzip</span><blockquote>„Eine erfolgreiche API-Antwort ist noch kein verifizierter Zielzustand.“</blockquote><p>Das Lab ist die Grundlage für den nächsten Schritt: sicherer, wiederholbarer Microsoft-365-Betrieb mit nachvollziehbaren Entscheidungen.</p></div><div class="case-closing-actions"><a class="button primary" href="index.html#projects">Zur Projektübersicht</a><a class="button secondary" href="projects.html">Weitere Fallstudien</a></div></div>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Marc Fahlbusch · Microsoft 365 Lifecycle Automation · Praxis-Lab</span><a href="#top">Nach oben ↑</a></footer>
+</body>
+</html>
