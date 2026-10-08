@@ -792,3 +792,58 @@ h3 {
 #topics .project-card {
   border: 1px solid rgba(11, 111, 220, 0.32);
 }
+
+.device-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.4rem;
+  color: var(--brand);
+}
+
+.device-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.device-icon circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+
+/* Lifecycle Automation: Schritt 4 – Parallelisierung */
+.workflow-parallel-note {
+  padding: 0.9rem 1rem;
+  margin: 0.15rem 0 0.8rem;
+  border: 1px solid rgba(11, 111, 220, 0.32);
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.workflow-parallel-note strong,
+.workflow-parallel-note span {
+  display: block;
+}
+
+.workflow-parallel-note strong {
+  margin-bottom: 0.25rem;
+}
+
+.workflow-parallel-note span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.workflow-parallel-note .device-grid {
+  margin-top: 0.9rem;
+}
