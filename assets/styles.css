@@ -781,3 +781,9 @@ h3 {
   color: var(--muted);
   font-size: 0.93rem;
 }
+
+
+.hero-title {
+  font-size: clamp(2.15rem, 4.5vw, 3.9rem);
+  letter-spacing: -0.04em;
+}
