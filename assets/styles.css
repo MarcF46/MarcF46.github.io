@@ -758,3 +758,26 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
+
+
+.architecture-figure {
+  margin: 1rem 0 2rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(20, 32, 51, 0.05);
+}
+
+.architecture-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.architecture-figure figcaption {
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
