@@ -164,6 +164,14 @@ h3 {
   font-size: clamp(1.08rem, 2vw, 1.28rem);
 }
 
+.hero-greeting {
+  margin: -0.4rem 0 1.45rem;
+  color: var(--text);
+  font-size: clamp(1.05rem, 1.7vw, 1.22rem);
+  font-weight: 400;
+}
+
+
 .hero-actions,
 .project-actions {
   display: flex;
