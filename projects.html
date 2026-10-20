@@ -81,14 +81,14 @@
         </p>
         <figure class="architecture-figure lab-architecture-figure">
           <div class="responsive-diagram-viewport" role="region" tabindex="0" aria-label="Architekturdiagramm: auf kleinen Bildschirmen seitlich verschieben">
-            <a href="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" target="_blank" rel="noopener noreferrer" aria-label="Architektur mit FRITZ!Box, Hyper-V und optionalen NAT-Stufen in voller Größe öffnen">
-              <img src="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" alt="Geplante OPNsense-Lab-Architektur: links der physische Windows-Admin-Laptop mit Hyper-V, Visual Studio Code und PowerShell; zentral die Internetanbindung über eine physische FRITZ!Box zum Hyper-V-WAN-vSwitch und zur OPNsense-VM sowie getrennte Management-, Benutzer- und Servernetze. Ein zusätzlicher NAT-Hop und eine lokale WireGuard-Testpeer-VM sind optional. Rechts steht die Legende." width="1760" height="1120" loading="eager" decoding="async">
+            <a href="assets/diagrams/opnsense-firewall-lab-architektur-final.svg" target="_blank" rel="noopener noreferrer" aria-label="Geplante Netzwerkarchitektur des OPNsense-Firewall-Labs als SVG in voller Größe öffnen">
+              <img src="assets/diagrams/opnsense-firewall-lab-architektur-final.svg" alt="Geplante OPNsense-Firewall-Lab-Architektur: links Admin-PC als Hyper-V-Host mit VS Code, PowerShell, SSH und WebGUI; mittig Hyper-V, OPNsense-VM sowie getrennte Management-, Benutzer- und Servernetze, Zabbix, optionales WireGuard-Testlab und optionaler NAT-Hop; rechts die Legende und unten die Lernschwerpunkte." width="1672" height="941" loading="eager" decoding="async">
             </a>
           </div>
           <figcaption>
-            Geplante Architektur mit physischer FRITZ!Box, Hyper-V und OPNsense. Gestrichelte Komponenten sind optional: zusätzliche NAT-Stufen und eine WireGuard-Test-VM im getrennten WAN-Testnetz. Ein vSwitch führt selbst kein NAT aus. Die tatsächlich verwendete WAN-Anbindung wird beim Aufbau überprüft.
+            Geplante Gesamtarchitektur des Firewall-Labs mit zentraler Administration, Netzwerksegmentierung, Monitoring und optionalen Erweiterungen. Der WAN-vSwitch übernimmt selbst kein NAT; ein physischer Internetrouter und mögliche weitere NAT-Stufen sind in dieser Übersicht vereinfacht dargestellt. Die einzelnen Komponenten werden während der praktischen Umsetzung geprüft.
             <span class="diagram-mobile-hint">Auf dem Smartphone das Diagramm seitlich verschieben oder in voller Größe öffnen.</span>
-            <a href="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" target="_blank" rel="noopener noreferrer">Architekturdiagramm groß öffnen ↗</a>
+            <a href="assets/diagrams/opnsense-firewall-lab-architektur-final.svg" target="_blank" rel="noopener noreferrer">SVG-Architektur in voller Größe öffnen ↗</a>
           </figcaption>
         </figure>
 
