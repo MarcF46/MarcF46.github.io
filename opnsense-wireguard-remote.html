@@ -62,8 +62,11 @@
         Dafür sind zwei Stufen geplant: Zuerst simuliert eine separate virtuelle Maschine
         einen entfernten VPN-Client auf der WAN-Seite. Erst nachdem das Grundlab stabil
         funktioniert, folgt als freiwillige zweite Übung ein <strong>echter externer Zugriff
-        mit einem Smartphone über dessen eigene mobilen Daten</strong>. Ein zweiter Laptop
-        und ein Smartphone-Hotspot sind dafür nicht erforderlich.
+        mit einem Smartphone über dessen eigene mobilen Daten</strong>. Ursprünglich
+        hatte ich überlegt, einen zweiten Laptop über den Hotspot des Smartphones zu verbinden.
+        Für dieses Lernziel genügt jedoch das Smartphone selbst: WireGuard-App für den Tunnel,
+        Browser für den ausdrücklich freigegebenen Testzugang. So bleibt die Übung möglichst
+        einfach und benötigt kein zweites Gerät.
       </p>
 
       <h2>Architektur: vom Smartphone bis zur Firewall</h2>
@@ -212,7 +215,6 @@
         <li><strong>Troubleshooting:</strong> Handshake-Probleme, Paketverlust, fehlende Rückrouten und selbst verursachte Sperren systematisch eingrenzen.</li>
         <li><strong>Betriebssicherheit:</strong> Änderungen testen, protokollieren und rückgängig machen können.</li>
       </ul>
-      <p class="article-availability"><strong>Projektstatus:</strong> Dieses Zusatzmodul ist konzipiert, aber noch nicht praktisch umgesetzt. Zuerst wird das reguläre OPNsense-Firewall-Lab stabil aufgebaut und geprüft.</p>
 
       <h2>Quellen und weiterführende Dokumentation</h2>
       <ul class="source-list">
