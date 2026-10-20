@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 940" width="1600" height="940" role="img" aria-labelledby="title desc">
+<title id="title">Geplante Architektur des OPNsense-Firewall-Labs</title>
+<desc id="desc">Schematische Netzwerkarchitektur: zentraler Windows-Hyper-V-Host mit Visual Studio Code und PowerShell für Remote-Administration per SSH und WebGUI. Eine OPNsense-VM verbindet über virtuelle Switches das WAN mit getrennten Management-, Benutzer- und Servernetzen. Zabbix dient der Überwachung; WireGuard ermöglicht geplanten VPN-Zugriff.</desc>
+<defs>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#2563a1"/></marker>
+<marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#168d68"/></marker>
+</defs>
+<rect x="0" y="0" width="1600" height="940" rx="0" fill="#f7faff" stroke="#f7faff" stroke-width="2" />
+<rect x="20" y="14" width="1560" height="105" rx="20" fill="#ffffff" stroke="#e1eafa" stroke-width="2" />
+<text x="55" y="59" font-family="Arial,Helvetica,sans-serif" font-size="41" font-weight="750" text-anchor="start" fill="#0c2b4a" >OPNsense-Firewall-Lab</text>
+<text x="57" y="89" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#536d87" >Geplante Architektur  ·  Hyper-V  ·  zentrale Administration  ·  segmentierte Netze</text>
+<rect x="40" y="188" width="399" height="585" rx="24" fill="#f0f6ff" stroke="#b9d2f2" stroke-width="2" />
+<text x="66" y="225" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="750" text-anchor="start" fill="#164a7d" >ADMIN-PC / HYPER-V-HOST</text>
+<text x="66" y="260" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="500" text-anchor="start" fill="#526981" >Eine zentrale Arbeitsstation</text>
+<rect x="67" y="283" width="345" height="91" rx="15" fill="#fff" stroke="#cedff2" stroke-width="2" />
+<text x="90" y="319" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#175f9f" >Visual Studio Code</text>
+<text x="90" y="348" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#627b96" >Skripte · Dateien · Dokumentation</text>
+<rect x="67" y="388" width="345" height="91" rx="15" fill="#fff" stroke="#cedff2" stroke-width="2" />
+<text x="90" y="425" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#175f9f" >PowerShell-Terminal</text>
+<text x="90" y="453" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#627b96" >Befehle · Rückmeldungen · Tests</text>
+<rect x="67" y="494" width="345" height="90" rx="15" fill="#fff" stroke="#cedff2" stroke-width="2" />
+<text x="90" y="531" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#175f9f" >SSH</text>
+<text x="90" y="558" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#627b96" >Remote-Zugriff auf Lab-Systeme</text>
+<rect x="67" y="599" width="345" height="92" rx="15" fill="#fff" stroke="#cedff2" stroke-width="2" />
+<text x="90" y="635" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" text-anchor="start" fill="#175f9f" >OPNsense-WebGUI</text>
+<text x="90" y="662" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#627b96" >Firewall-Konfiguration im Browser</text>
+<text x="67" y="735" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="600" text-anchor="start" fill="#526981" >Admin-Werkzeuge laufen auf dem Host.</text>
+<rect x="477" y="192" width="1082" height="620" rx="26" fill="#ffffff" stroke="#bfd1e6" stroke-width="2" />
+<text x="506" y="229" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="750" text-anchor="start" fill="#1c4a77" >HYPER-V: VIRTUELLE MASCHINEN UND vSWITCHES</text>
+<rect x="901" y="260" width="304" height="66" rx="17" fill="#e7f1fd" stroke="#6ca2d7" stroke-width="2" />
+<text x="1053" y="287" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="750" text-anchor="middle" fill="#175f9f" >WAN / NAT</text>
+<text x="1053" y="312" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="middle" fill="#59748e" >virtueller Switch</text>
+<rect x="879" y="369" width="343" height="184" rx="22" fill="#ecf5ff" stroke="#6f9ecd" stroke-width="2" />
+<text x="1051" y="410" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="800" text-anchor="middle" fill="#104e88" >OPNsense VM</text>
+<text x="1051" y="445" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="600" text-anchor="middle" fill="#294e74" >Firewall  ·  Routing  ·  NAT</text>
+<text x="1051" y="478" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="550" text-anchor="middle" fill="#526e89" >WAN  /  MGMT  /  USER  /  SERVER</text>
+<text x="1051" y="512" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="middle" fill="#526e89" >zentraler Übergang der Netzsegmente</text>
+<rect x="526" y="361" width="295" height="171" rx="20" fill="#effaf5" stroke="#92c8b0" stroke-width="2" />
+<text x="548" y="399" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="750" text-anchor="start" fill="#14694c" >Managementnetz</text>
+<text x="548" y="426" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#376f5a" >vSwitch · 192.168.120.0/24</text>
+<text x="548" y="463" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="550" text-anchor="start" fill="#234a3b" >Zugang für Administration</text>
+<text x="548" y="491" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="550" text-anchor="start" fill="#234a3b" >und Monitoring</text>
+<rect x="1257" y="365" width="277" height="168" rx="20" fill="#fff7ea" stroke="#edca85" stroke-width="2" />
+<text x="1281" y="403" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="750" text-anchor="start" fill="#a26416" >Benutzernetz</text>
+<text x="1281" y="433" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" text-anchor="start" fill="#856b45" >eigener vSwitch</text>
+<text x="1281" y="469" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="600" text-anchor="start" fill="#6e4e20" >Linux-Testclient</text>
+<text x="1281" y="496" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" text-anchor="start" fill="#856b45" >Beispielnetz</text>
+<rect x="1257" y="596" width="277" height="174" rx="20" fill="#fff2f2" stroke="#e7abab" stroke-width="2" />
+<text x="1281" y="634" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="750" text-anchor="start" fill="#a74747" >Servernetz</text>
+<text x="1281" y="664" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" text-anchor="start" fill="#976767" >eigener vSwitch</text>
+<text x="1281" y="700" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="600" text-anchor="start" fill="#8b4545" >Linux-Testserver</text>
+<text x="1281" y="729" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" text-anchor="start" fill="#976767" >Web- / Dienstetests</text>
+<rect x="526" y="599" width="294" height="169" rx="20" fill="#f0f8ff" stroke="#98bfdf" stroke-width="2" />
+<text x="547" y="636" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="750" text-anchor="start" fill="#17628b" >Zabbix-Monitoring</text>
+<text x="547" y="673" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="500" text-anchor="start" fill="#49738e" >Zustände · Alarmierung</text>
+<text x="547" y="704" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="500" text-anchor="start" fill="#49738e" >Auswertung im Lab</text>
+<text x="547" y="738" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="500" text-anchor="start" fill="#64879b" >geplante VM / Dienst</text>
+<rect x="910" y="130" width="295" height="75" rx="22" fill="#fff" stroke="#b8cfea" stroke-width="2" />
+<text x="1058" y="165" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#245780" >Internet / Upstream</text>
+<text x="1058" y="189" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="500" text-anchor="middle" fill="#69829c" >externer Netzwerkpfad</text>
+<rect x="1299" y="129" width="257" height="76" rx="22" fill="#effaf5" stroke="#8cc9b3" stroke-width="2" />
+<text x="1427" y="161" font-family="Arial,Helvetica,sans-serif" font-size="22" font-weight="700" text-anchor="middle" fill="#167558" >Externer Client</text>
+<text x="1427" y="189" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#168d68" >WireGuard VPN (geplant)</text>
+<path d="M1054 205 L1054 260" fill="none" stroke="#2563a1" stroke-width="5" marker-end="url(#arrow-blue)"/>
+<path d="M1205 169 L1299 169" fill="none" stroke="#168d68" stroke-width="3.5" stroke-dasharray="10 8" marker-end="url(#arrow-green)"/>
+<path d="M1054 326 L1054 369" fill="none" stroke="#2563a1" stroke-width="5" marker-end="url(#arrow-blue)"/>
+<path d="M821 452 L879 452" fill="none" stroke="#168d68" stroke-width="6" stroke-linecap="round"/>
+<path d="M1222 452 L1257 452" fill="none" stroke="#d49c30" stroke-width="6" stroke-linecap="round"/>
+<path d="M1165 553 V688 H1257" fill="none" stroke="#c75b5b" stroke-width="6"/>
+<path d="M439 445 H526" fill="none" stroke="#2563a1" stroke-width="4.5" stroke-dasharray="10 8" marker-end="url(#arrow-blue)"/>
+<text x="442" y="428" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="600" text-anchor="start" fill="#245780" >SSH / WebGUI</text>
+<path d="M672 532 L672 599" fill="none" stroke="#547ca2" stroke-width="4" stroke-linecap="round" stroke-dasharray="5 7"/>
+<path d="M820 675 H859 V515 H879" fill="none" stroke="#547ca2" stroke-width="4" stroke-dasharray="4 9"/>
+<rect x="40" y="836" width="1518" height="79" rx="17" fill="#ffffff" stroke="#d6e3ef" stroke-width="2" />
+<text x="68" y="868" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="750" text-anchor="start" fill="#244d76" >LEGENDE</text>
+<path d="M190 863 L261 863" fill="none" stroke="#2563a1" stroke-width="5" stroke-linecap="round"/>
+<text x="274" y="869" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#526b86" >Netzwerkpfad / Datenverkehr</text>
+<path d="M580 863 L651 863" fill="none" stroke="#2563a1" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 8"/>
+<text x="664" y="869" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#526b86" >Remote-Administration</text>
+<path d="M978 863 L1050 863" fill="none" stroke="#547ca2" stroke-width="4" stroke-linecap="round" stroke-dasharray="4 8"/>
+<text x="1064" y="869" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#526b86" >Monitoring</text>
+<text x="68" y="897" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start" fill="#627c96" >Zielbild; Komponenten und Verbindungen werden im Lab schrittweise umgesetzt und getestet.</text>
+</svg>
