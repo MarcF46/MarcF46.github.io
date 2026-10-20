@@ -1037,3 +1037,28 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   }
   .lab-architecture-figure .diagram-mobile-hint { display: block; }
 }
+
+/* Optionaler WireGuard-Lernweg und Unterartikel */
+.remote-module-link {margin:1.35rem 0 1.8rem;padding:1.15rem 1.3rem 1.3rem;border:1px solid rgba(11,111,220,.28);border-radius:15px;background:var(--surface-soft)}
+.remote-module-link .remote-module-label{display:block;font-size:.86rem;font-weight:750;color:var(--brand)}
+.remote-module-link h3{margin:.45rem 0 .4rem!important}
+.remote-module-link p{margin-bottom:1rem}
+.remote-module-link .button{width:auto;max-width:100%}
+.remote-story-section{padding-top:0}
+.remote-story{max-width:1010px;margin:0 auto}
+.remote-story h2{margin-top:2.1rem}
+.remote-story h2:first-of-type{margin-top:0}
+.remote-story .remote-compare,.remote-story .remote-stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1rem 0 1.6rem}
+.remote-story .remote-compare-card,.remote-story .remote-stages section{border:1px solid var(--line);border-radius:14px;padding:1rem 1.2rem;background:#f8fbff}
+.remote-story .remote-compare-card h3,.remote-story .remote-stages h3{margin:0 0 .65rem;font-size:1.04rem}
+.remote-story .remote-compare-card p,.remote-story .remote-stages p{margin:0}
+.remote-story .remote-skills{padding-left:1.4rem}
+.remote-story .remote-skills li{margin-bottom:.65rem}
+.remote-story .remote-architecture-figure{width:min(1260px,calc(100vw - 2rem))}
+.remote-story .remote-architecture-figure figcaption{font-size:.93rem}
+@media(max-width:760px){
+  .remote-story .remote-compare,.remote-story .remote-stages{grid-template-columns:1fr}
+  .remote-story .remote-architecture-figure .responsive-diagram-viewport img{min-width:1100px;width:1100px}
+  .remote-module-link{padding:1rem}
+  .remote-module-link .button{width:100%}
+}
