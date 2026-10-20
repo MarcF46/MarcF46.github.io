@@ -873,3 +873,37 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   .mobile-nav-links a:hover, .mobile-nav-links a:focus-visible { background: var(--surface-soft); }
 }
 @media (max-width: 420px) { .logo { font-size: .85rem; } .logo-mark { flex-shrink: 0; } }
+
+/* Datumsangaben und Einführung zu laufenden Lernprojekten – 20.10.2026 */
+.project-date {
+  margin: -0.25rem 0 1.15rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.project-date time { font-weight: 700; color: var(--text); }
+.project-card-in-progress {
+  background: linear-gradient(145deg, #fff 0%, #f3f9ff 100%);
+  border-color: rgba(11,111,220,0.48);
+}
+.project-card-in-progress .project-points strong { color: var(--text); }
+.report-section { scroll-margin-top: 5.75rem; }
+.lab-intro-article { max-width: 980px; }
+.lab-intro-article h3 { margin-top: 2rem; margin-bottom: .65rem; }
+.lab-intro-article h3:first-child { margin-top: 0; }
+.lab-intro-article p, .lab-intro-article li { line-height: 1.75; }
+.lab-intro-article .article-lead {
+  padding: 1.1rem 1.25rem;
+  border-left: 3px solid var(--brand);
+  background: var(--surface-soft);
+  border-radius: 0 12px 12px 0;
+  color: var(--text);
+}
+.lab-intro-article .article-takeaway { font-weight: 700; color: var(--text); }
+.lab-intro-article .article-status-note {
+  margin-top: 2rem; padding-top: 1.15rem;
+  border-top: 1px solid var(--line); font-size: .92rem; color: var(--muted);
+}
+.lab-intro-article .source-list a { color: var(--brand); overflow-wrap: anywhere; }
+.lab-intro-article ul { padding-left: 1.5rem; }
+.lab-intro-article li { margin-bottom: .45rem; }
