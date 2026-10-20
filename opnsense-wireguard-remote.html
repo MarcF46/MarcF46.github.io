@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/styles.css?v=20261020-5">
+  <title>WireGuard-Zusatzlab: Remote-Administration mit Smartphone | IT-Labs</title>
+  <meta name="description" content="Geplantes optionales WireGuard-Zusatzlab zum OPNsense-Firewall-Lab: sichere Remote-Administration, Smartphone über Mobilfunk, CGNAT und DS-Lite, Diagnosetraining und Enterprise-Sicherheitsstandards.">
+</head>
+<body id="top">
+  <header class="site-header">
+    <nav class="nav" aria-label="Hauptnavigation">
+      <a class="logo" href="index.html#topics">
+        <span class="logo-mark">MF</span>
+        <span>Marc Fahlbusch · Dokumentation</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#topics">Themen</a>
+        <a href="index.html#development">In Entwicklung</a>
+        <a href="index.html#about">Über mich</a>
+        <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <details class="mobile-menu">
+        <summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary>
+      <div class="mobile-nav-links">
+        <a href="index.html#topics">Themen</a>
+        <a href="index.html#development">In Entwicklung</a>
+        <a href="index.html#about">Über mich</a>
+        <a href="index.html#contact">Kontakt</a>
+        <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      </details>
+    </nav>
+  </header>
+<main>
+  <section class="section report-intro remote-article-intro">
+    <div class="section-heading">
+      <p class="eyebrow">OPNsense-Firewall-Lab · Optionales Zusatzmodul</p>
+      <h1>WireGuard: sicherer Remote-Zugriff auf die Firewall</h1>
+      <p>
+        Ein Administrator muss nicht vor dem Serverrack stehen, um eine Firewall zu verwalten.
+        In diesem Zusatzlab möchte ich nachvollziehen, wie ein geschützter Zugriff aus einem
+        fremden Netz funktioniert – zunächst virtuell, später mit einem Smartphone über
+        Mobilfunk. Das Grundlab bleibt davon unabhängig.
+      </p>
+      <p class="project-date">Stand: <time datetime="2026-10-20">20.10.2026</time> · <strong>In Planung</strong></p>
+      <p><a class="button" href="projects.html#opnsense">← Zum OPNsense-Hauptartikel</a></p>
+    </div>
+  </section>
+
+  <section class="section remote-story-section">
+    <article class="project-card lab-intro-article remote-story">
+      <h2>Die Idee: ein zusätzlicher Praxisfall</h2>
+      <p class="article-lead">
+        <strong>Aus einer Überlegung entsteht ein zweiter Lernweg:</strong>
+        Das Grundlab vermittelt die interne Administration von OPNsense über den
+        Hyper-V-Host, PowerShell, SSH und die WebGUI. Das zusätzliche WireGuard-Modul
+        soll zeigen, wie man eine Verbindung <em>aus einem anderen Netz</em> sicher
+        aufbaut, berechtigte Zugriffe begrenzt und typische Verbindungsfehler analysiert.
+      </p>
+      <p>
+        Dafür sind zwei Stufen geplant: Zuerst simuliert eine separate virtuelle Maschine
+        einen entfernten VPN-Client auf der WAN-Seite. Erst nachdem das Grundlab stabil
+        funktioniert, folgt als freiwillige zweite Übung ein <strong>echter externer Zugriff
+        mit einem Smartphone über dessen eigene mobilen Daten</strong>. Ein zweiter Laptop
+        und ein Smartphone-Hotspot sind dafür nicht erforderlich.
+      </p>
+
+      <h2>Architektur: vom Smartphone bis zur Firewall</h2>
+      <figure class="architecture-figure lab-architecture-figure remote-architecture-figure">
+        <div class="responsive-diagram-viewport" role="region" tabindex="0" aria-label="WireGuard-Architektur: auf kleinen Bildschirmen horizontal verschiebbar">
+          <a href="assets/diagrams/opnsense-wireguard-remote-zusatzlab.svg" target="_blank" rel="noopener noreferrer" aria-label="WireGuard-Architektur als große skalierbare SVG-Grafik öffnen">
+            <img src="assets/diagrams/opnsense-wireguard-remote-zusatzlab.svg" alt="Symmetrisches Diagramm mit drei Bereichen: links virtuelle VPN-Übung und Smartphone mit Mobilfunk; in der Mitte der geplante Weg über Mobilfunkanbieter, Internet, FRITZ!Box, Hyper-V-WAN-Switch und WireGuard-Endpunkt der OPNsense-VM zum erlaubten Managementnetz; rechts Schutzmaßnahmen, darunter vertrauenswürdige Admin-Geräte, MFA, Jump-Host, Backup und Notfallzugang." width="1690" height="1100" loading="eager" decoding="async">
+          </a>
+        </div>
+        <figcaption>
+          Schematisches Zielbild für die optionale Erweiterung. Die extern erreichbare
+          Verbindung hängt vom tatsächlichen Internetanschluss ab; mögliche zusätzliche
+          NAT-Stufen sind separat gekennzeichnet.
+          <span class="diagram-mobile-hint">Auf dem Smartphone innerhalb der Grafik seitlich wischen oder die große SVG-Ansicht öffnen.</span>
+          <a href="assets/diagrams/opnsense-wireguard-remote-zusatzlab.svg" target="_blank" rel="noopener noreferrer">Architektur in voller Größe ansehen ↗</a>
+        </figcaption>
+      </figure>
+
+      <h2>Warum ist Remote-Administration im Unternehmen üblich?</h2>
+      <p>
+        Administratoren verwalten Firewalls häufig über abgesicherte Managementverbindungen.
+        Das ermöglicht Fehlerdiagnosen, Wartung und kontrollierte Änderungen auch von anderen
+        Standorten oder außerhalb der regulären Arbeitszeit. Der Zugriff kann über die
+        Firewall selbst oder über ein separates VPN-Gateway beziehungsweise ein zentrales
+        Zugangssystem erfolgen. Entscheidend ist, dass er ausdrücklich freigegeben,
+        geschützt und nachvollziehbar ist.
+      </p>
+      <div class="remote-compare">
+        <div class="remote-compare-card">
+          <h3>Unsicher: WebGUI direkt im Internet</h3>
+          <p>Die Firewall-Administrationsoberfläche wäre ohne vorgelagerten geschützten
+          Zugang öffentlich erreichbar. Das vergrößert die Angriffsfläche unnötig
+          und ist für dieses Lab ausdrücklich nicht vorgesehen.</p>
+        </div>
+        <div class="remote-compare-card">
+          <h3>Geschützt: erst VPN, dann Managementzugang</h3>
+          <p>Der Administrator baut zunächst eine authentisierte, verschlüsselte
+          Verbindung auf. Danach erlauben getrennte Firewall-Regeln ausschließlich
+          die benötigten Dienste im Managementnetz. An der WebGUI ist weiterhin
+          eine eigene Anmeldung erforderlich.</p>
+        </div>
+      </div>
+
+      <h2>Die beiden geplanten Übungen</h2>
+      <div class="remote-stages">
+        <section>
+          <h3>Stufe 1 – Virtueller VPN-Client im Lab</h3>
+          <p>Eine zusätzliche VM simuliert den WireGuard-Client auf einer getrennten,
+          WAN-seitigen Teststrecke. Wir konfigurieren öffentliche und private
+          Schlüssel, Peers, Tunneladressen sowie gezielte Firewall-Regeln.
+          Anschließend prüfen wir den Handshake, die Erreichbarkeit und die
+          Rückrouten. Dafür muss kein Dienst aus dem öffentlichen Internet
+          erreichbar sein.</p>
+        </section>
+        <section>
+          <h3>Stufe 2 – Smartphone über das Mobilfunknetz</h3>
+          <p>Der Hyper-V-Laptop bleibt als Host im Heimnetz. Auf dem Smartphone
+          installieren wir die WireGuard-App, deaktivieren für den Test WLAN
+          und nutzen LTE oder 5G. Nach erfolgreichem Tunnelaufbau kann über
+          den Browser des Smartphones eine <em>gezielt freigegebene</em>
+          OPNsense-WebGUI im Managementnetz geöffnet werden. Als Übung wäre
+          höchstens eine vorher festgelegte, risikoarme und reversible Änderung
+          sinnvoll – mit überprüftem Rückweg zum Lab.</p>
+        </section>
+      </div>
+      <p>
+        <strong>Die zweite Stufe ist keine Pflicht.</strong> Bereits die interne
+        Übung vermittelt die entscheidenden VPN-Grundlagen. Der Mobilfunktest
+        erweitert sie um echte Internet-Erreichbarkeit, Provider-NAT und
+        Router-Freigaben.
+      </p>
+
+      <h2>Was passiert bei DS-Lite, CGNAT und dynamischer IP-Adresse?</h2>
+      <p>
+        Vor dem externen Test müssen wir den Internetanschluss prüfen.
+        Bei <strong>CGNAT (Carrier-Grade Network Address Translation)</strong>
+        teilen sich mehrere Kunden eine öffentliche IPv4-Adresse des Providers.
+        Bei <strong>DS-Lite (Dual-Stack Lite)</strong> wird IPv4-Verkehr über
+        IPv6 zum Provider-Gateway übertragen. In diesen Konstellationen ist
+        eine gewöhnliche eingehende IPv4-Portweiterleitung an der eigenen
+        FRITZ!Box häufig nicht möglich.
+      </p>
+      <p>
+        <strong>Dynamic DNS (DDNS)</strong> ordnet einer wechselnden erreichbaren
+        IP-Adresse einen festen Hostnamen zu. Das erleichtert die Suche nach
+        dem Anschluss, beseitigt aber weder CGNAT noch DS-Lite.
+        Denkbare Alternativen sind eine von beiden Seiten erreichbare
+        IPv6-Verbindung oder später ein vorgeschalteter Vermittlungsserver
+        mit einem ausgehend aufgebauten VPN-Tunnel. Welche Option funktioniert,
+        entscheiden wir erst anhand der tatsächlichen Anschlussdaten.
+      </p>
+      <p>
+        Wenn OPNsense hinter der FRITZ!Box liegt, ist bei direkt erreichbarem
+        IPv4-Anschluss normalerweise eine gezielte UDP-Weiterleitung zum
+        VPN-Endpunkt erforderlich. Ein zusätzlicher Windows-NAT-Übergang oder
+        eine Router-VM kann weitere Weiterleitungs- und Routingregeln notwendig
+        machen. Ein virtueller Hyper-V-Switch führt für sich genommen kein NAT aus.
+      </p>
+
+      <h2>Was ist in einem professionellen Betrieb zusätzlich erforderlich?</h2>
+      <p>
+        Die amerikanische <strong>CISA (Cybersecurity and Infrastructure Security
+        Agency, US-Behörde für Cybersicherheit und Infrastrukturschutz)</strong>
+        empfiehlt für geschützte Administrationswege unter anderem sichere,
+        überwachte Zugänge, geeignete Sprungserver und
+        <strong>MFA (Multi-Faktor-Authentifizierung)</strong>.
+        Dazu kommen in kritischen Umgebungen verwaltete Administratorgeräte,
+        minimale Berechtigungen und nachvollziehbare Protokollierung.
+        Ein WireGuard-Schlüsselpaar allein ist dabei keine zusätzliche
+        mehrstufige Anmeldung am Managementsystem.
+      </p>
+      <p>
+        Ein <strong>Jump-Host</strong> (auch Bastion-Host) ist ein besonders
+        geschützter Rechner im Managementbereich, über den Administratoren
+        kontrolliert auf interne Systeme zugreifen. Das VPN kann dabei auf
+        OPNsense selbst oder auf einem <strong>separaten VPN-Gateway</strong>
+        enden. Unternehmen verwenden solche getrennten Zugangsstufen,
+        um Managementdienste nicht direkt öffentlich bereitzustellen.
+      </p>
+
+      <h2>Ein realistischer Fehlerfall: selbst ausgesperrt</h2>
+      <p>
+        Besonders lehrreich wird es, wenn eine geänderte Firewall-Regel genau
+        die Verbindung unterbricht, über die man gerade administriert.
+        Ein entfernter Administrator könnte dadurch den eigenen Zugang
+        verlieren. Deshalb benötigen produktive Änderungen eine
+        <strong>Konfigurationssicherung</strong>, einen geprüften
+        <strong>Rollback-Plan</strong> (Rückkehr zur vorherigen Einstellung)
+        und bei kritischen Systemen einen <strong>unabhängigen Notfallzugang</strong>.
+        Hinzu kommen Freigaben, ein geeignetes Wartungsfenster und dokumentierte
+        Funktionstests.
+      </p>
+      <p>
+        Im Lab soll dieser Sachverhalt zunächst als Diagnose- und Planspiel
+        behandelt werden. Eine absichtliche Unterbrechung unseres einzigen
+        Administrationswegs wäre erst sinnvoll, wenn ein unabhängiger
+        Wiederherstellungsweg tatsächlich überprüft wurde.
+      </p>
+
+      <h2>Welche Netzwerkkompetenzen trainiert dieses Zusatzmodul?</h2>
+      <ul class="remote-skills">
+        <li><strong>Kryptografie und Tunnel:</strong> asymmetrische Schlüsselpaare für den WireGuard-Verbindungsaufbau; verschlüsselter Datenverkehr im aufgebauten Tunnel.</li>
+        <li><strong>Routing:</strong> Hin- und Rückwege zwischen VPN-Subnetz und internen Netzen verstehen.</li>
+        <li><strong>Firewall-Freigaben:</strong> nur definierte Administratorzugriffe erlauben.</li>
+        <li><strong>NAT und Erreichbarkeit:</strong> den Weg durch FRITZ!Box, Hyper-V und gegebenenfalls weitere Router diagnostizieren.</li>
+        <li><strong>Troubleshooting:</strong> Handshake-Probleme, Paketverlust, fehlende Rückrouten und selbst verursachte Sperren systematisch eingrenzen.</li>
+        <li><strong>Betriebssicherheit:</strong> Änderungen testen, protokollieren und rückgängig machen können.</li>
+      </ul>
+      <p class="article-availability"><strong>Projektstatus:</strong> Dieses Zusatzmodul ist konzipiert, aber noch nicht praktisch umgesetzt. Zuerst wird das reguläre OPNsense-Firewall-Lab stabil aufgebaut und geprüft.</p>
+
+      <h2>Quellen und weiterführende Dokumentation</h2>
+      <ul class="source-list">
+        <li><a href="https://docs.opnsense.org/manual/how-tos/wireguard-client.html" target="_blank" rel="noopener noreferrer">OPNsense: WireGuard Remote-Client – Tunnel, Peers, Routing und Firewall-Regeln</a></li>
+        <li><a href="https://www.cisa.gov/resources-tools/resources/exposure-reduction" target="_blank" rel="noopener noreferrer">CISA: Internet Exposure Reduction Guidance – Jump-Hosts, Überwachung und MFA</a></li>
+        <li><a href="https://www.cisa.gov/audiences/small-and-medium-businesses/secure-your-business/require-multifactor-authentication" target="_blank" rel="noopener noreferrer">CISA: Multi-Faktor-Authentifizierung für Remote- und Administrationszugriffe</a></li>
+        <li><a href="https://www.rfc-editor.org/rfc/rfc6598" target="_blank" rel="noopener noreferrer">RFC 6598: IPv4-Adressbereich für Provider-seitiges CGNAT</a></li>
+        <li><a href="https://www.rfc-editor.org/rfc/rfc6333" target="_blank" rel="noopener noreferrer">RFC 6333: Dual-Stack Lite (DS-Lite)</a></li>
+      </ul>
+      <p><a class="button primary" href="projects.html#opnsense">← Zurück zum OPNsense-Firewall-Lab</a></p>
+    </article>
+  </section>
+</main>
+  <footer class="site-footer">
+    <span>Marc Fahlbusch · Technische Dokumentation</span>
+    <div class="footer-links">
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="index.html#contact">Kontakt</a>
+      <a href="mailto:marcfahlbusch@pm.me">E-Mail</a>
+      <a href="#top">Nach oben ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
