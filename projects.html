@@ -65,7 +65,7 @@
           <span class="project-state active-state">Ankündigung · In aktiver Entwicklung</span>
         </div>
         <h2>OPNsense-Firewall-Lab: Netzwerkschutz für mittelständische Unternehmen</h2>
-        <p class="project-date">Angekündigt am <time datetime="2026-10-20">20.10.2026</time> <span aria-hidden="true">·</span> Stand: <time datetime="2026-10-20">20.10.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-10-20">20.10.2026</time></p>
 
         <p class="article-lead">
           <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
@@ -79,8 +79,53 @@
           Firewall konfiguriert ihr unter anderem über OPNsense. Ergänzende Anki-Lernkarten
           helfen euch, das entscheidende Fachwissen langfristig im Kopf zu behalten.
         </p>
+        <figure class="architecture-figure lab-architecture-figure">
+          <a href="assets/diagrams/opnsense-firewall-lab-architektur.svg" target="_blank" rel="noopener noreferrer" aria-label="Geplante OPNsense-Lab-Architektur als große SVG-Grafik öffnen">
+            <img src="assets/diagrams/opnsense-firewall-lab-architektur.svg" alt="Geplante OPNsense-Architektur: Hyper-V-Host mit VS Code und PowerShell für zentrale Remote-Administration, OPNsense-VM mit WAN- und getrennten Management-, Benutzer- und Servernetzen, Zabbix-Monitoring und WireGuard-Zugang." width="1600" height="940">
+          </a>
+          <figcaption>
+            Geplante Gesamtarchitektur: Alle Systeme werden möglichst von einem zentralen Verwaltungsrechner aus administriert. Die Abbildung ist ein Zielbild; ihre Komponenten werden im Lab schrittweise aufgebaut und geprüft.
+            <a href="assets/diagrams/opnsense-firewall-lab-architektur.svg" target="_blank" rel="noopener noreferrer">Architekturdiagramm als SVG öffnen ↗</a>
+          </figcaption>
+        </figure>
+
+        <h3>Warum ich zentral mit VS Code und PowerShell administriere</h3>
+        <p>
+          Die eigentliche Firewall läuft weiterhin als virtuelle Maschine unter
+          Hyper-V. Virtuelle Switches stellen die Verbindungen zu den getrennten
+          Netzen her; weitere virtuelle Maschinen übernehmen die Rolle von
+          Testclients, Servern und später des Monitorings. Visual Studio Code
+          ersetzt diese Infrastruktur nicht – es ist mein zentraler
+          Administrationsarbeitsplatz.
+        </p>
+        <p>
+          Vom integrierten PowerShell-Terminal aus kann ich Aufgaben auf dem
+          Windows-Host ausführen und über SSH auf erreichbare Lab-Systeme zugreifen.
+          So lassen sich Befehle, Konfigurationsdateien und unmittelbare
+          Rückmeldungen direkt nebeneinander verfolgen. Wo es sinnvoll oder
+          notwendig ist, nutze ich die OPNsense-Weboberfläche, etwa für
+          Firewall-Regeln und Netzwerkeinstellungen. Anschließend überprüfe
+          ich die Änderungen wieder anhand von Terminalausgaben,
+          Verbindungstests und Protokollen.
+        </p>
+        <p>
+          <strong>Der Lerngewinn:</strong> Statt für jeden Schritt die Konsole
+          einer einzelnen VM zu öffnen, betrachte ich das Netzwerk zunehmend aus
+          Sicht der zentralen Remote-Administration. Ich sehe, welches System
+          angesprochen wird, welche Änderung ausgeführt wurde und ob sie wirklich
+          den gewünschten Effekt hatte. Das entspricht eher den Arbeitsabläufen
+          eines Administrators im laufenden IT-Betrieb.
+        </p>
+        <p>
+          Docker wäre für einzelne zusätzliche Dienste ebenfalls denkbar.
+          Für diese Lernumgebung verwende ich die Firewall jedoch bewusst als
+          eigenständige VM mit getrennten virtuellen Netzwerkschnittstellen,
+          damit sich Routing, Firewall-Regeln und die Netzwerkpfade unmittelbar
+          nachvollziehen lassen.
+        </p>
+
         <p class="article-availability">
-          <strong>Aktueller Stand:</strong> Die Einführung ist veröffentlicht; die technische
+          <strong>Aktueller Stand:</strong> Die Einführung und das Architektur-Zielbild sind veröffentlicht; die technische
           Anleitung, geprüfte Beispielkonfigurationen und Lernkarten-Downloads entstehen
           im Verlauf der Lab-Arbeit.
         </p>
@@ -431,7 +476,7 @@
           <span class="project-state active-state">Aktive Weiterentwicklung</span>
         </div>
         <h2>M365 Lifecycle Automation – Zielbild</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-07-26">26.07.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-07-26">26.07.2026</time></p>
         <p>
           Aktuell entwickle ich einen automatisierten On- und Offboarding-Prozess für Microsoft-365-Umgebungen.
           Das langfristige Ziel ist ein robuster, produktionsnah gedachter Ablauf, der wiederkehrende
@@ -493,7 +538,7 @@
       <article class="project-card">
         <div class="project-topline"><span class="project-type">Windows Server · Hyper-V · AutomatedLab</span><span class="project-state">Infrastruktur-Automatisierung</span></div>
         <h2>Windows-Infrastruktur – Bereitstellung und Validierung</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-08-10">10.08.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-08-10">10.08.2026</time></p>
         <p>Reproduzierbare Umgebung aus Domain Controller, Datei-/DHCP-Server und Windows-Client. Aufbau und Konfiguration dienen dazu, Infrastrukturzusammenhänge praktisch nachzuvollziehen.</p>
         <h3>Architektur im Überblick</h3>
         <figure class="architecture-figure">
@@ -511,7 +556,7 @@
       <article class="project-card">
         <div class="project-topline"><span class="project-type">Docker · DevOps · CI/CD</span><span class="project-state">Container-Betrieb</span></div>
         <h2>Docker – Betrieb, Sicherheit und Wiederherstellung</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-06-11">11.06.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-06-11">11.06.2026</time></p>
         <p>Container-Umgebung mit Webanwendung, Redis, NGINX, Healthchecks, lokalem HTTPS, Backup/Restore und GitHub-Actions-Pipelines.</p>
         <h3>Architektur im Überblick</h3>
         <figure class="architecture-figure">
@@ -528,7 +573,7 @@
       <article class="project-card">
         <div class="project-topline"><span class="project-type">Prometheus · Grafana · cAdvisor</span><span class="project-state">Monitoring und Alarmierung</span></div>
         <h2>Monitoring – Zustände erkennen und Incidents bearbeiten</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-06-12">12.06.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-06-12">12.06.2026</time></p>
         <p>Überwachung einer Docker-Umgebung mit Prometheus, Grafana, Webhook-Receiver, Alarmregeln und simulierten Sensorsignalen.</p>
         <h3>Architektur im Überblick</h3>
         <figure class="architecture-figure">
@@ -544,7 +589,7 @@
       <article class="project-card">
         <div class="project-topline"><span class="project-type">Ubuntu · systemd · SSH · UFW</span><span class="project-state">Linux-Administration</span></div>
         <h2>Ubuntu – Betriebsbaseline und Fehlersuche</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-07-07">07.07.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-07-07">07.07.2026</time></p>
         <p>Administrationsumgebung zu Benutzern und Rechten, Diensten, Netzwerk, Logging, Updates, Firewall, Backup-/Restore-Prüfungen und Security-Baselines.</p>
         <h3>Architektur im Überblick</h3>
         <figure class="architecture-figure">
@@ -561,7 +606,7 @@
       <article class="project-card">
         <div class="project-topline"><span class="project-type">Linux · BorgBackup · Restore</span><span class="project-state">Datensicherung</span></div>
         <h2>BorgBackup – Sicherung und erfolgreicher Restore</h2>
-        <p class="project-date">Letzte fachliche Änderung: <time datetime="2026-06-02">02.06.2026</time></p>
+        <p class="project-date">Stand: <time datetime="2026-06-02">02.06.2026</time></p>
         <p>Backup- und Wiederherstellungsübung unter Linux/WSL2 mit verschlüsseltem Borg-Repository und neutralen Testdaten.</p>
         <h3>Architektur im Überblick</h3>
         <figure class="architecture-figure">
