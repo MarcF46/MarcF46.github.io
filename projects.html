@@ -87,7 +87,7 @@
           Seit meiner Umschulung zum Fachinformatiker für Systemintegration lerne ich
           seit fast drei Jahren intensiv neue Technologien. Dabei beschäftigt mich vor
           allem eine Frage: <strong>Wie bleiben die wichtigen Zusammenhänge auch Wochen
-          und Monate später abrufbar – und wie setzt man sie selbstständig ein?</strong>
+          und Monate später abrufbar?</strong>
         </p>
         <p>
           Besonders hilfreich waren für mich gut dokumentierte Praxisaufgaben in
@@ -101,27 +101,29 @@
         <h3>Was ihr konkret lernt und erhaltet</h3>
         <p>
           Ausgangspunkt ist ein realistisches Szenario für ein kleines oder
-          mittelständisches Unternehmen: Eine <strong>Open-Source-Firewall auf Basis
-          von OPNsense</strong> wird als zusätzliche Schutzschicht in die
+          mittelständisches Unternehmen: Eine Open-Source-Firewall auf Basis
+          von OPNsense wird als zusätzliche Schutzschicht in die
           Netzwerkinfrastruktur eingebunden. Das Lab konzentriert sich auf
           Netzwerksegmentierung, Routing, NAT, Firewall-Regeln, Administrationsschutz,
           VPN, Monitoring und systematische Fehlersuche.
         </p>
         <p>
-          Die <strong>GitHub-Dokumentation</strong> erklärt Aufbau, Hintergründe,
-          Befehle und Prüfschritte. Bereitgestellte Skripte und Dateien lassen sich in
-          <strong>Visual Studio Code</strong> nachvollziehen und bearbeiten. So entsteht
-          nach und nach eine verständliche <strong>Grundkonfiguration als Ausgangspunkt
-          für eigene Testumgebungen</strong> – keine fertige Universal-Firewall, die
-          ohne Prüfung in jedes Unternehmensnetz übernommen werden sollte.
+          Die GitHub-Dokumentation erklärt Aufbau, Hintergründe, Befehle und
+          Prüfschritte. Bereitgestellte Skripte und Dateien lassen sich in
+          Visual Studio Code nachvollziehen, anpassen und für die eigene Umgebung nutzen.
+          Ziel ist eine praxisnahe OPNsense-Grundkonfiguration, die auch als
+          <strong>Basis für den späteren produktiven Einsatz in einem kleineren Unternehmen</strong>
+          dienen kann. Nach Abstimmung mit den IT-Verantwortlichen, Prüfung der
+          tatsächlichen Netzwerk- und Sicherheitsanforderungen und erfolgreichen
+          Funktionstests muss nicht mehr bei null begonnen werden – die erarbeitete
+          Konfiguration liefert bereits eine nachvollziehbare Grundlage.
         </p>
         <p>
-          Zusätzlich wird es <strong>Anki-Lernkarten zum kostenlosen Download</strong>
-          geben. Sie ergänzen die praktische Anleitung um die wichtigsten Begriffe,
+          Zusätzlich wird es Anki-Lernkarten zum kostenlosen Download geben.
+          Sie ergänzen die praktische Anleitung um die wichtigsten Begriffe,
           Zusammenhänge und Diagnoseentscheidungen. Aus meiner bisherigen Lernerfahrung
           ist genau diese Kombination aus eigenem Ausprobieren und aktivem Wiederholen
           besonders wirkungsvoll, um das Wesentliche langfristig zu behalten.
-          Ihr braucht dafür selbst <strong>keine KI</strong>.
         </p>
 
         <h3>Wie das Lernkonzept funktioniert</h3>
@@ -194,28 +196,46 @@
           </li>
         </ul>
 
-        <h3>Ein fundierter Einstieg – kein vollständiger Enterprise-Betrieb</h3>
+        <h3>Vom KMU-Lab zum produktiven Betrieb – und was Enterprise zusätzlich verlangt</h3>
         <p>
-          Dieses Lab soll euch möglichst direkt an die entscheidenden Grundlagen
-          heranführen: Ihr versteht, wie eine zusätzliche Firewall-Schutzschicht
-          für ein mittelständisches Netzwerk geplant, eingerichtet und geprüft
-          werden kann. Die Übungen sollen den Einstieg erleichtern und euer
-          vorhandenes Netzwerk- und Sicherheitswissen praktisch erweitern.
+          <strong>Eine brauchbare Basis für die Praxis:</strong> Dieses Lab soll euch
+          möglichst schnell die wichtigen Grundlagen vermitteln und eine dokumentierte
+          Firewall-Konfiguration liefern, die ihr als Administrator in einem kleineren
+          Unternehmen weiterverwenden könnt. Dafür klärt ihr mit den zuständigen
+          IT- und Sicherheitsverantwortlichen, welche Netze und Dienste geschützt
+          werden müssen, passt die Regeln an und prüft Verbindungen, Updates,
+          Protokollierung, Sicherung und Wiederherstellung. Auf dieser Grundlage
+          kann der Schritt von der Lernumgebung in einen geregelten produktiven
+          Betrieb erfolgen.
         </p>
         <p>
-          In größeren oder besonders ausfallkritischen Umgebungen kommen weitere
-          Anforderungen dazu: beispielsweise Hochverfügbarkeit, dokumentierte
-          Änderungs- und Freigabeprozesse, abgesicherte Wartungsfenster,
-          Notfall- und Wiederherstellungsverfahren, umfassendes Monitoring
-          sowie klare Zuständigkeiten im Betrieb. Diese Unterschiede werde
-          ich an passenden Stellen der Lerneinheiten ausdrücklich erklären.
-          Sie sind aber <strong>nicht das Ausbildungsziel dieses Grundlagen-Labs</strong>.
+          <strong>Was bei großen, geschäftskritischen Unternehmen dazukommt:</strong>
+          Dort müssen meist deutlich mehr Systeme, Standorte und Teams koordiniert
+          werden. Typische Arbeitsschritte sind die Aufnahme sämtlicher
+          Netzwerkverbindungen und Abhängigkeiten, Risiko- und Ausfallanalysen,
+          Kapazitätsplanung, Redundanz und Hochverfügbarkeit, abgestimmte
+          Firewall-Regeln, Tests unter realistischen Bedingungen, Change-Freigaben,
+          Wartungsfenster, Rückfallpläne, Monitoring, Protokollierung und eine
+          geregelte Übergabe an den Betrieb.
         </p>
         <p>
-          Das ist eine Abgrenzung des <em>Lernumfangs</em>, nicht der technischen
-          Einsatzmöglichkeiten von OPNsense. Eine produktive Einführung setzt
-          immer eine zur jeweiligen Umgebung passende Sicherheitsplanung,
-          Tests, Backups und betriebliche Verantwortung voraus.
+          Schon die Abstimmungen zwischen Netzwerkbetrieb, IT-Sicherheit,
+          Anwendungen und Verantwortlichen können erheblichen Aufwand verursachen.
+          Bei komplexen, standortübergreifenden Vorhaben sind <strong>mehrere Wochen
+          bis Monate für Planung, Tests, Freigaben und Einführung</strong> eine
+          realistische Größenordnung – keine feste Vorgabe; der tatsächliche
+          Zeitbedarf hängt stark von Umfang und Ausfallrisiko ab. Die technischen
+          und organisatorischen Hintergründe werde ich in den passenden
+          Lerneinheiten kurz einordnen, ohne aus dem Firewall-Einstieg einen
+          vollständigen Enterprise-Betriebskurs zu machen.
+        </p>
+        <p>
+          Wichtig ist dabei die Unterscheidung: Nicht die Unternehmensgröße allein
+          entscheidet über den Aufwand, sondern vor allem die Kritikalität der
+          Dienste, die Netzkomplexität und die Anforderungen an Verfügbarkeit
+          und Sicherheit. Auch OPNsense unterstützt erweiterte Betriebsfunktionen
+          wie Hochverfügbarkeit. Das Lab setzt bewusst bei einer überschaubaren
+          und später erweiterbaren Grundkonfiguration an.
         </p>
 
         <h3>Wissenschaftliche und technische Grundlagen</h3>
@@ -226,6 +246,8 @@
           <li><a href="https://doi.org/10.1073/pnas.2422633122" target="_blank" rel="noopener noreferrer">Bastani et al. (2025): Generative AI without guardrails can harm learning</a></li>
           <li><a href="https://docs.ankiweb.net/manual/deck-options" target="_blank" rel="noopener noreferrer">Anki-Handbuch: Lernkarten, Wiederholungsoptionen und FSRS</a></li>
           <li><a href="https://docs.opnsense.org/" target="_blank" rel="noopener noreferrer">Offizielle OPNsense-Dokumentation</a></li>
+          <li><a href="https://doi.org/10.6028/NIST.SP.800-41r1" target="_blank" rel="noopener noreferrer">NIST SP 800-41 Rev. 1: Planung, Konfiguration, Test, Einführung und Betrieb von Firewalls</a></li>
+          <li><a href="https://docs.opnsense.org/manual/hacarp.html" target="_blank" rel="noopener noreferrer">OPNsense: Hochverfügbarkeit und Failover mit CARP</a></li>
         </ul>
       </article>
     </section>
