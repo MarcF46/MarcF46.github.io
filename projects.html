@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261020-2">
+  <link rel="stylesheet" href="assets/styles.css?v=20261020-3">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
 </head>
@@ -69,8 +69,11 @@
 
         <p class="article-lead">
           <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
-          eigenständig eingrenzen:</strong> Genau dafür entsteht dieses Lab. Ihr bekommt
-          eine nachvollziehbare technische Dokumentation und künftig die passenden Dateien
+          eigenständig eingrenzen:</strong> Genau dafür entsteht dieses Lab.
+          Als zusätzliches Schutzsystem soll OPNsense Benutzer-, Server- und
+          Managementnetze voneinander trennen, Zugriffe gezielt regeln und
+          sicherheitsrelevante Ereignisse sichtbar machen. Ihr bekommt eine
+          nachvollziehbare technische Dokumentation und künftig die passenden Dateien
           und Skripte auf GitHub. Diese könnt ihr in Visual Studio Code ansehen, anpassen
           und – wo vorgesehen – in eurer eigenen Testumgebung ausführen. Die eigentliche
           Firewall konfiguriert ihr unter anderem über OPNsense. Ergänzende Anki-Lernkarten
@@ -125,6 +128,166 @@
           ist genau diese Kombination aus eigenem Ausprobieren und aktivem Wiederholen
           besonders wirkungsvoll, um das Wesentliche langfristig zu behalten.
         </p>
+
+
+        <h3>Welche Schutzfunktionen deckt das Lab ab?</h3>
+        <p>
+          Damit ihr den praktischen Nutzen und die Grenzen von Anfang an einordnen
+          könnt, unterscheide ich zwischen der <strong>geplanten Grundkonfiguration</strong>
+          und weitergehenden Sicherheits- und Betriebsaufgaben. Die folgende Übersicht
+          beschreibt den Projektumfang – nicht bereits abgeschlossene oder
+          nachgewiesen funktionierende Konfigurationen.
+        </p>
+        <div class="lab-scope-table-wrap" role="region" aria-label="Vergleich der geplanten Firewall-Funktionen" tabindex="0">
+          <table class="lab-scope-table">
+            <caption>Geplanter Schutz- und Betriebsumfang des OPNsense-Firewall-Labs</caption>
+            <thead><tr><th scope="col">Schutzfunktion</th><th scope="col">Wozu dient sie?</th><th scope="col">Im Lab</th></tr></thead>
+            <tbody>
+              <tr>
+                <th scope="row">Stateful Firewall und Zugriffsregeln</th>
+                <td>Erlaubt definierte Verbindungen und blockiert unerwünschten Verkehr; berücksichtigt den Zustand bestehender Verbindungen.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Netzwerksegmentierung</th>
+                <td>Trennt Benutzer-, Server- und Managementnetze; der Verkehr zwischen ihnen wird gezielt kontrolliert.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Routing und NAT</th>
+                <td>Lenkt Datenpakete zwischen Netzen und übersetzt bei Bedarf Adressen. NAT allein ersetzt keine Sicherheitsregeln.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">WireGuard-VPN</th>
+                <td>Stellt verschlüsselte Verbindungen zwischen berechtigten Endpunkten beziehungsweise Netzen bereit.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Grundhärtung und Administrationsschutz</th>
+                <td>Begrenzt Managementzugriffe, sichert administrative Anmeldung und bezieht Updates und Konfigurationssicherung ein.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Protokollierung und Zabbix-Monitoring</th>
+                <td>Erfasst wichtige Zustände und meldet ausgewählte Störungen, damit technische Probleme auffallen.</td>
+                <td>Vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">IDS / IPS</th>
+                <td>Erkennt verdächtige Verkehrsmuster (IDS) beziehungsweise kann entsprechende Pakete aktiv blockieren (IPS).</td>
+                <td>Nicht vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Zentrales SIEM und SOC</th>
+                <td>Wertet Sicherheitsmeldungen aus vielen Systemen aus und organisiert deren kontinuierliche Untersuchung und Bearbeitung.</td>
+                <td>Nicht vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Hochverfügbarkeit</th>
+                <td>Eine zweite Firewall kann bei Ausfall der ersten übernehmen und Unterbrechungen begrenzen.</td>
+                <td>Nicht vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Umfassende DDoS-Abwehr</th>
+                <td>Schützt auch gegen große, verteilte Überlastungsangriffe auf Internetanbindung und öffentliche Dienste.</td>
+                <td>Nicht vorgesehen</td>
+              </tr>
+              <tr>
+                <th scope="row">Unternehmensweites Change- und Sicherheitsmanagement</th>
+                <td>Regelt Änderungen, Zuständigkeiten, Risikoentscheidungen, Freigaben, Notfallpläne und Nachweise über viele Systeme hinweg.</td>
+                <td>Nicht vorgesehen</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="article-availability">
+          „Nicht vorgesehen“ bedeutet ausdrücklich nicht „mit OPNsense unmöglich“.
+          So lassen sich IDS/IPS mit Suricata sowie eine hochverfügbare Firewall
+          beispielsweise auch mit OPNsense realisieren. Der Aufwand dafür geht
+          jedoch über die Lernziele dieser ersten Ausbaustufe hinaus.
+        </p>
+
+        <h3>Was bedeuten die zusätzlichen Sicherheitsfunktionen?</h3>
+        <div class="security-explanations">
+          <section>
+            <h4>IDS und IPS – Angriffe erkennen oder stoppen</h4>
+            <p>
+              <strong>IDS (Intrusion Detection System)</strong> untersucht den
+              Netzwerkverkehr auf auffällige oder bekannte Angriffsmuster und
+              erzeugt Warnmeldungen. <strong>IPS (Intrusion Prevention System)</strong>
+              kann erkannte verdächtige Pakete zusätzlich verwerfen. Beides
+              benötigt passende Regeln, Updates, Leistungsreserven und Kontrolle
+              möglicher Fehlalarme. OPNsense bietet diese Funktionen mit Suricata;
+              in diesem Lab sind sie zunächst kein Konfigurationsziel.
+            </p>
+          </section>
+          <section>
+            <h4>SIEM und SOC – Sicherheitsereignisse zentral bearbeiten</h4>
+            <p>
+              Ein <strong>SIEM (Security Information and Event Management)</strong>
+              ist eine Plattform, die zum Beispiel Firewall-, Server- und
+              Anmeldelogs zentral sammelt, zusammenführt und auf verdächtige
+              Zusammenhänge analysiert. Ein <strong>SOC (Security Operations Center)</strong>
+              bezeichnet dagegen ein Team beziehungsweise eine Organisationseinheit:
+              Fachleute prüfen Meldungen, untersuchen Vorfälle und koordinieren
+              Gegenmaßnahmen. Ein 24/7-SOC braucht Personal, Bereitschafts- oder
+              Schichtkonzepte, Alarmregeln, festgelegte Reaktionswege und laufende
+              Pflege – deutlich mehr als das Monitoring einer einzelnen Firewall.
+            </p>
+          </section>
+          <section>
+            <h4>DDoS – Schutz gegen verteilte Überlastungsangriffe</h4>
+            <p>
+              <strong>DDoS (Distributed Denial of Service)</strong> bedeutet,
+              dass sehr viele Systeme gleichzeitig so viel Verkehr oder so
+              viele Anfragen erzeugen, dass ein Dienst nicht mehr erreichbar ist.
+              Eine lokale Firewall kann bestimmte Pakete begrenzen oder blockieren.
+              Wird aber schon die Internetleitung überlastet, reicht das nicht:
+              Dann sind häufig zusätzliche Schutzdienste beim Internetanbieter,
+              vorgelagerte Filter- beziehungsweise Scrubbing-Systeme oder bei
+              Webdiensten ein CDN nötig. Das erfordert vertragliche und
+              technische Abstimmung mit externen Dienstleistern.
+            </p>
+          </section>
+          <section>
+            <h4>Hochverfügbarkeit – auch beim Ausfall weiterarbeiten</h4>
+            <p>
+              In besonders kritischen Netzen werden Firewalls oft redundant
+              betrieben. Mit <strong>CARP (Common Address Redundancy Protocol)</strong>
+              und ergänzender Synchronisation unterstützt OPNsense ein solches
+              Failover-Konzept. Dafür braucht es eine zweite Instanz, passende
+              Netzwerkverbindungen, abgestimmte Konfigurationen sowie regelmäßige
+              Tests, ob die Übernahme im Fehlerfall funktioniert.
+            </p>
+          </section>
+          <section>
+            <h4>Enterprise-Change- und Sicherheitsmanagement – kontrollierte Änderungen</h4>
+            <p>
+              Ein <strong>Change</strong> ist eine geplante Änderung an einer
+              produktiven IT-Umgebung, beispielsweise eine neue Firewall-Regel.
+              In einem ausfallkritischen Unternehmen wird dafür häufig zunächst
+              ein Ticket mit Zweck und Verantwortlichen erstellt. Anschließend
+              folgen Risiko- und Abhängigkeitsprüfung, Sicherheitsbewertung,
+              gegebenenfalls Freigaben durch mehrere Teams, ein Testplan,
+              ein Wartungsfenster und ein <strong>Rollback-Plan</strong>, also
+              eine vorbereitete Rückkehr zur vorherigen Konfiguration.
+              Nach der Umsetzung müssen Wirkung und Protokolle kontrolliert
+              und die Änderung dokumentiert werden.
+            </p>
+            <p>
+              Sicherheitsmanagement geht darüber hinaus: Es umfasst unter anderem
+              verbindliche Richtlinien, regelmäßige Überprüfung von Berechtigungen
+              und Firewall-Regeln, Schwachstellen- und Patchmanagement,
+              Notfallplanung, Audits und die Zuständigkeit für Sicherheitsrisiken.
+              Schon eine technisch kleine Änderung kann durch Abstimmungen und
+              Freigaben einen mehrtägigen Vorlauf haben; große Einführungen
+              benötigen oft Wochen bis Monate. Das ist eine Orientierung,
+              keine feste Zeitvorgabe – entscheidend sind Kritikalität,
+              Architektur und betriebliche Prozesse.
+            </p>
+          </section>
+        </div>
 
         <h3>Wie das Lernkonzept funktioniert</h3>
         <p>
@@ -211,23 +374,20 @@
         <p>
           <strong>Was bei großen, geschäftskritischen Unternehmen dazukommt:</strong>
           Dort müssen meist deutlich mehr Systeme, Standorte und Teams koordiniert
-          werden. Typische Arbeitsschritte sind die Aufnahme sämtlicher
-          Netzwerkverbindungen und Abhängigkeiten, Risiko- und Ausfallanalysen,
-          Kapazitätsplanung, Redundanz und Hochverfügbarkeit, abgestimmte
-          Firewall-Regeln, Tests unter realistischen Bedingungen, Change-Freigaben,
-          Wartungsfenster, Rückfallpläne, Monitoring, Protokollierung und eine
-          geregelte Übergabe an den Betrieb.
+          werden. Die oben beschriebenen erweiterten Schutzfunktionen und
+          Freigabeprozesse bauen auf einer sauberen Netzwerk- und
+          Sicherheitsarchitektur auf. Hier reicht es nicht, nur eine
+          Firewall-Regel technisch richtig einzutragen: Auch ihre Wirkung auf
+          Anwendungen, Standorte, Verfügbarkeit und Notfallverfahren muss
+          nachvollziehbar geklärt sein.
         </p>
         <p>
-          Schon die Abstimmungen zwischen Netzwerkbetrieb, IT-Sicherheit,
-          Anwendungen und Verantwortlichen können erheblichen Aufwand verursachen.
-          Bei komplexen, standortübergreifenden Vorhaben sind <strong>mehrere Wochen
-          bis Monate für Planung, Tests, Freigaben und Einführung</strong> eine
-          realistische Größenordnung – keine feste Vorgabe; der tatsächliche
-          Zeitbedarf hängt stark von Umfang und Ausfallrisiko ab. Die technischen
-          und organisatorischen Hintergründe werde ich in den passenden
-          Lerneinheiten kurz einordnen, ohne aus dem Firewall-Einstieg einen
-          vollständigen Enterprise-Betriebskurs zu machen.
+          Bei komplexen, standortübergreifenden Vorhaben sind
+          <strong>mehrere Wochen bis Monate für Planung, Tests, Freigaben und Einführung</strong>
+          eine plausible Größenordnung, kein allgemeingültiger Zeitplan.
+          Die zusätzlichen Anforderungen werden in den passenden
+          Lerneinheiten eingeordnet, ohne daraus einen vollständigen
+          Enterprise-Betriebskurs zu machen.
         </p>
         <p>
           Wichtig ist dabei die Unterscheidung: Nicht die Unternehmensgröße allein
@@ -248,6 +408,11 @@
           <li><a href="https://docs.opnsense.org/" target="_blank" rel="noopener noreferrer">Offizielle OPNsense-Dokumentation</a></li>
           <li><a href="https://doi.org/10.6028/NIST.SP.800-41r1" target="_blank" rel="noopener noreferrer">NIST SP 800-41 Rev. 1: Planung, Konfiguration, Test, Einführung und Betrieb von Firewalls</a></li>
           <li><a href="https://docs.opnsense.org/manual/hacarp.html" target="_blank" rel="noopener noreferrer">OPNsense: Hochverfügbarkeit und Failover mit CARP</a></li>
+          <li><a href="https://docs.opnsense.org/manual/ips.html" target="_blank" rel="noopener noreferrer">OPNsense: IDS/IPS mit Suricata – Erkennen und Blockieren von Angriffsmustern</a></li>
+          <li><a href="https://csrc.nist.gov/glossary/term/security_information_and_event_management" target="_blank" rel="noopener noreferrer">NIST: Definition Security Information and Event Management (SIEM)</a></li>
+          <li><a href="https://csrc.nist.gov/glossary/term/security_operations_center" target="_blank" rel="noopener noreferrer">NIST: Begriff Security Operations Center (SOC)</a></li>
+          <li><a href="https://www.cisa.gov/ncas/alerts/ta14-017a" target="_blank" rel="noopener noreferrer">CISA: DDoS-Abwehr und Zusammenarbeit mit vorgelagerten Netzbetreibern</a></li>
+          <li><a href="https://csrc.nist.gov/glossary/term/configuration_change" target="_blank" rel="noopener noreferrer">NIST: Configuration Change und formelle Freigabeprozesse</a></li>
         </ul>
       </article>
     </section>
