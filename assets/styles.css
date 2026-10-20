@@ -998,3 +998,42 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   color: var(--muted);
 }
 .lab-intro-article .security-explanations p:last-child { margin-bottom: 0; }
+
+/* Responsives Netzwerkdiagramm: am Desktop breit, auf kleinen Geräten seitlich lesbar */
+.lab-intro-article .lab-architecture-figure {
+  width: min(1210px, calc(100vw - 3rem));
+  max-width: none;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+.lab-architecture-figure .responsive-diagram-viewport {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  scrollbar-width: thin;
+}
+.lab-architecture-figure .responsive-diagram-viewport a { display: block; }
+.lab-architecture-figure .responsive-diagram-viewport img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  min-width: 0;
+}
+.lab-architecture-figure .diagram-mobile-hint {
+  display: none;
+  color: var(--muted);
+  margin-top: .45rem;
+}
+.lab-architecture-figure figcaption a { display: inline-block; margin-left: .3rem; }
+@media (max-width: 760px) {
+  .lab-intro-article .lab-architecture-figure { width: min(100vw - 2rem, 1210px); }
+  .lab-architecture-figure .responsive-diagram-viewport img {
+    width: 1120px;
+    min-width: 1120px;
+  }
+  .lab-architecture-figure .diagram-mobile-hint { display: block; }
+}
