@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261020-3">
+  <link rel="stylesheet" href="assets/styles.css?v=20261020-4">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
 </head>
@@ -80,14 +80,39 @@
           helfen euch, das entscheidende Fachwissen langfristig im Kopf zu behalten.
         </p>
         <figure class="architecture-figure lab-architecture-figure">
-          <a href="assets/diagrams/opnsense-firewall-lab-final.png" target="_blank" rel="noopener noreferrer" aria-label="Finale OPNsense-Lab-Architektur in voller Größe öffnen">
-            <img src="assets/diagrams/opnsense-firewall-lab-final.png" alt="Symmetrisch aufgebautes Architekturdiagramm: links zentraler Administrationsrechner mit Visual Studio Code, PowerShell und SSH; mittig Hyper-V mit OPNsense-VM, virtuellem WAN, Management-, Benutzer- und Servernetz sowie Internet und WireGuard-Remote-Laptop; rechts oben Legende; unten Lernschwerpunkte." width="1672" height="941" loading="eager" decoding="async">
-          </a>
+          <div class="responsive-diagram-viewport" role="region" tabindex="0" aria-label="Architekturdiagramm: auf kleinen Bildschirmen seitlich verschieben">
+            <a href="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" target="_blank" rel="noopener noreferrer" aria-label="Architektur mit FRITZ!Box, Hyper-V und optionalen NAT-Stufen in voller Größe öffnen">
+              <img src="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" alt="Geplante OPNsense-Lab-Architektur: links der physische Windows-Admin-Laptop mit Hyper-V, Visual Studio Code und PowerShell; zentral die Internetanbindung über eine physische FRITZ!Box zum Hyper-V-WAN-vSwitch und zur OPNsense-VM sowie getrennte Management-, Benutzer- und Servernetze. Ein zusätzlicher NAT-Hop und eine lokale WireGuard-Testpeer-VM sind optional. Rechts steht die Legende." width="1760" height="1120" loading="eager" decoding="async">
+            </a>
+          </div>
           <figcaption>
-            Geplante Gesamtarchitektur mit zentraler Administration, Hyper-V, OPNsense, Netzwerksegmentierung, Zabbix und WireGuard. Die VPN-Verbindung ist schematisch dargestellt; ein möglicher vorgeschalteter Internetrouter mit Portweiterleitung ist nicht eingezeichnet. Die Komponenten werden im Lab schrittweise umgesetzt und geprüft.
-            <a href="assets/diagrams/opnsense-firewall-lab-final.png" target="_blank" rel="noopener noreferrer">Grafik in voller Größe öffnen ↗</a>
+            Geplante Architektur mit physischer FRITZ!Box, Hyper-V und OPNsense. Gestrichelte Komponenten sind optional: zusätzliche NAT-Stufen und eine WireGuard-Test-VM im getrennten WAN-Testnetz. Ein vSwitch führt selbst kein NAT aus. Die tatsächlich verwendete WAN-Anbindung wird beim Aufbau überprüft.
+            <span class="diagram-mobile-hint">Auf dem Smartphone das Diagramm seitlich verschieben oder in voller Größe öffnen.</span>
+            <a href="assets/diagrams/opnsense-firewall-lab-mit-router-nat.svg" target="_blank" rel="noopener noreferrer">Architekturdiagramm groß öffnen ↗</a>
           </figcaption>
         </figure>
+
+        <h3>Was bedeutet die FRITZ!Box- und NAT-Strecke?</h3>
+        <p>
+          Die FRITZ!Box ist der physische Router vor dem Laptop. Der Hyper-V-WAN-vSwitch
+          stellt die virtuelle Verbindung zur OPNsense-WAN-Schnittstelle her:
+          Ein virtueller Switch schaltet Netzwerkverkehr, führt aber allein
+          <strong>kein NAT</strong> aus. Ob die WAN-Seite direkt über einen
+          externen vSwitch mit dem Heimnetz verbunden wird oder über das
+          Windows-NAT des Hosts, entscheidet die konkrete Laboranbindung.
+          Eine zusätzliche virtuelle Router-VM kann einen weiteren
+          NAT-Übergang demonstrieren, ist aber für den Basisaufbau nicht erforderlich.
+        </p>
+        <p>
+          <strong>WireGuard bleibt eine optionale Übung innerhalb des Labs.</strong>
+          Der Admin-Laptop verwaltet die vorhandenen VMs weiterhin direkt
+          über die internen Managementwege. Für einen späteren VPN-Test genügt
+          eine zweite VM als WireGuard-Client auf einer getrennten, WAN-seitigen
+          Teststrecke. Dadurch lernen wir Tunnelaufbau, Verschlüsselung, Routing
+          und Zugriffsregeln, ohne auf Mobilfunk oder einen externen Laptop
+          angewiesen zu sein. Für diese interne Übung ist auch keine
+          Internet-Portfreigabe an der FRITZ!Box nötig.
+        </p>
 
         <h3>Warum ich zentral mit VS Code und PowerShell administriere</h3>
         <p>
@@ -153,7 +178,7 @@
           von OPNsense wird als zusätzliche Schutzschicht in die
           Netzwerkinfrastruktur eingebunden. Das Lab konzentriert sich auf
           Netzwerksegmentierung, Routing, NAT, Firewall-Regeln, Administrationsschutz,
-          VPN, Monitoring und systematische Fehlersuche.
+          optional WireGuard-VPN, Monitoring und systematische Fehlersuche.
         </p>
         <p>
           Die GitHub-Dokumentation erklärt Aufbau, Hintergründe, Befehle und
@@ -204,9 +229,9 @@
                 <td>Vorgesehen</td>
               </tr>
               <tr>
-                <th scope="row">WireGuard-VPN</th>
-                <td>Stellt verschlüsselte Verbindungen zwischen berechtigten Endpunkten beziehungsweise Netzen bereit.</td>
-                <td>Vorgesehen</td>
+                <th scope="row">WireGuard-VPN (optionale Übung)</th>
+                <td>Stellt verschlüsselte Verbindungen zwischen berechtigten Endpunkten beziehungsweise Netzen bereit. Im Lab wird eine Test-VM auf der WAN-Seite als Peer verwendet.</td>
+                <td>Optional</td>
               </tr>
               <tr>
                 <th scope="row">Grundhärtung und Administrationsschutz</th>
