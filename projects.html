@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261020-1">
+  <link rel="stylesheet" href="assets/styles.css?v=20261020-2">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
 </head>
@@ -57,101 +57,176 @@
     </section>
 
 
+
     <section class="section report-section" id="opnsense">
       <article class="project-card lab-intro-article">
         <div class="project-topline">
-          <span class="project-type">OPNsense · Firewall · Lernmethodik</span>
+          <span class="project-type">OPNsense · Firewall · Netzwerksicherheit</span>
           <span class="project-state active-state">Ankündigung · In aktiver Entwicklung</span>
         </div>
-        <h2>Lernen mit KI – aber richtig: Mein Konzept für nachhaltige IT-Kompetenz</h2>
+        <h2>OPNsense-Firewall-Lab: Netzwerkschutz für mittelständische Unternehmen</h2>
         <p class="project-date">Angekündigt am <time datetime="2026-10-20">20.10.2026</time> <span aria-hidden="true">·</span> Stand: <time datetime="2026-10-20">20.10.2026</time></p>
+
         <p class="article-lead">
-          Das Firewall-Lab befindet sich im Aufbau. Dieser Beitrag stellt zunächst die Idee,
-          die wissenschaftlichen Grundlagen und den vorgesehenen Lernweg vor. Technische
-          Anleitungen, geprüfte Konfigurationen, Störungsszenarien und Anki-Downloads werden
-          erst ergänzt, wenn die jeweiligen Inhalte erarbeitet und überprüft sind.
+          <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
+          eigenständig eingrenzen:</strong> Genau dafür entsteht dieses Lab. Ihr bekommt
+          eine nachvollziehbare technische Dokumentation und künftig die passenden Dateien
+          und Skripte auf GitHub. Diese könnt ihr in Visual Studio Code ansehen, anpassen
+          und – wo vorgesehen – in eurer eigenen Testumgebung ausführen. Die eigentliche
+          Firewall konfiguriert ihr unter anderem über OPNsense. Ergänzende Anki-Lernkarten
+          helfen euch, das entscheidende Fachwissen langfristig im Kopf zu behalten.
+        </p>
+        <p class="article-availability">
+          <strong>Aktueller Stand:</strong> Die Einführung ist veröffentlicht; die technische
+          Anleitung, geprüfte Beispielkonfigurationen und Lernkarten-Downloads entstehen
+          im Verlauf der Lab-Arbeit.
         </p>
 
-        <h3>Entstanden aus drei Jahren intensivem Lernen</h3>
+        <h3>Warum ich dieses Lab entwickle</h3>
         <p>
-          Seit meiner Umschulung zum Fachinformatiker für Systemintegration beschäftige ich mich
-          nahezu täglich mit neuen Technologien und komplexen technischen Zusammenhängen.
-          Wer über Jahre hinweg intensiv lernt, stellt sich irgendwann eine entscheidende Frage:
-          <strong>Wie kann ich möglichst effizient lernen, das Wissen langfristig behalten
-          und es anschließend selbstständig in der Praxis anwenden?</strong>
+          Seit meiner Umschulung zum Fachinformatiker für Systemintegration lerne ich
+          seit fast drei Jahren intensiv neue Technologien. Dabei beschäftigt mich vor
+          allem eine Frage: <strong>Wie bleiben die wichtigen Zusammenhänge auch Wochen
+          und Monate später abrufbar – und wie setzt man sie selbstständig ein?</strong>
         </p>
         <p>
-          Aus dieser Frage entstand mein eigenes KI-gestütztes Lernkonzept, das ich erstmals
-          systematisch in diesem OPNsense-Firewall-Lab einsetze und dokumentiere.
+          Besonders hilfreich waren für mich gut dokumentierte Praxisaufgaben in
+          Kombination mit wiederholtem Lernen über Anki-Karten. Aus dieser eigenen
+          Erfahrung und einer Recherche zur Lernforschung habe ich den Lernaufbau
+          für dieses Projekt entwickelt. Ich möchte die Methode hier mit euch teilen,
+          damit ihr nicht nur eine Konfiguration nachbaut, sondern die Technik dahinter
+          versteht und später selbst anwenden könnt.
         </p>
 
-        <h3>Was die Wissenschaft über das Lernen mit KI zeigt</h3>
+        <h3>Was ihr konkret lernt und erhaltet</h3>
         <p>
-          Gemeinsam mit KI habe ich wissenschaftliche Untersuchungen zu den positiven und negativen
-          Auswirkungen KI-gestützten Lernens recherchiert und verglichen. Dazu gehören eine
-          Forschungsübersicht mit <strong>85 Studien, davon 49 in einer Metaanalyse</strong>,
-          sowie eine weitere Übersichtsarbeit mit <strong>123 Studien</strong>.
-          Die Untersuchungen können sich überschneiden und ihre Fallzahlen dürfen nicht
-          als unabhängige Gesamtzahl addiert werden.
+          Ausgangspunkt ist ein realistisches Szenario für ein kleines oder
+          mittelständisches Unternehmen: Eine <strong>Open-Source-Firewall auf Basis
+          von OPNsense</strong> wird als zusätzliche Schutzschicht in die
+          Netzwerkinfrastruktur eingebunden. Das Lab konzentriert sich auf
+          Netzwerksegmentierung, Routing, NAT, Firewall-Regeln, Administrationsschutz,
+          VPN, Monitoring und systematische Fehlersuche.
         </p>
         <p>
-          Die zentrale Erkenntnis: KI kann durch individuelle Erklärungen, unmittelbares Feedback
-          und gezielte Übungen unterstützen. Wer dagegen die eigentliche Denkarbeit dauerhaft an
-          KI abgibt, riskiert oberflächliches Verständnis, mangelnde Selbstständigkeit und
-          geringeren langfristigen Lernerfolg. Ob solche Nachteile auftreten, hängt wesentlich
-          davon ab, wie KI beim Lernen eingesetzt wird.
+          Die <strong>GitHub-Dokumentation</strong> erklärt Aufbau, Hintergründe,
+          Befehle und Prüfschritte. Bereitgestellte Skripte und Dateien lassen sich in
+          <strong>Visual Studio Code</strong> nachvollziehen und bearbeiten. So entsteht
+          nach und nach eine verständliche <strong>Grundkonfiguration als Ausgangspunkt
+          für eigene Testumgebungen</strong> – keine fertige Universal-Firewall, die
+          ohne Prüfung in jedes Unternehmensnetz übernommen werden sollte.
         </p>
-        <p><strong>Eine mit KI erfolgreich abgeschlossene Aufgabe bedeutet noch lange nicht,
-          dass man die dafür benötigten Fähigkeiten selbst beherrscht.</strong></p>
+        <p>
+          Zusätzlich wird es <strong>Anki-Lernkarten zum kostenlosen Download</strong>
+          geben. Sie ergänzen die praktische Anleitung um die wichtigsten Begriffe,
+          Zusammenhänge und Diagnoseentscheidungen. Aus meiner bisherigen Lernerfahrung
+          ist genau diese Kombination aus eigenem Ausprobieren und aktivem Wiederholen
+          besonders wirkungsvoll, um das Wesentliche langfristig zu behalten.
+          Ihr braucht dafür selbst <strong>keine KI</strong>.
+        </p>
 
-        <h3>Mein daraus entwickeltes Lernkonzept</h3>
-        <p>Deshalb kombiniere ich etablierte lernpsychologische Methoden mit einem gezielt eingesetzten KI-Lerncoach:</p>
+        <h3>Wie das Lernkonzept funktioniert</h3>
+        <p>
+          Für die Entwicklung des Konzepts habe ich mithilfe von KI Studien zu
+          Chancen und Risiken des KI-gestützten Lernens recherchiert. Eine
+          Forschungsübersicht umfasst <strong>85 Studien</strong>, davon 49 in einer
+          Metaanalyse; eine weitere Übersichtsarbeit betrachtet <strong>123 Studien</strong>.
+          Die Arbeiten überschneiden sich möglicherweise und dürfen nicht einfach
+          zusammengezählt werden.
+        </p>
+        <p>
+          Die Untersuchungen zeigen sowohl Vorteile durch gezieltes Feedback und
+          passende Übungen als auch Risiken, wenn die KI zu viel Denkarbeit übernimmt.
+          Deshalb nutze ich KI hauptsächlich bei der Erstellung und Prüfung der
+          Lernmaterialien. <strong>Für euch stehen das eigene Verstehen, Ausprobieren
+          und Wiederholen im Mittelpunkt.</strong>
+        </p>
         <ul class="learning-methods">
-          <li><strong>Active Recall:</strong> Wissen eigenständig aus dem Gedächtnis abrufen.</li>
-          <li><strong>Spaced Repetition:</strong> Langfristiges Behalten durch zeitversetzte Wiederholungen mit Anki und FSRS.</li>
-          <li><strong>Self-Explanation:</strong> Technische Zusammenhänge in eigenen Worten erklären.</li>
-          <li><strong>Adaptive Unterstützung:</strong> Hilfestellung passend zum vorhandenen Wissen.</li>
-          <li><strong>Eigenständiges Problemlösen:</strong> Erst selbst analysieren, dann gezielte KI-Hinweise erhalten.</li>
-          <li><strong>Interleaving und Transfertraining:</strong> Unterschiedliche Fehlerbilder kombinieren und unbekannte Störungen diagnostizieren.</li>
-          <li><strong>Praktische Verifikation:</strong> Konfigurationen selbst durchführen, überprüfen und Fehlerursachen nachvollziehen.</li>
+          <li>
+            <strong>Active Recall – Wissen aktiv abrufen</strong>
+            <p>Statt eine Erklärung immer wieder zu lesen, beantwortet ihr eine Frage
+            zunächst aus dem Gedächtnis. Eine Lernkarte könnte fragen: „Warum wird
+            ein Paket von dieser Firewall-Regel blockiert?“ Erst danach schaut ihr
+            euch die Antwort an. So übt ihr, Wissen selbst verfügbar zu machen.</p>
+          </li>
+          <li>
+            <strong>Spaced Repetition – in sinnvollen Abständen wiederholen</strong>
+            <p><a href="https://apps.ankiweb.net/" target="_blank" rel="noopener noreferrer">Anki</a>
+            ist ein Lernkartenprogramm, das fällige Fragen immer wieder abfragt.
+            <strong>FSRS</strong> (Free Spaced Repetition Scheduler) ist ein
+            Wiederholungsalgorithmus in Anki: Er nutzt eure bisherigen Antworten,
+            um geeignete Zeitabstände für die nächsten Wiederholungen zu bestimmen.
+            So müsst ihr bereits gut beherrschte Inhalte nicht unnötig oft üben.</p>
+          </li>
+          <li>
+            <strong>Self-Explanation – selbst erklären können</strong>
+            <p>Ihr beschreibt mit eigenen Worten, warum eine Regel funktioniert
+            oder welchen Weg ein Netzwerkpaket nimmt. Wer einen Ablauf verständlich
+            erklären kann, bemerkt dabei oft auch eigene Verständnislücken.</p>
+          </li>
+          <li>
+            <strong>Adaptive Unterstützung – Hilfen passend zum Lernstand</strong>
+            <p>Bei der Erstellung passe ich Erklärungen und Beispiele an die
+            Schwierigkeit an: Neue Themen werden zunächst anschaulich erklärt,
+            später nehmen die Hilfen ab. Die Materialien sollen damit nicht
+            überfordern, aber auch nicht jeden Denkschritt vorwegnehmen.</p>
+          </li>
+          <li>
+            <strong>Eigenständiges Problemlösen – erst überlegen, dann nachsehen</strong>
+            <p>Diagnosekarten schildern beispielsweise einen Client, der einen
+            Server nicht erreicht. Ihr überlegt zuerst, ob Routing, DNS oder
+            eine Firewall-Regel die Ursache sein könnte, und welche Prüfung
+            sinnvoll wäre. Auf der Kartenrückseite folgt die Einordnung samt
+            möglichem Lösungsweg – nicht schon auf der Vorderseite.</p>
+          </li>
+          <li>
+            <strong>Interleaving und Transfertraining – unterschiedliche Fälle kombinieren</strong>
+            <p>Aufgaben zu DNS, NAT, Routing und Firewall-Regeln werden gemischt,
+            statt nur einen Fehlertyp hintereinander zu üben. Dadurch sollt ihr
+            auch bei einem unbekannten Fehlerbild die passenden Prüfungen
+            auswählen können.</p>
+          </li>
+          <li>
+            <strong>Praktische Verifikation – Ergebnisse wirklich prüfen</strong>
+            <p>Eine gespeicherte Konfiguration ist noch kein Funktionsnachweis.
+            Ihr kontrolliert beispielsweise mit Verbindungstests, Logs oder
+            Paketmitschnitten, ob erlaubte Verbindungen funktionieren und
+            unerwünschte Zugriffe tatsächlich blockiert werden.</p>
+          </li>
         </ul>
 
-        <h3>Mehr als nur eine Firewall-Anleitung</h3>
+        <h3>Ein fundierter Einstieg – kein vollständiger Enterprise-Betrieb</h3>
         <p>
-          Dieses Lab soll nicht nur zeigen, wie eine OPNsense-Firewall eingerichtet wird.
-          Es soll euch ermöglichen, die dahinterliegenden Netzwerkmechanismen zu verstehen,
-          Konfigurationen selbstständig umzusetzen und auch unbekannte Störungen systematisch
-          zu beheben. Vorgesehen sind unter anderem getrennte Netze, Routing, NAT, Firewall-Regeln,
-          VPN, Monitoring sowie praxisnahe Fehlerszenarien.
+          Dieses Lab soll euch möglichst direkt an die entscheidenden Grundlagen
+          heranführen: Ihr versteht, wie eine zusätzliche Firewall-Schutzschicht
+          für ein mittelständisches Netzwerk geplant, eingerichtet und geprüft
+          werden kann. Die Übungen sollen den Einstieg erleichtern und euer
+          vorhandenes Netzwerk- und Sicherheitswissen praktisch erweitern.
         </p>
         <p>
-          Ich werde den technischen Aufbau, Hintergründe, Diagnoseübungen und typische
-          Fehlerquellen dokumentieren. Passende <strong>Anki-Lernkarten zum kostenlosen Download
-          sind geplant</strong>; derzeit stehen sie für dieses Lab noch nicht bereit.
+          In größeren oder besonders ausfallkritischen Umgebungen kommen weitere
+          Anforderungen dazu: beispielsweise Hochverfügbarkeit, dokumentierte
+          Änderungs- und Freigabeprozesse, abgesicherte Wartungsfenster,
+          Notfall- und Wiederherstellungsverfahren, umfassendes Monitoring
+          sowie klare Zuständigkeiten im Betrieb. Diese Unterschiede werde
+          ich an passenden Stellen der Lerneinheiten ausdrücklich erklären.
+          Sie sind aber <strong>nicht das Ausbildungsziel dieses Grundlagen-Labs</strong>.
         </p>
         <p>
-          Das Konzept verbindet etablierte Lernmethoden auf eine für dieses Projekt eigens
-          entwickelte Weise. Es ist noch kein wissenschaftlich validiertes Trainingsprogramm,
-          sondern ein praxisorientierter Ansatz, den ich während des Projekts erprobe
-          und weiterentwickle.
-        </p>
-        <p class="article-takeaway">
-          Mein Ziel ist nicht, mit KI möglichst schnell eine Aufgabe zu erledigen.
-          Mein Ziel ist, mit KI möglichst effizient die Kompetenz aufzubauen,
-          sie künftig selbstständig lösen zu können.
+          Das ist eine Abgrenzung des <em>Lernumfangs</em>, nicht der technischen
+          Einsatzmöglichkeiten von OPNsense. Eine produktive Einführung setzt
+          immer eine zur jeweiligen Umgebung passende Sicherheitsplanung,
+          Tests, Backups und betriebliche Verantwortung voraus.
         </p>
 
-        <h3>Wissenschaftliche Grundlagen</h3>
+        <h3>Wissenschaftliche und technische Grundlagen</h3>
         <ul class="source-list">
-          <li><a href="https://doi.org/10.1007/s10462-026-11665-9" target="_blank" rel="noopener noreferrer">Boolzen et al. (2026): Systematische Übersichtsarbeit und Metaanalyse zu generativer KI im MINT-Unterricht (85 Studien)</a></li>
-          <li><a href="https://doi.org/10.3390/bs16071150" target="_blank" rel="noopener noreferrer">Generative AI, Cognitive Offloading, and Learner Agency (2026): Übersichtsarbeit mit 123 Studien</a></li>
-          <li><a href="https://doi.org/10.1177/1529100612453266" target="_blank" rel="noopener noreferrer">Dunlosky et al. (2013): Improving Students' Learning With Effective Learning Techniques</a></li>
+          <li><a href="https://doi.org/10.1007/s10462-026-11665-9" target="_blank" rel="noopener noreferrer">Boolzen et al. (2026): Forschungsübersicht zu generativer KI im MINT-Unterricht (85 Studien)</a></li>
+          <li><a href="https://doi.org/10.3390/bs16071150" target="_blank" rel="noopener noreferrer">Generative AI, Cognitive Offloading, and Learner Agency (2026): Übersichtsarbeit zu 123 Studien</a></li>
+          <li><a href="https://doi.org/10.1177/1529100612453266" target="_blank" rel="noopener noreferrer">Dunlosky et al. (2013): Wirksame Lernmethoden im Vergleich</a></li>
           <li><a href="https://doi.org/10.1073/pnas.2422633122" target="_blank" rel="noopener noreferrer">Bastani et al. (2025): Generative AI without guardrails can harm learning</a></li>
+          <li><a href="https://docs.ankiweb.net/manual/deck-options" target="_blank" rel="noopener noreferrer">Anki-Handbuch: Lernkarten, Wiederholungsoptionen und FSRS</a></li>
+          <li><a href="https://docs.opnsense.org/" target="_blank" rel="noopener noreferrer">Offizielle OPNsense-Dokumentation</a></li>
         </ul>
-        <p class="article-status-note"><strong>Projektstatus:</strong> Ankündigung veröffentlicht am
-          <time datetime="2026-10-20">20.10.2026</time>. Die praktische Lab-Dokumentation
-          wird laufend ergänzt. Veröffentlichte Schritte und Ergebnisse werden von geplanten
-          Arbeiten klar unterschieden.</p>
       </article>
     </section>
 
