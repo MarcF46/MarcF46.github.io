@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261102-1">
+  <link rel="stylesheet" href="assets/styles.css?v=20261102-2">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
   <style>
@@ -67,16 +67,16 @@
         <section class="lab-progress-report" aria-labelledby="opnsense-progress-title">
           <span class="lab-progress-kicker">Praxisbericht · 02.11.2026</span>
           <h3 id="opnsense-progress-title">Von der Ankündigung zur getesteten Laborinfrastruktur</h3>
-          <p>Nach der Projektankündigung vom 20.10.2026 habe ich eine erste OPNsense-Infrastruktur unter Hyper-V aufgebaut, den administrativen Zugriff eingerichtet und Netzwerk- und Diensttests mit einem Debian-Client durchgeführt. Die nachfolgenden Angaben beziehen sich auf die am 01.11.2026 dokumentierten Arbeiten. Ich unterscheide zwischen nachgewiesenen Teilfunktionen, geplanten Komponenten und offenen Prüfungen.</p>
+          <p>Seit der Projektankündigung vom 20.10.2026 ist aus dem geplanten Aufbau eine erste praktisch eingerichtete OPNsense-Infrastruktur unter Hyper-V geworden. Dazu gehören ein administrativer Zugang und Netzwerk- und Diensttests mit einem Debian-Client. Die folgenden Ergebnisse stammen aus den dokumentierten Arbeiten vom 01.11.2026. Um den Entwicklungsstand nachvollziehbar zu halten, sind erfolgreich geprüfte Teilfunktionen und noch offene Aufgaben getrennt aufgeführt.</p>
 
           <div class="lab-progress-columns">
             <section class="lab-progress-panel" aria-labelledby="lab-done">
               <h4 id="lab-done">Umgesetzt und mit Tests geprüft</h4>
               <ul>
-                <li><strong>Hyper-V und Management:</strong> Ich habe OPNsense als virtuelle Firewall eingerichtet und den Zugriff über die Weboberfläche sowie SSH (Secure Shell, verschlüsselte Fernadministration) geprüft. Die Anmeldung mit einem kryptografischen ED25519-Schlüssel funktionierte.</li>
-                <li><strong>Debian-Testclient:</strong> Ich habe LINUX-CL01 im USERS-Netz mit <code>192.168.10.137</code> eingerichtet und eine DHCP-Reservierung (Dynamic Host Configuration Protocol, feste Zuordnung einer IP-Adresse zu einem Gerät über die automatische Adressvergabe) angelegt.</li>
-                <li><strong>Host-Routing:</strong> Eine dauerhafte Route vom Windows-Host zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> habe ich eingerichtet und im PersistentStore kontrolliert.</li>
-                <li><strong>Netzwerkdienste:</strong> Ich habe die DNS-Namensauflösung (Domain Name System, Übersetzung von Namen in IP-Adressen) getestet und die Zeitsynchronisierung geprüft. Debian synchronisierte seine Uhrzeit per NTP (Network Time Protocol) mit <code>192.168.10.1</code>.</li>
+                <li><strong>Hyper-V und Management:</strong> OPNsense als virtuelle Firewall eingerichtet; Zugriff über die Weboberfläche und SSH (Secure Shell, verschlüsselte Fernadministration) erfolgreich getestet. Anmeldung mit einem ED25519-Schlüsselpaar geprüft.</li>
+                <li><strong>Debian-Testclient:</strong> LINUX-CL01 im USERS-Netz unter <code>192.168.10.137</code> eingerichtet; DHCP-Reservierung (Dynamic Host Configuration Protocol, feste IP-Adresszuordnung bei automatischer Adressvergabe) angelegt.</li>
+                <li><strong>Host-Routing:</strong> Dauerhafte Route vom Windows-Host zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> eingerichtet und im PersistentStore kontrolliert.</li>
+                <li><strong>Netzwerkdienste:</strong> DNS-Namensauflösung (Domain Name System, Übersetzung von Namen in IP-Adressen) erfolgreich getestet; NTP-Zeitsynchronisierung (Network Time Protocol) des Debian-Clients mit <code>192.168.10.1</code> bestätigt.</li>
                 <li><strong>HTTPS-Verbindung:</strong> Firewall-Regelfehler eingegrenzt und korrigiert; erneuter TCP/443-Verbindungstest erfolgreich.</li>
                 <li><strong>Systemwartung:</strong> Auf Debian 13 Pakete aktualisiert; Kernel <code>6.12.113+deb13-amd64</code> und erneuter SSH-Zugang nach Neustart kontrolliert.</li>
               </ul>
@@ -85,15 +85,16 @@
               <h4 id="lab-open">Offene Nachweise und Ausbauarbeiten</h4>
               <ul>
                 <li><strong>USERS zu SERVERS:</strong> Eine echte Kommunikationsprüfung zwischen separaten Endgeräten einschließlich definierter Erlaubnis- und Sperrregeln steht noch aus.</li>
-                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketwege und NAT (Network Address Translation, Übersetzung von Netzwerkadressen) sowie das gezielte Blockieren von Verbindungen muss ich noch anhand von Tests und Protokollen nachweisen.</li>
+                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketwege, das NAT-Verhalten (Network Address Translation, Übersetzung von Netzwerkadressen) und die gezielte Sperrwirkung von Regeln sind noch anhand von Verbindungstests und Protokollen nachzuweisen.</li>
                 <li><strong>Betriebsfunktionen:</strong> Ein durchgängiges Monitoring, weitere Wiederherstellungstests und die vollständige Nachbauanleitung stehen noch aus.</li>
-                <li><strong>Optionale Übungen:</strong> VLANs (Virtual Local Area Networks, logisch getrennte Netze), VPN-Zugänge (Virtual Private Networks, verschlüsselte Netzwerkverbindungen) und Hochverfügbarkeit sind noch nicht als umgesetzt nachgewiesen. Für Hochverfügbarkeit plane ich einen gesonderten Leitfaden.</li>
+                <li><strong>Optionale Übungen:</strong> VLANs (Virtual Local Area Networks, logisch getrennte Netze), VPN-Zugänge (Virtual Private Networks, verschlüsselte Netzwerkverbindungen) und Hochverfügbarkeit sind noch nicht als umgesetzt nachgewiesen. Ein gesonderter Leitfaden zur Hochverfügbarkeit ist vorgesehen.</li>
               </ul>
             </section>
           </div>
-          <h4>Praxisbeispiel: HTTPS-Timeout systematisch untersucht</h4>
-          <p>Obwohl die DNS-Auflösung funktionierte, scheiterte mein HTTPS-Verbindungstest mit einer Zeitüberschreitung (Timeout, Exitcode <code>124</code>). Bei der Prüfung fand ich eine unpassende Firewall-Regel: Der <strong>Quellport</strong> war auf <code>443</code> beschränkt. Normalerweise verwendet ein Client für eine ausgehende HTTPS-Verbindung einen dynamischen Quellport; <code>443/TCP</code> ist hier der <strong>Zielport</strong> des Webdienstes. Ich korrigierte die Regel auf einen beliebigen Quellport und wiederholte den Test erfolgreich (Exitcode <code>0</code>).</p>
-          <p>Die entscheidende Diagnoseerfahrung: Eine erfolgreiche DNS-Auflösung bestätigt nur die Namensauflösung, nicht die Erreichbarkeit des TCP-Dienstes. Ich überprüfe daher die einzelnen Voraussetzungen einer Verbindung getrennt und bewerte eine Konfiguration erst anhand des anschließenden Funktionstests.</p>
+          <h4>Praxisbeispiel: TCP-Timeout beim Verbindungsaufbau zu Port 443</h4>
+          <p>Bei einem Verbindungstest zu <code>deb.debian.org</code> trat eine Zeitüberschreitung auf. Die Ursache war nicht sofort ersichtlich, denn die Namensauflösung funktionierte. In der betreffenden Firewall-Regel war jedoch der <strong>Quellport</strong> fälschlich auf <code>443</code> begrenzt. Ein Client verwendet für eine ausgehende Verbindung in der Regel einen dynamischen Quellport; <code>443/TCP</code> ist hier der <strong>Zielport</strong>. Deshalb musste ich den Quellport der Regel auf <code>any</code> (beliebig) ändern. Der wiederholte Test lieferte anschließend den erwarteten <strong>Exit-Code 0</strong>.</p>
+          <p><strong>So wurde der Fehler eingegrenzt:</strong> Zuerst zeigte <code>getent ahostsv4 deb.debian.org</code>, dass der Name in eine IPv4-Adresse aufgelöst werden konnte. Anschließend prüfte <code>timeout 8 bash -c 'echo &gt; /dev/tcp/deb.debian.org/443'</code>, ob innerhalb von acht Sekunden eine TCP-Verbindung zum Zielport 443 zustande kam. Zunächst lief diese Prüfung in ein Timeout. Erst danach wurden die Portbedingungen der Firewall-Regel kontrolliert, die fehlerhafte Quellport-Vorgabe korrigiert und derselbe Verbindungstest wiederholt. Dadurch ließ sich die Wirkung der Korrektur vergleichen, ohne DNS und TCP-Erreichbarkeit miteinander zu verwechseln.</p>
+          <p><strong>Was bedeuten die Exit-Codes?</strong> Linux-Programme geben nach ihrer Ausführung einen numerischen Rückgabestatus an die aufrufende Shell zurück; mit <code>echo $?</code> kann er im Terminal angezeigt werden. Der Wert <code>124</code> kam hier vom Programm <code>timeout</code>: Die vorgegebenen acht Sekunden waren abgelaufen, ohne dass der Testbefehl erfolgreich endete. Nach der Regelkorrektur bedeutete <code>0</code>, dass der Befehl erfolgreich abgeschlossen wurde und die TCP-Verbindung hergestellt werden konnte. <strong>Das sind keine HTTP-Statuscodes.</strong> Der Test überprüfte die TCP-Erreichbarkeit von Port 443, aber noch keinen vollständigen HTTPS-Aufruf mit TLS-Verschlüsselung oder den Inhalt einer Webseite.</p>
           <h4>Adressierung der Laborumgebung</h4>
           <div class="lab-scope-table-wrap" role="region" tabindex="0" aria-label="Adressbereiche der OPNsense-Laborumgebung">
             <table class="lab-scope-table">
@@ -129,50 +130,84 @@
           </div>
           <figcaption>
             Geplante Gesamtarchitektur des Firewall-Labs mit zentraler Administration, Netzwerksegmentierung, Monitoring und optionalen Erweiterungen. Der WAN-vSwitch übernimmt selbst kein NAT; ein physischer Internetrouter und mögliche weitere NAT-Stufen sind in dieser Übersicht vereinfacht dargestellt. Die einzelnen Komponenten werden während der praktischen Umsetzung geprüft.
-            <span class="diagram-mobile-hint">Auf dem Smartphone das Diagramm seitlich verschieben oder in voller Größe öffnen.</span>
+            <span class="diagram-mobile-hint">Für eine besser lesbare Detailansicht das Diagramm öffnen; auf schmalen Bildschirmen kannst du es seitlich verschieben.</span>
             <a href="assets/diagrams/opnsense-firewall-lab-architektur-final.svg?v=3a447be2" target="_blank" rel="noopener noreferrer">SVG-Architektur in voller Größe öffnen ↗</a>
           </figcaption>
         </figure>
 
         <h3>Was bedeutet die FRITZ!Box- und NAT-Strecke?</h3>
         <p>
-          In meiner Umgebung steht die FRITZ!Box als physischer Router vor dem
-          Windows-Laptop. Die virtuelle Netzwerkanbindung von Hyper-V stellt
-          Verbindungen zur WAN-Seite (Wide Area Network, hier die nach außen
-          gerichtete Netzwerkschnittstelle) der OPNsense-Firewall her.
-          Dabei unterscheide ich zwei Funktionen: Ein virtueller Switch
-          verbindet Netzwerkanschlüsse; <strong>NAT</strong> übersetzt dagegen
-          IP-Adressen zwischen Netzen. Der Switch führt diese Übersetzung nicht
-          selbst aus. Je nach Laboraufbau kann die WAN-Anbindung über einen
-          externen virtuellen Switch oder über das NAT des Windows-Hosts
-          erfolgen. Eine zusätzliche Router-VM wäre eine spätere Testoption,
-          ist für meinen Basisaufbau aber nicht nötig.
+          In meinem Lab ist die FRITZ!Box der physische Internetrouter vor dem
+          Windows-Laptop. Die OPNsense-Firewall besitzt eine
+          <strong>WAN-Schnittstelle</strong> (Wide Area Network): Über diese
+          führt der Weg zum vorgelagerten Router und weiter über den
+          Internetanbieter (<strong>ISP – Internet Service Provider</strong>)
+          ins Internet. Als WAN-Anbindung nutze ich im aktuellen Hyper-V-Lab
+          den von Windows verwalteten <strong>Default Switch</strong>.
+          Hierbei muss man zwei Funktionen unterscheiden: Ein virtueller
+          Switch verbindet Netzwerkschnittstellen, während
+          <strong>NAT (Network Address Translation, Netzwerkadressübersetzung)</strong>
+          IP-Adressen und gegebenenfalls Ports an einem Netzübergang umsetzt.
+          Der Switch selbst erledigt diese Übersetzung nicht; beim Default Switch
+          wird die NAT-Anbindung vom Windows-Host bereitgestellt.
+        </p>
+        <p>
+          Auch die <strong>FRITZ!Box kann NAT ausführen</strong> – im üblichen
+          IPv4-Routerbetrieb übersetzt sie die privaten Adressen des Heimnetzes
+          für den Internetzugang. Zusätzlich kann OPNsense beim Übergang
+          aus dem Lab-Netz auf ihre WAN-Seite NAT einsetzen. Damit sind
+          <strong>mehrere NAT-Stufen hintereinander</strong> möglich.
+          Ein beispielhafter IPv4-Paketweg lautet dann:
+          Testclient → OPNsense (bei aktiviertem Outbound-NAT) →
+          Windows-Host mit Default-Switch-NAT → FRITZ!Box mit Router-NAT →
+          Internetanbieter. Welche Stufen tatsächlich aktiv sind, hängt
+          von den jeweiligen Einstellungen ab; die Aufzählung ist
+          keine Behauptung, dass jede Übersetzung bereits einzeln
+          nachgewiesen wurde.
+        </p>
+        <p>
+          Alternativ könnte eine OPNsense-WAN-Schnittstelle über einen
+          <strong>externen Hyper-V-Switch</strong> direkt mit dem Heimnetz
+          verbunden werden: Dann entfällt an dieser Stelle das Windows-NAT,
+          während die FRITZ!Box im IPv4-Routerbetrieb weiterhin NAT
+          durchführen kann. Eine zusätzliche virtuelle Router-VM wäre
+          lediglich eine weitere mögliche Teststufe.
+          Wichtig für die Einordnung: Bei IPv6 und bei anderen
+          Anschlussarten kann der tatsächliche Weg anders aussehen.
         </p>
         <p>
           <strong>WireGuard bleibt eine optionale Übung innerhalb des Labs.</strong>
-          Meinen Administrations-Laptop verbinde ich weiterhin über die internen
-          Managementwege mit den vorhandenen virtuellen Maschinen (VMs).
-          Später möchte ich eine zweite VM als WireGuard-Client auf einer
-          getrennten, WAN-seitigen Teststrecke einsetzen. Damit kann ich
-          den Aufbau eines verschlüsselten Tunnels, das Routing und die
-          Zugriffsregeln nachvollziehen, ohne dafür einen externen Laptop
-          oder eine Mobilfunkverbindung zu benötigen. Für diesen internen
-          Test ist auch keine Internet-Portfreigabe an der FRITZ!Box erforderlich.
+          Der Administrations-Laptop erreicht die vorhandenen virtuellen
+          Maschinen (VMs) weiterhin über das interne Managementnetz.
+          Für den späteren VPN-Test ist eine zweite VM als WireGuard-Client
+          auf einer getrennten, WAN-seitigen Teststrecke vorgesehen.
+          <strong>Die Idee dahinter ist, einen Remote-Zugriff von außerhalb
+          des geschützten Lab-Netzes zu simulieren:</strong> Der Testclient
+          verbindet sich aus einem logisch externen Netz über die WAN-Seite
+          mit der Firewall und soll erst nach erfolgreichem VPN-Aufbau
+          die ausdrücklich erlaubten internen Ziele erreichen können.
+          So lassen sich Tunnelaufbau, Verschlüsselung, Routing und
+          Firewall-Regeln gezielt untersuchen, ohne einen zweiten physischen
+          Laptop oder Mobilfunk zu benötigen. Weil dieser Test innerhalb
+          der virtuellen Umgebung stattfindet, ist dafür keine Portfreigabe
+          aus dem öffentlichen Internet an der FRITZ!Box nötig.
         </p>
         <div class="remote-module-link">
           <span class="remote-module-label">Eigenständiges Zusatzmodul · in Planung</span>
           <h3>WireGuard und sichere Remote-Administration</h3>
           <p>
-            Nach dem internen Lab möchte ich WireGuard zwischen virtuellen
-            Systemen, ein geschütztes Managementnetz und eine simulierte
-            Administrator-Workstation untersuchen. Als weiteren Baustein plane
-            ich einen Jump-Host: einen besonders abgesicherten Zwischenrechner,
-            über den Administratoren kontrolliert auf interne Systeme zugreifen.
-            Bei der Konzeption orientiere ich mich unter anderem an Empfehlungen
-            des BSI (Bundesamt für Sicherheit in der Informationstechnik) und
-            der US-Cybersicherheitsbehörde CISA (Cybersecurity and Infrastructure
-            Security Agency). Ein Smartphone wäre höchstens für einen
-            freiwilligen externen Verbindungstest vorgesehen.
+            Nach dem internen Lab habe ich zusätzlich vor, den sicheren
+            Fernzugriff mit WireGuard zwischen virtuellen Systemen
+            genauer zu untersuchen. Vorgesehen sind ein geschütztes
+            Managementnetz, eine simulierte Administrator-Workstation
+            und ein <strong>Jump-Host</strong> – ein besonders gesicherter
+            Zwischenrechner, über den sich interne Systeme kontrolliert
+            administrieren lassen. Für die Planung dienen unter anderem
+            die Empfehlungen des BSI (Bundesamt für Sicherheit in der
+            Informationstechnik) und der US-Cybersicherheitsbehörde
+            CISA (Cybersecurity and Infrastructure Security Agency)
+            als Orientierung. Ein Smartphone bleibt eine freiwillige
+            Option für einen späteren Test über das echte Internet.
           </p>
           <a class="button secondary" href="opnsense-wireguard-remote.html">WireGuard-Zusatzlab und Architektur ansehen →</a>
         </div>
@@ -197,12 +232,12 @@
           Verbindungstests und Protokollen.
         </p>
         <p>
-          <strong>Der Lerngewinn:</strong> Statt für jeden Schritt die Konsole
-          einer einzelnen VM zu öffnen, betrachte ich das Netzwerk zunehmend aus
-          Sicht der zentralen Remote-Administration. Ich sehe, welches System
-          angesprochen wird, welche Änderung ausgeführt wurde und ob sie wirklich
-          den gewünschten Effekt hatte. Das entspricht eher den Arbeitsabläufen
-          eines Administrators im laufenden IT-Betrieb.
+          <strong>Der Lerngewinn:</strong> Statt für jeden Schritt ein eigenes
+          VM-Konsolenfenster zu öffnen, lassen sich die Systeme vom zentralen
+          Administrationsarbeitsplatz aus untersuchen. Dabei bleibt nachvollziehbar,
+          welches System angesprochen wurde, welche Änderung stattgefunden hat
+          und welches Testergebnis anschließend vorlag. Genau diese klare
+          Zuordnung ist auch bei der Störungsbearbeitung im IT-Betrieb wichtig.
         </p>
         <p>
           Docker wäre für einzelne zusätzliche Dienste ebenfalls denkbar.
@@ -253,11 +288,11 @@
           die Anpassung an das jeweilige Netzwerk und zusätzliche Tests.
         </p>
         <p>
-          Ergänzend plane ich Anki-Lernkarten zum Download. Darin möchte ich
-          wichtige Begriffe, Zusammenhänge und Diagnoseentscheidungen festhalten.
-          Aus meiner eigenen Lernerfahrung ist die Verbindung aus praktischen
-          Übungen und dem zeitversetzten Wiederholen besonders hilfreich,
-          um Fachwissen langfristig abrufen zu können.
+          Ergänzend sind Anki-Lernkarten zum Download vorgesehen. Sie sollen
+          wichtige Begriffe, technische Zusammenhänge und Diagnoseentscheidungen
+          festhalten. Aus meiner bisherigen Lernerfahrung hilft besonders die
+          Verbindung aus eigenen Praxisübungen und zeitversetztem Wiederholen
+          dabei, das Fachwissen langfristig abrufen zu können.
         </p>
 
 
@@ -437,15 +472,14 @@
               Die <strong>XML-RPC-Konfigurationssynchronisierung</strong> überträgt
               ausgewählte Einstellungen wie Firewall-Regeln und NAT-Regeln
               von der primären auf die zweite Firewall. Ob die Umschaltung
-              tatsächlich funktioniert und wie lange sie dauert, muss
-              ich anhand definierter Ausfalltests prüfen.
+              funktioniert und wie lange sie dauert, muss später durch
+              definierte Ausfalltests nachgewiesen werden.
             </p>
             <p>
               Hochverfügbarkeit ist <strong>noch nicht Teil meines praktisch
-              nachgewiesenen Laborstands</strong>. Ich möchte sie in einem
-              gesonderten Leitfaden behandeln und dabei auch die Anforderungen
-              an virtuelle Switches, gemeinsame Netzwerkbereiche und eine
-              zuverlässige Synchronisation erklären.
+              nachgewiesenen Laborstands</strong>. Ein gesonderter Leitfaden
+              soll die Anforderungen an virtuelle Switches, gemeinsame
+              Netzwerkbereiche und zuverlässige Synchronisation erklären.
             </p>
           </section>
           <section>
@@ -478,8 +512,8 @@
 
         <h3>Wie das Lernkonzept funktioniert</h3>
         <p>
-          Für die Entwicklung des Konzepts habe ich mithilfe von KI Studien zu
-          Chancen und Risiken des KI-gestützten Lernens recherchiert. Eine
+          Bei der Entwicklung des Lernkonzepts habe ich Studien zu
+          Chancen und Risiken KI-gestützten Lernens als Orientierung herangezogen. Eine
           Forschungsübersicht umfasst <strong>85 Studien</strong>, davon 49 in einer
           Metaanalyse; eine weitere Übersichtsarbeit betrachtet <strong>123 Studien</strong>.
           Die Arbeiten überschneiden sich möglicherweise und dürfen nicht einfach
@@ -488,13 +522,13 @@
         <p>
           Die Untersuchungen zeigen sowohl Vorteile durch gezieltes Feedback und
           passende Übungen als auch Risiken, wenn die KI zu viel Denkarbeit übernimmt.
-          Deshalb nutze ich KI hauptsächlich bei der Erstellung und Prüfung der
-          Lernmaterialien. <strong>Für euch stehen das eigene Verstehen, Ausprobieren
-          und Wiederholen im Mittelpunkt.</strong>
+          KI unterstützt dabei vor allem die Erstellung und Überarbeitung
+          der Lernmaterialien. <strong>Das eigene Verstehen, Ausprobieren
+          und Wiederholen bleibt der Schwerpunkt.</strong>
         </p>
         <p>
-          Aus der Recherche und meinen eigenen Lernerfahrungen habe ich die folgenden
-          lernpsychologisch fundierten Methoden für dieses Lab ausgewählt.
+          Aus den recherchierten Ansätzen und meinen bisherigen Lernerfahrungen
+          ergibt sich die folgende Auswahl lernpsychologisch begründeter Methoden.
           Besonders gut untersucht sind das aktive Abrufen von Wissen und
           zeitlich verteilte Wiederholungen. Die weiteren Methoden ergänzen
           das praktische Lernen durch Erklären, Anwenden und Fehlersuche.
@@ -547,10 +581,11 @@
           <li>
             <strong>Praktische Verifikation – Ergebnisse wirklich prüfen</strong>
             <p>Eine gespeicherte Konfiguration ist noch kein Funktionsnachweis.
-            Ich prüfe deshalb mit Verbindungstests, Protokollen und bei Bedarf
-            Paketmitschnitten, ob erlaubte Verbindungen funktionieren und
-            unerwünschte Zugriffe blockiert werden. Diese Vorgehensweise
-            kannst du für eigene Testfälle übernehmen.</p>
+            Entscheidend ist die anschließende Kontrolle mit geeigneten
+            Verbindungstests, Protokollen und gegebenenfalls Paketmitschnitten:
+            Funktionieren erlaubte Verbindungen und werden unerwünschte
+            Zugriffe tatsächlich blockiert? Diese Arbeitsweise lässt sich
+            auch auf andere Firewall-Produkte übertragen.</p>
           </li>
         </ul>
 
@@ -585,11 +620,12 @@
           Enterprise-Betriebskurs zu machen.
         </p>
         <p>
-          Für mich ist dabei entscheidend: Nicht allein die Unternehmensgröße
-          bestimmt den Aufwand, sondern die Kritikalität der Dienste, die
-          Netzkomplexität und die Anforderungen an Verfügbarkeit und Sicherheit.
-          Deshalb beginne ich mit einer überschaubaren Grundkonfiguration
-          und behandle weitergehende Funktionen wie Hochverfügbarkeit getrennt.
+          Entscheidend für den Aufwand ist nicht allein die Unternehmensgröße,
+          sondern vor allem die Kritikalität der Dienste, die Netzkomplexität
+          und die Anforderungen an Verfügbarkeit und Sicherheit. Das Lab
+          konzentriert sich deshalb zunächst auf eine überschaubare
+          Grundkonfiguration. Weitergehende Funktionen wie Hochverfügbarkeit
+          erhalten eigene Abschnitte beziehungsweise Leitfäden.
         </p>
 
         <h3>Wissenschaftliche und technische Grundlagen</h3>
@@ -600,6 +636,9 @@
           <li><a href="https://doi.org/10.1073/pnas.2422633122" target="_blank" rel="noopener noreferrer">Bastani et al. (2025): Generative AI without guardrails can harm learning</a></li>
           <li><a href="https://docs.ankiweb.net/manual/deck-options" target="_blank" rel="noopener noreferrer">Anki-Handbuch: Lernkarten, Wiederholungsoptionen und FSRS</a></li>
           <li><a href="https://docs.opnsense.org/" target="_blank" rel="noopener noreferrer">Offizielle OPNsense-Dokumentation</a></li>
+          <li><a href="https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html" target="_blank" rel="noopener noreferrer">GNU Coreutils: timeout und seine Exit-Codes</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/windows-server/virtualization/hyper-v/setup-nat-network" target="_blank" rel="noopener noreferrer">Microsoft Learn: NAT-Netzwerk unter Hyper-V</a></li>
+          <li><a href="https://help.avm.de/fritzbox.php?deviceFeatures=&amp;hardware=139&amp;language=de&amp;oem=avm&amp;set=004&amp;topic=hilfe_internetdual_ip&amp;userSettings=" target="_blank" rel="noopener noreferrer">AVM: FRITZ!Box als NAT-Router</a></li>
           <li><a href="https://doi.org/10.6028/NIST.SP.800-41r1" target="_blank" rel="noopener noreferrer">NIST SP 800-41 Rev. 1: Planung, Konfiguration, Test, Einführung und Betrieb von Firewalls</a></li>
           <li><a href="https://docs.opnsense.org/manual/hacarp.html" target="_blank" rel="noopener noreferrer">OPNsense: Hochverfügbarkeit und Failover mit CARP</a></li>
           <li><a href="https://docs.opnsense.org/manual/how-tos/carp.html" target="_blank" rel="noopener noreferrer">OPNsense: CARP, pfsync und XML-RPC-Konfigurationssynchronisierung – praktisches Beispiel</a></li>
