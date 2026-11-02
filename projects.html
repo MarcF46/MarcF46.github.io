@@ -111,7 +111,7 @@
 
 
         <h3>Warum ich OPNsense ausgewählt habe</h3>
-        <p>Die Auswahl der Firewall erfolgte anhand der Anforderungen dieses Lernprojekts: nachvollziehbare Administration, virtuelle Bereitstellung, Netzwerkfunktionen und Möglichkeiten für systematische Fehlersuche. Die folgende Übersicht ist eine Orientierung und keine allgemeine Rangliste.</p>
+        <p>Ich habe mich für OPNsense entschieden, weil ich damit Netzwerkfunktionen, Zugriffsregeln und Störungsdiagnose in einer selbst aufgebauten virtuellen Umgebung nachvollziehen kann. Die folgende Übersicht zeigt meinen Vergleich vor dieser Entscheidung – keine allgemeingültige Rangliste.</p>
         <figure class="architecture-figure lab-infographic-figure">
           <div class="lab-infographic-viewport" role="region" tabindex="0" aria-label="Firewall-Vergleich auf kleinen Bildschirmen horizontal verschieben">
             <a href="assets/images/opnsense-firewall-vergleich.webp" target="_blank" rel="noopener noreferrer" aria-label="Open-Source-Firewalls-Grafik vergrößern">
@@ -273,8 +273,8 @@
         </figure>
         <h3>Welche Schutzfunktionen deckt das Lab ab?</h3>
         <p>
-          Damit ihr den praktischen Nutzen und die Grenzen von Anfang an einordnen
-          könnt, unterscheide ich zwischen der <strong>geplanten Grundkonfiguration</strong>
+          Damit du den praktischen Nutzen und die Grenzen von Anfang an einordnen
+          kannst, unterscheide ich zwischen der <strong>geplanten Grundkonfiguration</strong>
           und weitergehenden Sicherheits- und Betriebsaufgaben. Die folgende Übersicht
           beschreibt den Projektumfang – nicht bereits abgeschlossene oder
           nachgewiesen funktionierende Konfigurationen.
@@ -285,8 +285,8 @@
             <thead><tr><th scope="col">Schutzfunktion</th><th scope="col">Wozu dient sie?</th><th scope="col">Im Lab</th></tr></thead>
             <tbody>
               <tr>
-                <th scope="row">Stateful Firewall und Zugriffsregeln</th>
-                <td>Erlaubt definierte Verbindungen und blockiert unerwünschten Verkehr; berücksichtigt den Zustand bestehender Verbindungen.</td>
+                <th scope="row">Stateful Firewall (zustandsbehaftet) und Zugriffsregeln</th>
+                <td>Die Firewall merkt sich zugelassene Verbindungen und kann passende Antwortpakete zuordnen. Neue, unerwünschte Verbindungen lassen sich gezielt blockieren.</td>
                 <td>Vorgesehen</td>
               </tr>
               <tr>
@@ -301,7 +301,7 @@
               </tr>
               <tr>
                 <th scope="row">WireGuard-VPN (optionale Übung)</th>
-                <td>Stellt verschlüsselte Verbindungen zwischen berechtigten Endpunkten beziehungsweise Netzen bereit. Im Lab wird eine Test-VM auf der WAN-Seite als Peer verwendet.</td>
+                <td>Stellt verschlüsselte Verbindungen zwischen berechtigten Geräten oder Netzen bereit. Für einen späteren Test plane ich eine Client-VM auf einer getrennten WAN-seitigen Teststrecke.</td>
                 <td>Optional</td>
               </tr>
               <tr>
@@ -310,8 +310,8 @@
                 <td>Vorgesehen</td>
               </tr>
               <tr>
-                <th scope="row">Protokollierung und Zabbix-Monitoring</th>
-                <td>Erfasst wichtige Zustände und meldet ausgewählte Störungen, damit technische Probleme auffallen.</td>
+                <th scope="row">Protokollierung und Monitoring</th>
+                <td>Protokolle und Messwerte sollen auffällige Zustände sichtbar machen. Welches Monitoring-Werkzeug ich dafür im Lab einsetze, ist noch offen.</td>
                 <td>Vorgesehen</td>
               </tr>
               <tr>
@@ -430,9 +430,10 @@
             <p>
               <strong>CARP allein gleicht allerdings weder alle Firewall-Regeln
               noch bestehende Verbindungen ab.</strong> Dafür sind zwei weitere
-              Mechanismen wichtig: <strong>pfsync</strong> synchronisiert die
-              Verbindungszustände (State Tables), damit die Ersatz-Firewall
-              laufende Verbindungen möglichst ohne Neuaufbau weiterführen kann.
+              Mechanismen wichtig: <strong>pfsync</strong> synchronisiert die Verbindungszustände
+              (State Tables – Tabellen der aktuell verfolgten Verbindungen),
+              damit die Ersatz-Firewall laufende Verbindungen möglichst
+              ohne Neuaufbau weiterführen kann.
               Die <strong>XML-RPC-Konfigurationssynchronisierung</strong> überträgt
               ausgewählte Einstellungen wie Firewall-Regeln und NAT-Regeln
               von der primären auf die zweite Firewall. Ob die Umschaltung
@@ -501,23 +502,23 @@
         <ul class="learning-methods">
           <li>
             <strong>Active Recall – Wissen aktiv abrufen</strong>
-            <p>Statt eine Erklärung immer wieder zu lesen, beantwortet ihr eine Frage
-            zunächst aus dem Gedächtnis. Eine Lernkarte könnte fragen: „Warum wird
-            ein Paket von dieser Firewall-Regel blockiert?“ Erst danach schaut ihr
-            euch die Antwort an. So übt ihr, Wissen selbst verfügbar zu machen.</p>
+            <p>Statt eine Erklärung nur wiederholt zu lesen, beantwortest du eine Frage
+            zuerst aus dem Gedächtnis. Eine Lernkarte könnte fragen: „Warum wird
+            ein Paket von dieser Firewall-Regel blockiert?“ Erst danach schaust
+            du dir die Antwort an und prüfst, was du noch nicht sicher weißt.</p>
           </li>
           <li>
             <strong>Spaced Repetition – in sinnvollen Abständen wiederholen</strong>
             <p><a href="https://apps.ankiweb.net/" target="_blank" rel="noopener noreferrer">Anki</a>
             ist ein Lernkartenprogramm, das fällige Fragen immer wieder abfragt.
             <strong>FSRS</strong> (Free Spaced Repetition Scheduler) ist ein
-            Wiederholungsalgorithmus in Anki: Er nutzt eure bisherigen Antworten,
-            um geeignete Zeitabstände für die nächsten Wiederholungen zu bestimmen.
-            So müsst ihr bereits gut beherrschte Inhalte nicht unnötig oft üben.</p>
+            Wiederholungsalgorithmus in Anki: Er berücksichtigt deine bisherigen Antworten
+            bei der Berechnung der nächsten Wiederholungsabstände.
+            So musst du bereits sicher beherrschte Inhalte nicht unnötig oft üben.</p>
           </li>
           <li>
             <strong>Self-Explanation – selbst erklären können</strong>
-            <p>Ihr beschreibt mit eigenen Worten, warum eine Regel funktioniert
+            <p>Du beschreibst mit eigenen Worten, warum eine Regel funktioniert
             oder welchen Weg ein Netzwerkpaket nimmt. Wer einen Ablauf verständlich
             erklären kann, bemerkt dabei oft auch eigene Verständnislücken.</p>
           </li>
@@ -531,38 +532,39 @@
           <li>
             <strong>Eigenständiges Problemlösen – erst überlegen, dann nachsehen</strong>
             <p>Diagnosekarten schildern beispielsweise einen Client, der einen
-            Server nicht erreicht. Ihr überlegt zuerst, ob Routing, DNS oder
-            eine Firewall-Regel die Ursache sein könnte, und welche Prüfung
+            Server nicht erreicht. Du überlegst zuerst, ob Routing, DNS oder
+            eine Firewall-Regel die Ursache sein könnte und welche Prüfung
             sinnvoll wäre. Auf der Kartenrückseite folgt die Einordnung samt
             möglichem Lösungsweg – nicht schon auf der Vorderseite.</p>
           </li>
           <li>
             <strong>Interleaving und Transfertraining – unterschiedliche Fälle kombinieren</strong>
             <p>Aufgaben zu DNS, NAT, Routing und Firewall-Regeln werden gemischt,
-            statt nur einen Fehlertyp hintereinander zu üben. Dadurch sollt ihr
+            statt nur einen Fehlertyp hintereinander zu üben. Dadurch sollst du
             auch bei einem unbekannten Fehlerbild die passenden Prüfungen
             auswählen können.</p>
           </li>
           <li>
             <strong>Praktische Verifikation – Ergebnisse wirklich prüfen</strong>
             <p>Eine gespeicherte Konfiguration ist noch kein Funktionsnachweis.
-            Ihr kontrolliert beispielsweise mit Verbindungstests, Logs oder
+            Ich prüfe deshalb mit Verbindungstests, Protokollen und bei Bedarf
             Paketmitschnitten, ob erlaubte Verbindungen funktionieren und
-            unerwünschte Zugriffe tatsächlich blockiert werden.</p>
+            unerwünschte Zugriffe blockiert werden. Diese Vorgehensweise
+            kannst du für eigene Testfälle übernehmen.</p>
           </li>
         </ul>
 
         <h3>Vom KMU-Lab (kleine und mittlere Unternehmen) zum produktiven Betrieb – und was Enterprise zusätzlich verlangt</h3>
         <p>
-          <strong>Eine brauchbare Basis für die Praxis:</strong> Dieses Lab soll euch
-          möglichst schnell die wichtigen Grundlagen vermitteln und eine dokumentierte
-          Firewall-Konfiguration liefern, die ihr als Administrator in einem kleineren
-          Unternehmen weiterverwenden könnt. Dafür klärt ihr mit den zuständigen
-          IT- und Sicherheitsverantwortlichen, welche Netze und Dienste geschützt
-          werden müssen, passt die Regeln an und prüft Verbindungen, Updates,
-          Protokollierung, Sicherung und Wiederherstellung. Auf dieser Grundlage
-          kann der Schritt von der Lernumgebung in einen geregelten produktiven
-          Betrieb erfolgen.
+          <strong>Eine nachvollziehbare Grundlage für die Praxis:</strong>
+          Ich möchte im Lab die Bausteine erarbeiten, die ich auch im
+          Administrationsalltag brauche: Netzplanung, verständliche
+          Firewall-Regeln, Tests, Protokollierung und Wiederherstellung.
+          Du kannst meine dokumentierten Entscheidungen und Prüfschritte
+          als Lernbeispiele verwenden. Für einen echten Produktivbetrieb
+          müsste ich jedoch zuerst mit den zuständigen Fachleuten die
+          konkreten Anforderungen abstimmen, die Konfiguration anpassen
+          und die Sicherheits- und Funktionstests erweitern.
         </p>
         <p>
           <strong>Was bei großen, geschäftskritischen Unternehmen dazukommt:</strong>
@@ -583,12 +585,11 @@
           Enterprise-Betriebskurs zu machen.
         </p>
         <p>
-          Wichtig ist dabei die Unterscheidung: Nicht die Unternehmensgröße allein
-          entscheidet über den Aufwand, sondern vor allem die Kritikalität der
-          Dienste, die Netzkomplexität und die Anforderungen an Verfügbarkeit
-          und Sicherheit. Auch OPNsense unterstützt erweiterte Betriebsfunktionen
-          wie Hochverfügbarkeit. Das Lab setzt bewusst bei einer überschaubaren
-          und später erweiterbaren Grundkonfiguration an.
+          Für mich ist dabei entscheidend: Nicht allein die Unternehmensgröße
+          bestimmt den Aufwand, sondern die Kritikalität der Dienste, die
+          Netzkomplexität und die Anforderungen an Verfügbarkeit und Sicherheit.
+          Deshalb beginne ich mit einer überschaubaren Grundkonfiguration
+          und behandle weitergehende Funktionen wie Hochverfügbarkeit getrennt.
         </p>
 
         <h3>Wissenschaftliche und technische Grundlagen</h3>
