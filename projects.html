@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261020-5">
+  <link rel="stylesheet" href="assets/styles.css?v=20261102-1">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
   <style>
@@ -46,10 +46,10 @@
       <article class="project-card lab-intro-article">
         <div class="project-topline">
           <span class="project-type">OPNsense · Firewall · Netzwerksicherheit</span>
-          <span class="project-state active-state">Ankündigung · In aktiver Entwicklung</span>
+          <span class="project-state active-state">Praktische Umsetzung · Fortschritt dokumentiert</span>
         </div>
         <h2>OPNsense-Firewall-Lab: Netzwerkschutz für mittelständische Unternehmen</h2>
-        <p class="project-date">Stand: <time datetime="2026-10-20">20.10.2026</time></p>
+        <p class="project-date">Projektankündigung: <time datetime="2026-10-20">20.10.2026</time> · Fortschrittsbericht: <time datetime="2026-11-02">02.11.2026</time></p>
 
         <p class="article-lead">
           <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
@@ -63,6 +63,64 @@
           Firewall konfiguriert ihr unter anderem über OPNsense. Ergänzende Anki-Lernkarten
           helfen euch, das entscheidende Fachwissen langfristig im Kopf zu behalten.
         </p>
+
+        <section class="lab-progress-report" aria-labelledby="opnsense-progress-title">
+          <span class="lab-progress-kicker">Praxisbericht · 02.11.2026</span>
+          <h3 id="opnsense-progress-title">Von der Ankündigung zur getesteten Laborinfrastruktur</h3>
+          <p>Nach der Projektankündigung vom 20.10.2026 habe ich eine erste OPNsense-Infrastruktur unter Hyper-V aufgebaut, den administrativen Zugriff eingerichtet und Netzwerk- und Diensttests mit einem Debian-Client durchgeführt. Die nachfolgenden Angaben beziehen sich auf die am 01.11.2026 dokumentierten Arbeiten. Ich unterscheide zwischen nachgewiesenen Teilfunktionen, geplanten Komponenten und offenen Prüfungen.</p>
+
+          <div class="lab-progress-columns">
+            <section class="lab-progress-panel" aria-labelledby="lab-done">
+              <h4 id="lab-done">Umgesetzt und mit Tests geprüft</h4>
+              <ul>
+                <li><strong>Hyper-V und Management:</strong> OPNsense als virtuelle Firewall eingerichtet; Weboberfläche und SSH über das Managementnetz erreichbar. Administrativer SSH-Zugang mittels ED25519-Schlüssel erprobt.</li>
+                <li><strong>Debian-Testclient:</strong> LINUX-CL01 im USERS-Netz unter <code>192.168.10.137</code> eingerichtet; DHCP-Reservierung angelegt.</li>
+                <li><strong>Host-Routing:</strong> Persistente Route zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> angelegt und im PersistentStore überprüft.</li>
+                <li><strong>Netzwerkdienste:</strong> DNS-Auflösung getestet, Zeitsynchronisierung auf Windows und OPNsense überprüft; Debian synchronisierte per NTP mit <code>192.168.10.1</code>.</li>
+                <li><strong>HTTPS-Verbindung:</strong> Firewall-Regelfehler eingegrenzt und korrigiert; erneuter TCP/443-Verbindungstest erfolgreich.</li>
+                <li><strong>Systemwartung:</strong> Auf Debian 13 Pakete aktualisiert; Kernel <code>6.12.113+deb13-amd64</code> und erneuter SSH-Zugang nach Neustart kontrolliert.</li>
+              </ul>
+            </section>
+            <section class="lab-progress-panel lab-progress-panel-open" aria-labelledby="lab-open">
+              <h4 id="lab-open">Offene Nachweise und Ausbauarbeiten</h4>
+              <ul>
+                <li><strong>USERS zu SERVERS:</strong> Eine echte Kommunikationsprüfung zwischen separaten Endgeräten einschließlich definierter Erlaubnis- und Sperrregeln steht noch aus.</li>
+                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketpfade, NAT-Verhalten und blockierte Verbindungen sind noch mit geeigneten Tests und Logs zu belegen.</li>
+                <li><strong>Betriebsfunktionen:</strong> Monitoring-Auswahl, weiterführende Wiederherstellungstests und vollständige Nachbauanleitung sind noch offen.</li>
+                <li><strong>Optionale Übungen:</strong> VLAN-Szenarien, WireGuard und Hochverfügbarkeit werden hier nicht als bereits umgesetzt ausgewiesen. Für Hochverfügbarkeit ist ein gesonderter Leitfaden geplant.</li>
+              </ul>
+            </section>
+          </div>
+          <h4>Praxisbeispiel: HTTPS-Timeout systematisch untersucht</h4>
+          <p>Die DNS-Auflösung funktionierte, ein HTTPS-Test scheiterte aber mit Timeout (Exitcode <code>124</code>). Bei der anschließenden Prüfung zeigte sich eine unpassende Firewall-Regel: Der <strong>Quellport</strong> war auf <code>443</code> eingeschränkt. Bei einer gewöhnlichen ausgehenden HTTPS-Verbindung nutzt der Client hingegen einen dynamischen Quellport und verbindet sich zum <strong>Zielport 443/TCP</strong>. Nach der Korrektur auf einen beliebigen Quellport war die Wiederholung erfolgreich (Exitcode <code>0</code>).</p>
+          <p>Die entscheidende Diagnoseerfahrung: Eine erfolgreiche DNS-Auflösung bestätigt nur die Namensauflösung, nicht die Erreichbarkeit des TCP-Dienstes. Ich überprüfe daher die einzelnen Voraussetzungen einer Verbindung getrennt und bewerte eine Konfiguration erst anhand des anschließenden Funktionstests.</p>
+          <h4>Adressierung der Laborumgebung</h4>
+          <div class="lab-scope-table-wrap" role="region" tabindex="0" aria-label="Adressbereiche der OPNsense-Laborumgebung">
+            <table class="lab-scope-table">
+              <caption>Konfigurierte bzw. dokumentierte Netzbereiche – keine Aussage über vollständig getestete Segmentierung</caption>
+              <thead><tr><th scope="col">Netz</th><th scope="col">Adressbereich</th><th scope="col">OPNsense-Adresse</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Management</th><td><code>192.168.120.0/24</code></td><td><code>192.168.120.254</code></td></tr>
+                <tr><th scope="row">USERS</th><td><code>192.168.10.0/24</code></td><td><code>192.168.10.1</code></td></tr>
+                <tr><th scope="row">SERVERS</th><td><code>192.168.20.0/24</code></td><td><code>192.168.20.1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="lab-progress-footnote"><strong>Prüfgrenze:</strong> Drei unbeantwortete Ping-Anfragen an <code>192.168.20.1</code> belegen noch keine vollständige Isolation des SERVERS-Netzes: Die getestete Zieladresse gehört zu OPNsense und nicht zu einem eigenständigen Server. Ein aussagekräftiger Nachweis erfordert getrennte Endgeräte und gezielte Positiv- und Negativtests.</p>
+        </section>
+
+
+        <h3>Warum ich OPNsense ausgewählt habe</h3>
+        <p>Die Auswahl der Firewall erfolgte anhand der Anforderungen dieses Lernprojekts: nachvollziehbare Administration, virtuelle Bereitstellung, Netzwerkfunktionen und Möglichkeiten für systematische Fehlersuche. Die folgende Übersicht ist eine Orientierung und keine allgemeine Rangliste.</p>
+        <figure class="architecture-figure lab-infographic-figure">
+          <div class="lab-infographic-viewport" role="region" tabindex="0" aria-label="Firewall-Vergleich auf kleinen Bildschirmen horizontal verschieben">
+            <a href="assets/images/opnsense-firewall-vergleich.webp" target="_blank" rel="noopener noreferrer" aria-label="Open-Source-Firewalls-Grafik vergrößern">
+              <img src="assets/images/opnsense-firewall-vergleich.webp" alt="Grafischer Vergleich von OPNsense, pfSense, IPFire, Smoothwall, Untangle und VyOS mit Funktionen, Einsatzbereichen, Vor- und Nachteilen." width="1536" height="1024" loading="lazy" decoding="async">
+            </a>
+          </div>
+          <figcaption>Vergleich zur Technologieentscheidung. <strong>Lizenzhinweis:</strong> Die Grafik verwendet „Open Source“ als Sammelbezeichnung, obwohl nicht jede dargestellte Produktausprägung vollständig Open Source ist. Bei Smoothwall bezieht sich dies auf <em>Smoothwall Express</em>; Arista/Untangle NG Firewall enthält neben offenen Komponenten auch lizenzierte Produktbestandteile. <a href="https://www.arista.com/en/eula" target="_blank" rel="noopener noreferrer">Arista-Lizenzbedingungen</a> · <a href="https://www.smoothwall.org/about.html" target="_blank" rel="noopener noreferrer">Smoothwall Express</a> · <a href="assets/images/opnsense-firewall-vergleich.webp" target="_blank" rel="noopener noreferrer">In voller Größe ansehen ↗</a></figcaption>
+        </figure>
+        <h3>Geplante Gesamtarchitektur</h3>
         <figure class="architecture-figure lab-architecture-figure">
           <div class="responsive-diagram-viewport" role="region" tabindex="0" aria-label="Architekturdiagramm: auf kleinen Bildschirmen seitlich verschieben">
             <a href="assets/diagrams/opnsense-firewall-lab-architektur-final.svg?v=3a447be2" target="_blank" rel="noopener noreferrer" aria-label="Geplante Netzwerkarchitektur des OPNsense-Firewall-Labs als SVG in voller Größe öffnen">
@@ -147,9 +205,7 @@
         </p>
 
         <p class="article-availability">
-          <strong>Aktueller Stand:</strong> Die Einführung und das Architektur-Zielbild sind veröffentlicht; die technische
-          Anleitung, geprüfte Beispielkonfigurationen und Lernkarten-Downloads entstehen
-          im Verlauf der Lab-Arbeit.
+          <strong>Aktueller Stand:</strong> Seit der Ankündigung am 20.10.2026 ist eine erste Hyper-V-/OPNsense-Testumgebung in Betrieb und in Teilbereichen geprüft. Der Fortschrittsbericht oben dokumentiert die nachgewiesenen Ergebnisse. Nachbauanleitung, weitere Testfälle und Lernkarten werden schrittweise ergänzt.
         </p>
 
         <h3>Warum ich dieses Lab entwickle</h3>
@@ -197,6 +253,16 @@
         </p>
 
 
+
+        <h3>Lernziele und praktischer Nutzen</h3>
+        <figure class="architecture-figure lab-infographic-figure">
+          <div class="lab-infographic-viewport" role="region" tabindex="0" aria-label="Lernzielgrafik auf kleinen Bildschirmen horizontal verschieben">
+            <a href="assets/images/opnsense-lab-lernziele-mehrwert.webp" target="_blank" rel="noopener noreferrer" aria-label="Lernziel-Infografik vergrößern">
+              <img src="assets/images/opnsense-lab-lernziele-mehrwert.webp" alt="Infografik mit Lernzielen zu Firewall-Regeln, Segmentierung, VPN, Monitoring, Netzwerkdiensten und Dokumentation sowie beispielhafter VLAN-Topologie." width="1448" height="1086" loading="lazy" decoding="async">
+            </a>
+          </div>
+          <figcaption>Die Infografik zeigt Lernziele und ein mögliches Netzwerkdesign. <strong>Die abgebildeten VLANs sind ein Beispiel</strong> und keine Behauptung, dass diese Konfiguration bereits vollständig eingerichtet und geprüft ist. <a href="assets/images/opnsense-lab-lernziele-mehrwert.webp" target="_blank" rel="noopener noreferrer">In voller Größe ansehen ↗</a></figcaption>
+        </figure>
         <h3>Welche Schutzfunktionen deckt das Lab ab?</h3>
         <p>
           Damit ihr den praktischen Nutzen und die Grenzen von Anfang an einordnen
@@ -253,7 +319,7 @@
               <tr>
                 <th scope="row">Hochverfügbarkeit</th>
                 <td>Eine zweite Firewall kann bei Ausfall der ersten übernehmen und Unterbrechungen begrenzen.</td>
-                <td>Nicht vorgesehen</td>
+                <td>Nicht im Basislab; separater Leitfaden geplant</td>
               </tr>
               <tr>
                 <th scope="row">Umfassende DDoS-Abwehr</th>
