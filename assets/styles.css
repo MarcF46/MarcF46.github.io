@@ -999,14 +999,20 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 }
 .lab-intro-article .security-explanations p:last-child { margin-bottom: 0; }
 
-/* Responsives Netzwerkdiagramm: am Desktop breit, auf kleinen Geräten seitlich lesbar */
+/* OPNsense-Netzwerkdiagramm im Lesebereich halten; breiter, relativ verschobener
+   Container schnitt links Abbildung und Bildunterschrift ab. */
+.report-section .project-card.lab-intro-article { max-width: min(1120px, 100%); }
+
 .lab-intro-article .lab-architecture-figure {
-  width: min(1210px, calc(100vw - 3rem));
-  max-width: none;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: static;
+  left: auto;
+  transform: none;
+  overflow: visible;
+  margin-left: auto;
+  margin-right: auto;
 }
 .lab-architecture-figure .responsive-diagram-viewport {
   overflow-x: auto;
@@ -1030,7 +1036,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 }
 .lab-architecture-figure figcaption a { display: inline-block; margin-left: .3rem; }
 @media (max-width: 760px) {
-  .lab-intro-article .lab-architecture-figure { width: min(100vw - 2rem, 1210px); }
+  .lab-intro-article .lab-architecture-figure { width: 100%; max-width: 100%; }
   .lab-architecture-figure .responsive-diagram-viewport img {
     width: 1120px;
     min-width: 1120px;
