@@ -1062,3 +1062,35 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   .remote-module-link{padding:1rem}
   .remote-module-link .button{width:100%}
 }
+
+
+/* Fortschrittsbericht OPNsense – Erweiterung des vorhandenen Designs (02.11.2026) */
+.lab-progress-report {
+  margin: 1.8rem 0 2rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+.lab-progress-kicker { font-size: .86rem; font-weight: 700; color: var(--brand); letter-spacing: .025em; }
+.lab-intro-article .lab-progress-report h3 { margin-top: .5rem; }
+.lab-progress-report h4 { color: var(--text); font-size: 1.07rem; margin: 1.25rem 0 .5rem; }
+.lab-progress-columns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; margin: 1.2rem 0; }
+.lab-progress-panel { min-width: 0; padding: 1rem 1.15rem; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.lab-progress-panel-open { background: #f8fbff; }
+.lab-progress-report .lab-progress-panel h4 { margin-top: 0; }
+.lab-progress-report .lab-progress-panel ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+.lab-progress-report .lab-progress-panel li { margin-bottom: .65rem; }
+.lab-progress-report code { overflow-wrap: anywhere; }
+.lab-progress-footnote { font-size: .93rem; color: var(--muted); }
+.lab-infographic-figure { background: #06182e; border-color: #31516e; padding: .8rem; }
+.lab-infographic-figure figcaption { color: #dbe9f7; padding: 0 .35rem .3rem; }
+.lab-infographic-figure figcaption a { color: #77ceff; }
+.lab-infographic-viewport { overflow-x: auto; overscroll-behavior-x: contain; }
+.lab-infographic-viewport > a { display: block; }
+.lab-infographic-viewport img { display: block; width: 100%; height: auto; border-radius: 9px; }
+@media(max-width:760px) {
+  .lab-progress-columns { grid-template-columns: 1fr; }
+  .lab-progress-panel { padding: .9rem; }
+  .lab-infographic-viewport img { width: 960px; max-width: none; }
+}
