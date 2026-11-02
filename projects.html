@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261102-2">
+  <link rel="stylesheet" href="assets/styles.css?v=20261102-3">
   <title>Technische Dokumentation | Marc Fahlbusch</title>
   <meta name="description" content="Technische Dokumentationen zu praxisnahen Lernumgebungen und aktuellen Entwicklungsarbeiten.">
   <style>
@@ -64,51 +64,7 @@
           sobald die jeweiligen Arbeitsschritte umgesetzt und geprüft sind.
         </p>
 
-        <section class="lab-progress-report" aria-labelledby="opnsense-progress-title">
-          <span class="lab-progress-kicker">Praxisbericht · 02.11.2026</span>
-          <h3 id="opnsense-progress-title">Von der Ankündigung zur getesteten Laborinfrastruktur</h3>
-          <p>Seit der Projektankündigung vom 20.10.2026 ist aus dem geplanten Aufbau eine erste praktisch eingerichtete OPNsense-Infrastruktur unter Hyper-V geworden. Dazu gehören ein administrativer Zugang und Netzwerk- und Diensttests mit einem Debian-Client. Die folgenden Ergebnisse stammen aus den dokumentierten Arbeiten vom 01.11.2026. Um den Entwicklungsstand nachvollziehbar zu halten, sind erfolgreich geprüfte Teilfunktionen und noch offene Aufgaben getrennt aufgeführt.</p>
-
-          <div class="lab-progress-columns">
-            <section class="lab-progress-panel" aria-labelledby="lab-done">
-              <h4 id="lab-done">Umgesetzt und mit Tests geprüft</h4>
-              <ul>
-                <li><strong>Hyper-V und Management:</strong> OPNsense als virtuelle Firewall eingerichtet; Zugriff über die Weboberfläche und SSH (Secure Shell, verschlüsselte Fernadministration) erfolgreich getestet. Anmeldung mit einem ED25519-Schlüsselpaar geprüft.</li>
-                <li><strong>Debian-Testclient:</strong> LINUX-CL01 im USERS-Netz unter <code>192.168.10.137</code> eingerichtet; DHCP-Reservierung (Dynamic Host Configuration Protocol, feste IP-Adresszuordnung bei automatischer Adressvergabe) angelegt.</li>
-                <li><strong>Host-Routing:</strong> Dauerhafte Route vom Windows-Host zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> eingerichtet und im PersistentStore kontrolliert.</li>
-                <li><strong>Netzwerkdienste:</strong> DNS-Namensauflösung (Domain Name System, Übersetzung von Namen in IP-Adressen) erfolgreich getestet; NTP-Zeitsynchronisierung (Network Time Protocol) des Debian-Clients mit <code>192.168.10.1</code> bestätigt.</li>
-                <li><strong>HTTPS-Verbindung:</strong> Firewall-Regelfehler eingegrenzt und korrigiert; erneuter TCP/443-Verbindungstest erfolgreich.</li>
-                <li><strong>Systemwartung:</strong> Auf Debian 13 Pakete aktualisiert; Kernel <code>6.12.113+deb13-amd64</code> und erneuter SSH-Zugang nach Neustart kontrolliert.</li>
-              </ul>
-            </section>
-            <section class="lab-progress-panel lab-progress-panel-open" aria-labelledby="lab-open">
-              <h4 id="lab-open">Offene Nachweise und Ausbauarbeiten</h4>
-              <ul>
-                <li><strong>USERS zu SERVERS:</strong> Eine echte Kommunikationsprüfung zwischen separaten Endgeräten einschließlich definierter Erlaubnis- und Sperrregeln steht noch aus.</li>
-                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketwege, das NAT-Verhalten (Network Address Translation, Übersetzung von Netzwerkadressen) und die gezielte Sperrwirkung von Regeln sind noch anhand von Verbindungstests und Protokollen nachzuweisen.</li>
-                <li><strong>Betriebsfunktionen:</strong> Ein durchgängiges Monitoring, weitere Wiederherstellungstests und die vollständige Nachbauanleitung stehen noch aus.</li>
-                <li><strong>Optionale Übungen:</strong> VLANs (Virtual Local Area Networks, logisch getrennte Netze), VPN-Zugänge (Virtual Private Networks, verschlüsselte Netzwerkverbindungen) und Hochverfügbarkeit sind noch nicht als umgesetzt nachgewiesen. Ein gesonderter Leitfaden zur Hochverfügbarkeit ist vorgesehen.</li>
-              </ul>
-            </section>
-          </div>
-          <h4>Praxisbeispiel: TCP-Timeout beim Verbindungsaufbau zu Port 443</h4>
-          <p>Bei einem Verbindungstest zu <code>deb.debian.org</code> trat eine Zeitüberschreitung auf. Die Ursache war nicht sofort ersichtlich, denn die Namensauflösung funktionierte. In der betreffenden Firewall-Regel war jedoch der <strong>Quellport</strong> fälschlich auf <code>443</code> begrenzt. Ein Client verwendet für eine ausgehende Verbindung in der Regel einen dynamischen Quellport; <code>443/TCP</code> ist hier der <strong>Zielport</strong>. Deshalb musste ich den Quellport der Regel auf <code>any</code> (beliebig) ändern. Der wiederholte Test lieferte anschließend den erwarteten <strong>Exit-Code 0</strong>.</p>
-          <p><strong>So wurde der Fehler eingegrenzt:</strong> Zuerst zeigte <code>getent ahostsv4 deb.debian.org</code>, dass der Name in eine IPv4-Adresse aufgelöst werden konnte. Anschließend prüfte <code>timeout 8 bash -c 'echo &gt; /dev/tcp/deb.debian.org/443'</code>, ob innerhalb von acht Sekunden eine TCP-Verbindung zum Zielport 443 zustande kam. Zunächst lief diese Prüfung in ein Timeout. Erst danach wurden die Portbedingungen der Firewall-Regel kontrolliert, die fehlerhafte Quellport-Vorgabe korrigiert und derselbe Verbindungstest wiederholt. Dadurch ließ sich die Wirkung der Korrektur vergleichen, ohne DNS und TCP-Erreichbarkeit miteinander zu verwechseln.</p>
-          <p><strong>Was bedeuten die Exit-Codes?</strong> Linux-Programme geben nach ihrer Ausführung einen numerischen Rückgabestatus an die aufrufende Shell zurück; mit <code>echo $?</code> kann er im Terminal angezeigt werden. Der Wert <code>124</code> kam hier vom Programm <code>timeout</code>: Die vorgegebenen acht Sekunden waren abgelaufen, ohne dass der Testbefehl erfolgreich endete. Nach der Regelkorrektur bedeutete <code>0</code>, dass der Befehl erfolgreich abgeschlossen wurde und die TCP-Verbindung hergestellt werden konnte. <strong>Das sind keine HTTP-Statuscodes.</strong> Der Test überprüfte die TCP-Erreichbarkeit von Port 443, aber noch keinen vollständigen HTTPS-Aufruf mit TLS-Verschlüsselung oder den Inhalt einer Webseite.</p>
-          <h4>Adressierung der Laborumgebung</h4>
-          <div class="lab-scope-table-wrap" role="region" tabindex="0" aria-label="Adressbereiche der OPNsense-Laborumgebung">
-            <table class="lab-scope-table">
-              <caption>Konfigurierte bzw. dokumentierte Netzbereiche – keine Aussage über vollständig getestete Segmentierung</caption>
-              <thead><tr><th scope="col">Netz</th><th scope="col">Adressbereich</th><th scope="col">OPNsense-Adresse</th></tr></thead>
-              <tbody>
-                <tr><th scope="row">Management</th><td><code>192.168.120.0/24</code></td><td><code>192.168.120.254</code></td></tr>
-                <tr><th scope="row">USERS</th><td><code>192.168.10.0/24</code></td><td><code>192.168.10.1</code></td></tr>
-                <tr><th scope="row">SERVERS</th><td><code>192.168.20.0/24</code></td><td><code>192.168.20.1</code></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="lab-progress-footnote"><strong>Prüfgrenze:</strong> Drei unbeantwortete Ping-Anfragen an <code>192.168.20.1</code> belegen noch keine vollständige Isolation des SERVERS-Netzes: Die getestete Zieladresse gehört zu OPNsense und nicht zu einem eigenständigen Server. Ein aussagekräftiger Nachweis erfordert getrennte Endgeräte und gezielte Positiv- und Negativtests.</p>
-        </section>
+        
 
 
         <h3>Warum ich OPNsense ausgewählt habe</h3>
@@ -650,6 +606,53 @@
           <li><a href="https://developers.cloudflare.com/learning-paths/prevent-ddos-attacks/concepts/ddos-prevention/" target="_blank" rel="noopener noreferrer">Cloudflare: DDoS-Schutz vor dem Ursprungsserver und Caching</a></li>
           <li><a href="https://csrc.nist.gov/glossary/term/configuration_change" target="_blank" rel="noopener noreferrer">NIST: Configuration Change und formelle Freigabeprozesse</a></li>
         </ul>
+
+        <!-- Chronologie: Fortschrittsberichte erst nach Projektvorstellung und Quellen. -->
+        <section class="lab-progress-report" id="opnsense-update-20261102" aria-labelledby="opnsense-progress-title">
+          <span class="lab-progress-kicker">Praxisbericht · 02.11.2026</span>
+          <h3 id="opnsense-progress-title">Von der Ankündigung zur getesteten Laborinfrastruktur</h3>
+          <p>Seit der Projektankündigung vom 20.10.2026 ist aus dem geplanten Aufbau eine erste praktisch eingerichtete OPNsense-Infrastruktur unter Hyper-V geworden. Dazu gehören ein administrativer Zugang und Netzwerk- und Diensttests mit einem Debian-Client. Die folgenden Ergebnisse stammen aus den dokumentierten Arbeiten vom 01.11.2026. Um den Entwicklungsstand nachvollziehbar zu halten, sind erfolgreich geprüfte Teilfunktionen und noch offene Aufgaben getrennt aufgeführt.</p>
+
+          <div class="lab-progress-columns">
+            <section class="lab-progress-panel" aria-labelledby="lab-done">
+              <h4 id="lab-done">Umgesetzt und mit Tests geprüft</h4>
+              <ul>
+                <li><strong>Hyper-V und Management:</strong> OPNsense als virtuelle Firewall eingerichtet; Zugriff über die Weboberfläche und SSH (Secure Shell, verschlüsselte Fernadministration) erfolgreich getestet. Anmeldung mit einem ED25519-Schlüsselpaar geprüft.</li>
+                <li><strong>Debian-Testclient:</strong> LINUX-CL01 im USERS-Netz unter <code>192.168.10.137</code> eingerichtet; DHCP-Reservierung (Dynamic Host Configuration Protocol, feste IP-Adresszuordnung bei automatischer Adressvergabe) angelegt.</li>
+                <li><strong>Host-Routing:</strong> Dauerhafte Route vom Windows-Host zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> eingerichtet und im PersistentStore kontrolliert.</li>
+                <li><strong>Netzwerkdienste:</strong> DNS-Namensauflösung (Domain Name System, Übersetzung von Namen in IP-Adressen) erfolgreich getestet; NTP-Zeitsynchronisierung (Network Time Protocol) des Debian-Clients mit <code>192.168.10.1</code> bestätigt.</li>
+                <li><strong>HTTPS-Verbindung:</strong> Firewall-Regelfehler eingegrenzt und korrigiert; erneuter TCP/443-Verbindungstest erfolgreich.</li>
+                <li><strong>Systemwartung:</strong> Auf Debian 13 Pakete aktualisiert; Kernel <code>6.12.113+deb13-amd64</code> und erneuter SSH-Zugang nach Neustart kontrolliert.</li>
+              </ul>
+            </section>
+            <section class="lab-progress-panel lab-progress-panel-open" aria-labelledby="lab-open">
+              <h4 id="lab-open">Offene Nachweise und Ausbauarbeiten</h4>
+              <ul>
+                <li><strong>USERS zu SERVERS:</strong> Eine echte Kommunikationsprüfung zwischen separaten Endgeräten einschließlich definierter Erlaubnis- und Sperrregeln steht noch aus.</li>
+                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketwege, das NAT-Verhalten (Network Address Translation, Übersetzung von Netzwerkadressen) und die gezielte Sperrwirkung von Regeln sind noch anhand von Verbindungstests und Protokollen nachzuweisen.</li>
+                <li><strong>Betriebsfunktionen:</strong> Ein durchgängiges Monitoring, weitere Wiederherstellungstests und die vollständige Nachbauanleitung stehen noch aus.</li>
+                <li><strong>Optionale Übungen:</strong> VLANs (Virtual Local Area Networks, logisch getrennte Netze), VPN-Zugänge (Virtual Private Networks, verschlüsselte Netzwerkverbindungen) und Hochverfügbarkeit sind noch nicht als umgesetzt nachgewiesen. Ein gesonderter Leitfaden zur Hochverfügbarkeit ist vorgesehen.</li>
+              </ul>
+            </section>
+          </div>
+          <h4>Praxisbeispiel: TCP-Timeout beim Verbindungsaufbau zu Port 443</h4>
+          <p>Bei einem Verbindungstest zu <code>deb.debian.org</code> trat eine Zeitüberschreitung auf. Die Ursache war nicht sofort ersichtlich, denn die Namensauflösung funktionierte. In der betreffenden Firewall-Regel war jedoch der <strong>Quellport</strong> fälschlich auf <code>443</code> begrenzt. Ein Client verwendet für eine ausgehende Verbindung in der Regel einen dynamischen Quellport; <code>443/TCP</code> ist hier der <strong>Zielport</strong>. Deshalb musste ich den Quellport der Regel auf <code>any</code> (beliebig) ändern. Der wiederholte Test lieferte anschließend den erwarteten <strong>Exit-Code 0</strong>.</p>
+          <p><strong>So wurde der Fehler eingegrenzt:</strong> Zuerst zeigte <code>getent ahostsv4 deb.debian.org</code>, dass der Name in eine IPv4-Adresse aufgelöst werden konnte. Anschließend prüfte <code>timeout 8 bash -c 'echo &gt; /dev/tcp/deb.debian.org/443'</code>, ob innerhalb von acht Sekunden eine TCP-Verbindung zum Zielport 443 zustande kam. Zunächst lief diese Prüfung in ein Timeout. Erst danach wurden die Portbedingungen der Firewall-Regel kontrolliert, die fehlerhafte Quellport-Vorgabe korrigiert und derselbe Verbindungstest wiederholt. Dadurch ließ sich die Wirkung der Korrektur vergleichen, ohne DNS und TCP-Erreichbarkeit miteinander zu verwechseln.</p>
+          <p><strong>Was bedeuten die Exit-Codes?</strong> Linux-Programme geben nach ihrer Ausführung einen numerischen Rückgabestatus an die aufrufende Shell zurück; mit <code>echo $?</code> kann er im Terminal angezeigt werden. Der Wert <code>124</code> kam hier vom Programm <code>timeout</code>: Die vorgegebenen acht Sekunden waren abgelaufen, ohne dass der Testbefehl erfolgreich endete. Nach der Regelkorrektur bedeutete <code>0</code>, dass der Befehl erfolgreich abgeschlossen wurde und die TCP-Verbindung hergestellt werden konnte. <strong>Das sind keine HTTP-Statuscodes.</strong> Der Test überprüfte die TCP-Erreichbarkeit von Port 443, aber noch keinen vollständigen HTTPS-Aufruf mit TLS-Verschlüsselung oder den Inhalt einer Webseite.</p>
+          <h4>Adressierung der Laborumgebung</h4>
+          <div class="lab-scope-table-wrap" role="region" tabindex="0" aria-label="Adressbereiche der OPNsense-Laborumgebung">
+            <table class="lab-scope-table">
+              <caption>Konfigurierte bzw. dokumentierte Netzbereiche – keine Aussage über vollständig getestete Segmentierung</caption>
+              <thead><tr><th scope="col">Netz</th><th scope="col">Adressbereich</th><th scope="col">OPNsense-Adresse</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Management</th><td><code>192.168.120.0/24</code></td><td><code>192.168.120.254</code></td></tr>
+                <tr><th scope="row">USERS</th><td><code>192.168.10.0/24</code></td><td><code>192.168.10.1</code></td></tr>
+                <tr><th scope="row">SERVERS</th><td><code>192.168.20.0/24</code></td><td><code>192.168.20.1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="lab-progress-footnote"><strong>Prüfgrenze:</strong> Drei unbeantwortete Ping-Anfragen an <code>192.168.20.1</code> belegen noch keine vollständige Isolation des SERVERS-Netzes: Die getestete Zieladresse gehört zu OPNsense und nicht zu einem eigenständigen Server. Ein aussagekräftiger Nachweis erfordert getrennte Endgeräte und gezielte Positiv- und Negativtests.</p>
+        </section>
       </article>
     </section>
 
