@@ -1100,3 +1100,6 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   .lab-progress-panel { padding: .9rem; }
   .lab-infographic-viewport img { width: 960px; max-width: none; }
 }
+
+/* Direktlink zum Fortschrittsbericht unter der fixierten Navigation. */
+#opnsense-update-20261102 { scroll-margin-top: 6rem; }
