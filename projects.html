@@ -53,15 +53,15 @@
 
         <p class="article-lead">
           <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
-          eigenständig eingrenzen:</strong> Genau dafür entsteht dieses Lab.
-          Als zusätzliches Schutzsystem soll OPNsense Benutzer-, Server- und
-          Managementnetze voneinander trennen, Zugriffe gezielt regeln und
-          sicherheitsrelevante Ereignisse sichtbar machen. Ihr bekommt eine
-          nachvollziehbare technische Dokumentation und künftig die passenden Dateien
-          und Skripte auf GitHub. Diese könnt ihr in Visual Studio Code ansehen, anpassen
-          und – wo vorgesehen – in eurer eigenen Testumgebung ausführen. Die eigentliche
-          Firewall konfiguriert ihr unter anderem über OPNsense. Ergänzende Anki-Lernkarten
-          helfen euch, das entscheidende Fachwissen langfristig im Kopf zu behalten.
+          eigenständig eingrenzen:</strong> Dafür entwickle ich dieses Lab.
+          Ich möchte OPNsense als zusätzliche Schutzschicht einsetzen, um Benutzer-,
+          Server- und Managementnetze zu trennen, Zugriffe gezielt zu regeln und
+          sicherheitsrelevante Ereignisse sichtbar zu machen. Meine Konfigurationen,
+          Entscheidungen und Testergebnisse dokumentiere ich Schritt für Schritt.
+          So kannst du später nachvollziehen, was ich tatsächlich aufgebaut habe,
+          welche Fehler aufgetreten sind und wie ich sie untersucht habe.
+          Geplante Dateien, Skripte und Anki-Lernkarten ergänzen die Dokumentation,
+          sobald die jeweiligen Arbeitsschritte umgesetzt und geprüft sind.
         </p>
 
         <section class="lab-progress-report" aria-labelledby="opnsense-progress-title">
@@ -73,10 +73,10 @@
             <section class="lab-progress-panel" aria-labelledby="lab-done">
               <h4 id="lab-done">Umgesetzt und mit Tests geprüft</h4>
               <ul>
-                <li><strong>Hyper-V und Management:</strong> OPNsense als virtuelle Firewall eingerichtet; Weboberfläche und SSH über das Managementnetz erreichbar. Administrativer SSH-Zugang mittels ED25519-Schlüssel erprobt.</li>
-                <li><strong>Debian-Testclient:</strong> LINUX-CL01 im USERS-Netz unter <code>192.168.10.137</code> eingerichtet; DHCP-Reservierung angelegt.</li>
-                <li><strong>Host-Routing:</strong> Persistente Route zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> angelegt und im PersistentStore überprüft.</li>
-                <li><strong>Netzwerkdienste:</strong> DNS-Auflösung getestet, Zeitsynchronisierung auf Windows und OPNsense überprüft; Debian synchronisierte per NTP mit <code>192.168.10.1</code>.</li>
+                <li><strong>Hyper-V und Management:</strong> Ich habe OPNsense als virtuelle Firewall eingerichtet und den Zugriff über die Weboberfläche sowie SSH (Secure Shell, verschlüsselte Fernadministration) geprüft. Die Anmeldung mit einem kryptografischen ED25519-Schlüssel funktionierte.</li>
+                <li><strong>Debian-Testclient:</strong> Ich habe LINUX-CL01 im USERS-Netz mit <code>192.168.10.137</code> eingerichtet und eine DHCP-Reservierung (Dynamic Host Configuration Protocol, feste Zuordnung einer IP-Adresse zu einem Gerät über die automatische Adressvergabe) angelegt.</li>
+                <li><strong>Host-Routing:</strong> Eine dauerhafte Route vom Windows-Host zum USERS-Netz <code>192.168.10.0/24</code> über <code>192.168.120.254</code> habe ich eingerichtet und im PersistentStore kontrolliert.</li>
+                <li><strong>Netzwerkdienste:</strong> Ich habe die DNS-Namensauflösung (Domain Name System, Übersetzung von Namen in IP-Adressen) getestet und die Zeitsynchronisierung geprüft. Debian synchronisierte seine Uhrzeit per NTP (Network Time Protocol) mit <code>192.168.10.1</code>.</li>
                 <li><strong>HTTPS-Verbindung:</strong> Firewall-Regelfehler eingegrenzt und korrigiert; erneuter TCP/443-Verbindungstest erfolgreich.</li>
                 <li><strong>Systemwartung:</strong> Auf Debian 13 Pakete aktualisiert; Kernel <code>6.12.113+deb13-amd64</code> und erneuter SSH-Zugang nach Neustart kontrolliert.</li>
               </ul>
@@ -85,14 +85,14 @@
               <h4 id="lab-open">Offene Nachweise und Ausbauarbeiten</h4>
               <ul>
                 <li><strong>USERS zu SERVERS:</strong> Eine echte Kommunikationsprüfung zwischen separaten Endgeräten einschließlich definierter Erlaubnis- und Sperrregeln steht noch aus.</li>
-                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketpfade, NAT-Verhalten und blockierte Verbindungen sind noch mit geeigneten Tests und Logs zu belegen.</li>
-                <li><strong>Betriebsfunktionen:</strong> Monitoring-Auswahl, weiterführende Wiederherstellungstests und vollständige Nachbauanleitung sind noch offen.</li>
-                <li><strong>Optionale Übungen:</strong> VLAN-Szenarien, WireGuard und Hochverfügbarkeit werden hier nicht als bereits umgesetzt ausgewiesen. Für Hochverfügbarkeit ist ein gesonderter Leitfaden geplant.</li>
+                <li><strong>Firewall-Regelwerk:</strong> Weitere Paketwege und NAT (Network Address Translation, Übersetzung von Netzwerkadressen) sowie das gezielte Blockieren von Verbindungen muss ich noch anhand von Tests und Protokollen nachweisen.</li>
+                <li><strong>Betriebsfunktionen:</strong> Ein durchgängiges Monitoring, weitere Wiederherstellungstests und die vollständige Nachbauanleitung stehen noch aus.</li>
+                <li><strong>Optionale Übungen:</strong> VLANs (Virtual Local Area Networks, logisch getrennte Netze), VPN-Zugänge (Virtual Private Networks, verschlüsselte Netzwerkverbindungen) und Hochverfügbarkeit sind noch nicht als umgesetzt nachgewiesen. Für Hochverfügbarkeit plane ich einen gesonderten Leitfaden.</li>
               </ul>
             </section>
           </div>
           <h4>Praxisbeispiel: HTTPS-Timeout systematisch untersucht</h4>
-          <p>Die DNS-Auflösung funktionierte, ein HTTPS-Test scheiterte aber mit Timeout (Exitcode <code>124</code>). Bei der anschließenden Prüfung zeigte sich eine unpassende Firewall-Regel: Der <strong>Quellport</strong> war auf <code>443</code> eingeschränkt. Bei einer gewöhnlichen ausgehenden HTTPS-Verbindung nutzt der Client hingegen einen dynamischen Quellport und verbindet sich zum <strong>Zielport 443/TCP</strong>. Nach der Korrektur auf einen beliebigen Quellport war die Wiederholung erfolgreich (Exitcode <code>0</code>).</p>
+          <p>Obwohl die DNS-Auflösung funktionierte, scheiterte mein HTTPS-Verbindungstest mit einer Zeitüberschreitung (Timeout, Exitcode <code>124</code>). Bei der Prüfung fand ich eine unpassende Firewall-Regel: Der <strong>Quellport</strong> war auf <code>443</code> beschränkt. Normalerweise verwendet ein Client für eine ausgehende HTTPS-Verbindung einen dynamischen Quellport; <code>443/TCP</code> ist hier der <strong>Zielport</strong> des Webdienstes. Ich korrigierte die Regel auf einen beliebigen Quellport und wiederholte den Test erfolgreich (Exitcode <code>0</code>).</p>
           <p>Die entscheidende Diagnoseerfahrung: Eine erfolgreiche DNS-Auflösung bestätigt nur die Namensauflösung, nicht die Erreichbarkeit des TCP-Dienstes. Ich überprüfe daher die einzelnen Voraussetzungen einer Verbindung getrennt und bewerte eine Konfiguration erst anhand des anschließenden Funktionstests.</p>
           <h4>Adressierung der Laborumgebung</h4>
           <div class="lab-scope-table-wrap" role="region" tabindex="0" aria-label="Adressbereiche der OPNsense-Laborumgebung">
@@ -136,35 +136,43 @@
 
         <h3>Was bedeutet die FRITZ!Box- und NAT-Strecke?</h3>
         <p>
-          Die FRITZ!Box ist der physische Router vor dem Laptop. Der Hyper-V-WAN-vSwitch
-          stellt die virtuelle Verbindung zur OPNsense-WAN-Schnittstelle her:
-          Ein virtueller Switch schaltet Netzwerkverkehr, führt aber allein
-          <strong>kein NAT</strong> aus. Ob die WAN-Seite direkt über einen
-          externen vSwitch mit dem Heimnetz verbunden wird oder über das
-          Windows-NAT des Hosts, entscheidet die konkrete Laboranbindung.
-          Eine zusätzliche virtuelle Router-VM kann einen weiteren
-          NAT-Übergang demonstrieren, ist aber für den Basisaufbau nicht erforderlich.
+          In meiner Umgebung steht die FRITZ!Box als physischer Router vor dem
+          Windows-Laptop. Die virtuelle Netzwerkanbindung von Hyper-V stellt
+          Verbindungen zur WAN-Seite (Wide Area Network, hier die nach außen
+          gerichtete Netzwerkschnittstelle) der OPNsense-Firewall her.
+          Dabei unterscheide ich zwei Funktionen: Ein virtueller Switch
+          verbindet Netzwerkanschlüsse; <strong>NAT</strong> übersetzt dagegen
+          IP-Adressen zwischen Netzen. Der Switch führt diese Übersetzung nicht
+          selbst aus. Je nach Laboraufbau kann die WAN-Anbindung über einen
+          externen virtuellen Switch oder über das NAT des Windows-Hosts
+          erfolgen. Eine zusätzliche Router-VM wäre eine spätere Testoption,
+          ist für meinen Basisaufbau aber nicht nötig.
         </p>
         <p>
           <strong>WireGuard bleibt eine optionale Übung innerhalb des Labs.</strong>
-          Der Admin-Laptop verwaltet die vorhandenen VMs weiterhin direkt
-          über die internen Managementwege. Für einen späteren VPN-Test genügt
-          eine zweite VM als WireGuard-Client auf einer getrennten, WAN-seitigen
-          Teststrecke. Dadurch lernen wir Tunnelaufbau, Verschlüsselung, Routing
-          und Zugriffsregeln, ohne auf Mobilfunk oder einen externen Laptop
-          angewiesen zu sein. Für diese interne Übung ist auch keine
-          Internet-Portfreigabe an der FRITZ!Box nötig.
+          Meinen Administrations-Laptop verbinde ich weiterhin über die internen
+          Managementwege mit den vorhandenen virtuellen Maschinen (VMs).
+          Später möchte ich eine zweite VM als WireGuard-Client auf einer
+          getrennten, WAN-seitigen Teststrecke einsetzen. Damit kann ich
+          den Aufbau eines verschlüsselten Tunnels, das Routing und die
+          Zugriffsregeln nachvollziehen, ohne dafür einen externen Laptop
+          oder eine Mobilfunkverbindung zu benötigen. Für diesen internen
+          Test ist auch keine Internet-Portfreigabe an der FRITZ!Box erforderlich.
         </p>
         <div class="remote-module-link">
           <span class="remote-module-label">Eigenständiges Zusatzmodul · in Planung</span>
           <h3>WireGuard und sichere Remote-Administration</h3>
           <p>
-            Nach dem internen Lab folgt ein betriebsnaher Lernweg:
-            WireGuard zwischen virtuellen Systemen, ein geschütztes Managementnetz,
-            eine simulierte Administrator-Workstation und ein Jump-Host.
-            Die CISA- und BSI-Empfehlungen helfen, die Grenzen dieser
-            Simulation einzuordnen. Ein Smartphone dient höchstens
-            einem freiwilligen externen VPN-Verbindungstest.
+            Nach dem internen Lab möchte ich WireGuard zwischen virtuellen
+            Systemen, ein geschütztes Managementnetz und eine simulierte
+            Administrator-Workstation untersuchen. Als weiteren Baustein plane
+            ich einen Jump-Host: einen besonders abgesicherten Zwischenrechner,
+            über den Administratoren kontrolliert auf interne Systeme zugreifen.
+            Bei der Konzeption orientiere ich mich unter anderem an Empfehlungen
+            des BSI (Bundesamt für Sicherheit in der Informationstechnik) und
+            der US-Cybersicherheitsbehörde CISA (Cybersecurity and Infrastructure
+            Security Agency). Ein Smartphone wäre höchstens für einen
+            freiwilligen externen Verbindungstest vorgesehen.
           </p>
           <a class="button secondary" href="opnsense-wireguard-remote.html">WireGuard-Zusatzlab und Architektur ansehen →</a>
         </div>
@@ -226,30 +234,30 @@
 
         <h3>Was ihr konkret lernt und erhaltet</h3>
         <p>
-          Ausgangspunkt ist ein realistisches Szenario für ein kleines oder
-          mittelständisches Unternehmen: Eine Open-Source-Firewall auf Basis
-          von OPNsense wird als zusätzliche Schutzschicht in die
-          Netzwerkinfrastruktur eingebunden. Das Lab konzentriert sich auf
-          Netzwerksegmentierung, Routing, NAT, Firewall-Regeln, Administrationsschutz,
-          optional WireGuard-VPN, Monitoring und systematische Fehlersuche.
+          Ich orientiere mich an einem typischen Netzwerk eines kleinen oder
+          mittleren Unternehmens. Mit OPNsense als Open-Source-Firewall möchte
+          ich schrittweise den Schutz und die Trennung von Netzwerkbereichen,
+          Routing, Adressumsetzung, Firewall-Regeln, geschützte Administration,
+          Monitoring und systematische Fehlersuche erarbeiten. WireGuard ist
+          eine optionale spätere Übung. Welche Komponenten tatsächlich
+          funktionieren, halte ich durch eigene Prüfungen fest.
         </p>
         <p>
-          Die GitHub-Dokumentation erklärt Aufbau, Hintergründe, Befehle und
-          Prüfschritte. Bereitgestellte Skripte und Dateien lassen sich in
-          Visual Studio Code nachvollziehen, anpassen und für die eigene Umgebung nutzen.
-          Ziel ist eine praxisnahe OPNsense-Grundkonfiguration, die auch als
-          <strong>Basis für den späteren produktiven Einsatz in einem kleineren Unternehmen</strong>
-          dienen kann. Nach Abstimmung mit den IT-Verantwortlichen, Prüfung der
-          tatsächlichen Netzwerk- und Sicherheitsanforderungen und erfolgreichen
-          Funktionstests muss nicht mehr bei null begonnen werden – die erarbeitete
-          Konfiguration liefert bereits eine nachvollziehbare Grundlage.
+          In der GitHub-Dokumentation halte ich Aufbau, Hintergründe, Befehle und
+          Prüfschritte fest. Sobald ich Skripte oder Konfigurationsbeispiele
+          veröffentlicht habe, kannst du sie in Visual Studio Code ansehen
+          und an deine Testumgebung anpassen. Mein Ziel ist eine nachvollziehbare
+          OPNsense-Grundkonfiguration, die als <strong>Lern- und Planungsgrundlage
+          für kleinere Unternehmensnetze</strong> dienen kann. Eine Übernahme in
+          den Produktivbetrieb erfordert immer eine eigene Sicherheitsbewertung,
+          die Anpassung an das jeweilige Netzwerk und zusätzliche Tests.
         </p>
         <p>
-          Zusätzlich wird es Anki-Lernkarten zum Download geben.
-          Sie ergänzen die praktische Anleitung um die wichtigsten Begriffe,
-          Zusammenhänge und Diagnoseentscheidungen. Aus meiner bisherigen Lernerfahrung
-          ist genau diese Kombination aus eigenem Ausprobieren und aktivem Wiederholen
-          besonders wirkungsvoll, um das Wesentliche langfristig zu behalten.
+          Ergänzend plane ich Anki-Lernkarten zum Download. Darin möchte ich
+          wichtige Begriffe, Zusammenhänge und Diagnoseentscheidungen festhalten.
+          Aus meiner eigenen Lernerfahrung ist die Verbindung aus praktischen
+          Übungen und dem zeitversetzten Wiederholen besonders hilfreich,
+          um Fachwissen langfristig abrufen zu können.
         </p>
 
 
@@ -335,10 +343,11 @@
           </table>
         </div>
         <p class="article-availability">
-          „Nicht vorgesehen“ bedeutet ausdrücklich nicht „mit OPNsense unmöglich“.
-          So lassen sich IDS/IPS mit Suricata sowie eine hochverfügbare Firewall
-          beispielsweise auch mit OPNsense realisieren. Der Aufwand dafür geht
-          jedoch über die Lernziele dieser ersten Ausbaustufe hinaus.
+          Mit „nicht vorgesehen“ meine ich den Umfang <strong>meines
+          aktuellen Labs</strong>, nicht eine technische Grenze von OPNsense.
+          So kann ich IDS/IPS mit Suricata oder Hochverfügbarkeit später
+          gesondert behandeln, ohne diese Funktionen jetzt schon als
+          eingerichtet oder erfolgreich getestet darzustellen.
         </p>
 
         <h3>Was bedeuten die zusätzlichen Sicherheitsfunktionen?</h3>
@@ -372,26 +381,70 @@
           <section>
             <h4>DDoS – Schutz gegen verteilte Überlastungsangriffe</h4>
             <p>
-              <strong>DDoS (Distributed Denial of Service)</strong> bedeutet,
-              dass sehr viele Systeme gleichzeitig so viel Verkehr oder so
-              viele Anfragen erzeugen, dass ein Dienst nicht mehr erreichbar ist.
-              Eine lokale Firewall kann bestimmte Pakete begrenzen oder blockieren.
-              Wird aber schon die Internetleitung überlastet, reicht das nicht:
-              Dann sind häufig zusätzliche Schutzdienste beim Internetanbieter,
-              vorgelagerte Filter- beziehungsweise Scrubbing-Systeme oder bei
-              Webdiensten ein CDN nötig. Das erfordert vertragliche und
-              technische Abstimmung mit externen Dienstleistern.
+              Unter <strong>DDoS (Distributed Denial of Service, verteilter
+              Überlastungsangriff)</strong> verstehe ich einen Angriff, bei dem
+              zahlreiche Geräte gleichzeitig extrem viele Datenpakete oder
+              Anfragen an einen Dienst senden. Ziel ist, ihn für normale Nutzer
+              unerreichbar zu machen. Eine lokale Firewall kann verdächtigen
+              Verkehr begrenzen oder blockieren. Wenn die Internetleitung des
+              Unternehmens aber schon durch den Angriff ausgelastet ist,
+              kommt die Filterung auf der eigenen Firewall zu spät.
+            </p>
+            <p>
+              Deshalb würde ich bei öffentlich erreichbaren Diensten zuerst
+              prüfen, welche Schutzmaßnahmen <strong>vor der eigenen
+              Internetanbindung</strong> möglich sind. Ein vorgelagerter Filter
+              beim Internetanbieter kann Angriffsverkehr bereits in dessen Netz
+              abweisen. Ein <strong>Scrubbing-Center</strong> ist ein spezieller
+              Dienst, zu dem Datenverkehr zur Prüfung umgeleitet wird:
+              Schädlicher Verkehr wird möglichst aussortiert, legitimer Verkehr
+              zum eigentlichen Ziel weitergeleitet.
+            </p>
+            <p>
+              Für Websites kann außerdem ein <strong>CDN (Content Delivery
+              Network, Netzwerk geografisch verteilter Server zur Auslieferung
+              von Webinhalten)</strong> helfen. Ein CDN kann beispielsweise
+              Bilder und andere häufig angefragte Dateien zwischenspeichern
+              und Anfragen über mehrere Standorte verteilen. Mit passenden
+              DDoS-Schutzfunktionen reduziert das die Belastung des eigentlichen
+              Webservers. Ein CDN schützt allerdings nicht automatisch jeden
+              Dienst und ersetzt keine abgestimmte DDoS-Abwehr.
+              Solche vorgeschalteten Schutzmaßnahmen sind <strong>nicht
+              Bestandteil meines aktuellen Firewall-Labs</strong>.
             </p>
           </section>
           <section>
             <h4>Hochverfügbarkeit – auch beim Ausfall weiterarbeiten</h4>
             <p>
-              In besonders kritischen Netzen werden Firewalls oft redundant
-              betrieben. Mit <strong>CARP (Common Address Redundancy Protocol)</strong>
-              und ergänzender Synchronisation unterstützt OPNsense ein solches
-              Failover-Konzept. Dafür braucht es eine zweite Instanz, passende
-              Netzwerkverbindungen, abgestimmte Konfigurationen sowie regelmäßige
-              Tests, ob die Übernahme im Fehlerfall funktioniert.
+              Unter Hochverfügbarkeit verstehe ich hier zwei getrennte
+              Firewall-Systeme: Eine arbeitet regulär, die zweite steht
+              zur Übernahme bereit. Mit <strong>CARP (Common Address
+              Redundancy Protocol)</strong> können beide eine gemeinsame
+              <strong>virtuelle IP-Adresse</strong> verwenden. Die Geräte im
+              Netzwerk nutzen beispielsweise diese Adresse als Standardgateway,
+              statt auf eine bestimmte physische Firewall angewiesen zu sein.
+              CARP regelt, welche Firewall die gemeinsame Adresse gerade aktiv
+              verwendet. Fällt die aktive Firewall aus, kann die zweite
+              übernehmen – dieser Wechsel heißt <strong>Failover</strong>.
+            </p>
+            <p>
+              <strong>CARP allein gleicht allerdings weder alle Firewall-Regeln
+              noch bestehende Verbindungen ab.</strong> Dafür sind zwei weitere
+              Mechanismen wichtig: <strong>pfsync</strong> synchronisiert die
+              Verbindungszustände (State Tables), damit die Ersatz-Firewall
+              laufende Verbindungen möglichst ohne Neuaufbau weiterführen kann.
+              Die <strong>XML-RPC-Konfigurationssynchronisierung</strong> überträgt
+              ausgewählte Einstellungen wie Firewall-Regeln und NAT-Regeln
+              von der primären auf die zweite Firewall. Ob die Umschaltung
+              tatsächlich funktioniert und wie lange sie dauert, muss
+              ich anhand definierter Ausfalltests prüfen.
+            </p>
+            <p>
+              Hochverfügbarkeit ist <strong>noch nicht Teil meines praktisch
+              nachgewiesenen Laborstands</strong>. Ich möchte sie in einem
+              gesonderten Leitfaden behandeln und dabei auch die Anforderungen
+              an virtuelle Switches, gemeinsame Netzwerkbereiche und eine
+              zuverlässige Synchronisation erklären.
             </p>
           </section>
           <section>
@@ -548,10 +601,13 @@
           <li><a href="https://docs.opnsense.org/" target="_blank" rel="noopener noreferrer">Offizielle OPNsense-Dokumentation</a></li>
           <li><a href="https://doi.org/10.6028/NIST.SP.800-41r1" target="_blank" rel="noopener noreferrer">NIST SP 800-41 Rev. 1: Planung, Konfiguration, Test, Einführung und Betrieb von Firewalls</a></li>
           <li><a href="https://docs.opnsense.org/manual/hacarp.html" target="_blank" rel="noopener noreferrer">OPNsense: Hochverfügbarkeit und Failover mit CARP</a></li>
+          <li><a href="https://docs.opnsense.org/manual/how-tos/carp.html" target="_blank" rel="noopener noreferrer">OPNsense: CARP, pfsync und XML-RPC-Konfigurationssynchronisierung – praktisches Beispiel</a></li>
           <li><a href="https://docs.opnsense.org/manual/ips.html" target="_blank" rel="noopener noreferrer">OPNsense: IDS/IPS mit Suricata – Erkennen und Blockieren von Angriffsmustern</a></li>
           <li><a href="https://csrc.nist.gov/glossary/term/security_information_and_event_management" target="_blank" rel="noopener noreferrer">NIST: Definition Security Information and Event Management (SIEM)</a></li>
           <li><a href="https://csrc.nist.gov/glossary/term/security_operations_center" target="_blank" rel="noopener noreferrer">NIST: Begriff Security Operations Center (SOC)</a></li>
           <li><a href="https://www.cisa.gov/ncas/alerts/ta14-017a" target="_blank" rel="noopener noreferrer">CISA: DDoS-Abwehr und Zusammenarbeit mit vorgelagerten Netzbetreibern</a></li>
+          <li><a href="https://aws.amazon.com/what-is/cdn/" target="_blank" rel="noopener noreferrer">AWS: Was ist ein Content Delivery Network (CDN)?</a></li>
+          <li><a href="https://developers.cloudflare.com/learning-paths/prevent-ddos-attacks/concepts/ddos-prevention/" target="_blank" rel="noopener noreferrer">Cloudflare: DDoS-Schutz vor dem Ursprungsserver und Caching</a></li>
           <li><a href="https://csrc.nist.gov/glossary/term/configuration_change" target="_blank" rel="noopener noreferrer">NIST: Configuration Change und formelle Freigabeprozesse</a></li>
         </ul>
       </article>
