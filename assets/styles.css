@@ -1103,3 +1103,17 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 
 /* Direktlink zum Fortschrittsbericht unter der fixierten Navigation. */
 #opnsense-update-20261102 { scroll-margin-top: 6rem; }
+
+
+/* Dezente und barrierearm lesbare Herkunftskennzeichnung für Projektgrafiken. */
+.lab-intro-article .visualization-credit {
+  display: block;
+  margin-top: .5rem;
+  font-size: .82rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--muted);
+}
+.lab-intro-article .lab-infographic-figure .visualization-credit {
+  color: #c9dcf0;
+}
