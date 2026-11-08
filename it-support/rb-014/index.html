@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-014 Benutzer benötigt Zugriff auf eine Anwendung | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-014: Benutzer benötigt Zugriff auf eine Anwendung. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Identity &amp; Access · Berechtigungen · Lernartikel</p><h1>RB-014: Benutzer benötigt Zugriff auf eine Anwendung</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</a></li><li><a href="#2-technische-grundlagen-und-ausgeschriebene-abkuerzungen">2. Technische Grundlagen und ausgeschriebene Abkürzungen</a></li><li><a href="#3-welche-technischen-wege-fuehren-ueberhaupt-zur-anwendung">3. Welche technischen Wege führen überhaupt zur Anwendung?</a></li><li><a href="#4-drei-typische-fehlerbilder-sauber-unterscheiden">4. Drei typische Fehlerbilder sauber unterscheiden</a></li><li><a href="#5-zugriffswege--wo-arbeitet-der-supporttechniker">5. Zugriffswege – wo arbeitet der Supporttechniker?</a></li><li><a href="#6-vor-der-berechtigung-genehmigung-und-sicherheitspruefung">6. Vor der Berechtigung: Genehmigung und Sicherheitsprüfung</a></li><li><a href="#7-app-zuweisung-gruppen-und-rollen-verstehen">7. App-Zuweisung, Gruppen und Rollen verstehen</a></li><li><a href="#8-diagnose-entscheidungsbaum">8. Diagnose-Entscheidungsbaum</a></li><li><a href="#9-strukturierter-l1-ablauf">9. Strukturierter L1-Ablauf</a></li><li><a href="#10-lesende-diagnose-netzwerk-und-lokales-active-directory">10. Lesende Diagnose: Netzwerk und lokales Active Directory</a></li><li><a href="#11-lesende-diagnose-microsoft-entra-id-und-microsoft-graph">11. Lesende Diagnose: Microsoft Entra ID und Microsoft Graph</a></li><li><a href="#12-diagnoseergebnisse-interpretieren--was-folgt-daraus">12. Diagnoseergebnisse interpretieren – was folgt daraus?</a></li><li><a href="#13-fehlerbehebung-und-erfolgskontrolle">13. Fehlerbehebung und Erfolgskontrolle</a></li><li><a href="#14-l1-l2-eskalation-muster-ticket-und-lernkontrolle">14. L1-/L2-Eskalation, Muster-Ticket und Lernkontrolle</a></li><li><a href="#15-quellen-bearbeitungs--und-validierungsstatus">15. Quellen, Bearbeitungs- und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Service Request / Identity &amp; Access Management / Anwendungsberechtigung<br/>
+<strong>Support-Level:</strong> 1st / 2nd Level, abhängig von internen Zuständigkeiten<br/>
+<strong>Systeme:</strong> Active Directory (AD), Microsoft Entra ID, Unternehmensanwendungen, Windows 11<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Dokumentierter und anhand von Herstellerquellen recherchierter Übungsfall; <strong>noch nicht praktisch validiert</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb014_henne_ei_anwendungszugriff.png" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: Zugang zu Unternehmensanwendungen" decoding="async" loading="lazy" src="assets/rb014_henne_ei_anwendungszugriff.png"/></a></div><figcaption>Henne-Ei-Infografik: Zugang zu Unternehmensanwendungen</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> <strong>Anmeldung ≠ Berechtigung.</strong> Eine Person kann sich erfolgreich ausweisen und trotzdem keine Berechtigung besitzen, eine Anwendung oder eine bestimmte Funktion darin zu verwenden.</p>
+</blockquote>
+<hr/>
+<h2 id="1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</h2>
+<p><strong>Fiktives Ticket SR-014:</strong></p>
+<blockquote>
+<p>„Ich arbeite seit heute im Vertrieb und benötige Zugriff auf unser CRM. Mit meinem Firmenkonto kann ich mich zwar anmelden, aber die Anwendung lässt mich nicht hinein. Mein Kollege kann dort Kunden bearbeiten.“</p>
+</blockquote>
+<p><strong>CRM (Customer Relationship Management)</strong> bezeichnet eine Anwendung zur Verwaltung von Kundenkontakten und Vertriebsprozessen. Die Beispielanwendung nennen wir <strong>Fabrikam CRM</strong>; sie ist keine tatsächlich untersuchte Unternehmensinstallation.</p>
+<p><strong>Ziel:</strong> Nach einer gültigen fachlichen Freigabe erhält der Mitarbeiter die <strong>passende</strong> Anwendungsberechtigung – nicht unnötig hohe Rechte. Anschließend prüft der Support mit dem betroffenen Benutzer die Anmeldung und eine für seine Tätigkeit erforderliche Funktion.</p>
+<p><strong>Warum Service Request?</strong> Eine neue, genehmigungspflichtige Berechtigung ist zunächst eine <em>Serviceanfrage</em>. Wenn ein bisher vorhandener Zugriff plötzlich ausfällt, ist dies dagegen typischerweise ein <em>Incident</em> (Störung). Die technische Diagnose kann sich überschneiden.</p>
+<p><strong>Erste Rückfragen:</strong> Welche Anwendung und welche URL? Welche Aufgabe (nur lesen oder bearbeiten)? Welche Benutzerkennung? Gibt es eine konkrete Fehlermeldung oder Fehlernummer? Hat der Zugriff schon einmal funktioniert? Wer genehmigt die Rechte? Sind andere Mitarbeiter betroffen?</p>
+<h2 id="2-technische-grundlagen-und-ausgeschriebene-abkuerzungen">2. Technische Grundlagen und ausgeschriebene Abkürzungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Anfängerfreundliche Erklärung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AD (Active Directory)</strong></td>
+<td>Klassischer Microsoft-Verzeichnisdienst im Unternehmen. Benutzer, Computer und Gruppen werden zentral verwaltet.</td>
+</tr>
+<tr class="even">
+<td><strong>Microsoft Entra ID</strong></td>
+<td>Cloudbasierter Identitäts- und Zugriffsverwaltungsdienst von Microsoft; früher Azure Active Directory genannt.</td>
+</tr>
+<tr class="odd">
+<td><strong>IAM (Identity and Access Management)</strong></td>
+<td>Verwaltung digitaler Identitäten und ihrer Zugriffsrechte.</td>
+</tr>
+<tr class="even">
+<td><strong>SSO (Single Sign-On)</strong></td>
+<td>Einmaliges Anmelden: Eine Unternehmensidentität kann für verschiedene Anwendungen verwendet werden.</td>
+</tr>
+<tr class="odd">
+<td><strong>Authentifizierung</strong></td>
+<td>Prüfung: „Wer bist du?“ Beispielsweise anhand des Firmenkontos und eines zweiten Faktors.</td>
+</tr>
+<tr class="even">
+<td><strong>Autorisierung</strong></td>
+<td>Prüfung: „Was darfst du?“ Beispielsweise Kunden lesen, bearbeiten oder Benutzer verwalten.</td>
+</tr>
+<tr class="odd">
+<td><strong>RBAC (Role-Based Access Control)</strong></td>
+<td>Rollenbasierte Zugriffskontrolle. Eine Rolle fasst Berechtigungen für eine Tätigkeit zusammen.</td>
+</tr>
+<tr class="even">
+<td><strong>App-Rolle</strong></td>
+<td>Von einer Anwendung bereitgestellte Rolle, beispielsweise „Leser“ oder „Bearbeiter“. Nicht mit einer globalen Administratorrolle verwechseln.</td>
+</tr>
+<tr class="odd">
+<td><strong>Gruppenzuweisung</strong></td>
+<td>Eine AD-/Entra-Sicherheitsgruppe erhält Zugriff; ihre dafür berücksichtigten Mitglieder profitieren von der Zuweisung.</td>
+</tr>
+<tr class="even">
+<td><strong>Enterprise Application (Unternehmensanwendung)</strong></td>
+<td>Repräsentation einer eingebundenen Anwendung in einem Entra-Mandanten, einschließlich Zuweisungen und Anmeldeeinstellungen.</td>
+</tr>
+<tr class="odd">
+<td><strong>Service Principal (Dienstprinzipal)</strong></td>
+<td>Das technische Entra-Objekt, über das eine konkrete Anwendung im Mandanten repräsentiert und verwaltet wird.</td>
+</tr>
+<tr class="even">
+<td><strong>SAML (Security Assertion Markup Language)</strong></td>
+<td>Standard für die Übermittlung von Anmeldeinformationen zwischen Identitätsanbieter und Anwendung.</td>
+</tr>
+<tr class="odd">
+<td><strong>OIDC (OpenID Connect)</strong></td>
+<td>Modernes Protokoll zur Anmeldung über einen Identitätsanbieter, basierend auf OAuth 2.0.</td>
+</tr>
+<tr class="even">
+<td><strong>MFA (Multi-Factor Authentication)</strong></td>
+<td>Mehrfaktor-Authentifizierung, beispielsweise Kennwort plus Authenticator-Bestätigung.</td>
+</tr>
+<tr class="odd">
+<td><strong>Conditional Access (bedingter Zugriff)</strong></td>
+<td>Entra-Richtlinien, die abhängig von Bedingungen wie Gerät, Risiko oder Standort den Zugang gestatten oder blockieren.</td>
+</tr>
+<tr class="even">
+<td><strong>Token / Claim</strong></td>
+<td>Ein <em>Token</em> ist eine vom Identitätssystem ausgestellte digitale Aussage; <em>Claims</em> sind darin enthaltene Informationen, zum Beispiel die Identität oder eine App-Rolle.</td>
+</tr>
+<tr class="odd">
+<td><strong>SCIM (System for Cross-domain Identity Management)</strong></td>
+<td>Standard zur automatischen Erstellung, Änderung und Deaktivierung von Konten in Zielanwendungen.</td>
+</tr>
+<tr class="even">
+<td><strong>Provisioning (Bereitstellung)</strong></td>
+<td>Ein Benutzerkonto wird bei Bedarf in einer Zielanwendung angelegt bzw. aktualisiert. Das ist nicht dasselbe wie eine erfolgreiche Anmeldung.</td>
+</tr>
+<tr class="odd">
+<td><strong>Least Privilege (geringste erforderliche Rechte)</strong></td>
+<td>Jede Person erhält nur diejenigen Berechtigungen, die sie für ihre Aufgabe benötigt.</td>
+</tr>
+<tr class="even">
+<td><strong>UPN (User Principal Name)</strong></td>
+<td>Anmeldename, oft in der Form <code>benutzer@firma.example</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merksatz:</strong> <strong>„Ein Benutzerkonto existiert“ ≠ „Anwendung zugewiesen“ ≠ „Anmeldung erfolgreich“ ≠ „Darf Datensätze bearbeiten“.</strong> Das sind unterschiedliche Prüfpunkte.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/enterprise-apps/what-is-single-sign-on" rel="noopener noreferrer" target="_blank">Microsoft: SSO erklärt</a>, <a href="https://learn.microsoft.com/en-us/entra/identity/app-provisioning/how-provisioning-works" rel="noopener noreferrer" target="_blank">Microsoft: automatische Bereitstellung</a>.</p>
+<h2 id="3-welche-technischen-wege-fuehren-ueberhaupt-zur-anwendung">3. Welche technischen Wege führen überhaupt zur Anwendung?</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Mitarbeiter auf seinem Windows-PC
+            |
+            +------ Lokale Unternehmensanwendung ------+
+            |                                          |
+            |                         AD-Konto / AD-Gruppe / eigene App-Rollen
+            |
+            +------ Cloud- oder Webanwendung ----------+
+                                                       |
+                                             Microsoft Entra ID (SSO)
+                                                       |
+                                      Benutzer- oder Gruppenzuweisung
+                                                       |
+                                         ggf. App-Rolle / Richtlinien
+                                                       |
+                                  ggf. Provisioning in die Zielanwendung
+                                                       |
+                                            Anwendung prüft Rechte</code></pre></div>
+<p><strong>Wichtig:</strong> Das Diagramm zeigt <strong>mögliche</strong> Wege, keinen zwingenden Standard. Eine Anwendung kann eigene Benutzer und Rollen verwalten, AD-Gruppen direkt lesen, über Entra SSO verwenden oder mehrere Varianten kombinieren.</p>
+<p><strong>Beispiel:</strong> Du kannst dich erfolgreich bei Microsoft Entra ID authentifizieren. Trotzdem kann die CRM-Anwendung den Zugriff verweigern, weil (a) keine erforderliche App-Zuweisung vorhanden ist, (b) eine Bedingter-Zugriff-Richtlinie blockiert oder (c) in der CRM-Anwendung die Rolle „Vertriebsmitarbeiter“ fehlt. Diese Befunde müssen getrennt geprüft werden.</p>
+<h3 id="sso-ist-keine-automatische-rechtevergabe">SSO ist keine automatische Rechtevergabe</h3>
+<p>Bei <strong>SSO (Single Sign-On)</strong> nutzt die Anwendung eine bereits verifizierte Unternehmensidentität. Daraus folgt <strong>nicht</strong>, dass jede Person automatisch alle Anwendungen oder Funktionen verwenden darf. Die Autorisierung erfolgt zusätzlich über Zuweisungen, App-Rollen und gegebenenfalls anwendungsinterne Rechte.</p>
+<h3 id="warum-kann-ein-benutzer-in-entra-zugewiesen-sein-aber-trotzdem-im-crm-fehlen">Warum kann ein Benutzer in Entra zugewiesen sein, aber trotzdem im CRM fehlen?</h3>
+<p>Einige Anwendungen benötigen ein <strong>eigenes Benutzerobjekt</strong>. Wenn automatisches <em>Provisioning</em> konfiguriert ist, kann Entra das Konto über <strong>SCIM</strong> erzeugen und ändern. Diese Synchronisation erfolgt nicht notwendigerweise sofort. Bei fehlgeschlagener Provisionierung muss man <strong>Provisioning-Logs</strong> prüfen; eine korrekte Zuweisung allein genügt nicht. <a href="https://learn.microsoft.com/en-us/entra/identity/app-provisioning/how-provisioning-works" rel="noopener noreferrer" target="_blank">Microsoft: Provisioning-Ablauf</a>.</p>
+<h2 id="4-drei-typische-fehlerbilder-sauber-unterscheiden">4. Drei typische Fehlerbilder sauber unterscheiden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Meldung / Beobachtung</th>
+<th>Möglicher Fehlerbereich</th>
+<th>Erster gezielter Test</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>„Sie sind dieser Anwendung nicht zugewiesen“ / AADSTS50105</strong></td>
+<td>Fehlende direkte Benutzer- oder gültige Gruppenzuweisung bei „Zuweisung erforderlich“</td>
+<td>Unternehmenseintrag in Entra → Benutzer und Gruppen / Eigenschaften prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>Anmeldung wird abgewiesen, obwohl Zuweisung vorhanden ist</strong></td>
+<td>MFA, Conditional Access, Gerätecompliance, falsche Identität oder SSO-Konfiguration</td>
+<td>Entra-Anmeldeprotokolle, Fehlercode, Korrelations-ID, betroffene Richtlinien prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>Anmeldung erfolgreich, aber „Keine Berechtigung“ in einer Funktion</strong></td>
+<td>App-Rolle, anwendungsinterne Berechtigung, Lizenz oder Provisioning</td>
+<td>In-App-Rolle, Lizenz und Kontostatus in der Zielanwendung prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>Anwendung erscheint nicht im My-Apps-Portal</strong></td>
+<td>Sichtbarkeit, Zuweisung oder Portal-Konfiguration</td>
+<td>App-Zuweisung und „Für Benutzer sichtbar“ prüfen; fehlendes Symbol ist kein vollständiger Zugangstest</td>
+</tr>
+<tr class="odd">
+<td><strong>Nur von bestimmtem Standort/Gerät gesperrt</strong></td>
+<td>Conditional Access oder Netzwerkanforderung</td>
+<td>Richtlinienauswertung und Gerätezustand überprüfen</td>
+</tr>
+<tr class="even">
+<td><strong>Zugriff nach Gruppenänderung unverändert</strong></td>
+<td>Neues Token, alte Sitzung, AD-Logontoken, Provisioning-Verzögerung oder ungültige Gruppenstruktur</td>
+<td>Gezielte Neuanmeldung und tatsächliche Gruppenzuweisung / Provisioning-Logs prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="konkreter-microsoft-fehler-aadsts50105">Konkreter Microsoft-Fehler: AADSTS50105</h3>
+<p>Microsoft dokumentiert <strong>AADSTS50105</strong> für den Fall, dass die Enterprise Application eine Zuweisung verlangt, aber keine dafür gültige App-Rollenzuweisung für den Benutzer vorhanden ist. Eine <strong>direkte Mitgliedschaft</strong> in einer der Anwendung zugewiesenen Gruppe kann den Zugriff ermöglichen; <strong>verschachtelte Gruppen</strong> gelten bei dieser App-Zuweisung nicht automatisch. Außerdem wird die Zuweisungspflicht für <strong>globale Administratoren</strong> nicht in derselben Weise durchgesetzt. Mit dem eigentlichen Benutzer testen, nicht nur mit einem Admin. <a href="https://learn.microsoft.com/de-de/troubleshoot/entra/entra-id/app-integration/error-code-AADSTS50105-user-not-assigned-role" rel="noopener noreferrer" target="_blank">Microsoft Learn: AADSTS50105</a>.</p>
+<h2 id="5-zugriffswege--wo-arbeitet-der-supporttechniker">5. Zugriffswege – wo arbeitet der Supporttechniker?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Zugriff</th>
+<th>Konkretes Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer meldet fehlenden Zugriff auf eine <strong>Entra-Unternehmensanwendung</strong></td>
+<td>Entra Admin Center, eigenes berechtigtes Supportkonto</td>
+<td>Ticketfreigabe und Zuweisung kontrollieren; ggf. vorgesehene Benutzer-/Gruppenzuweisung durch berechtigte Rolle durchführen</td>
+</tr>
+<tr class="even">
+<td>Benutzer benötigt Zugriff auf <strong>interne Windows-Anwendung</strong></td>
+<td>AD-Verwaltung über RSAT oder zuständiges Anwendungsportal</td>
+<td>AD-Gruppe und anwendungsspezifische Rechte gemäß Freigabe prüfen; Änderungen dokumentieren</td>
+</tr>
+<tr class="odd">
+<td>Benutzer ist angemeldet, aber die Funktion bleibt gesperrt</td>
+<td>Bildschirmfreigabe (Teams/Schnellhilfe) + Adminportal</td>
+<td>Benutzer zeigt Fehler; Support vergleicht vorhandene App-Rolle mit genehmigter Aufgabe</td>
+</tr>
+<tr class="even">
+<td>Anwendung ist über Firmen-VPN erreichbar, aber Startseite lädt nicht</td>
+<td>Clientdiagnose, DNS- und Portprüfung</td>
+<td>Erst Erreichbarkeit, VPN, Namen und Dienststatus prüfen; kein Berechtigungsfehler unterstellen</td>
+</tr>
+<tr class="odd">
+<td>Gruppe wurde vor Kurzem geändert</td>
+<td>AD/Entra + Benutzer-Sitzung</td>
+<td>Gruppenmitgliedschaft prüfen; sofern sinnvoll kontrollierte neue Anmeldung bzw. aktualisiertes Token abwarten</td>
+</tr>
+<tr class="even">
+<td>Provisioning in der Zielanwendung scheitert</td>
+<td>Entra-Provisioning-Logs / App-Adminportal</td>
+<td>Synchronisation, Attributzuordnung und Zielkonto prüfen; an L2/App-Verantwortliche eskalieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>„Zentral verwalten“ bedeutet:</strong> Der Support verwaltet das Benutzerkonto und die Anwendungszuweisung vom eigenen berechtigten Verwaltungsrechner oder Cloudportal aus. Er muss dazu <strong>nicht</strong> per Remotedesktop (RDP, Remote Desktop Protocol) auf dem Benutzer-PC angemeldet sein.</p>
+<p><strong>Voraussetzungen:</strong> Passende Rolle, Mandantenzugriff, dienstbezogene Lizenzierung, Freigabe der Anwendungseigentümer und dokumentierter Änderungsprozess. Ein Screenshot des Benutzers ersetzt niemals eine Zugriffsfreigabe.</p>
+<h2 id="6-vor-der-berechtigung-genehmigung-und-sicherheitspruefung">6. Vor der Berechtigung: Genehmigung und Sicherheitsprüfung</h2>
+<p><strong>Eine Zugriffsanfrage darf nicht automatisch genehmigt werden.</strong> Vor jeder Rechtevergabe klären:</p>
+<ol type="1">
+<li><strong>Wer</strong> soll Zugriff bekommen? Identität, UPN und gegebenenfalls Personal-/Ticketreferenz.</li>
+<li><strong>Worauf</strong> genau? Richtige Anwendung und Mandant/Umgebung (Produktion oder Test).</li>
+<li><strong>Wozu</strong>? Fachliche Aufgabe, z. B. Datensätze lesen oder bearbeiten.</li>
+<li><strong>Wer genehmigt?</strong> Vorgesetzter oder Application Owner (fachlich zuständige Person).</li>
+<li><strong>Wie lange?</strong> Dauerhaft, befristet, projektbezogen; Wiedervorlage möglich.</li>
+<li><strong>Welche Rolle?</strong> Nur minimal notwendige Rechte, keine Adminrolle „damit es funktioniert“.</li>
+<li><strong>Welche Lizenz / Compliance?</strong> Benötigte Nutzungsrechte sowie externe oder sensible Daten berücksichtigen.</li>
+</ol>
+<p><strong>Nie pauschal:</strong> „Assignment required = No“, „MFA aus“, „Conditional Access aus“ oder „Global Administrator“ vergeben, nur um eine Fehlermeldung zu beseitigen. Das würde die Zugangskontrolle möglicherweise über die eigentliche Anfrage hinaus aufweichen.</p>
+<h2 id="7-app-zuweisung-gruppen-und-rollen-verstehen">7. App-Zuweisung, Gruppen und Rollen verstehen</h2>
+<p>Nehmen wir die fiktive Anwendung <strong>Fabrikam CRM</strong>.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Ebene</th>
+<th>Beispiel</th>
+<th>Wirkung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Entra-/AD-Identität</td>
+<td><code>l.meyer@firma.example</code></td>
+<td>Der Benutzer existiert und kann authentifiziert werden.</td>
+</tr>
+<tr class="even">
+<td>Zuweisungsgruppe</td>
+<td><code>SG_CRM_Vertrieb</code></td>
+<td>Eine direkt berechtigte Gruppe erhält die App-Zuweisung.</td>
+</tr>
+<tr class="odd">
+<td>Entra-App-Zuweisung</td>
+<td><code>SG_CRM_Vertrieb</code> → Fabrikam CRM</td>
+<td>Erfüllt ggf. die Zugangsbedingung „Zuweisung erforderlich“.</td>
+</tr>
+<tr class="even">
+<td>App-Rolle</td>
+<td><code>SalesEditor</code></td>
+<td>Die CRM-Anwendung kann anhand der Rolle Bearbeitung erlauben.</td>
+</tr>
+<tr class="odd">
+<td>App-eigene Rechte</td>
+<td>„Kunden in Region Nord bearbeiten“</td>
+<td>Kann unabhängig von der Entra-Rolle in der Zielanwendung gepflegt werden.</td>
+</tr>
+<tr class="even">
+<td>Lizenz</td>
+<td>CRM-Benutzerlizenz</td>
+<td>Kann erforderlich sein, damit die App produktiv verwendet werden darf.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> „Standardzugriff“ in Entra kann die Zuweisungspflicht erfüllen, sendet aber nach Microsoft-Dokumentation nicht automatisch einen <code>roles</code>-Claim mit einer benannten App-Rolle. Die Anwendung kann folglich weiterhin eigene Rollen verlangen. <a href="https://learn.microsoft.com/de-de/troubleshoot/entra/entra-id/app-integration/error-code-AADSTS50105-user-not-assigned-role" rel="noopener noreferrer" target="_blank">Microsoft: AADSTS50105</a>.</p>
+<p><strong>Gruppen sind nicht immer identisch wirksam:</strong> Klassische AD-Gruppen können verschachtelt sein. Für <strong>Entra-Enterprise-App-Gruppenzuweisungen</strong> wird eine verschachtelte Mitgliedschaft aber nicht wie eine direkte Gruppenmitgliedschaft behandelt. Das muss in der Diagnose ausdrücklich geprüft werden.</p>
+<h2 id="8-diagnose-entscheidungsbaum">8. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb014_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-014 – Technischer Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb014_diagnosebaum.svg"/></a></div><figcaption>RB-014 – Technischer Diagnose-Entscheidungsbaum</figcaption></figure>
+<p>Der Baum startet mit <strong>genehmigter Anfrage oder bestehender Störung</strong>, verzweigt danach nach <strong>Netzwerkerreichbarkeit, Authentifizierung und Autorisierung</strong> und führt erst dann zu geeigneten Änderungen.</p>
+<h2 id="9-strukturierter-l1-ablauf">9. Strukturierter L1-Ablauf</h2>
+<p><strong>Schritt 1 – Ticket präzisieren.</strong> Benutzer, App, Umgebung, gewünschte Aufgabe, genaue Fehlermeldung und Zeitraum erfassen; klären, ob Neuvergabe oder Ausfall.</p>
+<p><strong>Schritt 2 – Umfang feststellen.</strong> Nur der Benutzer oder mehrere? Andere Anwendungen erreichbar? Gerät und Netzverbindung grundsätzlich funktionsfähig?</p>
+<p><strong>Schritt 3 – Freigabe prüfen.</strong> Bei neuer Berechtigung: fachliche Genehmigung, passende Rolle, Lizenz und Dauer dokumentieren.</p>
+<p><strong>Schritt 4 – Zugriffsweg bestimmen.</strong> AD-Gruppenverwaltung, Entra-Unternehmensanwendung, anwendungseigenes Portal oder Provisioning.</p>
+<p><strong>Schritt 5 – Bestehende Rechte untersuchen.</strong> Stimmt der angemeldete Benutzer? Direkte Gruppenzuweisung? App-Rolle? Geräte-/MFA-Richtlinie? Zielkonto vorhanden?</p>
+<p><strong>Schritt 6 – Nur genehmigte Änderung.</strong> Zugehörige App-Gruppe bzw. App-Rolle im vorgesehenen System durch berechtigte Person zuweisen; Änderung dokumentieren.</p>
+<p><strong>Schritt 7 – Funktion prüfen.</strong> Benutzer meldet sich gegebenenfalls neu an und führt eine echte, erlaubte Aufgabe durch. Nicht nur ein grünes Login-Symbol kontrollieren.</p>
+<p><strong>Schritt 8 – Ticket abschließen oder eskalieren.</strong> Konkrete Prüfergebnisse, Änderung und funktionalen Test festhalten.</p>
+<h2 id="10-lesende-diagnose-netzwerk-und-lokales-active-directory">10. Lesende Diagnose: Netzwerk und lokales Active Directory</h2>
+<p>Alle nachfolgenden Beispiele verwenden <strong>fiktive Systeme und Konten</strong>. Die Befehle greifen nur dann auf eine echte Umgebung zu, wenn du sie dort selbst mit den entsprechenden Rechten ausführst. Ausführung ausschließlich auf berechtigten Administrationssystemen.</p>
+<h3 id="a-ist-die-anwendung-technisch-erreichbar">A. Ist die Anwendung technisch erreichbar?</h3>
+<p><strong>Ausführungsort:</strong> Windows-Client oder genehmigter Supportrechner. <strong>Zweck:</strong> DNS-/TCP-Erreichbarkeit von einem Berechtigungsproblem unterscheiden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft, ob der Name der Beispielanwendung über DNS aufgelöst wird.
+Resolve-DnsName -Name 'crm.firma.example'
+
+# Prüft, ob der HTTPS-Zielport der Anwendung über TCP erreichbar ist.
+# -ComputerName benennt den Zielserver.
+# -Port 443 prüft den üblichen HTTPS-Port (TCP).
+Test-NetConnection -ComputerName 'crm.firma.example' -Port 443</code></pre></div>
+<p><strong>Interpretation:</strong> <code>TcpTestSucceeded: True</code> bedeutet nur, dass der <strong>TCP-Port</strong> erreichbar ist. Es beweist weder eine erfolgreiche Anmeldung noch passende Rollen. Ein negativer Wert kann durch Firewall, Routing, Proxy, VPN oder den Zielserver bedingt sein; er beweist keinen Berechtigungsfehler.</p>
+<h3 id="b-welche-ad-gruppen-hat-der-benutzer-laut-verzeichnis">B. Welche AD-Gruppen hat der Benutzer laut Verzeichnis?</h3>
+<p><strong>Ausführungsort:</strong> Berechtigter Rechner mit <strong>RSAT (Remote Server Administration Tools)</strong> und ActiveDirectory-Modul. <strong>Voraussetzung:</strong> Verzeichnisleserechte und erreichbarer Domänencontroller.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Sucht das AD-Benutzerobjekt anhand des fiktiven Anmeldenamens.
+$user = Get-ADUser -Identity 'l.meyer'
+
+# Fragt Gruppenmitgliedschaften des ermittelten Benutzerobjekts ab.
+# Get-ADPrincipalGroupMembership benötigt einen erreichbaren globalen Katalog.
+$gruppen = Get-ADPrincipalGroupMembership -Identity $user
+
+# Zeigt die gefundenen Gruppen übersichtlich nach Namen sortiert.
+$gruppen | Select-Object Name, SamAccountName | Sort-Object Name</code></pre></div>
+<p><strong>Interpretation:</strong> Prüfen, ob die für die Anwendung vorgesehene Gruppe vorhanden ist. Der Befehl beweist <strong>noch nicht</strong>, dass die Zielanwendung die Mitgliedschaft richtig auswertet oder der Benutzer mit einem aktualisierten Anmeldetoken arbeitet.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADPrincipalGroupMembership</a>.</p>
+<h3 id="c-mit-welchen-gruppen-wurde-die-aktuelle-windows-sitzung-gestartet">C. Mit welchen Gruppen wurde die aktuelle Windows-Sitzung gestartet?</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-PC, <strong>im Kontext des betroffenen Benutzers</strong> (nicht mit dem Support-Administratorkonto).</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die Gruppen und Sicherheitskennungen (SIDs),
+# die im Zugriffstoken der aktuellen Windows-Sitzung enthalten sind.
+whoami /groups</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn die Gruppe in AD inzwischen vorhanden ist, in der bereits laufenden Sitzung aber fehlt, kann eine neue Anmeldung nötig sein. <code>whoami</code> unter einem Support-Administratorkonto zeigt <strong>dessen</strong> Gruppen, nicht die des betroffenen Benutzers. Vor Abmeldung ungespeicherte Arbeit sichern.</p>
+<h2 id="11-lesende-diagnose-microsoft-entra-id-und-microsoft-graph">11. Lesende Diagnose: Microsoft Entra ID und Microsoft Graph</h2>
+<p><strong>Ausführungsort:</strong> Berechtigter Administrationsrechner mit Microsoft-Graph-PowerShell-Modulen. <strong>Vorbedingungen:</strong> Zugang zum richtigen Entra-Mandanten, passende Administrationsrolle und genehmigte Graph-Berechtigungen. <strong>Nicht</strong> mit privaten Testkonten und echten Benutzerinformationen auf einer öffentlichen Website arbeiten.</p>
+<h3 id="a-benutzerinformationen-ueber-microsoft-graph-abfragen">A. Benutzerinformationen über Microsoft Graph abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Stellt eine interaktive Verbindung zu Microsoft Graph her.
+# Directory.Read.All ist eine weitreichende LESENDE Verzeichnisberechtigung
+# und muss nach Organisationsrichtlinie freigegeben sein.
+Connect-MgGraph -Scopes 'Directory.Read.All'
+
+# Fragt das fiktive Benutzerkonto ab und speichert das Ergebnis.
+$user = Get-MgUser -UserId 'l.meyer@firma.example'
+
+# Zeigt nur ausgewählte Eigenschaften des Benutzerobjekts an.
+$user | Select-Object Id, DisplayName, UserPrincipalName</code></pre></div>
+<p><strong>Interpretation:</strong> Damit ist nur die Existenz/Identität im Entra-Verzeichnis geprüft. Eine gültige App-Zuweisung ist noch nicht nachgewiesen.</p>
+<h3 id="b-welche-enterprise-app-rollen-sind-dem-benutzer-zugewiesen">B. Welche Enterprise-App-Rollen sind dem Benutzer zugewiesen?</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Liest App-Rollenzuweisungen des ausgewählten Benutzers.
+# Der Graph-Endpunkt kann auch Zuweisungen über DIREKTE Gruppenmitgliedschaft liefern.
+# Die passenden Graph-Berechtigungen und Entra-Rollen sind erforderlich.
+$zuweisungen = Get-MgUserAppRoleAssignment -UserId $user.Id -All
+
+# Zeigt die betroffene Anwendung und die technische App-Rollen-ID.
+$zuweisungen | Select-Object ResourceDisplayName, AppRoleId, PrincipalDisplayName</code></pre></div>
+<p><strong>Interpretation:</strong> Eine Zeile für die Zielanwendung kann auf eine Zuweisung hindeuten. Die <code>AppRoleId</code> muss <strong>gegen die Rollendefinition der konkreten Anwendung</strong> geprüft werden. Die Null-GUID <code>00000000-0000-0000-0000-000000000000</code> kann für „Standardzugriff“ stehen und ist keine benannte Fachrolle. Fehlende Zeilen müssen unter Berücksichtigung von Gruppenzuweisungen, Berechtigungen der Abfrage und Aktualisierungsverzögerungen untersucht werden.</p>
+<p><strong>Wichtiger Berechtigungshinweis:</strong> Microsoft nennt für die Graph-API <code>GET /users/{id}/appRoleAssignments</code> unter anderem <code>Directory.Read.All</code> als Delegated-Alternative und passende Entra-Rollen. Eine erfolgreiche Anmeldung bei Graph allein reicht nicht immer aus. Die Abfrage kann direkte Gruppenzuweisungen mit einschließen; <strong>verschachtelte Gruppen</strong> sind für die Enterprise-App-Zuweisung nicht automatisch gültig.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/graph/api/user-list-approleassignments?view=graph-rest-1.0" rel="noopener noreferrer" target="_blank">Microsoft Graph – appRoleAssignments</a>, <a href="https://learn.microsoft.com/de-de/powershell/module/microsoft.graph.applications/get-mguserapproleassignment" rel="noopener noreferrer" target="_blank">Get-MgUserAppRoleAssignment</a>.</p>
+<h3 id="c-fehlerhafte-entra-anmeldung-ohne-powershell-untersuchen">C. Fehlerhafte Entra-Anmeldung ohne PowerShell untersuchen</h3>
+<p><strong>Ausführungsort:</strong> <strong>Microsoft Entra Admin Center</strong>, entsprechend berechtigte Rolle.</p>
+<ol type="1">
+<li><strong>Entra ID → Überwachung und Integrität → Anmeldeprotokolle</strong> öffnen.</li>
+<li>Nach <strong>Benutzer</strong>, <strong>Anwendung</strong>, <strong>Zeitpunkt</strong> und <strong>Fehlschlag</strong> filtern.</li>
+<li><strong>Fehlercode</strong>, <strong>Fehlergrund</strong>, <strong>Korrelations-ID</strong> und die betroffenen Richtlinien erfassen.</li>
+<li>Im Reiter <strong>Conditional Access (bedingter Zugriff)</strong> prüfen, ob eine Richtlinie die Anmeldung blockiert hat.</li>
+<li>Keine Richtlinie zum Zweck eines schnellen Tests global deaktivieren.</li>
+</ol>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/entra/identity/monitoring-health/howto-troubleshoot-sign-in-errors" rel="noopener noreferrer" target="_blank">Microsoft: Anmeldefehler untersuchen</a>, <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Microsoft: Conditional Access untersuchen</a>.</p>
+<h2 id="12-diagnoseergebnisse-interpretieren--was-folgt-daraus">12. Diagnoseergebnisse interpretieren – was folgt daraus?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Technische Schlussfolgerung</th>
+<th>Gezielter nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DNS-Auflösung oder TCP 443 schlägt fehl</td>
+<td>Netzwerkproblem möglich, keine belastbare Aussage zu App-Rollen</td>
+<td>RB-010 / RB-011: DNS, VPN, Routing, Firewall prüfen</td>
+</tr>
+<tr class="even">
+<td>AADSTS50105</td>
+<td>Gültige Enterprise-App-Zuweisung fehlt möglicherweise</td>
+<td>App-Eigenschaft „Zuweisung erforderlich“, direkte Zuweisung und Gruppe prüfen</td>
+</tr>
+<tr class="odd">
+<td>Anmeldung scheitert unter Conditional Access</td>
+<td>Richtlinie / Geräteanforderung kann blockieren</td>
+<td>Sign-in-Log und Richtlinienbedingungen mit Security/Entra-Team prüfen</td>
+</tr>
+<tr class="even">
+<td>SSO erfolgreich, aber Funktionsmenü fehlt</td>
+<td>App-Rolle oder anwendungsinterne Rechte fehlen möglich</td>
+<td>Fachlich genehmigte In-App-Rolle und Lizenz prüfen</td>
+</tr>
+<tr class="odd">
+<td>Entra-Zuweisung vorhanden, Zielkonto fehlt</td>
+<td>Provisioning oder manuelle Kontoerstellung noch nicht erfolgt</td>
+<td>Provisioning-Logs und Zielanwendung untersuchen</td>
+</tr>
+<tr class="even">
+<td>Benutzer direkt in Entra-Zuweisungsgruppe, aber App scheitert</td>
+<td>Zuweisung ist nur eine Ebene</td>
+<td>Authentifizierung, Token, Provisioning, App-Rolle und Richtlinien prüfen</td>
+</tr>
+<tr class="odd">
+<td>Benutzer nur Mitglied einer Untergruppe</td>
+<td>Verschachtelte Entra-Gruppen können App-Zuweisung nicht erfüllen</td>
+<td>Direkte Gruppenmitgliedschaft oder zulässige direkte App-Zuweisung klären</td>
+</tr>
+<tr class="even">
+<td>Neue Berechtigung, aber alte Sitzung offen</td>
+<td>Token/Sitzung kann alte Angaben enthalten</td>
+<td>Neue Authentifizierung kontrolliert testen; Sicherheitsrichtlinien beachten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine automatische Rechteeskalation:</strong> Ein fehlender Menüpunkt rechtfertigt nicht die Zuweisung einer Administratorrolle. Zuerst muss geklärt werden, ob die Funktion überhaupt für die Tätigkeit genehmigt ist.</p>
+<h2 id="13-fehlerbehebung-und-erfolgskontrolle">13. Fehlerbehebung und Erfolgskontrolle</h2>
+<h3 id="fall-a-neue-zugriffsanforderung-wurde-genehmigt">Fall A: Neue Zugriffsanforderung wurde genehmigt</h3>
+<ol type="1">
+<li>Fachliche Freigabe, Anwendung und minimal nötige Rolle aus dem Ticket übernehmen.</li>
+<li>Zuständige Verwaltungsquelle ermitteln (AD-Gruppe, Entra-Unternehmensanwendung, In-App-Verwaltung).</li>
+<li>Mit geeigneter berechtigter Rolle die <strong>konkret genehmigte Zuweisung</strong> durchführen; niemals pauschale Administratorrechte vergeben.</li>
+<li>Wenn erforderlich: Provisioning-/Synchronisationsstatus kontrollieren.</li>
+<li>Benutzer lässt sich mit dem <strong>richtigen Firmenkonto</strong> neu an der Anwendung anmelden.</li>
+<li>Gemeinsam eine <strong>erlaubte Fachfunktion</strong> testen, zum Beispiel einen Testdatensatz öffnen – nicht versehentlich echte Kundendaten verändern.</li>
+<li>Zuweisung, Genehmiger, Zeitpunkt, Rolle und Test im Ticket dokumentieren.</li>
+</ol>
+<h3 id="fall-b-fehler-aadsts50105">Fall B: Fehler AADSTS50105</h3>
+<ol type="1">
+<li>Identität und App aus Anmeldeprotokoll/Fehlerseite sichern.</li>
+<li><strong>Enterprise Applications → betroffene App → Eigenschaften:</strong> „Zuweisung erforderlich?“ prüfen.</li>
+<li><strong>Benutzer und Gruppen:</strong> direkte Benutzerzuweisung oder gültige direkte Mitgliedschaft in zugewiesener Gruppe kontrollieren.</li>
+<li>Falls die Freigabe vorliegt: passende Zuweisung bzw. Rolle autorisiert ergänzen.</li>
+<li><strong>Nicht</strong> „Zuweisung erforderlich“ auf „Nein“ setzen, nur weil dieser Benutzer nicht zugewiesen ist.</li>
+<li>Mit dem betroffenen Benutzer erneut testen.</li>
+</ol>
+<h3 id="fall-c-benutzer-kann-sich-anmelden-aber-nur-lesen">Fall C: Benutzer kann sich anmelden, aber nur lesen</h3>
+<ol type="1">
+<li>Fachlich genehmigte Soll-Rechte („Lesen“ oder „Ändern“) dokumentieren.</li>
+<li>App-Rollenzuweisung und anwendungsinterne Rollen prüfen; bei Bedarf Lizenzstatus und Provisioning berücksichtigen.</li>
+<li>Gezielte Rollenänderung durch das zuständige App-Team veranlassen.</li>
+<li>Anschließend genau die gewünschte Funktion <strong>ohne unnötige Datenänderungen</strong> testen.</li>
+</ol>
+<h3 id="warum-funktioniert-eine-neue-gruppenzuweisung-manchmal-erst-spaeter">Warum funktioniert eine neue Gruppenzuweisung manchmal erst später?</h3>
+<p>Bei einer klassischen Windows-AD-Sitzung entsteht ein Zugriffstoken beim Anmelden. Neue Gruppenmitgliedschaften sind nicht immer sofort in der bereits bestehenden Sitzung enthalten. Bei Cloudanwendungen können bereits ausgestellte Token/Sitzungen alte Rolleninformationen enthalten; bei automatischem Provisioning kommen Synchronisationszyklen hinzu. Deshalb <strong>nicht blind immer wieder Rechte zuweisen</strong>. Stattdessen die jeweilige Ebene prüfen und bei sicherem Zustand eine frische Anmeldung ausprobieren. <a href="https://learn.microsoft.com/de-de/entra/identity-platform/access-tokens" rel="noopener noreferrer" target="_blank">Microsoft: Token-Lebensdauer</a>.</p>
+<h3 id="erfolg-nachweisen">Erfolg nachweisen</h3>
+<p>Eine Anfrage ist erst dann fachlich abgeschlossen, wenn der betroffene Benutzer (a) die Anwendung öffnen, (b) sich mit dem vorgesehenen Konto authentifizieren und (c) die ausdrücklich genehmigte Funktion ausführen kann. Ein bloßer Portalstatus „Assigned“ genügt nicht.</p>
+<h2 id="14-l1-l2-eskalation-muster-ticket-und-lernkontrolle">14. L1-/L2-Eskalation, Muster-Ticket und Lernkontrolle</h2>
+<h3 id="wann-eskalieren">Wann eskalieren?</h3>
+<p><strong>L1:</strong> Antragsdaten und Freigabe prüfen, Benutzer/App eindeutig identifizieren, Standardzuweisung nach Berechtigung durchführen, bekannte Fehlermeldungen untersuchen und mit dem Benutzer testen.</p>
+<p><strong>L2 / Application Owner / IAM-Team:</strong> SSO-Konfiguration, SAML/OIDC-Claims, App-Rollenmapping, Provisioning-/SCIM-Fehler, tenantweite Conditional-Access-Probleme, Änderungen an Gruppenstruktur oder Anwendungsrollen, ungeklärte Lizenz-/Compliancefragen.</p>
+<h3 id="musterticket-fiktiv">Musterticket (fiktiv)</h3>
+<p><strong>Ticket:</strong> SR-014<br/>
+<strong>Meldung:</strong> Neuer Vertriebsmitarbeiter kann Fabrikam CRM nicht öffnen, Fehler AADSTS50105.<br/>
+<strong>Freigabe:</strong> Fachverantwortliche genehmigt Rolle „SalesReader“ für Projektlaufzeit.<br/>
+<strong>Diagnose:</strong> Identität und App geprüft; Anmeldeprotokoll zeigt AADSTS50105. Unternehmenseintrag verlangt Zuweisung. Nutzer war nicht direkt zugewiesen und kein direktes Mitglied der zugelassenen App-Gruppe.<br/>
+<strong>Maßnahme:</strong> Berechtigte Administration ordnet den Benutzer nach Freigabe der vorgesehenen App-Gruppe zu; erforderliche App-Rolle geprüft.<br/>
+<strong>Ergebnis:</strong> Neue Anmeldung mit betroffener Benutzeridentität erfolgreich; genehmigte Lesefunktion getestet.<br/>
+<strong>Status:</strong> Gelöst (fiktives Beispiel, <strong>nicht praktisch durchgeführt</strong>).</p>
+<h3 id="anki-karten--beispiele">Anki-Karten – Beispiele</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Kartentyp</th>
+<th>Vorderseite</th>
+<th>Rückseite</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wissen</td>
+<td>Wofür steht SSO?</td>
+<td>Single Sign-On; einmalige Anmeldung für mehrere Anwendungen.</td>
+</tr>
+<tr class="even">
+<td>Wissen</td>
+<td>Was bedeutet AADSTS50105?</td>
+<td>Für eine zuweisungspflichtige Anwendung fehlt eine gültige App-Zuweisung.</td>
+</tr>
+<tr class="odd">
+<td>Verständnis</td>
+<td>Warum reicht eine erfolgreiche Anmeldung nicht zum Bearbeiten von Kundendaten?</td>
+<td>Authentifizierung bestätigt die Identität; Autorisierung bestimmt Funktionen/Rechte.</td>
+</tr>
+<tr class="even">
+<td>Verständnis</td>
+<td>Warum ist „Standardzugriff“ nicht automatisch „SalesEditor“?</td>
+<td>Standardzugriff erfüllt ggf. die Zuweisungspflicht, liefert aber keine benannte App-Rolle.</td>
+</tr>
+<tr class="odd">
+<td>Diagnose</td>
+<td>CRM-Login funktioniert, „Kunden bearbeiten“ fehlt. Was prüfst du zuerst?</td>
+<td>Soll-Rolle/Freigabe, tatsächliche App-Rolle, anwendungsinterne Berechtigungen, Lizenz.</td>
+</tr>
+<tr class="even">
+<td>Diagnose</td>
+<td>Benutzer ist nur über verschachtelte Gruppe in App-Zuweisungsgruppe. Was ist verdächtig?</td>
+<td>Entra-Enterprise-App-Gruppenzuweisung berücksichtigt hier keine verschachtelten Mitgliedschaften.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Diagnoseübung ohne Lösungsvorgabe:</strong> Ein Benutzer hat laut AD-Gruppe Zugriff auf das CRM. Das CRM zeigt jedoch „Nicht berechtigt“. Sein Kollege mit derselben Stelle kann es verwenden. Was wären deine <strong>drei ersten Prüfungen</strong>, und mit welchem Ergebnis würdest du welche Hypothese ausschließen? Versuche die Reihenfolge <strong>ohne</strong> direkt auf eine neue Gruppenzuweisung zu springen.</p>
+<h2 id="15-quellen-bearbeitungs--und-validierungsstatus">15. Quellen, Bearbeitungs- und Validierungsstatus</h2>
+<p><strong>Technische Herstellerdokumentation (Stand der Recherche: 08.11.2026):</strong></p>
+<ol type="1">
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/enterprise-apps/what-is-single-sign-on" rel="noopener noreferrer" target="_blank">Microsoft Learn – SSO in Entra ID</a> – Anmeldung und Identitätsanbieter.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/enterprise-apps/assign-user-or-group-access-portal" rel="noopener noreferrer" target="_blank">Microsoft Learn – Benutzer und Gruppen einer Unternehmensanwendung zuweisen</a> – Zuweisung und App-Rollen.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/entra/entra-id/app-integration/error-code-AADSTS50105-user-not-assigned-role" rel="noopener noreferrer" target="_blank">Microsoft Learn – Fehler AADSTS50105</a> – fehlende Zuweisung und Gruppenverschachtelung.</li>
+<li><a href="https://learn.microsoft.com/entra/identity/monitoring-health/howto-troubleshoot-sign-in-errors" rel="noopener noreferrer" target="_blank">Microsoft Learn – Anmeldefehler in Entra untersuchen</a> – Fehlercode, Korrelation und Protokolle.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Microsoft Learn – Conditional Access Troubleshooting</a> – Richtlinienauswertung.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/app-provisioning/how-provisioning-works" rel="noopener noreferrer" target="_blank">Microsoft Learn – Wie Application Provisioning funktioniert</a> – SCIM, Synchronisierung und Protokolle.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADPrincipalGroupMembership</a> – Gruppenabfrage.</li>
+<li><a href="https://learn.microsoft.com/en-us/graph/api/user-list-approleassignments?view=graph-rest-1.0" rel="noopener noreferrer" target="_blank">Microsoft Graph – App-Rollenzuweisungen für Benutzer</a> – Graph-Abfrage, Berechtigungen und direkte Gruppenmitgliedschaft.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/microsoft.graph.applications/get-mguserapproleassignment" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-MgUserAppRoleAssignment</a> – PowerShell-Cmdlet.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity-platform/access-tokens" rel="noopener noreferrer" target="_blank">Microsoft Learn – Access Tokens</a> – Token und Gültigkeitsdauer.</li>
+</ol>
+<p><strong>Status: Recherchiert.</strong> Das Szenario, die Konten und die Ticketlösung sind konstruiert. Kein produktiver Benutzerzugriff wurde verändert oder getestet. Eine spätere Praxisvalidierung sollte dokumentieren: konkrete Testumgebung, Genehmigung, Testergebnisse, Screenshots ohne vertrauliche Daten und gegebenenfalls Korrekturen des Runbooks.</p>
+<p><strong>Grafiknachweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Bilder sind technische Illustrationen, keine Screenshots einer produktiven Umgebung.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-014_Lernartikel.md">RB-014_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-005/index.html">RB-005: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-013/index.html">← RB-013</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-015/index.html">RB-015 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
