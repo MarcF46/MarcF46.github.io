@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-017 Netzlaufwerk fehlt oder ist nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-017: Netzlaufwerk fehlt oder ist nicht erreichbar. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · SMB · Gruppenrichtlinien · Praxis-Runbook</p><h1>RB-017: Netzlaufwerk fehlt oder ist nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-aufnahme-l1">1. Aufnahme (L1)</a></li><li><a href="#2-drei-minuten-entscheidung-l1">2. Drei-Minuten-Entscheidung (L1)</a></li><li><a href="#3-lesende-diagnose--auf-betroffenen-client-im-benutzerkontext">3. Lesende Diagnose – auf betroffenen Client im Benutzerkontext</a></li><li><a href="#4-gpo-zuordnung-pruefen--wenn-unc-funktioniert-aber-z-fehlt">4. GPO-Zuordnung prüfen – wenn UNC funktioniert, aber Z: fehlt</a></li><li><a href="#5-rechte-pruefen--nur-auf-berechtigtem-dateiserverl2">5. Rechte prüfen – nur auf berechtigtem Dateiserver/L2</a></li><li><a href="#6-massnahme-und-verifikation">6. Maßnahme und Verifikation</a></li><li><a href="#7-ticketabschluss--eskalation">7. Ticketabschluss / Eskalation</a></li></ol></nav><div class="support-markdown">
+<p><strong>Kurzformat für den IT-Support · L1/L2 · Stand 08.11.2026 · Nicht praktisch validiert</strong><br/>
+<strong>Beispiel:</strong> Benutzer meldet: „<code>Z:</code> fehlt“ oder „<code>Z:</code> ist nicht erreichbar“.<br/>
+<strong>Wichtig:</strong> <code>Z:</code> = Zuordnung; <code>\\FS01\Projekte</code> = UNC-Freigabe; Berechtigungen sind ein dritter Prüfpunkt.</p>
+<h2 id="1-aufnahme-l1">1. Aufnahme (L1)</h2>
+<ul>
+<li>Exakte Fehlermeldung und Zeitpunkt, Benutzer, PC, Standort, LAN/WLAN/VPN erfragen.</li>
+<li>Ein Benutzer, eine Gruppe oder ganze Abteilung betroffen?</li>
+<li>Ist das Laufwerk unsichtbar, erscheint ein rotes X oder kommt „Zugriff verweigert“?</li>
+<li>Welcher UNC-Pfad und welcher Laufwerksbuchstabe werden erwartet?</li>
+</ul>
+<h2 id="2-drei-minuten-entscheidung-l1">2. Drei-Minuten-Entscheidung (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Weg</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Z:</code> fehlt, <code>\\FS01\Projekte</code> <strong>öffnet</strong></td>
+<td>Mapping/GPO/Benutzerkontext untersuchen</td>
+</tr>
+<tr class="even">
+<td><code>Z:</code> fehlt, <strong>UNC öffnet nicht</strong></td>
+<td>DNS/VPN/TCP 445, Freigabename, Fehlertext</td>
+</tr>
+<tr class="odd">
+<td>UNC meldet <strong>Zugriff verweigert</strong></td>
+<td>Authentifizierung + SMB-/NTFS-Rechte (RB-005)</td>
+</tr>
+<tr class="even">
+<td>Z: nur im <strong>Admin-Terminal</strong> unsichtbar</td>
+<td>UAC-/Sitzungskontext prüfen</td>
+</tr>
+<tr class="odd">
+<td>Mehrere Benutzer betroffen</td>
+<td>Gemeinsame Störung, L2 frühzeitig informieren</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-lesende-diagnose--auf-betroffenen-client-im-benutzerkontext">3. Lesende Diagnose – auf betroffenen Client im Benutzerkontext</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Aktuelle Identität prüfen.
+whoami
+
+# Zeigt SMB-Laufwerkszuordnungen.
+Get-SmbMapping | Select-Object LocalPath,RemotePath,Status
+
+# Prüft UNC-Pfad (False ist allein nicht eindeutig).
+Test-Path -LiteralPath '\\FS01\Projekte'
+
+# Prüft Namensauflösung des Dateiservers.
+Resolve-DnsName -Name 'FS01'
+
+# Prüft TCP-Port 445 des SMB-Dienstes (nicht Freigaberechte).
+Test-NetConnection -ComputerName 'FS01' -Port 445</code></pre></div>
+<p><strong>Direkt im Explorer:</strong> <code>\\FS01\Projekte</code> öffnen und genaue Fehlermeldung notieren.</p>
+<h2 id="4-gpo-zuordnung-pruefen--wenn-unc-funktioniert-aber-z-fehlt">4. GPO-Zuordnung prüfen – wenn UNC funktioniert, aber <code>Z:</code> fehlt</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zusammenfassung der Benutzer-GPOs.
+gpresult /scope user /r
+
+# HTML-Bericht im Temp-Ordner des Benutzers speichern.
+gpresult /scope user /h "$env:TEMP\RB017-GPResult.html"
+
+# Nur passende Group-Policy-Preferences-Ereignisse sichten.
+Get-WinEvent -FilterHashtable @{
+  LogName='Application'; Id=4096,4098
+  StartTime=(Get-Date).AddDays(-2)
+} -ErrorAction SilentlyContinue |
+  Select-Object -First 20 TimeCreated,Id,ProviderName,Message</code></pre></div>
+<p><strong>Prüfen:</strong> GPO-Verknüpfung, betroffene OU/Benutzer, Sicherheitsfilterung, Item-Level Targeting, Drive-Maps-Eintrag, Konflikt durch Anmeldeskript, Laufwerksbuchstabe bereits belegt. <strong>Kein reflexartiges <code>gpupdate /force</code> vor der Aufnahme der Befunde.</strong></p>
+<h2 id="5-rechte-pruefen--nur-auf-berechtigtem-dateiserverl2">5. Rechte prüfen – nur auf berechtigtem Dateiserver/L2</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># AUF FS01: Zugriffsregeln der SMB-Freigabe lesen.
+Get-SmbShareAccess -Name 'Projekte'
+
+# AUF FS01: NTFS-Rechte am tatsächlichen lokalen Freigabeordner.
+Get-Acl -LiteralPath 'D:\Freigaben\Projekte' |
+  Select-Object -ExpandProperty Access</code></pre></div>
+<p><strong>Auf dem Benutzer-PC:</strong> <code>whoami /groups</code> für die aktuelle Gruppenmitgliedschaft. Keine pauschalen Vollzugriffsrechte vergeben.</p>
+<h2 id="6-massnahme-und-verifikation">6. Maßnahme und Verifikation</h2>
+<ul>
+<li><strong>Zuordnung fehlt:</strong> Richtlinienfehler durch Zuständige beheben oder nur nach Freigabe im richtigen Benutzerkontext Mapping einrichten.</li>
+<li><strong>Netzwerk/SMB gestört:</strong> VPN, interne DNS-Auflösung, Route, Server/Port und Firewall im zuständigen Team untersuchen.</li>
+<li><strong>Zugriff verweigert:</strong> Berechtigung genehmigen lassen und gezielt korrigieren.</li>
+<li><strong>Vor jeder Änderung:</strong> Ausgangszustand erfassen; keine globale Löschung von Zuordnungen, gespeicherten Zugangsdaten oder GPO-Einstellungen.</li>
+<li><strong>Prüfung:</strong> <code>Z:</code> zeigt auf richtige Freigabe; UNC erreichbar; Testdatei kann entsprechend freigegebener Rolle geöffnet/bearbeitet werden; Nutzer bestätigt Erfolg.</li>
+</ul>
+<h3 id="beispiel-fuer-eine-manuelle-zuordnung-veraendernd-nur-freigegeben">Beispiel für eine manuelle Zuordnung (VERÄNDERND, nur freigegeben)</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Nur im passenden Benutzerkontext und mit freiem Laufwerksbuchstaben!
+# /persistent:yes speichert die Zuordnung für spätere Anmeldungen.
+net use Z: \\FS01\Projekte /persistent:yes</code></pre></div>
+<h2 id="7-ticketabschluss--eskalation">7. Ticketabschluss / Eskalation</h2>
+<p><strong>Dokumentieren:</strong> Meldung · betroffener Umfang · UNC-Ergebnis · SMB-Port · GPO-/Mapping-Status · Berechtigungsergebnis · Maßnahme · Funktionstest.</p>
+<p><strong>L2</strong>, wenn: GPO/Anmeldeskript oder Dateiserver angepasst werden muss, mehrere Benutzer betroffen, SMB/VPN/DNS-Zentralfehler, Berechtigungsänderung nur mit höherer Freigabe möglich, Sicherheitsauffälligkeit.</p>
+<p><strong>Merksatz:</strong> <strong>Laufwerksbuchstabe ≠ erreichbare Freigabe ≠ Berechtigung.</strong></p>
+<p><strong>Vertiefung:</strong> <code>RB-017_Lernartikel.md</code>; RB-005 (Freigabe- und NTFS-Rechte), RB-010 (Netzwerkdiagnose). Die Herstellerquellen stehen im Lernartikel.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-017_Praxis-Runbook.md">RB-017_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-005/index.html">RB-005: verwandter Supportfall</a> · <a href="../rb-011/index.html">RB-011: VPN-Verbindung schlägt fehl</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-016/index.html">← RB-016</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-018/index.html">RB-018 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
