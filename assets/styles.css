@@ -1221,35 +1221,61 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   .site-header .nav { min-height: 76px; }
 }
 
-/* Einheitliche Social-Buttons, kontrastreiche Navigation und lesbarer Portfolio-Claim. */
-.nav-links a.nav-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(64, 87, 117, .22);
-  border-radius: 999px;
-  background: rgba(255,255,255,.94);
-  padding: .55rem .88rem;
-  color: var(--text);
+/* Ruhige Navigation: alle Links auf dem Hannover-Banner gleich behandeln. */
+.site-header .nav-links a,
+.site-header .nav-links a.nav-button {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: .95rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-shadow: 0 1px 2px rgba(255,255,255,.90);
   white-space: nowrap;
-  text-shadow: none;
-  transition: background-color .18s ease, border-color .18s ease;
+  transition: color .18s ease;
 }
-.nav-links a.nav-button:hover,
-.nav-links a.nav-button:focus-visible {
-  background: #e8f3ff;
-  border-color: #8bbdea;
+.site-header .nav-links a:hover,
+.site-header .nav-links a:focus-visible,
+.site-header .nav-links a.nav-button:hover,
+.site-header .nav-links a.nav-button:focus-visible {
+  background: transparent;
+  border: 0;
   color: var(--brand);
 }
-.hero-title { text-wrap: balance; font-size: clamp(2.1rem, 4vw, 3.5rem); line-height: 1.15; }
+/* Persönliche Begrüßung als zusammenhängende Überschrift.
+   Auf schmalen Displays darf sie für eine gute Lesbarkeit umbrechen. */
+.hero-title {
+  text-wrap: balance;
+  font-size: clamp(1.85rem, 3vw, 2.85rem);
+  line-height: 1.2;
+}
 @media (max-width: 760px) {
-  .mobile-nav-links a.nav-button {
-    margin-top: .15rem;
-    border: 1px solid rgba(64,87,117,.20);
-    border-radius: 10px;
-    background: #f2f7fd;
+  .site-header .mobile-nav-links a,
+  .site-header .mobile-nav-links a.nav-button {
+    display: block;
+    padding: .7rem .85rem;
+    margin: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: none;
   }
-  .mobile-nav-links a.nav-button:hover,
-  .mobile-nav-links a.nav-button:focus-visible { background: #e8f3ff; color: var(--brand); }
-  .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+  .site-header .mobile-nav-links a:hover,
+  .site-header .mobile-nav-links a:focus-visible,
+  .site-header .mobile-nav-links a.nav-button:hover,
+  .site-header .mobile-nav-links a.nav-button:focus-visible {
+    background: var(--surface-soft);
+    color: var(--brand);
+  }
+  .hero-title {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+  }
 }
