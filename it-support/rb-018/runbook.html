@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-018 Netzwerkdrucker wird nicht gefunden | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-018: Netzwerkdrucker wird nicht gefunden. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Druckserver · GPO · Praxis-Runbook</p><h1>RB-018: Netzwerkdrucker wird nicht gefunden</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen--vor-dem-ersten-befehl">1. Ticket aufnehmen – vor dem ersten Befehl</a></li><li><a href="#2-klare-fehlerverzweigung">2. Klare Fehlerverzweigung</a></li><li><a href="#3-erste-clientpruefungen-nur-lesen">3. Erste Clientprüfungen (nur lesen)</a></li><li><a href="#4-direkte-verbindung-und-gpo-pruefen">4. Direkte Verbindung und GPO prüfen</a></li><li><a href="#5-l2--printserver-treiber-logs">5. L2 – Printserver, Treiber, Logs</a></li><li><a href="#6-massnahme-und-erfolgskontrolle">6. Maßnahme und Erfolgskontrolle</a></li><li><a href="#7-ticketabschluss-oder-eskalation">7. Ticketabschluss oder Eskalation</a></li><li><a href="#8-referenzen">8. Referenzen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Kategorie:</strong> Druckerbereitstellung · <strong>Level:</strong> L1/L2 · <strong>Version:</strong> 1.0 · <strong>Datum:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Recherchierte Arbeitsanweisung, nicht im Unternehmensnetz validiert.<br/>
+<strong>Beispiel:</strong> Client Windows 11, Printserver <code>PRINT01</code>, Drucker <code>\\PRINT01\Buero</code> (fiktiv).</p>
+<blockquote>
+<p><strong>Ziel:</strong> Ursache lokalisieren: Fehlende Zuordnung/Suche, Netzwerk/Printserver, Treiber/Point and Print oder Berechtigung. Anschließend genehmigte Maßnahme und Testdruck.</p>
+</blockquote>
+<h2 id="1-ticket-aufnehmen--vor-dem-ersten-befehl">1. Ticket aufnehmen – vor dem ersten Befehl</h2>
+<ul>
+<li>Exakte Fehlermeldung bzw. Fehlercode und Zeitpunkt notieren.</li>
+<li>Betroffen: <strong>ein Benutzer, ein Gerät oder mehrere Mitarbeiter/Standorte</strong>?</li>
+<li>Fehlt der Drucker in der Liste oder ist er sichtbar, druckt aber nicht? <strong>Wenn sichtbar und Druckauftrag hängt → RB-008.</strong></li>
+<li>Printserver und tatsächlichen Freigabenamen, Standort, Unternehmens-VPN und bekannte Änderungen erfragen.</li>
+<li>Prüfen, ob die Druckerverbindung über GPO/Unternehmenssoftware oder manuell vorgesehen ist.</li>
+</ul>
+<h2 id="2-klare-fehlerverzweigung">2. Klare Fehlerverzweigung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Sofortige Richtung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Drucker fehlt, <code>\\PRINT01\Buero</code> funktioniert</td>
+<td>Zuweisung/GPO, Benutzerkontext, Druckersuche</td>
+</tr>
+<tr class="even">
+<td>Drucker fehlt, Printservername wird nicht aufgelöst</td>
+<td>DNS, VPN, Namensfehler</td>
+</tr>
+<tr class="odd">
+<td>Printserver erreichbar, Verbindung bricht ab</td>
+<td>RPC-/Spooler-/Freigabe-Zugriff untersuchen</td>
+</tr>
+<tr class="even">
+<td>Treiberabfrage/Administratoraufforderung</td>
+<td>Point-and-Print-Sicherheit und Treiberfreigabe untersuchen</td>
+</tr>
+<tr class="odd">
+<td>Drucker verbindet, Zugriff verweigert</td>
+<td>Druckersicherheit und Rollen/Berechtigungen prüfen</td>
+</tr>
+<tr class="even">
+<td>Drucker installiert, Aufträge hängen</td>
+<td>Weiter zu RB-008</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-erste-clientpruefungen-nur-lesen">3. Erste Clientprüfungen (nur lesen)</h2>
+<p><strong>Auf:</strong> Client, möglichst im Kontext des betroffenen Benutzers.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die bekannten lokalen Drucker und Druckerverbindungen.
+Get-Printer | Select-Object Name, DriverName, PortName
+
+# Prüft den Druckerwarteschlangendienst auf diesem Client.
+Get-Service -Name Spooler
+
+# Löst den Printservernamen in die konfigurierte IP-Adresse auf.
+Resolve-DnsName -Name 'PRINT01'
+
+# Prüft den RPC Endpoint Mapper über TCP 135.
+Test-NetConnection -ComputerName 'PRINT01' -Port 135</code></pre></div>
+<p><strong>Wichtig:</strong> Ein Erfolg bei TCP 135 garantiert nicht den Zugriff auf die weiteren RPC-Druckports. Ein Test von TCP 445 wäre nur ein zusätzlicher SMB-Test; er ersetzt die RPC-Prüfung nicht.</p>
+<h2 id="4-direkte-verbindung-und-gpo-pruefen">4. Direkte Verbindung und GPO prüfen</h2>
+<p><strong>Auf:</strong> Client, in der betroffenen Benutzersitzung. Zuerst Explorer mit <code>Win + E</code> öffnen und den Pfad <code>\\PRINT01\Buero</code> in die Adressleiste eingeben. <strong>Nicht</strong> als Dateifreigabe oder Laufwerk missverstehen: Der Pfad bezeichnet hier eine Druckerwarteschlange.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt an, welche Benutzer-GPOs beim angemeldeten Benutzer greifen.
+gpresult /scope user /r
+
+# Erstellt einen HTML-Bericht für weitere GPO-Diagnose.
+gpresult /scope user /h "$env:TEMP\RB018-GPResult.html" /f</code></pre></div>
+<p>Falls direkte Verbindung klappt, die automatische Zuweisung aber fehlt: GPO-Link, Sicherheits-/Zielgruppenfilter, Benutzer-/Computerkontext und den tatsächlich freigegebenen Namen prüfen. <strong>Kein blindes <code>gpupdate /force</code></strong> auf einem produktiven Client; Richtlinienaktualisierung kann mehr als nur Druckereinstellungen ändern.</p>
+<h2 id="5-l2--printserver-treiber-logs">5. L2 – Printserver, Treiber, Logs</h2>
+<p><strong>Auf:</strong> Berechtigtem Administrationsrechner mit Zugriff auf <code>PRINT01</code> beziehungsweise direkt auf dem Printserver.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Fragt die Warteschlangen und Freigaben auf PRINT01 ab.
+Get-Printer -ComputerName 'PRINT01' |
+    Select-Object Name, ShareName, Shared, DriverName, PortName
+
+# Zeigt serverseitig bekannte Treiber.
+Get-PrinterDriver -ComputerName 'PRINT01' |
+    Select-Object Name, Manufacturer, PrinterEnvironment
+
+# Auf dem jeweils untersuchten Windows-Rechner:
+# Zeigt Fehler aus dem Druckverwaltungsprotokoll der letzten 4 Stunden.
+Get-WinEvent -FilterHashtable @{
+    LogName = 'Microsoft-Windows-PrintService/Admin'
+    StartTime = (Get-Date).AddHours(-4)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 15 TimeCreated, Id, Message</code></pre></div>
+<p><strong>Point and Print:</strong> Treiberinstallation vom Server kann standardmäßig Administratorrechte benötigen. Kein Sicherheitsniveau herabsetzen, nur um eine Verbindung herzustellen. Fehler <strong>4098</strong> im <em>Anwendungsprotokoll</em> kann auf fehlerhafte Drucker-GPOs hinweisen, <strong>215</strong> in PrintService/Admin auf Treiberinstallation – jeweils Meldung und Code auswerten.</p>
+<h2 id="6-massnahme-und-erfolgskontrolle">6. Maßnahme und Erfolgskontrolle</h2>
+<ul>
+<li><strong>Nur die nachgewiesene Ursache beheben:</strong> GPO/Filter korrigieren, korrekten Pfad verwenden, DNS/RPC/Firewall durch zuständiges Team reparieren, genehmigten Treiber bereitstellen oder Berechtigung nach Freigabe setzen.</li>
+<li><strong>Verändernde Beispielaktion – nur nach Freigabe und Pfadprüfung:</strong></li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># VERÄNDERT die Clientkonfiguration: fügt einen Netzwerkdrucker hinzu.
+# Ein benötigter Treiber kann Administratorrechte erfordern.
+Add-Printer -ConnectionName '\\PRINT01\Buero'</code></pre></div>
+<ul>
+<li>Abschließend: Drucker in Windows sichtbar? Aus gewünschter Anwendung auswählbar? Testseite druckbar? Richtige Warteschlange, keine Fehlermeldung, Benutzer bestätigt den Erfolg?</li>
+<li>Keine globalen Drucksicherheitsrichtlinien ausschalten und <strong>keinen Printserver-Spooler auf Verdacht neu starten</strong>.</li>
+</ul>
+<h2 id="7-ticketabschluss-oder-eskalation">7. Ticketabschluss oder Eskalation</h2>
+<p><strong>Tickettext (Vorlage):</strong></p>
+<blockquote>
+<p><strong>Fehlerbild:</strong> [Drucker fehlt / Installation scheitert, genauer Wortlaut].<br/>
+<strong>Umfang:</strong> [Benutzer/Geräte/Standorte].<br/>
+<strong>Befunde:</strong> [UNC-Druckerpfad, DNS, TCP 135, GPO, Freigabe, Treiber, Ereignis-IDs].<br/>
+<strong>Ursache:</strong> [nachgewiesen oder weiterhin offen].<br/>
+<strong>Maßnahme:</strong> [genehmigte Änderung].<br/>
+<strong>Erfolgskontrolle:</strong> [Drucker sichtbar, Testdruck, Benutzerbestätigung].<br/>
+<strong>Status:</strong> [gelöst/eskaliert].</p>
+</blockquote>
+<p><strong>Eskalieren:</strong> Wenn Printserver, Netzwerk-/RPC-Ports, zentrale GPO, Treiberpakete oder sicherheitsrelevante Druckerberechtigungen betroffen sind; gegebenenfalls sofort bei mehreren betroffenen Benutzern.</p>
+<h2 id="8-referenzen">8. Referenzen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/printing/windows-11-rpc-connection-updates-for-print" rel="noopener noreferrer" target="_blank">Microsoft: Windows 11 – Druckkommunikation via RPC</a></li>
+<li><a href="https://support.microsoft.com/de-de/servicing/os/windows/2021/08/kb5005652-manage-new-point-and-print-default-driver-installation-behavior-cve-2021-34481" rel="noopener noreferrer" target="_blank">Microsoft: KB5005652 – Point and Print</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/printmanagement/get-printer" rel="noopener noreferrer" target="_blank">Microsoft: Get-Printer</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/printmanagement/add-printer" rel="noopener noreferrer" target="_blank">Microsoft: Add-Printer</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/gpresult" rel="noopener noreferrer" target="_blank">Microsoft: gpresult</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/printing/event-ids-associated-point-print-restrictions" rel="noopener noreferrer" target="_blank">Microsoft: Druckerzuweisungs-/Treiberfehler</a></li>
+</ul>
+<p><strong>Dokumentationsstatus:</strong> Illustratives Verfahren ohne tatsächlichen Lab-/Produktionstest. Für firmeneigene Umgebungen an reale Rollen, Druckserverarchitektur und Freigaben anpassen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-018_Praxis-Runbook.md">RB-018_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-008/index.html">RB-008: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-017/index.html">← RB-017</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-019/index.html">RB-019 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
