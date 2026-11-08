@@ -1279,3 +1279,16 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
     font-size: clamp(1.8rem, 7vw, 2.6rem);
   }
 }
+
+/* Responsive-QA (09.11.2026): schmale Smartphone-Ansichten ohne Seitenüberlauf. */
+@media (max-width: 760px) {
+  .project-grid { grid-template-columns: minmax(0, 1fr); }
+  .project-grid > .project-card { min-width: 0; overflow-wrap: anywhere; }
+}
+.lab-intro-article .security-explanations {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lab-intro-article .security-explanations > section {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
