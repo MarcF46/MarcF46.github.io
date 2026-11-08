@@ -1292,3 +1292,17 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+/* Mobilmenü als breite Dropdown-Fläche statt nur in Buttonbreite;
+   lange Fachbegriffe in sehr schmalen Projektartikeln umbrechen. */
+@media (max-width: 760px) {
+  .site-header .mobile-nav-links {
+    width: min(calc(100vw - 2rem), 1180px);
+    left: auto;
+    right: 0;
+  }
+  .site-header .mobile-nav-links a { overflow-wrap: anywhere; }
+}
+@media (max-width: 420px) {
+  .lab-intro-article h3 { overflow-wrap: anywhere; }
+}
