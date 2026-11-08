@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-012 Multifaktor-Authentifizierung funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-012: Multifaktor-Authentifizierung funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Entra ID · MFA · Microsoft 365 · Praxis-Runbook</p><h1>RB-012: Multifaktor-Authentifizierung funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-l1">1. Ticketaufnahme (L1)</a></li><li><a href="#2-schnelle-fehlerklassifizierung">2. Schnelle Fehlerklassifizierung</a></li><li><a href="#3-l1-lokale-nicht-veraendernde-pruefungen">3. L1: Lokale, nicht verändernde Prüfungen</a></li><li><a href="#4-l1l2-serverseitige-entra-anmeldeprotokolle">4. L1/L2: Serverseitige Entra-Anmeldeprotokolle</a></li><li><a href="#5-lesende-powershell-abfragen-nur-wenn-berechtigt">5. Lesende PowerShell-Abfragen (nur wenn berechtigt)</a></li><li><a href="#6-wiederherstellung-nur-nach-identitaetspruefung">6. Wiederherstellung nur nach Identitätsprüfung</a></li><li><a href="#7-funktionstest-und-abschluss">7. Funktionstest und Abschluss</a></li><li><a href="#8-eskalation">8. Eskalation</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte L1-/L2-Arbeitsanweisung · <strong>Version 1.0 (08.11.2026)</strong><br/>
+<strong>Status:</strong> Fachlich recherchiert, <strong>nicht praktisch validiert</strong>. Alle Beispielkonten sind fiktiv.</p>
+<h2 id="1-ticketaufnahme-l1">1. Ticketaufnahme (L1)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Benutzer, UPN (Anmeldename), betroffene App, Uhrzeit/Zeitzone, Gerät und exakte Fehlermeldung erfassen.</label></li>
+<li><label><input type="checkbox"/>Welcher Fall? <strong>A</strong> Push fehlt, <strong>B</strong> Code abgelehnt, <strong>C</strong> Smartphone verloren/ersetzt, <strong>D</strong> Anmeldung durch Richtlinie blockiert.</label></li>
+<li><label><input type="checkbox"/>Hat der Benutzer <strong>selbst</strong> eine Anmeldung ausgelöst? Unbekannte Push-Anfragen → <strong>nicht bestätigen</strong>, Security-Prozess.</label></li>
+<li><label><input type="checkbox"/>Sind weitere Benutzer betroffen? Gab es ein Update, neues Handy oder Richtlinienänderungen?</label></li>
+<li><label><input type="checkbox"/><strong>Nie Kennwörter, TAP-Werte, Einmalcodes oder Authenticator-Bestätigungen vom Benutzer verlangen.</strong></label></li>
+</ul>
+<h2 id="2-schnelle-fehlerklassifizierung">2. Schnelle Fehlerklassifizierung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Erster sinnvoller Prüfweg</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kennwort/Primäranmeldung scheitert</td>
+<td>RB-001/RB-003 statt MFA-Reset</td>
+</tr>
+<tr class="even">
+<td>Keine Push-Nachricht</td>
+<td>Smartphone online? App aktuell? Benachrichtigungen/„Nicht stören“? Entra-Anmeldedetails?</td>
+</tr>
+<tr class="odd">
+<td>Einmalcode falsch/abgelaufen</td>
+<td>Richtiger Account, Codeart, automatische Smartphone-Zeit?</td>
+</tr>
+<tr class="even">
+<td>Smartphone verloren, keine Ersatzmethode</td>
+<td>Identitätsprüfung; autorisierter TAP-/Recovery-Prozess</td>
+</tr>
+<tr class="odd">
+<td>MFA erfolgreich, dennoch blockiert</td>
+<td>Conditional Access, Authentifizierungsstärke, Gerätekonformität</td>
+</tr>
+<tr class="even">
+<td>Unerwartete MFA-Push-Anfrage</td>
+<td>Sicherheitsverdacht, keine Freigabe erteilen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-l1-lokale-nicht-veraendernde-pruefungen">3. L1: Lokale, nicht verändernde Prüfungen</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Smartphone hat Netzwerkzugang (WLAN/mobile Daten), Flugmodus aus.</label></li>
+<li><label><input type="checkbox"/>Authenticator-App aktuell, richtiges Geschäfts-/Schulkonto gewählt.</label></li>
+<li><label><input type="checkbox"/>Benachrichtigungen und Gerätemodi prüfen; bei TOTP automatische Zeit aktiv.</label></li>
+<li><label><input type="checkbox"/>Number Matching: Nur die Nummer des selbst gestarteten Anmeldeversuchs bestätigen.</label></li>
+<li><label><input type="checkbox"/>Falls erlaubt und vorhanden: andere <strong>bereits registrierte</strong> Anmeldemethode wählen.</label></li>
+<li><label><input type="checkbox"/>Keine App-/Kontolöschung, kein pauschales Deaktivieren von MFA oder Conditional Access.</label></li>
+</ul>
+<h2 id="4-l1l2-serverseitige-entra-anmeldeprotokolle">4. L1/L2: Serverseitige Entra-Anmeldeprotokolle</h2>
+<p><strong>Ausführungsort:</strong> <a href="https://entra.microsoft.com/" rel="noopener noreferrer" target="_blank">Entra Admin Center</a> mit geeigneter Rolle, z. B. Reports Reader für Sign-in Logs.</p>
+<ul class="task-list">
+<li><label><input type="checkbox"/><strong>Entra ID → Überwachung &amp; Integrität → Anmeldeprotokolle</strong> öffnen.</label></li>
+<li><label><input type="checkbox"/>Benutzer-UPN, Zeit und Anwendung filtern.</label></li>
+<li><label><input type="checkbox"/><strong>Authentication Details</strong>: verlangte/versuchte Methode und Ergebnis.</label></li>
+<li><label><input type="checkbox"/><strong>Conditional Access</strong>: angewendete/blockierende Richtlinien.</label></li>
+<li><label><input type="checkbox"/><strong>AADSTS-Code</strong>, Correlation ID und Zeitstempel für Ticket übernehmen.</label></li>
+</ul>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Code</th>
+<th>Orientierung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AADSTS500121</strong></td>
+<td>MFA wurde nicht abgeschlossen – Grund im Detail prüfen.</td>
+</tr>
+<tr class="even">
+<td><strong>AADSTS53000</strong></td>
+<td>Gerät nicht konform – Geräte-/Intune-Team einbeziehen.</td>
+</tr>
+<tr class="odd">
+<td><strong>AADSTS53003</strong></td>
+<td>Conditional Access blockiert – betroffene Richtlinie untersuchen.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5-lesende-powershell-abfragen-nur-wenn-berechtigt">5. Lesende PowerShell-Abfragen (nur wenn berechtigt)</h2>
+<p><strong>Ausführungsort:</strong> Freigegebener Admin-Rechner mit Microsoft-Graph-Modulen. Graph-Berechtigungen und Entra-Rollen müssen passen. Das Entra-Portal ist häufig der einfachere Erstweg.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Verfügbarkeit des benötigten Microsoft-Graph-Moduls prüfen.
+Get-Module -ListAvailable Microsoft.Graph.Reports
+
+# Berechtigte Verbindung mit LESE-Scopes aufbauen.
+Connect-MgGraph -Scopes 'AuditLog.Read.All','UserAuthenticationMethod.Read.All'
+
+# Fiktives Benutzerkonto für die Abfrage festlegen.
+$userUpn = 'm.mustermann@firma.example'
+
+# Höchstens zehn Entra-Anmeldeereignisse dieses Benutzers abfragen.
+Get-MgAuditLogSignIn -Filter "userPrincipalName eq '$userUpn'" -Top 10 |
+    Select-Object CreatedDateTime, AppDisplayName, CorrelationId,
+        @{Name='ErrorCode';Expression={$_.Status.ErrorCode}}
+
+# Registrierte Authenticator-Methoden auflisten (ohne Änderungen).
+Get-MgUserAuthenticationMicrosoftAuthenticatorMethod -UserId $userUpn |
+    Select-Object Id, DisplayName, DeviceTag, PhoneAppVersion</code></pre></div>
+<p><strong>Auswertung:</strong> Eine Methode kann registriert, aber nicht mehr nutzbar sein; eine Policy kann eine andere Authentifizierungsstärke verlangen. Anmeldung und Geräteanzeige immer korrelieren.</p>
+<h2 id="6-wiederherstellung-nur-nach-identitaetspruefung">6. Wiederherstellung nur nach Identitätsprüfung</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Benutzeridentität nach freigegebenem Unternehmensverfahren verifizieren.</label></li>
+<li><label><input type="checkbox"/>Wenn noch eine zugelassene Methode verfügbar ist: Benutzer pflegt seine Sicherheitsinformationen unter <a href="https://mysignins.microsoft.com/security-info" rel="noopener noreferrer" target="_blank">mysignins.microsoft.com/security-info</a>.</label></li>
+<li><label><input type="checkbox"/>Sonst <strong>Temporary Access Pass (TAP)</strong> nur bei erlaubter Richtlinie durch berechtigte Administration erstellen, sicher übergeben und für die Registrierung einer neuen Methode verwenden.</label></li>
+<li><label><input type="checkbox"/>Alte nicht mehr verfügbare Methoden erst nach erfolgreichem Test und gemäß Richtlinie entfernen.</label></li>
+<li><label><input type="checkbox"/><strong>„Require re-register MFA“</strong> kann Methoden löschen/zurücksetzen; nicht ungeprüft ausführen.</label></li>
+<li><label><input type="checkbox"/>Keine Geheimniswerte im Ticket und keine Sicherheitsregeln pauschal abschalten.</label></li>
+</ul>
+<h2 id="7-funktionstest-und-abschluss">7. Funktionstest und Abschluss</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Anmeldung an der ursprünglich betroffenen App funktioniert mit freigegebener Methode.</label></li>
+<li><label><input type="checkbox"/>Entra-Anmeldeprotokoll zeigt den passenden erfolgreichen Vorgang.</label></li>
+<li><label><input type="checkbox"/>Richtlinienanforderungen werden weiterhin eingehalten.</label></li>
+<li><label><input type="checkbox"/>Nicht mehr verwendbare Methoden nach Freigabe bereinigt.</label></li>
+<li><label><input type="checkbox"/>Ticket mit Ursache, Prüfung, Freigabe, Änderung und Erfolg dokumentieren.</label></li>
+</ul>
+<h2 id="8-eskalation">8. Eskalation</h2>
+<p>Bei Sicherheitsverdacht, unklarer Identität, mehreren betroffenen Benutzern, nicht zulässiger Wiederherstellungsmethode, fehlenden Rechten, Conditional-Access-/Authentifizierungsstärke-Problemen oder Administratorsperren an <strong>Identity/Security/L2</strong> eskalieren. Mitgeben: <strong>UPN, Uhrzeit, Anwendung, AADSTS-Code, Correlation ID, dokumentierte Prüfschritte</strong>. Keine PIN, TAP, TOTP, Authenticator-QR-Geheimnisse oder Zugangstoken übermitteln.</p>
+<p><strong>Vertiefung:</strong> <a href="RB-012_Lernartikel.md">Ausführlicher Lernartikel</a> mit Grundlagen, Diagramm, kommentierten Befehlen, Quellen und Lernfragen. Alle Befunde beziehen sich auf fiktive Beispiele.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-012_Praxis-Runbook.md">RB-012_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-003/index.html">RB-003: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-011/index.html">← RB-011</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-013/index.html">RB-013 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
