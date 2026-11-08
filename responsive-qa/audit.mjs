@@ -36,6 +36,37 @@ for(const path of paths){
     return {scrollWidth:document.documentElement.scrollWidth,navVisible:nav?getComputedStyle(nav).display!=='none':false,mobileVisible:menu?getComputedStyle(menu).display!=='none':false,banner:h?getComputedStyle(h).backgroundImage.includes('hannover-panorama-bild1-mitte.webp'):false,brokenImages,offenders};
    });
    if(response?.status()!==200)issues.push({path,width,type:'page-http',status:response?.status()});
+
+   if(path==='projects.html'&&width===320&&m.scrollWidth>width+2){
+    const details=await page.evaluate(()=>{
+     const w=innerWidth,a=[],t=[],visibleText=[];
+     const all=[...document.querySelectorAll('body *')];
+     for(const el of all){
+      const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+      if(el.clientWidth>0&&el.scrollWidth>el.clientWidth+3&&cs.overflowX==='visible'){
+       a.push({tag:el.tagName,cls:String(el.className||'').slice(0,50),left:Math.round(r.left),right:Math.round(r.right),client:el.clientWidth,scroll:el.scrollWidth,text:(el.textContent||'').trim().slice(0,65)});
+      }
+     }
+     const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+     let node;
+     while((node=walk.nextNode())){
+      if(!node.textContent.trim())continue;
+      const range=document.createRange();range.selectNodeContents(node);
+      const rects=[...range.getClientRects()];
+      for(const r of rects){
+       if(r.width<1||r.right<=w+2)continue;
+       let scrollParent=false;
+       for(let p=node.parentElement;p&&p!==document.body;p=p.parentElement){
+        if(['auto','scroll','hidden','clip'].includes(getComputedStyle(p).overflowX)){scrollParent=true;break;}
+       }
+       if(!scrollParent)visibleText.push({text:node.textContent.trim().slice(0,90),right:Math.round(r.right),left:Math.round(r.left),parent:node.parentElement?.tagName,className:String(node.parentElement?.className||'').slice(0,50)});
+      }
+     }
+     return {html:document.documentElement.scrollWidth,body:document.body.scrollWidth,visibleText:visibleText.slice(0,25),wideElements:a.slice(0,25)};
+    });
+    console.log('PROJECTS_320_DIAGNOSTIC '+JSON.stringify(details));
+   }
+
    if(m.scrollWidth>width+2)issues.push({path,width,type:'horizontal-overflow',scrollWidth:m.scrollWidth,offenders:m.offenders});
    if(m.brokenImages.length)issues.push({path,width,type:'broken-images',images:m.brokenImages.slice(0,12)});
    if(jsErrors.length)issues.push({path,width,type:'javascript-errors',details:jsErrors.slice(0,5)});
