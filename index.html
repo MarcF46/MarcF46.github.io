@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marc Fahlbusch | IT-Praxis & Lernumgebungen</title>
   <meta name="description" content="Praxisnahe IT-Lernumgebungen zu Windows Server, Active Directory, Linux, Docker, Monitoring, Backup und Automatisierung – zum Nachbauen, Verstehen und Vertiefen.">
-  <link rel="stylesheet" href="assets/styles.css?v=20261108-3">
+  <link rel="stylesheet" href="assets/styles.css?v=20261108-4">
 </head>
 <body id="top">
   <header class="site-header">
@@ -23,7 +23,7 @@
         <a href="#about">Über mich</a>
         <a href="#contact">Kontakt</a>
         <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a class="linkedin-nav" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
       </div>
       <details class="mobile-menu">
         <summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary>
@@ -35,7 +35,7 @@
         <a href="#about">Über mich</a>
         <a href="#contact">Kontakt</a>
         <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a class="linkedin-nav" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
       </div>
       </details>
     </nav>
@@ -63,10 +63,11 @@
         </div>
 
         <p class="hardware-note">
-          <strong>Alle meine IT-Labs basieren auf einem Laptop mit 16 GB RAM und einer einfachen Grafikkarte.</strong>
-          Ich gestalte die Übungen bewusst ressourcenschonend, damit auch Auszubildende und Umschüler
-          mit begrenzter Hardware die Beispiele nachvollziehen können. Je nach Lab betreibe ich
-          virtuelle Maschinen und Dienste nacheinander statt gleichzeitig.
+          <strong>Meine IT-Labs entstehen auf einem normalen Laptop mit 16 GB RAM und integrierter Intel Iris Xe Graphics – nicht auf einem Gaming-PC oder Hochleistungsrechner.</strong>
+          Die Grafikeinheit besitzt keinen eigenen 8-GB-Grafikspeicher: Windows zeigt bis zu 7,8 GB
+          gemeinsam nutzbaren Arbeitsspeicher für die GPU an. Meine Lernumgebungen gestalte ich bewusst
+          ressourcenschonend. Je nach Lab betreibe ich virtuelle Maschinen und Dienste nacheinander
+          statt gleichzeitig – damit die Beispiele auch mit begrenzten Ressourcen nachvollziehbar bleiben.
         </p>
       </div>
 
@@ -80,7 +81,6 @@
           <li><strong>Monitoring & Recovery</strong><span>Docker, Prometheus, Grafana und überprüfte Wiederherstellung</span></li>
         </ul>
       </aside>
-      <p class="hero-scene-credit">Hannover / Maschsee – eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT (keine Fotografie).</p>
     </section>
 
     <section class="section" id="topics">
@@ -169,14 +169,9 @@
             <li><strong>Konfigurieren:</strong> AD, Gruppen, Rechte, DNS, DHCP, NAT und GPOs verbinden.</li>
             <li><strong>Prüfen:</strong> Sicherheits- und Sollzustandskontrollen durchführen.</li>
           </ol>
-          <figure class="project-diagram">
-            <a href="projects.html#windows" aria-label="Architekturdiagramm zu windows in der Dokumentation ansehen">
-              <img src="assets/diagrams/windows-infrastructure.svg" alt="Windows-Infrastruktur mit Hyper-V und Active Directory" loading="lazy" decoding="async">
-            </a>
-            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
-          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#windows">Dokumentation öffnen</a>
+            <a class="button secondary" href="assets/diagrams/windows-infrastructure.svg" target="_blank" rel="noopener noreferrer" aria-label="Architekturgrafik für windows in neuem Tab ansehen">Architekturgrafik anschauen</a>
             <a class="button secondary" href="https://github.com/MarcF46/windows_infrastructure_automation_lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
           </div>
         </article>
@@ -200,14 +195,9 @@
             <li>Reverse Proxy, HTTPS, Healthchecks und Readiness praktisch prüfen.</li>
             <li>Backup/Restore, Image Scanning und CI/CD als Betriebsbausteine einordnen.</li>
           </ul>
-          <figure class="project-diagram">
-            <a href="projects.html#docker" aria-label="Architekturdiagramm zu docker in der Dokumentation ansehen">
-              <img src="assets/diagrams/docker-runtime.svg" alt="Docker-Architektur mit Reverse Proxy und Containern" loading="lazy" decoding="async">
-            </a>
-            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
-          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#docker">Dokumentation öffnen</a>
+            <a class="button secondary" href="assets/diagrams/docker-runtime.svg" target="_blank" rel="noopener noreferrer" aria-label="Architekturgrafik für docker in neuem Tab ansehen">Architekturgrafik anschauen</a>
             <a class="button secondary" href="https://github.com/MarcF46/docker-portfolio-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
           </div>
         </article>
@@ -231,14 +221,9 @@
             <li>Alarmregeln sowie Webhook-Zustellung praktisch testen.</li>
             <li>Fehlerzustände simulieren und strukturiert untersuchen.</li>
           </ul>
-          <figure class="project-diagram">
-            <a href="projects.html#monitoring" aria-label="Architekturdiagramm zu monitoring in der Dokumentation ansehen">
-              <img src="assets/diagrams/monitoring-flow.svg" alt="Monitoring-Architektur mit Prometheus und Grafana" loading="lazy" decoding="async">
-            </a>
-            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
-          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#monitoring">Dokumentation öffnen</a>
+            <a class="button secondary" href="assets/diagrams/monitoring-flow.svg" target="_blank" rel="noopener noreferrer" aria-label="Architekturgrafik für monitoring in neuem Tab ansehen">Architekturgrafik anschauen</a>
             <a class="button secondary" href="https://github.com/MarcF46/docker-portfolio-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
           </div>
         </article>
@@ -262,14 +247,9 @@
             <li>Runbooks und Incident Cards für wiederholbare Abläufe erstellen.</li>
             <li>Fehler schichtweise statt durch reine Befehlsausführung diagnostizieren.</li>
           </ul>
-          <figure class="project-diagram">
-            <a href="projects.html#ubuntu" aria-label="Architekturdiagramm zu ubuntu in der Dokumentation ansehen">
-              <img src="assets/diagrams/ubuntu-administration.svg" alt="Ubuntu-Administration und strukturierte Betriebsdiagnose" loading="lazy" decoding="async">
-            </a>
-            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
-          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#ubuntu">Dokumentation öffnen</a>
+            <a class="button secondary" href="assets/diagrams/ubuntu-administration.svg" target="_blank" rel="noopener noreferrer" aria-label="Architekturgrafik für ubuntu in neuem Tab ansehen">Architekturgrafik anschauen</a>
             <a class="button secondary" href="https://github.com/MarcF46/ubuntu-lab-baseline" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
           </div>
         </article>
@@ -293,14 +273,9 @@
             <li>Testdaten sichern und einen Restore praktisch durchführen.</li>
             <li>Wiederherstellung und Repository zusätzlich mit <code>borg check</code> prüfen.</li>
           </ul>
-          <figure class="project-diagram">
-            <a href="projects.html#borg" aria-label="Architekturdiagramm zu borg in der Dokumentation ansehen">
-              <img src="assets/diagrams/borg-backup-restore.svg" alt="BorgBackup-Sicherungs- und Wiederherstellungsablauf" loading="lazy" decoding="async">
-            </a>
-            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
-          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#borg">Dokumentation öffnen</a>
+            <a class="button secondary" href="assets/diagrams/borg-backup-restore.svg" target="_blank" rel="noopener noreferrer" aria-label="Architekturgrafik für borg in neuem Tab ansehen">Architekturgrafik anschauen</a>
             <a class="button secondary" href="https://github.com/MarcF46/linux-borg-backup-restore-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
           </div>
         </article>
