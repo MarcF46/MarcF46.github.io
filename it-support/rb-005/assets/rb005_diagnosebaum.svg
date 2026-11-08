@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1170" viewBox="0 0 1500 1170" role="img" aria-labelledby="title desc">
+<title id="title">RB-005 Diagnose-Entscheidungsbaum – Zugriff auf Datei oder Ordner verweigert</title>
+<desc id="desc">Vom konkreten Fehlerbild über SMB-Netzwerkerreichbarkeit, Freigabe- und NTFS-Berechtigungen bis zum Benutzertoken, Funktionsprüfung und Dokumentation. Seitenzweige zeigen mögliche Ursachen.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#287b8e"/></marker></defs>
+<rect width="1500" height="1170" fill="#f8fcff" rx="28"/>
+<rect x="30" y="25" width="1440" height="105" rx="24" fill="#0e2746"/>
+<text x="750" y="78" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="41" font-weight="700">RB-005 – Diagnose-Entscheidungsbaum</text>
+<text x="750" y="112" text-anchor="middle" fill="#a9e5ed" font-family="Arial,sans-serif" font-size="20">Zugriff auf Netzwerkdatei oder -ordner verweigert</text>
+<rect x="480" y="157" width="540" height="92" rx="18" fill="#daf5f4" stroke="#86bbcb" stroke-width="2"/>
+<text x="750" y="193" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#0e4050">1 · Fehlerbild eindeutig erfassen</text>
+<text x="750" y="227" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#172c3c">UNC-Pfad · Operation · Benutzer · Zeitpunkt</text>
+<line x1="750" y1="249" x2="750" y2="291" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="296" width="540" height="96" rx="18" fill="#e8f3ff" stroke="#86bbcb" stroke-width="2"/>
+<text x="750" y="335" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#113857">2 · Ist FS01:445 erreichbar?</text>
+<text x="750" y="369" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="400" fill="#172c3c">Test-NetConnection FS01 -Port 445</text>
+<path d="M1020 344 H1097" stroke="#287b8e" stroke-width="3.4" fill="none" marker-end="url(#arrow)"/>
+<text x="1052" y="331" text-anchor="start" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b04329">NEIN</text>
+<rect x="1102" y="291" width="338" height="108" rx="18" fill="#ffeadf" stroke="#e9a394" stroke-width="2"/>
+<text x="1126" y="326" text-anchor="start" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#943b26">Netzwerkpfad untersuchen</text>
+<text x="1126" y="356" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">DNS · Routing · VPN · Firewall</text>
+<text x="1126" y="381" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">SMB-Dienst / Server</text>
+<text x="750" y="415" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1b8065">JA</text>
+<line x1="750" y1="393" x2="750" y2="447" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="451" width="540" height="108" rx="18" fill="#e8f3ff" stroke="#86bbcb" stroke-width="2"/>
+<text x="750" y="487" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#113857">3 · SMB-Anmeldung und Freigabe</text>
+<text x="750" y="523" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#172c3c">Zugriffsidentität / Get-SmbShareAccess</text>
+<path d="M480 505 H382" stroke="#287b8e" stroke-width="3.4" fill="none" marker-end="url(#arrow)"/>
+<text x="416" y="489" text-anchor="start" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b04329">NEIN</text>
+<rect x="56" y="449" width="322" height="114" rx="18" fill="#ffeadf" stroke="#e9a394" stroke-width="2"/>
+<text x="78" y="484" text-anchor="start" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#943b26">Freigabe / Authentifizierung</text>
+<text x="78" y="515" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">Share-ACL, Identität, Richtlinie</text>
+<text x="78" y="540" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">und SMB-Sitzung prüfen</text>
+<text x="750" y="583" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1b8065">JA</text>
+<line x1="750" y1="560" x2="750" y2="611" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="616" width="540" height="111" rx="18" fill="#e8f3ff" stroke="#86bbcb" stroke-width="2"/>
+<text x="750" y="654" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#113857">4 · NTFS-Recht ausreichend?</text>
+<text x="750" y="690" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#172c3c">Get-Acl / icacls / Effektiver Zugriff</text>
+<path d="M1020 674 H1097" stroke="#287b8e" stroke-width="3.4" fill="none" marker-end="url(#arrow)"/>
+<text x="1052" y="659" text-anchor="start" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b04329">NEIN</text>
+<rect x="1102" y="613" width="338" height="122" rx="18" fill="#ffeadf" stroke="#e9a394" stroke-width="2"/>
+<text x="1126" y="647" text-anchor="start" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#943b26">Berechtigungen prüfen</text>
+<text x="1126" y="676" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">Vererbung / Deny / Soll-Recht</text>
+<text x="1126" y="703" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">Nur freigegeben ändern</text>
+<text x="750" y="750" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#1b8065">JA</text>
+<line x1="750" y1="728" x2="750" y2="779" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="783" width="540" height="115" rx="18" fill="#e8f3ff" stroke="#86bbcb" stroke-width="2"/>
+<text x="750" y="821" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#113857">5 · Aktueller Benutzertoken?</text>
+<text x="750" y="859" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#172c3c">whoami /groups (betroffener Benutzer)</text>
+<path d="M480 837 H382" stroke="#287b8e" stroke-width="3.4" fill="none" marker-end="url(#arrow)"/>
+<text x="408" y="821" text-anchor="start" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#b04329">ALT</text>
+<rect x="56" y="782" width="322" height="123" rx="18" fill="#ffeadf" stroke="#e9a394" stroke-width="2"/>
+<text x="78" y="816" text-anchor="start" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#943b26">AD-Gruppe neu?</text>
+<text x="78" y="844" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">Vollständig ab-/anmelden</text>
+<text x="78" y="870" text-anchor="start" font-family="Arial,sans-serif" font-size="18" font-weight="400" fill="#172c3c">und SMB erneut prüfen</text>
+<line x1="750" y1="899" x2="750" y2="936" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="941" width="540" height="101" rx="18" fill="#d6f7e9" stroke="#75bda1" stroke-width="2"/>
+<text x="750" y="978" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#185d48">6 · Betroffene Operation testen</text>
+<text x="750" y="1015" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="400" fill="#172c3c">Lesen / Schreiben exakt nach Freigabe</text>
+<line x1="750" y1="1042" x2="750" y2="1072" stroke="#287b8e" stroke-width="3.4" marker-end="url(#arrow)"/>
+<rect x="480" y="1075" width="540" height="66" rx="18" fill="#113f54" stroke="#113f54" stroke-width="2"/>
+<text x="750" y="1117" text-anchor="middle" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#ffffff">Befund dokumentieren / eskalieren</text>
+<text x="750" y="1161" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#a4482e">Kein pauschales „Jeder: Vollzugriff“ · Keine ACL-Änderung ohne Genehmigung</text>
+</svg>
