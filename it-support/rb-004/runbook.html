@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-004 Anwendung startet nicht oder stürzt ab | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-004: Anwendung startet nicht oder stürzt ab. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Anwendungen · Praxis-Runbook</p><h1>RB-004: Anwendung startet nicht oder stürzt ab</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</a></li><li><a href="#2-geeigneten-zugriff-bestimmen">2. Geeigneten Zugriff bestimmen</a></li><li><a href="#3-drei-erste-technische-checks-l1">3. Drei erste technische Checks (L1)</a></li><li><a href="#4-optionale-powershell-pruefungen-lesend">4. Optionale PowerShell-Prüfungen (lesend)</a></li><li><a href="#5-entscheidung-massnahme">5. Entscheidung → Maßnahme</a></li><li><a href="#6-erfolgskontrolle-und-ticketabschluss">6. Erfolgskontrolle und Ticketabschluss</a></li><li><a href="#7-quellen">7. Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte Arbeitsanweisung für L1/L2 · <strong>Version:</strong> 1.0 · <strong>Stand:</strong> 07.11.2026<br/>
+<strong>Status:</strong> Technisch recherchiert, praktische Validierung ausstehend. <strong>Vor Anwendung:</strong> Unternehmensrichtlinien und erforderliche Berechtigungen prüfen.</p>
+<h2 id="1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</h2>
+<ul>
+<li>[ ] Exakte Anwendung, Version, Computername, Benutzer und Meldung notieren.</li>
+<li>[ ] Beginn und letzte Änderungen (Update, Add-in, Profil, Netz) erfragen.</li>
+<li>[ ] Klassifizieren: <strong>startet nicht / stürzt ab / hängt</strong>.</li>
+<li>[ ] Betroffenheit feststellen: ein Benutzer, ein PC oder mehrere Geräte?</li>
+<li>[ ] Auswirkungen und mögliche ungespeicherte Daten klären.</li>
+</ul>
+<h2 id="2-geeigneten-zugriff-bestimmen">2. Geeigneten Zugriff bestimmen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Benutzer kann sich anmelden</th>
+<th>Gemeinsame Diagnose via Bildschirmfreigabe/Fernwartung, sofern erlaubt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PC erreichbar, interaktive Sitzung nötig</td>
+<td>Eigene RDP-Sitzung, falls freigegeben (kein gemeinsames Bildschirmteilen)</td>
+</tr>
+<tr>
+<td>PC erreichbar, Remote-Befehle eingerichtet</td>
+<td>PowerShell-Remoting/WinRM nach Freigabe</td>
+</tr>
+<tr>
+<td>PC nicht erreichbar</td>
+<td>Telefon-/Vor-Ort-Diagnose; zentrale Systemprüfung</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-drei-erste-technische-checks-l1">3. Drei erste technische Checks (L1)</h2>
+<ol>
+<li><strong>Reproduzieren</strong>, genaue Uhrzeit notieren; bei Datenverlustgefahr nicht erneut starten.</li>
+<li><strong>Zuverlässigkeitsverlauf:</strong> <code>perfmon /rel</code> und <strong>Ereignisanzeige:</strong> <code>eventvwr.msc</code> → Windows-Protokolle → Anwendung → Zeitpunkt / Quellen <code>Application Error</code> (häufig ID 1000), <code>Windows Error Reporting</code> (häufig ID 1001).</li>
+<li><strong>Task-Manager:</strong> Läuft der Prozess? Stürzt er direkt ab oder reagiert er nicht? Andere Benutzer/Geräte zum Vergleich heranziehen.</li>
+</ol>
+<h2 id="4-optionale-powershell-pruefungen-lesend">4. Optionale PowerShell-Prüfungen (lesend)</h2>
+<p><strong>Ausführungsort:</strong> betroffener Client oder autorisierte Remoteausführung. <code>InventarClient</code> und <code>InventarSync</code> sind <strong>Platzhalter</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft, ob die Anwendung momentan als Prozess läuft.</span>
+<span class="nb">Get-Process</span> <span class="n">-Name</span> <span class="s1">'InventarClient'</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+
+<span class="c"># Sucht Fehlerereignisse (ID 1000) der letzten 24 Stunden.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="c"># Windows-Anwendungsprotokoll.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Application'</span>
+    <span class="c"># Häufige Ereignis-ID für Anwendungsabstürze.</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">1000</span>
+    <span class="c"># Zeitraum der Suche.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">24</span><span class="p">)</span>
+<span class="p">}</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span> <span class="p">|</span>
+<span class="c"># Relevante Metadaten anzeigen.</span>
+<span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">20</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">ProviderName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Message</span>
+
+<span class="c"># Optional: Abhängigen Dienst prüfen, NUR wenn dokumentiert.</span>
+<span class="nb">Get-Service</span> <span class="n">-Name</span> <span class="s1">'InventarSync'</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+</code></pre></div><p><strong>Befund sichern:</strong> Uhrzeit, <code>Faulting application</code>, <code>Faulting module</code>, Exception Code, Status. Ein Modulname beweist nicht automatisch die tatsächliche Ursache. Keine Treffer schließen den Fehler nicht aus.</p>
+<h2 id="5-entscheidung-massnahme">5. Entscheidung → Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur Benutzer betroffen</td>
+<td>Benutzerprofil / App-Einstellungen eingrenzen; keine Daten ohne Backup zurücksetzen</td>
+</tr>
+<tr>
+<td>Viele Benutzer betroffen</td>
+<td>Gemeinsame Infrastruktur/Rollout prüfen; Störung eskalieren</td>
+</tr>
+<tr>
+<td>Crash nach Add-in-Update</td>
+<td>Herstellerhinweise prüfen; Erweiterung ggf. kontrolliert und reversibel deaktivieren</td>
+</tr>
+<tr>
+<td>Reparaturfunktion vorhanden</td>
+<td>Nach Freigabe <strong>Reparieren</strong> statt pauschal neu installieren; anschließend testen</td>
+</tr>
+<tr>
+<td>Fehlender Dienst / Server</td>
+<td>Dienstzustand, Netzwerk und Serverstatus gezielt prüfen; verantwortliches Team informieren</td>
+</tr>
+<tr>
+<td>Fehler bleibt ungeklärt</td>
+<td>Logs sichern und an L2/Hersteller übergeben</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>NICHT blind:</strong> <code>Stop-Process -Force</code>, „Zurücksetzen“, Profil löschen, DLL ersetzen, Firewall/Defender deaktivieren, <code>sfc</code>/<code>DISM</code> als allgemeine Erstmaßnahme. Änderungen können Daten oder Systemzustand beeinflussen.</p>
+<h2 id="6-erfolgskontrolle-und-ticketabschluss">6. Erfolgskontrolle und Ticketabschluss</h2>
+<ul>
+<li>[ ] Anwendung startet unter dem <strong>betroffenen Benutzer</strong>.</li>
+<li>[ ] Ursprünglicher Arbeitsablauf (z. B. Inventarbuchung) funktioniert.</li>
+<li>[ ] Keine unmittelbar erneuten Abstürze im Test; Logs geprüft.</li>
+<li>[ ] Ursache <strong>als bestätigt oder vermutet</strong> korrekt bezeichnet.</li>
+<li>[ ] Ticket mit Befund, Maßnahme, Funktionstest und eventuellen offenen Punkten dokumentiert.</li>
+</ul>
+<p><strong>Eskalation an L2:</strong> Viele Betroffene, wiederkehrende Crashs, Datenverlust, Sicherheitsbezug, komplexe Laufzeit-/Systemprobleme oder Dumpanalyse. Mitgeben: Zeit, PC, Benutzer, App-Version, genaue Reproduktionsschritte, Eventlogs und bereits versuchte Maßnahmen (ohne Geheimnisse).</p>
+<h2 id="7-quellen">7. Quellen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">Microsoft – Application/service crash troubleshooting</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft – Get-WinEvent</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/perfmon" rel="noopener noreferrer" target="_blank">Microsoft – perfmon /rel</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/apps/repair-apps-and-programs-in-windows" rel="noopener noreferrer" target="_blank">Microsoft – Apps reparieren</a></li>
+</ul>
+<p><strong>Mehr Hintergründe:</strong> <code>RB-004_Lernartikel.md</code> · <strong>Beispielstatus:</strong> Nicht praktisch durchgeführt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-004_Praxis-Runbook.md">RB-004_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-003/index.html">← RB-003</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-005/index.html">RB-005 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
