@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-019 Outlook-Profil beschädigt | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-019: Outlook-Profil beschädigt. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Outlook · Exchange Online · Windows · Lernartikel</p><h1>RB-019: Outlook-Profil beschädigt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportticket-und-zielsetzung">1. Supportticket und Zielsetzung</a></li><li><a href="#2-grundlagen-und-abkuerzungen">2. Grundlagen und Abkürzungen</a></li><li><a href="#3-klassisches-outlook-oder-neues-outlook-zuerst-die-version-bestimmen">3. Klassisches Outlook oder neues Outlook? Zuerst die Version bestimmen</a></li><li><a href="#4-fehlermeldungen-und-plausible-ursachen">4. Fehlermeldungen und plausible Ursachen</a></li><li><a href="#5-wo-arbeitet-der-supporttechniker">5. Wo arbeitet der Supporttechniker?</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-diagnose-a--outlook-im-web-und-dienststatus-vergleichen">7. Diagnose A – Outlook im Web und Dienststatus vergleichen</a></li><li><a href="#8-diagnose-b--abgesicherter-start-und-add-ins">8. Diagnose B – Abgesicherter Start und Add-ins</a></li><li><a href="#9-diagnose-c--ein-neues-outlook-testprofil-erstellen">9. Diagnose C – Ein neues Outlook-Testprofil erstellen</a></li><li><a href="#10-diagnose-d--ost-und-pst-unterscheiden-bevor-dateien-angefasst-werden">10. Diagnose D – OST und PST unterscheiden, bevor Dateien angefasst werden</a></li><li><a href="#11-diagnose-e--lesende-powershell-abfragen-mit-kommentaren">11. Diagnose E – Lesende PowerShell-Abfragen (mit Kommentaren)</a></li><li><a href="#12-diagnose-f--reparaturmethoden-und-ihre-auswirkungen">12. Diagnose F – Reparaturmethoden und ihre Auswirkungen</a></li><li><a href="#13-erfolgskontrolle-und-eskalation">13. Erfolgskontrolle und Eskalation</a></li><li><a href="#14-musterticket-und-lernkontrolle">14. Musterticket und Lernkontrolle</a></li><li><a href="#15-quellen-validierungsstatus-und-dokumentationshinweise">15. Quellen, Validierungsstatus und Dokumentationshinweise</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Microsoft 365, Outlook, Windows-Client, Exchange Online<br/>
+<strong>Support-Level:</strong> L1/L2 gemäß Berechtigungskonzept<br/>
+<strong>Version / Recherche:</strong> 1.0 · 08.11.2026<br/>
+<strong>Validierungsstatus:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert; <strong>keine praktische Validierung in einer produktiven Umgebung</strong>.<br/>
+<strong>Beispielumgebung:</strong> Windows 11, klassisches Outlook für Microsoft 365, Exchange-Online-Postfach, Benutzer <code>m.mustermann@firma.example</code>. Alle Namen und Tickets sind <strong>fiktiv</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb019_henne_ei_outlook_profil.png" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: Outlook-Profil beschädigt" decoding="async" loading="lazy" src="assets/rb019_henne_ei_outlook_profil.png"/></a></div><figcaption>Henne-Ei-Infografik: Outlook-Profil beschädigt</figcaption></figure>
+<h2 id="1-supportticket-und-zielsetzung">1. Supportticket und Zielsetzung</h2>
+<blockquote>
+<p><strong>INC-019 – fiktive Meldung:</strong> „Outlook öffnet sich seit heute nicht mehr. Es kommt die Meldung, dass das Outlook-Fenster oder der Ordnersatz nicht geöffnet werden kann. Im Browser kann ich meine E-Mails aber sehen.“</p>
+</blockquote>
+<p><strong>Ziel:</strong> Die lokale Fehlerursache eingrenzen, dabei ungesicherte Daten schützen, Outlook wieder funktionsfähig machen und die Wiederherstellung gemeinsam mit dem Benutzer überprüfen.</p>
+<p><strong>Erste Fragen:</strong> Seit wann tritt die Störung auf? Welche <strong>exakte</strong> Meldung erscheint? Betrifft es nur Outlook auf einem PC? Funktioniert dasselbe Postfach in Outlook im Web? Tritt der Fehler nach einem Update, einem neuen Add-in, einer Passwortänderung oder einer Migration auf? Sind lokale Archive oder ungesendete Nachrichten vorhanden?</p>
+<p><strong>Abgrenzung:</strong> RB-006 untersucht allgemein Sende-/Empfangsstörungen; RB-019 behandelt speziell Konfiguration und lokale Datendateien <strong>des klassischen Outlook-Profils</strong>. Nicht jedes Outlook-Problem ist ein Profilfehler.</p>
+<h2 id="2-grundlagen-und-abkuerzungen">2. Grundlagen und Abkürzungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Anfängerfreundliche Erklärung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Outlook-Profil</strong></td>
+<td>Satz von Einstellungen, E-Mail-Konten und Datendateiverweisen, die klassisches Outlook beim Start verwendet. Ein Profil ist <strong>nicht</strong> identisch mit dem Windows-Benutzerprofil.</td>
+</tr>
+<tr class="even">
+<td><strong>Klassisches Outlook</strong></td>
+<td>Win32-Desktopprogramm aus Microsoft 365 Apps/Office, traditionell mit lokaler Profilverwaltung und PST/OST-Datendateien.</td>
+</tr>
+<tr class="odd">
+<td><strong>Neues Outlook für Windows</strong></td>
+<td>Andere Outlook-Anwendung mit abweichender Konfiguration. Die klassische Profilauswahl und viele <code>outlook.exe</code>-Schalter gelten hierfür <strong>nicht</strong>.</td>
+</tr>
+<tr class="even">
+<td><strong>OWA / Outlook im Web</strong></td>
+<td>Zugriff auf das Exchange-/Microsoft-365-Postfach über den Browser; nützlich als Gegenprobe.</td>
+</tr>
+<tr class="odd">
+<td><strong>Exchange Online</strong></td>
+<td>Cloudbasierter Microsoft-E-Mail- und Kalenderdienst, auf dem das Unternehmenspostfach liegen kann.</td>
+</tr>
+<tr class="even">
+<td><strong>OST (Offline Storage Table)</strong></td>
+<td>Lokale Offlinekopie eines serverbasierten Postfachs, insbesondere im Exchange-Cache-Modus. Nach Prüfung meist neu aufbaubar; unübertragene Änderungen können dennoch wichtig sein.</td>
+</tr>
+<tr class="odd">
+<td><strong>PST (Personal Storage Table)</strong></td>
+<td>Lokale Outlook-Datendatei, z. B. für Archive oder bestimmte Kontotypen. Kann <strong>einzige Kopie</strong> wichtiger Mails sein und muss geschützt werden.</td>
+</tr>
+<tr class="even">
+<td><strong>Cachemodus</strong></td>
+<td>Outlook hält eine lokale Kopie von Postfachdaten, um auch bei Verzögerungen/offline arbeiten zu können.</td>
+</tr>
+<tr class="odd">
+<td><strong>Add-in</strong></td>
+<td>Erweiterung von Outlook; ein fehlerhaftes Add-in kann den Start oder die Bedienung stören.</td>
+</tr>
+<tr class="even">
+<td><strong>COM (Component Object Model)</strong></td>
+<td>Microsoft-Komponententechnik; klassische Outlook-Add-ins können COM-basierte Erweiterungen sein.</td>
+</tr>
+<tr class="odd">
+<td><strong>Autodiscover (AutoErmittlung)</strong></td>
+<td>Dienst/Mechanismus zum automatischen Auffinden der korrekten Kontoeinstellungen für Outlook.</td>
+</tr>
+<tr class="even">
+<td><strong>SCANPST.EXE</strong></td>
+<td>Microsoft-Tool „Posteingangsreparatur“, das Fehler in lokalen Outlook-Datendateien untersucht und gegebenenfalls repariert.</td>
+</tr>
+<tr class="odd">
+<td><strong>L1/L2</strong></td>
+<td>First-/Second-Level-Support: Standarddiagnosen bzw. komplexere Analysen je nach Unternehmenszuständigkeit.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ein Bild im Kopf:</strong> <code>Windows-PC → klassisches Outlook → Profil (Konto, Einstellungen, Datendateiverweise) → OST-Cache / PST-Archive → Exchange-Online-Postfach</code>. Ein beschädigtes Profil, eine beschädigte OST und eine Exchange-Dienststörung liegen <strong>an unterschiedlichen Stellen</strong>.</p>
+<p><strong>Microsoft-Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/overview-of-outlook-email-profiles" rel="noopener noreferrer" target="_blank">Übersicht über E-Mail-Profile im klassischen Outlook</a>.</p>
+<h2 id="3-klassisches-outlook-oder-neues-outlook-zuerst-die-version-bestimmen">3. Klassisches Outlook oder neues Outlook? Zuerst die Version bestimmen</h2>
+<p><strong>Das ist der wichtigste erste Prüfpunkt.</strong> Das neue Outlook besitzt nicht dasselbe klassische MAPI-Profilmodell (MAPI = Messaging Application Programming Interface, Microsoft-Schnittstellen für E-Mail-Programme), wie es in den klassischen Profilassistenten dokumentiert ist.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Merkmal</th>
+<th>Klassisches Outlook</th>
+<th>Neues Outlook</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Typischer Desktopzugang</td>
+<td>Office-/Microsoft-365-Desktopanwendung</td>
+<td>Moderne Windows-Outlook-App</td>
+</tr>
+<tr class="even">
+<td>Profilauswahl mit <code>outlook.exe /profiles</code></td>
+<td>Vorgesehen</td>
+<td>Nicht der passende Diagnoseweg</td>
+</tr>
+<tr class="odd">
+<td><code>outlook.exe /safe</code> (klassische Add-ins)</td>
+<td>Vorgesehen</td>
+<td>Nicht derselbe abgesicherte Modus</td>
+</tr>
+<tr class="even">
+<td>OST/PST im klassischen Sinne</td>
+<td>Relevanter Prüfbereich</td>
+<td>Klassisches OST-Profilverfahren nicht unmittelbar übertragbar</td>
+</tr>
+<tr class="odd">
+<td>Typische Reparatur</td>
+<td>Add-ins, Konto/Profil, Daten, Office-Reparatur</td>
+<td>App-/Kontoprobleme und gegebenenfalls Windows-App-Reparatur nach Richtlinie</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Praxis:</strong> Programmbezeichnung und verwendete Anwendung mit dem Mitarbeiter bestätigen; keine klassische Profilanleitung blind auf das neue Outlook anwenden.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/create-an-outlook-profile" rel="noopener noreferrer" target="_blank">Microsoft: Neues Profil im klassischen Outlook erstellen</a>, <a href="https://support.microsoft.com/de-de/windows/apps/repair-apps-and-programs-in-windows" rel="noopener noreferrer" target="_blank">Microsoft: Apps und Programme in Windows reparieren</a>.</p>
+<h2 id="4-fehlermeldungen-und-plausible-ursachen">4. Fehlermeldungen und plausible Ursachen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Fehlerbild</th>
+<th>Mögliche Ursache</th>
+<th>Erste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>„Outlook-Fenster kann nicht geöffnet werden“ / „Ordnersatz kann nicht geöffnet werden“</td>
+<td>Profil, Datendatei, Navigationsbereich oder Add-in</td>
+<td>Outlook im Web, Safe Mode, konkreter Fehlertext</td>
+</tr>
+<tr class="even">
+<td>Outlook startet und schließt sofort</td>
+<td>Add-in, defekte Programmkomponente oder lokaler Profilfehler</td>
+<td><code>outlook.exe /safe</code>, Zuverlässigkeitsverlauf, Ereignis 1000</td>
+</tr>
+<tr class="odd">
+<td>Outlook fordert immer wieder Anmeldung</td>
+<td>Token-/Anmeldeproblem, Konto- oder Netzwerkkonfiguration</td>
+<td>Anmeldung im Browser, Entra-Anmeldeprotokolle (L2)</td>
+</tr>
+<tr class="even">
+<td>Ordner fehlen nur im Desktopclient</td>
+<td>Synchronisierung, Cache, Ansicht/Profil</td>
+<td>Webansicht mit Desktop vergleichen</td>
+</tr>
+<tr class="odd">
+<td>Fehlermeldung nennt ausdrücklich <code>.ost</code></td>
+<td>Beschädigter Offlinecache möglich</td>
+<td>Speicherort und Serverkopie prüfen, erst dann Neuaufbau planen</td>
+</tr>
+<tr class="even">
+<td>Fehlermeldung nennt <code>.pst</code></td>
+<td>Beschädigte lokale Datendatei möglich</td>
+<td>Datendatei zuerst sichern, dann SCANPST erwägen</td>
+</tr>
+<tr class="odd">
+<td>Mehrere Benutzer betroffen</td>
+<td>Dienst- oder Netzwerkinfrastruktur statt Einzelprofil</td>
+<td>Microsoft-365-Dienststatus und Vergleichsbenutzer</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Diagnoseregel:</strong> Ein Symptom ist ein Hinweis, <strong>kein Beweis</strong> für eine Beschädigung.</p>
+<h2 id="5-wo-arbeitet-der-supporttechniker">5. Wo arbeitet der Supporttechniker?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Diagnosezugriff</th>
+<th>Konkrete Handlung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer kann Windows normal verwenden</td>
+<td>Gemeinsame Bildschirmfreigabe oder genehmigte Fernwartung</td>
+<td>Outlook-Version, Fehlermeldung und Vergleichstest gemeinsam erfassen</td>
+</tr>
+<tr class="even">
+<td>Outlook startet nicht, Windows läuft</td>
+<td>Windows-Anmeldung am betroffenen Client oder autorisierte Remoteverwaltung</td>
+<td>Lesende Prozess-/Log-Abfragen; klassische Profilauswahl testen</td>
+</tr>
+<tr class="odd">
+<td>Zugriff auf Microsoft 365 erforderlich</td>
+<td>Berechtigtes Adminportal / Microsoft 365 Service Health</td>
+<td>Bei mehreren Betroffenen zentrale Störungen prüfen</td>
+</tr>
+<tr class="even">
+<td>Benutzer besitzt lokale PST-Archive</td>
+<td>Client und genehmigter Datensicherungsweg</td>
+<td>Dateipfade und Datensicherung mit Benutzer abstimmen</td>
+</tr>
+<tr class="odd">
+<td>Kein Clientzugriff</td>
+<td>Telefonische Fehleraufnahme; ggf. Vor-Ort-Termin</td>
+<td>Nicht ohne Prüfung Daten- oder Profiländerungen anweisen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Berechtigungen:</strong> Für grundlegende Outlook-Profileinstellungen benötigt man nicht automatisch Domänenadministratorrechte. Die jeweils vorgesehenen Unternehmensrichtlinien sind maßgeblich.</p>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb019_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="Diagnosebaum: Outlook-Profil beschädigt" decoding="async" loading="lazy" src="assets/rb019_diagnosebaum.svg"/></a></div><figcaption>Diagnosebaum: Outlook-Profil beschädigt</figcaption></figure>
+<p><strong>Lesereihenfolge:</strong> (1) Version bestimmen → (2) Web-/Dienstvergleich → (3) abgesicherter Start → (4) neues Testprofil → (5) PST/OST unterscheiden → (6) nur die nachgewiesene Ursache beheben und prüfen.</p>
+<h2 id="7-diagnose-a--outlook-im-web-und-dienststatus-vergleichen">7. Diagnose A – Outlook im Web und Dienststatus vergleichen</h2>
+<p><strong>Ausführungsort:</strong> Browser auf dem betroffenen Arbeitsplatz, optional Administrationsportal. <strong>Typ:</strong> Lesend / Beobachtung.</p>
+<ol type="1">
+<li>Benutzer meldet sich über den vom Unternehmen freigegebenen Webzugang an, z. B. <code>https://outlook.office.com/</code> für Exchange Online.</li>
+<li>Test: Sind Posteingang, Kalender und aktuelle Nachrichten dort sichtbar?</li>
+<li><strong>Web funktioniert, Desktop nicht:</strong> lokale Outlook-Konfiguration wahrscheinlicher; aber noch kein Beweis für ein defektes Profil.</li>
+<li><strong>Web und Desktop funktionieren nicht:</strong> Konto, Authentifizierung, Lizenz, Netzwerk oder Exchange-Dienst ebenfalls untersuchen.</li>
+<li>Bei mehreren betroffenen Personen: Microsoft-365-<strong>Service Health</strong> im berechtigten Administrationsportal prüfen.</li>
+</ol>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/exchange/outlook-issues/outlook-connection-issues" rel="noopener noreferrer" target="_blank">Microsoft: Outlook-Verbindungsprobleme in Microsoft 365</a>.</p>
+<h2 id="8-diagnose-b--abgesicherter-start-und-add-ins">8. Diagnose B – Abgesicherter Start und Add-ins</h2>
+<p>Der <strong>abgesicherte Outlook-Modus</strong> startet klassisches Outlook mit reduzierten Erweiterungsfunktionen; er ist <strong>nicht</strong> der abgesicherte Modus von Windows.</p>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client. <strong>Typ:</strong> Diagnostischer Programmstart.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Taste + R
+outlook.exe /safe</code></pre></div>
+<p><strong>Syntax:</strong> Nach <code>outlook.exe</code> steht <strong>ein Leerzeichen</strong>, danach <code>/safe</code> mit Schrägstrich. Der Dialog „Ausführen“ startet das Programm. Wenn <code>outlook.exe</code> nicht gefunden wird, muss der tatsächliche Programmpfad der klassischen Office-Installation geprüft werden.</p>
+<p><strong>Interpretation:</strong> Startet Outlook jetzt normal, ist ein Add-in <strong>verdächtig</strong>. Im klassischen Outlook: <code>Datei → Optionen → Add-Ins → COM-Add-Ins → Gehe zu</code>. Add-ins zunächst dokumentieren und kontrolliert deaktivieren, danach einzeln testen. Es ist nicht erforderlich, sie pauschal zu deinstallieren.</p>
+<p><strong>Wenn Safe Mode ebenfalls fehlschlägt:</strong> Profil, Datendatei, Installation und Authentifizierung weiter untersuchen.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/office/öffnen-von-outlook-im-abgesicherten-modus-f394c2ee-b2af-e97a-64ee-35cd24414811" rel="noopener noreferrer" target="_blank">Microsoft: Outlook im abgesicherten Modus</a>.</p>
+<h2 id="9-diagnose-c--ein-neues-outlook-testprofil-erstellen">9. Diagnose C – Ein neues Outlook-Testprofil erstellen</h2>
+<p>Ein <strong>neues Profil</strong> ist ein besonders aussagekräftiger Test, weil die ursprünglichen Profilinformationen erhalten bleiben können.</p>
+<p><strong>Vorbedingungen:</strong> Klassisches Outlook bestätigt; Konto- und Lizenzstatus bekannt; PST-Dateien, lokale Archive und ungesendete/offline Änderungen dokumentiert; erforderliche Freigabe vorhanden.</p>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client. <strong>Typ:</strong> <strong>Verändernd</strong> (neues lokales Profil), aber zunächst <strong>kein Löschen</strong> des alten Profils.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Taste + R
+outlook.exe /profiles</code></pre></div>
+<p><strong>Schreibweise:</strong> Ein Leerzeichen zwischen <code>outlook.exe</code> und <code>/profiles</code>, <strong>kein</strong> Leerzeichen innerhalb des Schalters.</p>
+<p><strong>Alternative:</strong> Beim Start des klassischen Outlook die <strong>Umschalttaste</strong> gedrückt halten, um die Profilauswahl zu öffnen; je nach Version über <code>Datei → Kontoeinstellungen → Profil ändern</code>.</p>
+<ol type="1">
+<li>In der Profilauswahl <code>Optionen</code> und <code>Neu</code> auswählen.</li>
+<li>Eindeutigen Testnamen wie <code>Outlook-Test-RB019</code> vergeben.</li>
+<li>Geschäftskonto entsprechend Unternehmensvorgabe hinzufügen.</li>
+<li>Testprofil verwenden, ohne das alte Profil zu entfernen.</li>
+<li>Posteingang, Kalender und Senden/Empfangen nach vollständiger Einrichtung testen.</li>
+<li><strong>Neues Profil funktioniert, altes nicht:</strong> deutliches Indiz für einen Fehler in alten Profilinformationen. Fehlt auch im neuen Profil die Funktion, sind Konto, Netzwerk, Add-ins oder Dienst weiter zu prüfen.</li>
+</ol>
+<p><strong>Nicht voreilig löschen:</strong> Ein altes Profil kann relevante lokale Einstellungen und Datendateiverweise enthalten. Erst Datenbestand und Erfolg prüfen, dann gegebenenfalls über eine spätere Bereinigung entscheiden.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/create-an-outlook-profile" rel="noopener noreferrer" target="_blank">Microsoft: Outlook-Profil erstellen</a>.</p>
+<h2 id="10-diagnose-d--ost-und-pst-unterscheiden-bevor-dateien-angefasst-werden">10. Diagnose D – OST und PST unterscheiden, bevor Dateien angefasst werden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Eigenschaft</th>
+<th>OST</th>
+<th>PST</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Hauptzweck</td>
+<td>Zwischengespeicherte Offlinekopie von Exchange-Postfachdaten</td>
+<td>Lokaler Datenspeicher oder Archiv</td>
+</tr>
+<tr class="even">
+<td>Serverkopie</td>
+<td>Bei korrekt synchronisiertem Exchange-Postfach typischerweise vorhanden</td>
+<td><strong>Möglicherweise keine</strong> Serverkopie vorhanden</td>
+</tr>
+<tr class="odd">
+<td>Standardmaßnahme</td>
+<td>Bei tatsächlich nachgewiesenem Cacheproblem nach Prüfung neu aufbauen</td>
+<td><strong>Zuerst sichern</strong>, danach ggf. gezielt mit SCANPST reparieren</td>
+</tr>
+<tr class="even">
+<td>Hauptrisiko</td>
+<td>Noch nicht synchronisierte Änderungen, lokale Offlineelemente, Bandbreite/Neusynchronisation</td>
+<td>Verlust der möglicherweise einzigen Kopie von Mails/Archivdaten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>So findet man Dateipfade im klassischen Outlook:</strong> <code>Datei → Kontoeinstellungen → Kontoeinstellungen → Datendateien</code>. Angezeigte Datendatei und Konto zuordnen; nicht allein anhand einer Endung auf deren Bedeutung schließen.</p>
+<p><strong>Beispielorte:</strong> <code>%LOCALAPPDATA%\Microsoft\Outlook</code> (häufig OST), <code>%USERPROFILE%\Documents\Outlook-Dateien</code> (häufig PST). <strong>Das sind typische, keine garantierten Speicherorte.</strong></p>
+<p><strong>Besonders wichtig:</strong> Eine OST darf nicht sofort gelöscht werden, nur weil im Web eine Postfachkopie vorhanden ist. Vorher prüfen, ob es unsynchronisierte Elemente oder andere einzigartige lokale Daten gibt; Unternehmensvorgaben und eine mögliche Sicherung beachten.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/repair-outlook-data-files-pst-and-ost" rel="noopener noreferrer" target="_blank">Microsoft: Outlook-Datendateien (PST und OST) reparieren</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/outlook/data-files/errors-have-been-detected-in-.ost-file" rel="noopener noreferrer" target="_blank">Microsoft: Fehler in OST</a>.</p>
+<h2 id="11-diagnose-e--lesende-powershell-abfragen-mit-kommentaren">11. Diagnose E – Lesende PowerShell-Abfragen (mit Kommentaren)</h2>
+<h3 id="111-laeuft-klassisches-outlook-ueberhaupt">11.1 Läuft klassisches Outlook überhaupt?</h3>
+<p><strong>Ausführungsort:</strong> PowerShell auf dem betroffenen Windows-PC. <strong>Typ:</strong> Lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Sucht nach einem laufenden Outlook-Prozess.
+# -ErrorAction SilentlyContinue unterdrückt die Meldung,
+# falls der Prozess derzeit nicht existiert.
+Get-Process -Name OUTLOOK -ErrorAction SilentlyContinue |
+    # Zeigt die für die Diagnose relevanten Eigenschaften.
+    Select-Object ProcessName, Id, StartTime, Responding</code></pre></div>
+<p><strong>Auswertung:</strong> Keine Ausgabe → kein klassischer Prozess mit diesem Namen gefunden; das beweist keinen Profildefekt. <code>Responding = False</code> ist ein Indiz für eine aktuell nicht reagierende grafische Anwendung, aber keine abschließende Ursachenanalyse.</p>
+<h3 id="112-outlook-datendateien-im-standardcacheordner-auflisten">11.2 Outlook-Datendateien im Standardcacheordner auflisten</h3>
+<p><strong>Ausführungsort:</strong> Benutzerkontext des betroffenen Clients. <strong>Typ:</strong> Lesend, <strong>keine Dateien verändern</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Bildet den häufigen Speicherort lokaler Outlook-Datendateien.
+$ordner = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\Outlook'
+
+# Prüft nur, ob dieser Ordner vorhanden ist.
+Test-Path -Path $ordner
+
+# Zeigt vorhandene OST-Dateien einschließlich Dateigröße an.
+# Die Größe ist in Bytes; sie beweist keine Beschädigung.
+Get-ChildItem -Path $ordner -Filter '*.ost' -File -ErrorAction SilentlyContinue |
+    Select-Object Name, Length, LastWriteTime, FullName</code></pre></div>
+<p><strong>Auswertung:</strong> Eine OST-Datei im Ordner belegt nicht, dass genau diese zum betroffenen Outlook-Profil gehört. Für eine verbindliche Zuordnung den Dialog <strong>Datendateien</strong> verwenden.</p>
+<h3 id="113-windows-absturzereignisse-korrelieren">11.3 Windows-Absturzereignisse korrelieren</h3>
+<p><strong>Ausführungsort:</strong> PowerShell auf dem betroffenen Client. <strong>Typ:</strong> Lesend; Berechtigung zur Ereignisprotokollabfrage erforderlich.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Erstellt einen Filter für Absturzereignisse der letzten 48 Stunden.
+$filter = @{
+    # Windows-Anwendungsprotokoll auswählen.
+    LogName = 'Application'
+    # 1000: Application Error; 1001: häufig Windows Error Reporting.
+    Id = 1000, 1001
+    # Zeitpunkt der Störung eingrenzen.
+    StartTime = (Get-Date).AddHours(-48)
+}
+
+# Liest nur die passenden Ereignisse aus.
+Get-WinEvent -FilterHashtable $filter -ErrorAction SilentlyContinue |
+    # Sucht innerhalb der Meldung nach Outlook-Prozessnennung.
+    Where-Object { $_.Message -match 'OUTLOOK\.EXE' } |
+    # Zeigt höchstens die zehn jüngsten Treffer an.
+    Select-Object -First 10 TimeCreated, Id, ProviderName, Message</code></pre></div>
+<p><strong>Auswertung:</strong> Ein <code>Application Error</code> mit Modulname oder Ausnahme hilft bei der Eingrenzung, beweist aber noch nicht, dass das Profil beschädigt ist. Zeitstempel mit der Benutzermeldung abgleichen. Bei Nichtabsturzfehlern können diese Ereignisse fehlen.</p>
+<p><strong>Microsoft-Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/outlook/performance/outlook-crashes-and-returns-event-id-1000-crash-signatures" rel="noopener noreferrer" target="_blank">Outlook-Abstürze mit Event ID 1000</a>.</p>
+<h2 id="12-diagnose-f--reparaturmethoden-und-ihre-auswirkungen">12. Diagnose F – Reparaturmethoden und ihre Auswirkungen</h2>
+<h3 id="a-klassisches-profil-ueber-die-anwendung-reparieren">A. Klassisches Profil über die Anwendung reparieren</h3>
+<p><code>Datei → Kontoeinstellungen → Kontoeinstellungen → E-Mail → Konto wählen → Reparieren</code> – <strong>nur wenn die Schaltfläche für diese Version und diesen Kontotyp tatsächlich angeboten wird</strong>. Microsoft weist ausdrücklich auf Einschränkungen hin, etwa bei Outlook 2016 mit Exchange.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/fix-your-outlook-email-connection-by-repairing-your-profile" rel="noopener noreferrer" target="_blank">Microsoft: Outlook-Profil reparieren</a>.</p>
+<h3 id="b-neues-testprofil-als-bevorzugter-vergleich">B. Neues Testprofil als bevorzugter Vergleich</h3>
+<p>Neue Profilauswahl wie in Abschnitt 9. Erst bei nachgewiesenem Erfolg und nach Prüfung wichtiger Datendateien das neue Profil gegebenenfalls zum Standard machen. Ein altes Profil nicht automatisch entfernen.</p>
+<h3 id="c-bei-pst-fehlern-scanpstexe">C. Bei PST-Fehlern: SCANPST.EXE</h3>
+<ol type="1">
+<li>Outlook schließen und die betroffene <code>.pst</code>-Datei eindeutig zuordnen.</li>
+<li><strong>Vor dem Eingriff eine eigenständige Sicherung</strong> der Datei an einem freigegebenen Speicherort anlegen.</li>
+<li><code>SCANPST.EXE</code> über den installierten Office-Programmordner öffnen (Installationspfade variieren).</li>
+<li>Datei auswählen, zunächst prüfen, dann gegebenenfalls Reparatur mit kontrollierter Sicherung durchführen.</li>
+<li>Ergebnis, wiederhergestellte Ordner und fehlende Elemente überprüfen.</li>
+</ol>
+<p>Microsoft dokumentiert, dass die Reparatur nicht alle Inhalte wiederherstellen kann und beispielsweise „Lost and Found“-/„Verloren und gefunden“-Ordner entstehen können. Deshalb die Originaldatei nicht überschreiben, bevor eine Sicherung existiert.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/outlook/repair-outlook-data-files-pst-and-ost" rel="noopener noreferrer" target="_blank">Microsoft: Reparieren von PST/OST-Datendateien</a>.</p>
+<h3 id="d-ost-bei-nachgewiesener-beschaedigung-neu-aufbauen-l2-bzw-freigegebener-prozess">D. OST bei nachgewiesener Beschädigung neu aufbauen (L2 bzw. freigegebener Prozess)</h3>
+<p>Nur nach Sicherung/Prüfung nicht synchronisierter Inhalte und positiver serverseitiger Bestandserfassung. Microsoft beschreibt das Neuerstellen der OST für bestimmte Exchange-Caches. <strong>Keine allgemeine L1-Standardmaßnahme.</strong> Große Postfächer können viel Zeit und Netzwerktraffic zur Neusynchronisierung benötigen.</p>
+<h3 id="e-beschaedigte-office-installation-reparieren">E. Beschädigte Office-Installation reparieren</h3>
+<p>Wenn Profil-, Daten- und Add-in-Diagnosen nicht passen: Microsoft-365-/Office-Update prüfen, gegebenenfalls freigegebene <strong>Schnellreparatur</strong> und bei Bedarf weitergehende <strong>Onlinereparatur</strong> durchführen. Änderungen und Auswirkungen koordinieren.</p>
+<h3 id="f-neues-outlook">F. Neues Outlook</h3>
+<p>Für das <strong>neue Outlook</strong> nicht mit klassischem Profil-/OST-Verfahren arbeiten: Unter Windows <strong>Einstellungen → Apps → Installierte Apps → Outlook (new) → Erweiterte Optionen</strong> (falls verfügbar) zunächst <strong>Reparieren</strong>, erst nach Prüfung eventuell <strong>Zurücksetzen</strong>. Die Verfügbarkeit hängt von App-Typ/Version ab. App-Daten und Anmeldung können betroffen sein.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/apps/repair-apps-and-programs-in-windows" rel="noopener noreferrer" target="_blank">Microsoft: Apps in Windows reparieren</a>.</p>
+<h2 id="13-erfolgskontrolle-und-eskalation">13. Erfolgskontrolle und Eskalation</h2>
+<p><strong>Mit dem Benutzer prüfen:</strong> Outlook startet normal, richtiges Konto und richtige Ordner sichtbar, neue Nachricht senden und empfangen (an autorisierte Testadresse), Kalender und Kontakte, vorhandene PST-Archive bei Bedarf, richtige Postfach-/Ordneranzeige, keine unmittelbaren Fehler nach Neustart. Bei fehlenden Elementen Vergleich mit Outlook im Web durchführen.</p>
+<p><strong>L1 → L2, wenn:</strong> Datendatei nur lokal und ggf. beschädigt; PST-/Offline-Datenverlust droht; neues Profil scheitert; Autodiscover-/Exchange-/Authentifizierungsfehler; mehrere Benutzer oder zentrale Richtlinien betroffen; Logs auf Add-in- oder Profilursache nicht eindeutig; sensible Wiederherstellungsmaßnahmen nötig.</p>
+<p><strong>Übergabe:</strong> genaue Meldung und Zeitpunkt, Outlook-Version, Kontoart, Webvergleich, Add-in-/Safe-Mode-Test, Testprofilbefund, OST-/PST-Bestand und Sicherungsstatus, Ereignisse, Änderungsmaßnahmen, aktuelle Auswirkungen. Keine Passwörter oder unnötigen Mailinhalte dokumentieren.</p>
+<h2 id="14-musterticket-und-lernkontrolle">14. Musterticket und Lernkontrolle</h2>
+<p><strong>INC-019 – fiktives Ticketbeispiel, nicht real durchgeführt</strong></p>
+<ul>
+<li><strong>Fehlerbild:</strong> Klassisches Outlook startet mit „Ordnersatz kann nicht geöffnet werden“ nicht.</li>
+<li><strong>Umfang:</strong> Ein Windows-11-Client eines Benutzers, Postfach in Outlook im Web erreichbar.</li>
+<li><strong>Diagnose:</strong> Outlook-Version bestätigt, <code>outlook.exe /safe</code> ohne Erfolg; vorhandene lokale PST-Datendatei identifiziert und gesichert; mit <code>outlook.exe /profiles</code> neues Testprofil angelegt.</li>
+<li><strong>Befund:</strong> Testprofil startet und synchronisiert Postfach; altes Profil zeigt weiterhin den Fehler.</li>
+<li><strong>Ursache:</strong> Lokaler Profilfehler ist durch den Vergleich plausibel bestätigt; konkreter beschädigter Einstellungseintrag nicht bestimmt.</li>
+<li><strong>Maßnahme:</strong> Neues Profil nach Freigabe verwendet; erforderliche alte Einstellungen kontrolliert übernommen; alter Profilbestand zunächst aufbewahrt.</li>
+<li><strong>Erfolg:</strong> Sende-/Empfangstest und Kalenderzugriff erfolgreich; PST-Archiv geprüft.</li>
+<li><strong>Status:</strong> Gelöst (fiktives Schulungsbeispiel).</li>
+</ul>
+<h3 id="active-recall--ohne-nachzulesen-beantworten">Active Recall – ohne nachzulesen beantworten</h3>
+<ol type="1">
+<li>Was speichert ein Outlook-Profil, und was speichert es <strong>nicht zwingend</strong>?</li>
+<li>Warum beweist ein funktionierendes Outlook im Web keinen Profildefekt?</li>
+<li>Welcher vollständige Startbefehl deaktiviert im klassischen Outlook testweise Add-ins?</li>
+<li>Worin unterscheiden sich OST und PST hinsichtlich des Datenverlust-Risikos?</li>
+<li>Welcher Vergleichstest kann einen lokalen Profilfehler erhärten?</li>
+<li>Warum darfst du eine vermeintlich beschädigte PST nicht sofort löschen?</li>
+<li>Wann ist eine L2-Eskalation erforderlich?</li>
+</ol>
+<h3 id="vorschlaege-fuer-anki-karten">Vorschläge für Anki-Karten</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Kartentyp</th>
+<th>Vorderseite</th>
+<th>Rückseite (kurz)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wissen</td>
+<td>Was ist ein klassisches Outlook-Profil?</td>
+<td>Konten, Einstellungen und Datendateiverweise.</td>
+</tr>
+<tr class="even">
+<td>Wissen</td>
+<td>Welcher Befehl startet klassisches Outlook ohne Add-ins?</td>
+<td><code>outlook.exe /safe</code></td>
+</tr>
+<tr class="odd">
+<td>Verständnis</td>
+<td>Weshalb sind PST und OST nicht gleich sicher neu aufbaubar?</td>
+<td>OST meist Servercache, PST kann einzige Datenkopie sein.</td>
+</tr>
+<tr class="even">
+<td>Diagnose</td>
+<td>Webmail funktioniert, Outlook im Safe Mode auch – nächster Verdacht?</td>
+<td>Ein störendes Add-in prüfen.</td>
+</tr>
+<tr class="odd">
+<td>Diagnose</td>
+<td>Neues Profil funktioniert; altes nicht. Was folgt?</td>
+<td>Fehler in alter Profilkonfiguration wahrscheinlich.</td>
+</tr>
+<tr class="even">
+<td>Diagnose</td>
+<td>Outlook meldet PST-Schaden. Was <strong>vor</strong> SCANPST?</td>
+<td>Datei sichern, Zustand und Speicherort verifizieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Transferübung:</strong> Ein Kollege kann Outlook nur nach einem PC-Neustart kurz benutzen. Outlook im Web funktioniert, ein neues Profil behebt die Abstürze aber <strong>nicht</strong>. Formuliere zwei alternative Hypothesen und für jede einen risikoarmen Prüfschritt. <strong>Nicht</strong> reflexhaft eine neue PST erstellen.</p>
+<h2 id="15-quellen-validierungsstatus-und-dokumentationshinweise">15. Quellen, Validierungsstatus und Dokumentationshinweise</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Technische Aussage / Verfahren</th>
+<th>Offizielle Microsoft-Quelle</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Aufbau und Verwaltung klassischer Outlook-Profile</td>
+<td><a href="https://support.microsoft.com/de-de/outlook/overview-of-outlook-email-profiles" rel="noopener noreferrer" target="_blank">Profilübersicht</a></td>
+</tr>
+<tr class="even">
+<td>Neues Outlook-Testprofil / Profilauswahl</td>
+<td><a href="https://support.microsoft.com/de-de/outlook/create-an-outlook-profile" rel="noopener noreferrer" target="_blank">Profil erstellen</a></td>
+</tr>
+<tr class="odd">
+<td>Outlook im abgesicherten Modus / Add-ins</td>
+<td><a href="https://support.microsoft.com/de-de/office/öffnen-von-outlook-im-abgesicherten-modus-f394c2ee-b2af-e97a-64ee-35cd24414811" rel="noopener noreferrer" target="_blank">Abgesicherter Outlook-Modus</a></td>
+</tr>
+<tr class="even">
+<td>Profilreparatur und Einschränkungen</td>
+<td><a href="https://support.microsoft.com/de-de/outlook/fix-your-outlook-email-connection-by-repairing-your-profile" rel="noopener noreferrer" target="_blank">Profil reparieren</a></td>
+</tr>
+<tr class="odd">
+<td>PST-/OST-Datendateien und SCANPST</td>
+<td><a href="https://support.microsoft.com/de-de/outlook/repair-outlook-data-files-pst-and-ost" rel="noopener noreferrer" target="_blank">Datendateien reparieren</a></td>
+</tr>
+<tr class="even">
+<td>OST-Beschädigung und Neuaufbau</td>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/outlook/data-files/errors-have-been-detected-in-.ost-file" rel="noopener noreferrer" target="_blank">OST-Fehler</a></td>
+</tr>
+<tr class="odd">
+<td>Outlook-Startprobleme und Profiltest</td>
+<td><a href="https://support.microsoft.com/de-de/outlook/i-can-t-start-microsoft-outlook-or-receive-the-error-cannot-start-microsoft-outlook-cannot-open-the" rel="noopener noreferrer" target="_blank">Outlook kann nicht gestartet werden</a></td>
+</tr>
+<tr class="even">
+<td>Autodiscover und klassische Outlook-Profile</td>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/exchange/outlook-issues/cannot-set-up-profile-autodiscover" rel="noopener noreferrer" target="_blank">Autodiscover-Fehlerdiagnose</a></td>
+</tr>
+<tr class="odd">
+<td>Exchange Online / Dienststatus</td>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/exchange/outlook-issues/outlook-connection-issues" rel="noopener noreferrer" target="_blank">Outlook-Verbindungsprobleme</a></td>
+</tr>
+<tr class="even">
+<td>Apps unter Windows reparieren</td>
+<td><a href="https://support.microsoft.com/de-de/windows/apps/repair-apps-and-programs-in-windows" rel="noopener noreferrer" target="_blank">Windows-App-Reparatur</a></td>
+</tr>
+<tr class="odd">
+<td>Outlook-Absturzereignis 1000</td>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/outlook/performance/outlook-crashes-and-returns-event-id-1000-crash-signatures" rel="noopener noreferrer" target="_blank">Outlook-Ereignisse</a></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Kennzeichnung:</strong> Herstellerdokumentation recherchiert und anhand fiktiver Fälle strukturiert. Befehle, Dialogabläufe und Reparaturschritte wurden <strong>nicht</strong> in einer produktiven Unternehmensumgebung praktisch getestet. <strong>Betriebssystem-/Produktversionen und Funktionsverfügbarkeit können sich ändern.</strong></p>
+<p><strong>Transparenz zu den Bildern:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Comic-Infografik ist eine didaktische Illustration und kein Screenshot einer tatsächlichen Umgebung. Der SVG-Diagnosebaum ist ein konzeptionelles Schema.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-019_Lernartikel.md">RB-019_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-006/index.html">RB-006: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-018/index.html">← RB-018</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-020/index.html">RB-020 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
