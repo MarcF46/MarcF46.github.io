@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-003 Passwort vergessen oder zurücksetzen | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-003: Passwort vergessen oder zurücksetzen. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Identität · Passwort · Entra ID · Lernartikel</p><h1>RB-003: Passwort vergessen oder zurücksetzen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-ticket-inc-003">1. Ausgangssituation: Ticket INC-003</a></li><li><a href="#2-die-entscheidenden-begriffe-anfaengerfreundlich">2. Die entscheidenden Begriffe – anfängerfreundlich</a></li><li><a href="#3-wo-wird-das-kennwort-verwaltet">3. Wo wird das Kennwort verwaltet?</a></li><li><a href="#4-erste-ticketaufnahme-vor-jedem-reset">4. Erste Ticketaufnahme – vor jedem Reset</a></li><li><a href="#5-zugriffswege-und-konkrete-verfahren">5. Zugriffswege und konkrete Verfahren</a></li><li><a href="#6-lokales-ad-zuerst-nur-lesend-pruefen">6. Lokales AD: Zuerst nur lesend prüfen</a></li><li><a href="#7-lokales-ad-kennwort-in-aduc-zuruecksetzen-grafisch">7. Lokales AD: Kennwort in ADUC zurücksetzen (grafisch)</a></li><li><a href="#8-lokales-ad-kennwort-mit-powershell-zuruecksetzen">8. Lokales AD: Kennwort mit PowerShell zurücksetzen</a></li><li><a href="#9-microsoft-entra-id-kennwort-in-der-cloud-zuruecksetzen">9. Microsoft Entra ID: Kennwort in der Cloud zurücksetzen</a></li><li><a href="#10-hybrid-warum-password-writeback-so-wichtig-ist">10. Hybrid: Warum Password Writeback so wichtig ist</a></li><li><a href="#11-die-homeoffice-falle-reset-erfolgreich-windows-anmeldung-weiterhin-nicht-moeglich">11. Die Homeoffice-Falle: Reset erfolgreich, Windows-Anmeldung weiterhin nicht möglich</a></li><li><a href="#12-haeufige-fehlentscheidungen-und-sonderfaelle">12. Häufige Fehlentscheidungen und Sonderfälle</a></li><li><a href="#13-1st-2nd-level-abgrenzung">13. 1st-/2nd-Level-Abgrenzung</a></li><li><a href="#14-muster-ticketdokumentation-fiktiv">14. Muster-Ticketdokumentation – fiktiv</a></li><li><a href="#15-wissenskontrolle-quellen-und-validierung">15. Wissenskontrolle, Quellen und Validierung</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets · 50 typische Supportfälle · Diagnose · Lösung · Eskalation<br/>
+<strong>Kategorie:</strong> Identitätsmanagement / Windows / Active Directory / Microsoft Entra ID<br/>
+<strong>Support-Level:</strong> L1 / L2 (entsprechend den tatsächlich übertragenen Berechtigungen)<br/>
+<strong>Version:</strong> 1.0 · <strong>Dokumentationsdatum:</strong> 7. November 2026<br/>
+<strong>Validierungsstand:</strong> Fachlich recherchiert · <strong>praktische Validierung ausstehend</strong><br/>
+<strong>Beispiel:</strong> <code>firma.example</code>, Konto <code>m.mustermann</code> und Ticket INC-003 sind <strong>fiktiv</strong>.</p>
+<blockquote>
+<p><strong>Sicherheitsgrundsatz:</strong> Eine Kennwortrücksetzung ist eine sicherheitsrelevante Kontowiederherstellung. <strong>Zuerst Identität über den freigegebenen Prozess prüfen, dann das richtige Identitätssystem ermitteln, erst danach zurücksetzen.</strong> Niemals das bestehende Kennwort erfragen oder Kennwörter, temporäre Kennwörter oder Wiederherstellungscodes im Ticket dokumentieren.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb003_passwort_reset_infografik.png" rel="noopener noreferrer" target="_blank"><img alt="RB-003: Identität prüfen, Kontoquelle ermitteln, sicher zurücksetzen" decoding="async" loading="lazy" src="assets/rb003_passwort_reset_infografik.png"/></a></div><figcaption>RB-003: Identität prüfen, Kontoquelle ermitteln, sicher zurücksetzen</figcaption></figure>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Didaktische Illustration, keine Abbildung einer realen Supportmaßnahme.</em></p>
+<hr/>
+<h2 id="1-ausgangssituation-ticket-inc-003">1. Ausgangssituation: Ticket INC-003</h2>
+<blockquote>
+<p>„Guten Morgen, ich habe mein Firmenpasswort vergessen. Windows nimmt meine Eingabe nicht an und ich muss gleich an einer Besprechung teilnehmen. Können Sie mir ein neues geben?“</p>
+</blockquote>
+<p><strong>Auswirkung:</strong> Der Mitarbeiter kann sich nicht wie vorgesehen anmelden.<br/>
+<strong>Diagnoseziel:</strong> Feststellen, ob tatsächlich das <em>Kennwort</em> vergessen wurde, den Kontoinhaber sicher identifizieren, die zuständige Kontoverwaltung bestimmen und den Zugang kontrolliert wiederherstellen.</p>
+<p><strong>Wichtig:</strong> Es könnte sich auch um eine gesperrte Identität (RB-002), eine nicht erreichbare Domäne (RB-001), eine Windows-Hello-PIN oder eine fehlerhafte Tastaturbelegung handeln. Nicht jedes „Passwort geht nicht“ rechtfertigt eine Kennwortrücksetzung.</p>
+<h2 id="2-die-entscheidenden-begriffe-anfaengerfreundlich">2. Die entscheidenden Begriffe – anfängerfreundlich</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kennwort ändern (Change)</strong></td>
+<td>Der Benutzer kennt sein bisheriges Kennwort und ersetzt es selbst, normalerweise nach erfolgreicher Authentifizierung.</td>
+</tr>
+<tr>
+<td><strong>Kennwort zurücksetzen (Reset)</strong></td>
+<td>Das alte Kennwort ist nicht verfügbar; ein berechtigter Administrator oder ein geprüfter Selbsthilfeprozess legt ein neues Kennwort fest.</td>
+</tr>
+<tr>
+<td><strong>AD / AD DS</strong></td>
+<td><em>Active Directory / Active Directory Domain Services:</em> lokaler Microsoft-Verzeichnisdienst für Benutzer, Gruppen, Computer und Domänenanmeldung.</td>
+</tr>
+<tr>
+<td><strong>DC</strong></td>
+<td><em>Domain Controller:</em> Domänencontroller, der unter anderem AD-Benutzerkonten und Authentifizierung verwaltet.</td>
+</tr>
+<tr>
+<td><strong>Microsoft Entra ID</strong></td>
+<td>Cloudbasierte Identitäts- und Zugriffsverwaltung, unter anderem für Microsoft 365.</td>
+</tr>
+<tr>
+<td><strong>Hybrid</strong></td>
+<td>Lokale AD-Domäne und Entra ID sind verbunden; die Quelle eines Kennworts muss ausdrücklich geklärt werden.</td>
+</tr>
+<tr>
+<td><strong>SSPR</strong></td>
+<td><em>Self-Service Password Reset:</em> Selbstständige Kennwortrücksetzung durch den Benutzer nach Prüfung zugelassener Faktoren.</td>
+</tr>
+<tr>
+<td><strong>Password Writeback</strong></td>
+<td><em>Kennwortrückschreiben:</em> Bei entsprechend konfigurierten hybriden Umgebungen werden geeignete Entra-Kennwortänderungen in das lokale AD zurückgeschrieben.</td>
+</tr>
+<tr>
+<td><strong>RSAT</strong></td>
+<td><em>Remote Server Administration Tools:</em> Administrationswerkzeuge, die z. B. AD-Verwaltung vom Support-PC ermöglichen.</td>
+</tr>
+<tr>
+<td><strong>ADUC</strong></td>
+<td><em>Active Directory Users and Computers:</em> Verwaltungsoberfläche „Active Directory-Benutzer und -Computer“, aufrufbar mit <code>dsa.msc</code> (wenn installiert).</td>
+</tr>
+<tr>
+<td><strong>PowerShell-Cmdlet</strong></td>
+<td>Standardisierter PowerShell-Befehl, z. B. <code>Get-ADUser</code>; Parameter wie <code>-Identity</code> steuern sein Verhalten.</td>
+</tr>
+<tr>
+<td><strong>SecureString</strong></td>
+<td>PowerShell-Datentyp, der zur Übergabe sensibler Zeichenfolgen an dafür vorgesehene Cmdlets dient. Kein Ersatz für vollständige Geheimnisverwaltung.</td>
+</tr>
+<tr>
+<td><strong>Windows Hello</strong></td>
+<td>Anmeldung per gerätebezogener PIN, Gesicht oder Fingerabdruck. Die PIN ist nicht dasselbe wie das Domänenkennwort.</td>
+</tr>
+<tr>
+<td><strong>MFA</strong></td>
+<td><em>Multi-Factor Authentication:</em> Mehrfaktor-Authentifizierung mit mindestens zwei unterschiedlichen Faktoren.</td>
+</tr>
+<tr>
+<td><strong>VPN</strong></td>
+<td><em>Virtual Private Network:</em> geschützte Verbindung zu einem Unternehmensnetz, ggf. schon vor Windows-Anmeldung verfügbar.</td>
+</tr>
+<tr>
+<td><strong>RBAC</strong></td>
+<td><em>Role-Based Access Control:</em> Berechtigungen werden anhand zugewiesener Rollen vergeben, z. B. „Kennwortadministrator“ in Entra ID.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="21-kennwort-vergessen-oder-pin-vergessen">2.1 Kennwort vergessen oder PIN vergessen?</h3>
+<p>Wenn sich der Benutzer per <strong>Windows Hello</strong> mit einer PIN anmeldet, muss die IT zunächst herausfinden, ob der Benutzer wirklich sein Kontokennwort oder nur seine Geräte-PIN vergessen hat. Das sind unterschiedliche Verfahren. Ein Kennwortreset ist nicht automatisch die richtige Lösung für eine vergessene Windows-Hello-PIN.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows/security/identity-protection/hello-for-business/faq" rel="noopener noreferrer" target="_blank">Microsoft – Windows Hello for Business, FAQ</a>.</p>
+<h2 id="3-wo-wird-das-kennwort-verwaltet">3. Wo wird das Kennwort verwaltet?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Kontotyp / Umgebung</th>
+<th>Zuständige Stelle</th>
+<th>Typischer Reset-Weg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lokales Windows-Konto</strong></td>
+<td>Einzelner Computer</td>
+<td>Freigegebene lokale Kontowiederherstellung; kein AD-Reset</td>
+</tr>
+<tr>
+<td><strong>Klassische AD-Domäne</strong></td>
+<td>Active Directory Domain Services (AD DS)</td>
+<td>ADUC oder AD-PowerShell durch berechtigten Support</td>
+</tr>
+<tr>
+<td><strong>Cloudkonto in Entra ID</strong></td>
+<td>Microsoft Entra ID</td>
+<td>SSPR oder Entra Admin Center mit berechtigter Rolle</td>
+</tr>
+<tr>
+<td><strong>Hybrid, Benutzer wird aus lokalem AD synchronisiert</strong></td>
+<td>In der Regel lokales AD als Kennwortquelle</td>
+<td>Lokal im AD zurücksetzen, oder SSPR/Entra nur bei passend eingerichtetem Writeback und unterstütztem Konto-/Domänenmodell</td>
+</tr>
+<tr>
+<td><strong>Externes Gast-/Fremdkonto</strong></td>
+<td>Ursprünglicher Identitätsanbieter bzw. dessen Heimorganisation</td>
+<td>An dort zuständige Kontoverwaltung verweisen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Besonders wichtig:</strong> „Der Benutzer steht auch im Entra-Portal“ beweist noch nicht, dass der Support ihn dort zurücksetzen darf oder dass die Rücksetzung in die lokale AD-Domäne gelangt. Bei synchronisierten Benutzern sind die <strong>Quelle der Identität</strong>, die Einrichtung von <strong>Password Writeback</strong>, der Domänentyp und die Rollen zu prüfen.<br/>
+<strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/entra/fundamentals/users-reset-password-azure-portal" rel="noopener noreferrer" target="_blank">Microsoft – Kennwort eines Benutzers zurücksetzen</a>, <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/tutorial-enable-sspr-writeback" rel="noopener noreferrer" target="_blank">Microsoft – Password Writeback</a>.</p>
+<h3 id="diagnosemodell-zunaechst-weg-dann-massnahme">Diagnosemodell: zunächst Weg, dann Maßnahme</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">mermaid</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-mermaid">flowchart TD
+  A[Ticket: Kennwort vergessen] --&gt; B{Identität verifiziert?}
+  B --&gt;|Nein| STOP[Keine Zurücksetzung; freigegebenes Prüfverfahren]
+  B --&gt;|Ja| C{Was ist betroffen?}
+  C --&gt;|PIN / Windows Hello| PIN[PIN-spezifischen Prozess prüfen]
+  C --&gt;|Kennwort| D{Wo wird das Kennwort verwaltet?}
+  D --&gt;|Lokales AD| AD[ADUC / AD-PowerShell]
+  D --&gt;|Entra Cloud| CLOUD[SSPR oder Entra Admin Center]
+  D --&gt;|Hybrid| HY[Quelle und Writeback prüfen]
+  AD --&gt; E[Reset nur mit Berechtigung und Freigabe]
+  CLOUD --&gt; E
+  HY --&gt; E
+  E --&gt; F[Temporären Zugang sicher bereitstellen]
+  F --&gt; G[Neuanmeldung und benötigte Dienste testen]
+  G --&gt; H[Ticket ohne Geheimnisse dokumentieren]
+</code></pre></div><p><strong>Hinweis für GitHub Pages:</strong> Mermaid ist eine Diagrammsprache. Wenn das Website-Theme Mermaid nicht rendert, muss die Grafik später als SVG oder PNG eingebunden werden.</p>
+<h2 id="4-erste-ticketaufnahme-vor-jedem-reset">4. Erste Ticketaufnahme – vor jedem Reset</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Frage an den Benutzer</th>
+<th>Warum?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Wie lautet die exakte Windows-/Microsoft-365-Meldung?“</td>
+<td>Falsches Kennwort, PIN-Problem, Kontosperre oder Offline-Domäne unterscheiden.</td>
+</tr>
+<tr>
+<td>„Welchen Benutzernamen und welches Gerät verwenden Sie?“</td>
+<td>Das richtige Konto suchen; Vertipper und Namensgleichheit vermeiden.</td>
+</tr>
+<tr>
+<td>„Sind Sie im Büro, Homeoffice oder unterwegs?“</td>
+<td>Klären, ob der Client einen Domänencontroller bzw. das passende Identitätssystem erreichen kann.</td>
+</tr>
+<tr>
+<td>„Haben Sie Ihr Kennwort kürzlich woanders geändert?“</td>
+<td>Mögliche Cache- oder Synchronisationsprobleme erkennen.</td>
+</tr>
+<tr>
+<td>„Haben Sie noch Zugriff auf Ihre registrierten Wiederherstellungsmethoden?“</td>
+<td>Prüfen, ob ein genehmigter SSPR-Weg möglich ist.</td>
+</tr>
+<tr>
+<td>„Gab es unerwartete Anmeldebenachrichtigungen?“</td>
+<td>Möglichen Sicherheitsvorfall erkennen.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="41-identitaetspruefung-ist-der-kritischste-schritt">4.1 Identitätsprüfung ist der kritischste Schritt</h3>
+<p>Der Name im Ticket, die angezeigte Telefonnummer oder die Kenntnis einer E-Mail-Adresse genügen <strong>allein</strong> nicht als Nachweis. Angreifer können sich als Mitarbeiter ausgeben (<em>Social Engineering</em>). Ein Kennwortreset für die falsche Person wäre eine Kontoübernahme durch den Supportprozess.</p>
+<p><strong>Mögliche, vom Unternehmen vorab freizugebende Prüfverfahren:</strong> Rückruf über eine <strong>bereits hinterlegte, vertrauenswürdige</strong> Telefonnummer; überprüfte Mitarbeiterausweis-/Vor-Ort-Identifikation; organisationseigene Recovery-/MFA-Verfahren; Freigabe durch einen klar definierten Verantwortlichen kombiniert mit der vorgegebenen Identitätsprüfung. Welche Kombination zulässig ist, hängt vom Risikoprofil und der internen Richtlinie ab. Eine bloße Zustimmung des Vorgesetzten ersetzt nicht automatisch die Identitätsprüfung.</p>
+<p>Bei nicht bestandener Prüfung: <strong>kein Reset, sondern Eskalation über den Sicherheits- oder Identitätsprozess</strong>.<br/>
+<strong>Orientierung:</strong> <a href="https://pages.nist.gov/800-63-4/sp800-63b/events/" rel="noopener noreferrer" target="_blank">NIST SP 800-63B – Account Recovery</a>.</p>
+<h2 id="5-zugriffswege-und-konkrete-verfahren">5. Zugriffswege und konkrete Verfahren</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriff / Werkzeug</th>
+<th>Tatsächliche Schritte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mitarbeiter im Büro, lokales AD</td>
+<td>RSAT/ADUC vom Support-PC</td>
+<td>Identität prüfen → Konto in ADUC suchen → „Kennwort zurücksetzen“ → freigegebenen temporären Zugang bereitstellen → Benutzeranmeldung testen</td>
+</tr>
+<tr>
+<td>Mitarbeiter im Büro, lokales AD; GUI nicht erforderlich</td>
+<td>AD-PowerShell auf berechtigtem Admin-PC</td>
+<td>Konto mit <code>Get-ADUser</code> kontrollieren; Reset nach Autorisierung mit <code>Set-ADAccountPassword</code>; ggf. Kennwortwechsel bei nächster Anmeldung verlangen</td>
+</tr>
+<tr>
+<td>Cloudkonto in Microsoft Entra ID</td>
+<td>SSPR im Browser / Entra Admin Center</td>
+<td>Nutzer zum registrierten SSPR-Prozess führen oder mit autorisierter Adminrolle zurücksetzen</td>
+</tr>
+<tr>
+<td>Hybridkonto (AD + Entra)</td>
+<td>AD oder Entra mit Writeback</td>
+<td>Kontoursprung, erforderliche Rollen und Writeback prüfen; erst dann den passenden Weg wählen</td>
+</tr>
+<tr>
+<td>Windows-Laptop im Homeoffice</td>
+<td>SSPR, Pre-Logon-VPN oder geeigneter Zugang zum Firmennetz</td>
+<td>Sicherstellen, dass die Anmeldung nach Reset die Kennwortänderung online übernehmen kann; Offline-Cache beachten</td>
+</tr>
+<tr>
+<td>Benutzer am Windows-Hello-PIN-Bildschirm</td>
+<td>Windows-Hello-Verfahren</td>
+<td>PIN-Problem von Kontokennwort unterscheiden, gegebenenfalls separate PIN-Wiederherstellung</td>
+</tr>
+<tr>
+<td>Verdacht auf Kontokompromittierung</td>
+<td>Security-/Identity-Team</td>
+<td>Sicherheitsvorfall nach Richtlinie bearbeiten; ein einfacher Reset allein reicht möglicherweise nicht</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>AD-Reset ist zentrale Kontoverwaltung:</strong> Der Supporttechniker muss dafür <em>nicht</em> auf den gesperrten Benutzer-PC per RDP zugreifen. Seine AD-Verwaltungswerkzeuge nutzen die Verbindung zur Domäne. RDP (Remote Desktop Protocol) ist nur bei zusätzlicher Clientdiagnose sinnvoll.</p>
+</blockquote>
+<h2 id="6-lokales-ad-zuerst-nur-lesend-pruefen">6. Lokales AD: Zuerst nur lesend prüfen</h2>
+<p><strong>Ausführungsort:</strong> Berechtigter Administrationsrechner (nicht zwingend der Domänencontroller).<br/>
+<strong>Voraussetzungen:</strong> RSAT mit <code>ActiveDirectory</code>-PowerShell-Modul, Erreichbarkeit der Domänendienste und passende Leserechte.<br/>
+<strong>Wirkung:</strong> Keine Änderung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Lädt die Befehle des ActiveDirectory-Moduls.</span>
+<span class="nb">Import-Module</span> <span class="n">ActiveDirectory</span>
+
+<span class="c"># Sucht den Beispielbenutzer und fordert zusätzliche Felder an.</span>
+<span class="c"># -Identity: Eindeutiger AD-Kontoname.</span>
+<span class="c"># -Properties: Zusätzliche Eigenschaften der Benutzeridentität.</span>
+<span class="nv">$user</span> <span class="p">=</span> <span class="nb">Get-ADUser</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="n">-Properties</span> <span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">PasswordExpired</span><span class="p">,</span><span class="n">PasswordLastSet</span>
+
+<span class="c"># Leitet das Benutzerobjekt an Select-Object weiter.</span>
+<span class="c"># Zeigt nur die für die Prüfung nötigen Eigenschaften.</span>
+<span class="nv">$user</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">SamAccountName</span><span class="p">,</span><span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">PasswordExpired</span><span class="p">,</span><span class="n">PasswordLastSet</span>
+</code></pre></div><p><strong>Interpretation:</strong></p>
+<ul>
+<li><code>Enabled = False</code>: Konto deaktiviert; nicht eigenmächtig aktivieren.</li>
+<li><code>LockedOut = True</code>: Kontosperre; zunächst RB-002 berücksichtigen.</li>
+<li><code>PasswordExpired = True</code>: Kennwort abgelaufen; eine reguläre Kennwortänderung kann möglich sein.</li>
+<li><code>PasswordLastSet</code>: Zeitpunkt der zuletzt gespeicherten AD-Kennwortsetzung. Das ist nicht automatisch der Zeitpunkt der letzten <em>erfolgreichen Benutzeranmeldung</em>.</li>
+</ul>
+<h3 id="61-kennwortrichtlinie-untersuchen">6.1 Kennwortrichtlinie untersuchen</h3>
+<p>Für bestimmte Nutzer oder Gruppen können <em>Fine-Grained Password Policies</em> gelten – differenzierte Kennwortrichtlinien, die von der Domänen-Standardrichtlinie abweichen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die Standard-Kennwortrichtlinie der AD-Domäne an.</span>
+<span class="nb">Get-ADDefaultDomainPasswordPolicy</span>
+
+<span class="c"># Zeigt, falls vorhanden, die für den Benutzer wirksame</span>
+<span class="c"># differenzierte Kennwortrichtlinie (PSO) an.</span>
+<span class="nb">Get-ADUserResultantPasswordPolicy</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span>
+</code></pre></div><p>Wenn der zweite Befehl kein Richtlinienobjekt zurückgibt, ist damit <strong>nicht</strong> automatisch die allgemeine Kennwortrichtlinie deaktiviert; häufig gilt dann die Domänenrichtlinie.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-aduserresultantpasswordpolicy" rel="noopener noreferrer" target="_blank">Microsoft – Get-ADUserResultantPasswordPolicy</a>.</p>
+<h2 id="7-lokales-ad-kennwort-in-aduc-zuruecksetzen-grafisch">7. Lokales AD: Kennwort in ADUC zurücksetzen (grafisch)</h2>
+<p><strong>Ausführungsort:</strong> Eigener, berechtigter Administrationsrechner mit installierten RSAT-Tools.</p>
+<ol>
+<li><strong>Identität prüfen und Ticket/Freigabe kontrollieren.</strong> Kein Reset ohne abgeschlossene Prüfung.</li>
+<li>Mit <strong>Windows-Taste + R</strong> den Ausführen-Dialog öffnen.</li>
+<li><code>dsa.msc</code> eingeben und bestätigen. Das öffnet <strong>Active Directory-Benutzer und -Computer</strong>, falls ADUC installiert ist.</li>
+<li>In der richtigen Domäne / Organisationseinheit (OU, <em>Organizational Unit</em>) nach dem Benutzer suchen.</li>
+<li><strong>Namensgleichheit ausschließen</strong>, etwa durch Kontoname und weitere bekannte Identitätsattribute.</li>
+<li>Im Kontextmenü des Benutzers <strong>„Kennwort zurücksetzen“</strong> wählen.</li>
+<li>Neues temporäres Kennwort nach Unternehmensrichtlinie setzen. Die Option zum erforderlichen Kennwortwechsel bei der nächsten Anmeldung nur aktivieren, wenn dieser Weg mit dem Gerät und der Erreichbarkeit der Domäne tatsächlich funktioniert.</li>
+<li>Kennwort <strong>nur über einen freigegebenen sicheren Kanal</strong> an die verifizierte Person übergeben; keinesfalls ins Ticket oder eine ungeschützte E-Mail schreiben.</li>
+<li>Anmeldung und anschließend die nötigen Anwendungen prüfen.</li>
+</ol>
+<p><strong>Wichtig:</strong> Bei einem nicht mit der Domäne verbundenen Homeoffice-Laptop kann ein erzwungener Kennwortwechsel bei der nächsten Anmeldung scheitern, wenn kein entsprechender Zugang zum Domänencontroller besteht. Dann den zulässigen Pre-Logon-VPN-, Offline- oder Vor-Ort-Prozess nutzen.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage-user-accounts-in-windows-server" rel="noopener noreferrer" target="_blank">Microsoft – Active-Directory-Benutzer verwalten</a>.</p>
+<h2 id="8-lokales-ad-kennwort-mit-powershell-zuruecksetzen">8. Lokales AD: Kennwort mit PowerShell zurücksetzen</h2>
+<h3 id="81-erst-die-aenderung-simulieren--whatif">8.1 Erst die Änderung simulieren – <code>-WhatIf</code></h3>
+<p><strong>Achtung: Die folgenden Befehle verändern in der Produktivvariante ein Benutzerkennwort. Nur nach nachweislicher Identitätsprüfung, Autorisierung und in dafür freigegebenen Umgebungen verwenden.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Lädt das für AD-Befehle benötigte Modul.</span>
+<span class="nb">Import-Module</span> <span class="n">ActiveDirectory</span>
+
+<span class="c"># Legt den beispielhaften Kontonamen fest.</span>
+<span class="nv">$identity</span> <span class="p">=</span> <span class="s1">'m.mustermann'</span>
+
+<span class="c"># Fragt das vorgesehene temporäre Kennwort verdeckt ab.</span>
+<span class="c"># -AsSecureString: Übergibt es als SecureString-Objekt.</span>
+<span class="c"># Es wird NICHT im Quelltext als Klartext hinterlegt.</span>
+<span class="nv">$newPassword</span> <span class="p">=</span> <span class="nb">Read-Host</span> <span class="n">-Prompt</span> <span class="s1">'Temporäres Kennwort eingeben'</span> <span class="n">-AsSecureString</span>
+
+<span class="c"># Simuliert die Kennwortrücksetzung, ohne sie auszuführen.</span>
+<span class="c"># -Identity: Welches AD-Konto ist betroffen?</span>
+<span class="c"># -Reset: Administratives Zurücksetzen ohne bisheriges Kennwort.</span>
+<span class="c"># -NewPassword: Neuer Wert als SecureString.</span>
+<span class="c"># -WhatIf: Zeigt eine beabsichtigte Aktion an; KEINE Änderung.</span>
+<span class="nb">Set-ADAccountPassword</span> <span class="n">-Identity</span> <span class="nv">$identity</span> <span class="n">-Reset</span> <span class="n">-NewPassword</span> <span class="nv">$newPassword</span> <span class="n">-WhatIf</span>
+</code></pre></div><p><strong>Was bedeutet <code>-WhatIf</code>?</strong> PowerShell meldet die beabsichtigte Änderung, führt diese aber bei diesem Cmdlet <strong>nicht</strong> aus. Es ist eine Sicherheitskontrolle; die korrekte Identität, die Berechtigungen und die fachliche Zulässigkeit müssen trotzdem separat geprüft werden.</p>
+<h3 id="82-durchfuehrung-nach-freigabe-veraendert-das-ad-konto">8.2 Durchführung nach Freigabe – verändert das AD-Konto</h3>
+<p>Die folgenden Zeilen <strong>nicht</strong> als unkritischen Test auf produktiven Konten ausführen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># ÄNDERT DAS KENNWORT des zuvor geprüften AD-Kontos.</span>
+<span class="c"># -Confirm fordert eine zusätzliche Bestätigung an.</span>
+<span class="nb">Set-ADAccountPassword</span> <span class="n">-Identity</span> <span class="nv">$identity</span> <span class="n">-Reset</span> <span class="n">-NewPassword</span> <span class="nv">$newPassword</span> <span class="n">-Confirm</span>
+
+<span class="c"># Erzwingt – wenn zum Anmeldeweg passend – die Änderung</span>
+<span class="c"># des temporären Kennworts bei der nächsten Anmeldung.</span>
+<span class="c"># -ChangePasswordAtLogon $true setzt die AD-Kontoeigenschaft.</span>
+<span class="c"># -Confirm fordert eine zusätzliche Bestätigung an.</span>
+<span class="nb">Set-ADUser</span> <span class="n">-Identity</span> <span class="nv">$identity</span> <span class="n">-ChangePasswordAtLogon</span> <span class="nv">$true</span> <span class="n">-Confirm</span>
+
+<span class="c"># Entfernt die Variable aus der aktuellen PowerShell-Sitzung.</span>
+<span class="c"># Das ersetzt keine Kontrolle von Transkripten oder Geheimnissen.</span>
+<span class="nb">Remove-Variable</span> <span class="n">-Name</span> <span class="n">newPassword</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+</code></pre></div><p><strong>Wichtige Erläuterungen:</strong></p>
+<ul>
+<li><code>Set-ADAccountPassword</code> ist ein <strong>verändernder</strong> Befehl. Für die Kennwortrücksetzung sind entsprechende delegierte AD-Rechte nötig. Eine Kennwortrücksetzung ersetzt nicht automatisch die separate Prüfung einer bestehenden Kontosperre (siehe RB-002).</li>
+<li><code>-Reset</code> bedeutet „administrativ neu setzen“, ohne das bisherige Kennwort zu kennen. Anders als beim selbst vorgenommenen Wechsel.</li>
+<li><code>Read-Host -AsSecureString</code> vermeidet ein Klartextkennwort <em>im Skript</em>. Das macht nicht automatisch den gesamten Prozess einschließlich Übergabe sicher.</li>
+<li><code>-ChangePasswordAtLogon $true</code> ist <strong>keine</strong> pauschal sinnvolle Option für jedes Konto: bei Services, speziellen Kontotypen, Offlinegeräten oder bestimmten Anmeldeverfahren die Auswirkungen prüfen.</li>
+<li>Die beiden Änderungen sind getrennte Operationen. Falls der zweite Befehl fehlschlägt, ist der Reset möglicherweise bereits erfolgt. Daher Ergebnisse einzeln prüfen und dokumentieren.</li>
+</ul>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/set-adaccountpassword" rel="noopener noreferrer" target="_blank">Microsoft – Set-ADAccountPassword</a>, <a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/set-aduser" rel="noopener noreferrer" target="_blank">Microsoft – Set-ADUser</a>.</p>
+<h3 id="83-auditnachweis-sicherheitsereignis-4724">8.3 Auditnachweis: Sicherheitsereignis 4724</h3>
+<p><strong>Ereignis-ID 4724</strong> dokumentiert einen Versuch, das Kennwort eines Kontos zurückzusetzen. Es wird bei entsprechend aktivierter Überwachung auf dem relevanten System protokolliert, für Domänenkonten in der Regel auf einem Domänencontroller.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest lokale Security-Ereignisse der letzten zwei Stunden.</span>
+<span class="c"># Auf einem berechtigten System ausführen, dessen Protokoll</span>
+<span class="c"># die fragliche Kennwortrücksetzung enthalten kann.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="c"># Wählt das Windows-Sicherheitsprotokoll.</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="s1">'Security'</span>
+    <span class="c"># Ereignis 4724: Versuch einer Kennwortrücksetzung.</span>
+    <span class="n">Id</span>        <span class="p">=</span> <span class="n">4724</span>
+    <span class="c"># Begrenzung auf den relevanten Zeitraum.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">2</span><span class="p">)</span>
+<span class="p">}</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">10</span> <span class="n">TimeCreated</span><span class="p">,</span><span class="n">Id</span><span class="p">,</span><span class="n">Message</span>
+</code></pre></div><p><strong>Unterscheidung:</strong> 4723 betrifft den Versuch eines <strong>Kennwortwechsels</strong>, 4724 den Versuch eines <strong>administrativen Resets</strong>. Ein Ereignis kann je nach Auditkonfiguration fehlen; ein protokollierter Versuch beweist nicht immer einen erfolgreich abgeschlossenen Gesamtprozess.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/advanced-audit-policy-configuration" rel="noopener noreferrer" target="_blank">Microsoft – AD-Überwachungsrichtlinien</a>.</p>
+<h2 id="9-microsoft-entra-id-kennwort-in-der-cloud-zuruecksetzen">9. Microsoft Entra ID: Kennwort in der Cloud zurücksetzen</h2>
+<h3 id="91-nutzer-fuehrt-eine-selbsthilfe-ruecksetzung-sspr-durch">9.1 Nutzer führt eine Selbsthilfe-Rücksetzung (SSPR) durch</h3>
+<p>Wenn <strong>SSPR (Self-Service Password Reset)</strong> für diesen Benutzer aktiviert ist und die nötigen Authentifizierungsmethoden eingerichtet sind:</p>
+<ol>
+<li>Auf einem geeigneten Gerät die offizielle Seite <strong><a href="https://aka.ms/sspr" rel="noopener noreferrer" target="_blank">https://aka.ms/sspr</a></strong> öffnen.</li>
+<li>Geschäfts-/Schulkonto eingeben und dem Prozess folgen.</li>
+<li>Die zuvor registrierten Wiederherstellungsmethoden verwenden (z. B. Authenticator), soweit die Unternehmensrichtlinie sie erlaubt.</li>
+<li>Neues Kennwort setzen und die erfolgreiche Anmeldung überprüfen.</li>
+</ol>
+<p><strong>Nicht jeder Benutzer hat SSPR:</strong> Aktivierung, Registrierung und die zulässigen Authentifizierungsmethoden sind erforderlich. Bei nicht zugelassenem SSPR den offiziellen Helpdesk-Prozess nutzen.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-sspr-howitworks" rel="noopener noreferrer" target="_blank">Microsoft – Funktionsweise von SSPR</a>.</p>
+<h3 id="92-support-setzt-ueber-das-entra-admin-center-zurueck">9.2 Support setzt über das Entra Admin Center zurück</h3>
+<p><strong>Ausführungsort:</strong> Browser am Administrationsrechner; Zugang zum <strong>Microsoft Entra Admin Center</strong>.<br/>
+<strong>Voraussetzungen:</strong> Zuweisung einer Rolle, die den Reset <strong>für das konkrete Zielkonto</strong> erlaubt. Die Rolle <strong>Kennwortadministrator (Password Administrator)</strong> darf grundsätzlich Kennwörter gewöhnlicher Nicht-Administratorkonten und begrenzter weiterer Rollen zurücksetzen – nicht beliebig alle privilegierten Konten.</p>
+<ol>
+<li>Nach Identitätsprüfung das Entra Admin Center öffnen.</li>
+<li>Zu <strong>Entra ID → Benutzer</strong> navigieren.</li>
+<li>Benutzerkonto korrekt auswählen.</li>
+<li><strong>Kennwort zurücksetzen</strong> wählen.</li>
+<li>Das von Entra generierte temporäre Kennwort ausschließlich über einen geeigneten sicheren Kanal der verifizierten Person bereitstellen.</li>
+<li>Kennwortwechsel bei der folgenden Anmeldung durchführen lassen, falls vom Verfahren gefordert.</li>
+<li>Anmeldung und benötigte Microsoft-365-Dienste prüfen.</li>
+</ol>
+<p><strong>Wichtig:</strong> Das durch Entra beim Reset generierte temporäre Kennwort ist nicht automatisch ein kurzlebiger Einmalcode. Microsoft dokumentiert ausdrücklich, dass es nicht allein durch Zeitablauf verfällt. Es darf deshalb nicht im Ticket oder in einer ungeschützten Nachricht archiviert werden.<br/>
+<strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/entra/fundamentals/users-reset-password-azure-portal" rel="noopener noreferrer" target="_blank">Microsoft – Entra-Kennwortrücksetzung</a>, <a href="https://learn.microsoft.com/de-de/entra/identity/role-based-access-control/permissions-reference" rel="noopener noreferrer" target="_blank">Microsoft – Rollendefinitionen</a>.</p>
+<h3 id="93-sspr-direkt-am-windows-anmeldebildschirm">9.3 SSPR direkt am Windows-Anmeldebildschirm</h3>
+<p>Bei entsprechend verwalteten Windows-11-Geräten kann ein <strong>„Kennwort vergessen“</strong>- bzw. <strong>„Kennwort zurücksetzen“</strong>-Link am Anmeldebildschirm verfügbar sein. Er erscheint <strong>nicht automatisch auf jedem Windows-Rechner</strong>: Die Funktion benötigt unter anderem konfigurierte Entra-SSPR-Einstellungen, Registrierung und erreichbare Dienste.</p>
+<p>Microsoft nennt ausdrücklich Einschränkungen für die Kennwortrücksetzung über <strong>Remotedesktop-Sitzungen und Hyper-V-Sitzungen im erweiterten Modus</strong>.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-sspr-windows" rel="noopener noreferrer" target="_blank">Microsoft – SSPR am Windows-Anmeldebildschirm</a>.</p>
+<h2 id="10-hybrid-warum-password-writeback-so-wichtig-ist">10. Hybrid: Warum Password Writeback so wichtig ist</h2>
+<p>Eine hybride Benutzeridentität kann in <strong>lokalem AD</strong> erstellt und nach <strong>Entra ID</strong> synchronisiert sein. Der Benutzer verwendet unter Umständen dieselbe Identität für Windows und Microsoft 365, aber nicht jeder Resetpfad aktualisiert automatisch beide Umgebungen.</p>
+<p><strong>Password Writeback (Kennwortrückschreiben)</strong> ist eine gesondert einzurichtende Funktion. Bei einer unterstützten und korrekt konfigurierten Konstellation kann sie Kennwortänderungen beziehungsweise SSPR-Resets aus Entra in das lokale AD übertragen.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Konsequenz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kennwortquelle liegt im lokalen AD, Writeback nicht freigegeben/eingerichtet</td>
+<td>AD-Reset beim zuständigen System durchführen</td>
+</tr>
+<tr>
+<td>Kennwortquelle AD, Writeback unterstützt und nachweislich eingerichtet</td>
+<td>Vorgesehenen Entra-/SSPR-Prozess nutzen; Ergebnis im lokalen AD und bei der Anmeldung prüfen</td>
+</tr>
+<tr>
+<td>Cloud-only-Konto</td>
+<td>Entra-ID-Prozess verwenden</td>
+</tr>
+<tr>
+<td>Externes oder nicht selbst verwaltetes Konto</td>
+<td>Zuständige Heimorganisation / Identitätsverwaltung kontaktieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht verwechseln:</strong> <em>Password Hash Synchronization</em> (Kennworthash-Synchronisierung aus AD Richtung Cloud) ist nicht dasselbe wie <strong>Password Writeback</strong> (Rückschreiben von Kennwortänderungen Richtung AD).<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/tutorial-enable-sspr-writeback" rel="noopener noreferrer" target="_blank">Microsoft – Password Writeback konfigurieren</a>.</p>
+<h2 id="11-die-homeoffice-falle-reset-erfolgreich-windows-anmeldung-weiterhin-nicht-moeglich">11. Die Homeoffice-Falle: Reset erfolgreich, Windows-Anmeldung weiterhin nicht möglich</h2>
+<p><strong>Situation:</strong> Ein Kennwort wird zentral geändert. Der Windows-Domänen-Laptop steht im Homeoffice und hat noch keinen Zugang zum Domänencontroller. Seine lokal zwischengespeicherten Anmeldeinformationen können weiterhin auf dem vorherigen Kennwortstand beruhen.</p>
+<p>Daraus kann folgen: <strong>Der Reset war erfolgreich, aber die neue Windows-Anmeldung funktioniert auf genau diesem Laptop offline noch nicht.</strong></p>
+<p><strong>Prüfschritte:</strong></p>
+<ol>
+<li>Ist der Laptop überhaupt online und besteht Zugriff auf das Firmennetz?</li>
+<li>Ist eine <strong>Pre-Logon-VPN</strong>-Funktion (VPN vor der Windows-Anmeldung) vorhanden?</li>
+<li>Hat der Laptop seit dem Reset bereits erfolgreich gegen die Domäne authentifiziert?</li>
+<li>Ist ein Kennwortwechsel bei der nächsten Anmeldung vorgeschrieben, obwohl der DC noch unerreichbar ist?</li>
+<li>Welcher sichere, dokumentierte Anmelde- und Synchronisierungsweg ist vorgesehen?</li>
+</ol>
+<p><strong>Nicht pauschal sagen:</strong> „Einfach das alte Kennwort verwenden.“ Das kann unter bestimmten Bedingungen offline funktionieren, ist aber weder garantiert noch ein Ersatz für die korrekte Identitäts- und Sicherheitsprüfung.<br/>
+<strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information" rel="noopener noreferrer" target="_blank">Microsoft – Cached Domain Logon Information</a>.</p>
+<h2 id="12-haeufige-fehlentscheidungen-und-sonderfaelle">12. Häufige Fehlentscheidungen und Sonderfälle</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Nicht voreilig tun</th>
+<th>Bessere nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows zeigt „PIN falsch“</td>
+<td>Domain-Kennwort zurücksetzen</td>
+<td>Windows Hello / PIN-Wiederherstellung klären</td>
+</tr>
+<tr>
+<td>Konto ist gesperrt, Kennwort bekannt</td>
+<td>Automatisch Kennwort zurücksetzen</td>
+<td>Sperrursache mit RB-002 ermitteln</td>
+</tr>
+<tr>
+<td>Neues Passwort wird am Homeoffice-Laptop abgelehnt</td>
+<td>Mehrfach wiederholt versuchen</td>
+<td>DC-Erreichbarkeit, lokalen Cache und Pre-Logon-VPN prüfen</td>
+</tr>
+<tr>
+<td>Reset im Entra-Portal schlägt fehl</td>
+<td>Berechtigungen unkontrolliert erhöhen</td>
+<td>Kontoursprung, Rolle, Domänentyp, Writeback prüfen</td>
+</tr>
+<tr>
+<td>SSPR-Option fehlt</td>
+<td>Beliebige Registrierungsdaten eintragen</td>
+<td>Richtlinie, Registrierung und Verfügbarkeit prüfen</td>
+</tr>
+<tr>
+<td>Temporäres Passwort wurde per ungeschützter Nachricht versendet</td>
+<td>Das als normalen Erfolg betrachten</td>
+<td>Sicherheitsvorfall / sichere erneute Bereitstellung entsprechend Prozess prüfen</td>
+</tr>
+<tr>
+<td>Benutzer meldet unerwartete MFA-Anfragen</td>
+<td>Nur Kennwort neu setzen und abschließen</td>
+<td>Security-Team einbeziehen; aktive Sitzungen/Tokens, Geräte und Anmeldehistorie beurteilen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="13-1st-2nd-level-abgrenzung">13. 1st-/2nd-Level-Abgrenzung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>First Level</th>
+<th>Second Level / Identity / Security</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ticket und exakte Fehlermeldung aufnehmen</td>
+<td>Hybrid-/Writeback-Fehler und Authentifizierungsabhängigkeiten untersuchen</td>
+</tr>
+<tr>
+<td>Identität nach Unternehmensprozess verifizieren</td>
+<td>Komplexe Rollen-/Berechtigungsprobleme lösen</td>
+</tr>
+<tr>
+<td>Vorhandene SSPR-Verfahren erklären</td>
+<td>SSPR-Konfiguration und Richtlinien untersuchen</td>
+</tr>
+<tr>
+<td>Freigegebenen Standardreset durchführen</td>
+<td>DC-, Replikations- und Synchronisationsfehler analysieren</td>
+</tr>
+<tr>
+<td>Anmeldung und Apps prüfen, Ticket ohne Geheimnisse dokumentieren</td>
+<td>Verdacht auf Kontoübernahme oder missbräuchlichen Reset untersuchen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Hinweis:</strong> Die Berechtigung zur Kennwortrücksetzung ist nicht automatisch an das organisatorische Support-Level gebunden. Ein L1-Mitarbeiter kann eine gezielt delegierte Reset-Berechtigung besitzen; ein anderer hat sie nicht.</p>
+<h2 id="14-muster-ticketdokumentation-fiktiv">14. Muster-Ticketdokumentation – fiktiv</h2>
+<p><strong>INC-003 – Mitarbeiter hat das Domänenkennwort vergessen</strong><br/>
+<strong>Fehlerbild:</strong> Windows-Anmeldung mit dem Firmenkonto nicht möglich; Benutzer meldet vergessenes Kennwort.<br/>
+<strong>Identitätsprüfung:</strong> Über den freigegebenen internen Prozess erfolgreich abgeschlossen (ohne sensible Prüfdetails im Ticket).<br/>
+<strong>Diagnose:</strong> Benutzerkonto in AD geprüft; aktiv, nicht gesperrt. Windows-Hello-PIN-Problem und Domänen-Nichterreichbarkeit durch Rückfrage und Systemkontext ausgeschlossen.<br/>
+<strong>Maßnahme:</strong> Kennwort nach Freigabe zentral im AD zurückgesetzt. Temporäres Kennwort über genehmigten sicheren Kanal bereitgestellt; erforderlicher Kennwortwechsel beim nächsten geeigneten Online-Login veranlasst.<br/>
+<strong>Erfolgskontrolle:</strong> Anmeldung mit neuem persönlichem Kennwort und Zugriff auf benötigte Unternehmensressourcen bestätigt.<br/>
+<strong>Status:</strong> Gelöst.</p>
+<p><em>Erfundenes Lernbeispiel; es beschreibt keine durchgeführte produktive Supportmaßnahme. Weder das temporäre noch das neue persönliche Kennwort gehören in das Ticket.</em></p>
+<h2 id="15-wissenskontrolle-quellen-und-validierung">15. Wissenskontrolle, Quellen und Validierung</h2>
+<h3 id="eigene-diagnosefragen">Eigene Diagnosefragen</h3>
+<ol>
+<li>Warum ist die Kenntnis des Benutzernamens kein ausreichender Identitätsnachweis?</li>
+<li>Was ist der Unterschied zwischen einem Kennwortwechsel und einem Kennwortreset?</li>
+<li>Warum kann ein korrekt durchgeführter AD-Reset am Homeoffice-Laptop zunächst erfolglos wirken?</li>
+<li>Was genau bewirkt <code>-WhatIf</code> bei <code>Set-ADAccountPassword</code>?</li>
+<li>Warum reicht Password Hash Synchronization allein nicht aus, um einen SSPR-Reset ins lokale AD zurückzuschreiben?</li>
+<li>Warum ist eine Windows-Hello-PIN nicht mit einem Domänenkennwort gleichzusetzen?</li>
+<li>Was ändert sich bei einer extern verwalteten Identität?</li>
+<li>Warum darf das temporäre Kennwort nicht im Ticket gespeichert werden?</li>
+</ol>
+<h3 id="quellen-offizielle-dokumentation">Quellen – offizielle Dokumentation</h3>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/set-adaccountpassword" rel="noopener noreferrer" target="_blank">Microsoft – Set-ADAccountPassword</a> — Passwortreset per PowerShell, <code>-Reset</code>, <code>-NewPassword</code>, <code>-WhatIf</code> und <code>-Confirm</code>.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/set-aduser" rel="noopener noreferrer" target="_blank">Microsoft – Set-ADUser</a> — <code>-ChangePasswordAtLogon</code>.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage-user-accounts-in-windows-server" rel="noopener noreferrer" target="_blank">Microsoft – Active-Directory-Benutzer verwalten</a> — AD-Verwaltung.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-aduserresultantpasswordpolicy" rel="noopener noreferrer" target="_blank">Microsoft – Get-ADUserResultantPasswordPolicy</a> — differenzierte AD-Kennwortrichtlinien.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/fundamentals/users-reset-password-azure-portal" rel="noopener noreferrer" target="_blank">Microsoft – Entra-Kennwort zurücksetzen</a> — Adminportal, Rollen, temporäre Kennwörter, Einschränkungen.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-sspr-howitworks" rel="noopener noreferrer" target="_blank">Microsoft – SSPR: Funktionsweise</a> — Benutzer-Selbsthilfe.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-sspr-windows" rel="noopener noreferrer" target="_blank">Microsoft – SSPR auf Windows-Anmeldebildschirm</a> — Voraussetzungen und Einschränkungen.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/tutorial-enable-sspr-writeback" rel="noopener noreferrer" target="_blank">Microsoft – Password Writeback</a> — Hybridintegration.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows/security/identity-protection/hello-for-business/faq" rel="noopener noreferrer" target="_blank">Microsoft – Windows Hello for Business FAQ</a> — PIN vs. Kennwort.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/advanced-audit-policy-configuration" rel="noopener noreferrer" target="_blank">Microsoft – AD-Überwachungsrichtlinien</a> — Ereignis 4723/4724.</li>
+<li><a href="https://pages.nist.gov/800-63-4/sp800-63b/events/" rel="noopener noreferrer" target="_blank">NIST SP 800-63B – Account Recovery</a> — Sicherheitsprinzipien für Kontowiederherstellung.</li>
+</ul>
+<p><strong>Prüfdatum:</strong> 7. November 2026.<br/>
+<strong>Stand:</strong> Quellenrecherche und theoretisches Diagnoseverfahren dokumentiert; keine produktive Durchführung behauptet.<br/>
+<strong>Geplante Validierung:</strong> In einer isolierten Testdomäne ein Testkonto anlegen, Identitätsfreigabe simulieren, <code>-WhatIf</code>/Reset/Anmeldung prüfen, Ereignis 4724 kontrollieren und anschließend Homeoffice-/Hybrid-Sonderfälle separat testen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-003_Lernartikel.md">RB-003_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-002/index.html">← RB-002</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-004/index.html">RB-004 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

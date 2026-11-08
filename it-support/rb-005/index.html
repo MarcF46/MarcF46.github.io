@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-005 Zugriff auf Datei oder Ordner verweigert | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-005: Zugriff auf Datei oder Ordner verweigert. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">SMB · NTFS · Berechtigungen · Lernartikel</p><h1>RB-005: Zugriff auf Datei oder Ordner verweigert</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a><a href="grundlagen.html">Grundlagen</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-und-ziel">1. Ausgangssituation und Ziel</a></li><li><a href="#2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</a></li><li><a href="#3-haeufige-fehlerbilder-voneinander-unterscheiden">3. Häufige Fehlerbilder voneinander unterscheiden</a></li><li><a href="#4-erstaufnahme-und-zugriffsmoeglichkeiten">4. Erstaufnahme und Zugriffsmöglichkeiten</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-diagnose-a-netzwerksmb-von-zugriffsrechten-unterscheiden">6. Diagnose A – Netzwerk/SMB von Zugriffsrechten unterscheiden</a></li><li><a href="#7-diagnose-b-berechtigungen-der-smb-freigabe-lesen">7. Diagnose B – Berechtigungen der SMB-Freigabe lesen</a></li><li><a href="#8-diagnose-c-ntfs-berechtigungen-lesen">8. Diagnose C – NTFS-Berechtigungen lesen</a></li><li><a href="#9-diagnose-d-ad-gruppenmitgliedschaft-gegen-den-aktuellen-token-pruefen">9. Diagnose D – AD-Gruppenmitgliedschaft gegen den aktuellen Token prüfen</a></li><li><a href="#10-diagnose-e-erweiterte-serverprotokolle-l2">10. Diagnose E – Erweiterte Serverprotokolle (L2)</a></li><li><a href="#11-befunde-korrekt-in-massnahmen-ueberfuehren">11. Befunde korrekt in Maßnahmen überführen</a></li><li><a href="#12-erfolgskontrolle-am-wirklichen-benutzerfall">12. Erfolgskontrolle – am wirklichen Benutzerfall</a></li><li><a href="#13-l1-l2-abgrenzung-und-eskalation">13. L1-/L2-Abgrenzung und Eskalation</a></li><li><a href="#14-musterticket-rein-fiktiv">14. Musterticket (rein fiktiv)</a></li><li><a href="#15-lernkontrolle-praktische-tests-und-quellen">15. Lernkontrolle, praktische Tests und Quellen</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-005 · <strong>Support-Level:</strong> L1/L2 · <strong>System:</strong> Windows 11, Windows Server, AD DS, SMB/NTFS<br/>
+<strong>Stand:</strong> 08.11.2026 · <strong>Version:</strong> 1.1<br/>
+<strong>Validierungsstatus:</strong> Anhand von Microsoft-Dokumentation recherchiert; sämtliche Beispielausgaben und das Musterticket sind fiktiv. Keine praktische Validierung dieses Falls behauptet.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb005_zugriff_verweigert_infografik.png" rel="noopener noreferrer" target="_blank"><img alt="RB-005: Zugriff auf Datei oder Ordner verweigert – Zwei-Schranken-Prinzip" decoding="async" loading="lazy" src="assets/rb005_zugriff_verweigert_infografik.png"/></a></div><figcaption>RB-005: Zugriff auf Datei oder Ordner verweigert – Zwei-Schranken-Prinzip</figcaption></figure>
+<h2 id="1-ausgangssituation-und-ziel">1. Ausgangssituation und Ziel</h2>
+<p><strong>Fiktives Supportticket INC-005</strong></p>
+<blockquote>
+<p>„Ich bekomme beim Öffnen unseres Einkaufsordners die Meldung ›Zugriff verweigert‹. Meine Kollegin kann ihn öffnen. Seit letzter Woche bin ich auch im Einkaufsteam.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Der Arbeitsplatz heißt <code>PC-023</code>, der Fileserver <code>FS01</code>. Die Freigabe <code>\\FS01\Projekte</code> verweist auf das lokale Serververzeichnis <code>D:\Freigaben\Projekte</code>. Innerhalb dieser Freigabe liegt der Ordner <code>Einkauf</code>. Der Benutzer heißt <code>FIRMA\a.meyer</code>. Alle Namen sind erfunden.</p>
+<p><strong>Ziel:</strong> Herausfinden, ob der Fehler bei der Netzwerkverbindung, der SMB-Anmeldung, den Freigaberechten, den NTFS-Rechten oder dem aktuellen Benutzertoken liegt. Nur notwendige Rechte gemäß Freigabe erteilen und mit dem betroffenen Konto testen.</p>
+<p><strong>Leitsatz:</strong> <strong>Zugriff verweigert</strong> ist eine Fehlermeldung, keine vollständig identifizierte Ursache. Insbesondere nicht sofort <code>Jeder: Vollzugriff</code> vergeben.</p>
+<h2 id="2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung für Einsteiger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACL (Access Control List)</strong></td>
+<td>Zugriffskontrollliste mit Regeln für Benutzer und Gruppen.</td>
+</tr>
+<tr>
+<td><strong>ACE (Access Control Entry)</strong></td>
+<td>Einzelner Berechtigungseintrag in einer ACL.</td>
+</tr>
+<tr>
+<td><strong>DACL (Discretionary Access Control List)</strong></td>
+<td>Liste der <em>erlaubenden und verweigernden</em> Zugriffsregeln auf eine Ressource.</td>
+</tr>
+<tr>
+<td><strong>NTFS (New Technology File System)</strong></td>
+<td>Windows-Dateisystem mit differenzierten Rechten für Dateien und Ordner.</td>
+</tr>
+<tr>
+<td><strong>SMB (Server Message Block)</strong></td>
+<td>Netzwerkprotokoll zum Zugriff auf Freigaben; verwendet typischerweise TCP-Port 445.</td>
+</tr>
+<tr>
+<td><strong>UNC (Universal Naming Convention)</strong></td>
+<td>Netzwerkpfad im Format <code>\\Server\Freigabe\Unterordner</code>.</td>
+</tr>
+<tr>
+<td><strong>AD DS (Active Directory Domain Services)</strong></td>
+<td>Microsoft-Domänendienst mit Benutzer-, Computer- und Gruppenobjekten.</td>
+</tr>
+<tr>
+<td><strong>SID (Security Identifier)</strong></td>
+<td>Windows-interne Kennung für Sicherheitsprinzipale wie Benutzer und Gruppen.</td>
+</tr>
+<tr>
+<td><strong>Token / Zugriffstoken</strong></td>
+<td>Vom Betriebssystem für eine Anmeldung erzeugter Sicherheitskontext mit Gruppenkennungen und Rechten.</td>
+</tr>
+<tr>
+<td><strong>Kerberos</strong></td>
+<td>Bevorzugtes Ticket-basiertes Authentifizierungsprotokoll in der klassischen AD-Domäne.</td>
+</tr>
+<tr>
+<td><strong>NTLM (NT LAN Manager)</strong></td>
+<td>Älteres Challenge-Response-Authentifizierungsverfahren, unter Umständen noch in Verwendung.</td>
+</tr>
+<tr>
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt beispielsweise <code>FS01</code> in eine IP-Adresse.</td>
+</tr>
+<tr>
+<td><strong>RSAT (Remote Server Administration Tools)</strong></td>
+<td>Werkzeuge, um etwa AD-Daten vom Administrations-PC aus zu prüfen.</td>
+</tr>
+<tr>
+<td><strong>RDP (Remote Desktop Protocol)</strong></td>
+<td>Grafische Remoteanmeldung in einer eigenen Sitzung.</td>
+</tr>
+<tr>
+<td><strong>WinRM (Windows Remote Management)</strong></td>
+<td>Windows-Verwaltungsschnittstelle für Remote-Befehle, z. B. PowerShell-Remoting.</td>
+</tr>
+<tr>
+<td><strong>L1 / L2</strong></td>
+<td>First-Level: Erstdiagnose/Standardmaßnahmen; Second-Level: erweiterte Berechtigungs- und Serveranalyse.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="was-bedeutet-berechtigung">Was bedeutet „Berechtigung“?</h3>
+<p>Ein Benutzer braucht nicht zwangsläufig <strong>Vollzugriff</strong>, sondern nur die Operationen, die seine Arbeit erfordert: Ordnerinhalt auflisten, Dateien <strong>lesen</strong>, <strong>schreiben</strong>, <strong>ändern</strong> oder <strong>löschen</strong>. „Lesen“ und „Ändern“ sind unterschiedliche Rechte. Das Prinzip des <strong>Least Privilege</strong> (geringstmögliche Berechtigung) hilft, unbeabsichtigte Änderungen und Datenabfluss zu verhindern.</p>
+<h3 id="zwei-schranken-beim-zugriff-ueber-das-netzwerk">Zwei Schranken beim Zugriff über das Netzwerk</h3>
+<p>Bei einem SMB-Zugriff auf einen NTFS-Ordner wirken gewöhnlich <strong>Freigabeberechtigungen</strong> und <strong>NTFS-Berechtigungen</strong> zusammen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Client (Benutzer FIRMA\a.meyer)
+          │
+          ▼
+\\FS01\Projekte\Einkauf
+          │
+          ├── 1. Freigabeberechtigungen auf „Projekte"
+          │         Dürfte das Konto über die Freigabe lesen/ändern?
+          ▼
+          └── 2. NTFS-Berechtigungen auf D:\Freigaben\Projekte\Einkauf
+                    Dürfte das Konto diese Datei/den Ordner lesen/ändern?
+                              │
+                              ▼
+                   Nur erlaubte Operationen möglich
+</code></pre></div><p><strong>Beispiel:</strong> Die Freigabe erlaubt <strong>Lesen</strong>, NTFS erlaubt <strong>Ändern</strong>. Über genau diese SMB-Freigabe kann ein regulärer Benutzer trotzdem nicht ändern, weil die Freigabe das einschränkt. Bei lokalem Zugriff auf das Verzeichnis ist dagegen nicht die Netzwerkfreigabeberechtigung entscheidend, sondern insbesondere die Dateisystemsicherheit. Weitere Mechanismen wie zentrale Zugriffsrichtlinien können ebenfalls einschränken.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/iis/web-hosting/configuring-servers-in-the-windows-web-platform/configuring-share-and-ntfs-permissions" rel="noopener noreferrer" target="_blank">Microsoft Learn – Freigabe- und NTFS-Berechtigungen</a></p>
+<h3 id="grundlagen-vertiefung-verweigerung-vererbung-und-gpo">Grundlagen-Vertiefung: Verweigerung, Vererbung und GPO</h3>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb005_zwei_schranken_henne_ei.png" rel="noopener noreferrer" target="_blank"><img alt="Zwei-Schranken-Prinzip im Henne-Ei-Stil mit Vererbung und GPO" decoding="async" loading="lazy" src="assets/rb005_zwei_schranken_henne_ei.png"/></a></div><figcaption>Zwei-Schranken-Prinzip im Henne-Ei-Stil mit Vererbung und GPO</figcaption></figure>
+<p><strong>Merksatz:</strong> Beim Netzwerkzugriff begrenzt die <strong>restriktivere (strengere, stärker einschränkende)</strong> der beiden Berechtigungsebenen, welche Operation möglich ist. Innerhalb von NTFS spielen außerdem ausdrücklich verweigerte Rechte (<code>Deny</code>), geerbte Regeln, Gruppen und weitere Sicherheitsmechanismen eine Rolle.</p>
+<p>Die detaillierte, einsteigerfreundliche Erklärung einschließlich <strong>Deny vs. Allow</strong>, <strong>Vererbung</strong>, <strong>Access-Based Enumeration (ABE)</strong>, <strong>EFS-Dateiverschlüsselung</strong>, <strong>zentrale Zugriffsrichtlinien</strong>, <strong>GPO-Laufwerkszuordnung</strong> und kommentierter PowerShell-Beispiele steht in einer eigenständigen Ergänzung:</p>
+<p>➡️ <strong><a href="grundlagen.html">Grundlagen: Netzwerkfreigabe, NTFS, Verweigerung, Vererbung und GPO</a></strong></p>
+<p><em>Infografik: Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Sie vereinfacht die tatsächliche Zugriffskontrolle; insbesondere ist die GPO-Laufwerkszuordnung keine Berechtigungsvergabe.</em></p>
+<hr/>
+<h2 id="3-haeufige-fehlerbilder-voneinander-unterscheiden">3. Häufige Fehlerbilder voneinander unterscheiden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Meldung/Symptom</th>
+<th>Möglicher Hintergrund</th>
+<th>Erste sinnvolle Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Zugriff verweigert“ beim Öffnen eines Unterordners</td>
+<td>NTFS-Recht, Freigaberecht, Token, Anmeldeidentität</td>
+<td>Pfad/Benutzer/gewünschte Operation genau bestimmen</td>
+</tr>
+<tr>
+<td>Freigabe ist überhaupt nicht erreichbar</td>
+<td>DNS, Netzwerk, Firewall, SMB-Dienst oder Richtlinie</td>
+<td>Namenauflösung und TCP 445 prüfen</td>
+</tr>
+<tr>
+<td>Ordner lässt sich öffnen, Datei aber nicht bearbeiten</td>
+<td>Schreib-/Änderungsrecht fehlt oder Datei ist gesperrt</td>
+<td>Lesen vs. Schreiben abgrenzen; Datei-/Ordnerrechte prüfen</td>
+</tr>
+<tr>
+<td>Nur ein Mitarbeiter ist betroffen</td>
+<td>Benutzer-/Gruppenzuordnung oder Sitzung</td>
+<td>Konto und Token vergleichen</td>
+</tr>
+<tr>
+<td>Nach Gruppenänderung weiterhin kein Zugriff</td>
+<td>Alte Anmeldung/alter Token oder alte SMB-Sitzung</td>
+<td>AD-Gruppen und <code>whoami /groups</code> im betroffenen Kontext vergleichen</td>
+</tr>
+<tr>
+<td>Windows meldet, dass Gastzugriff durch Richtlinie blockiert ist</td>
+<td>SMB-Sicherheitsanforderungen</td>
+<td>Nicht Gastzugriff oder SMB1 pauschal aktivieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> <code>0x80070035</code> („Netzwerkpfad nicht gefunden“) ist ein anderer Befund als ein nachweislicher NTFS-Zugriffsfehler. Microsoft dokumentiert bei neueren Windows-Versionen zusätzliche SMB-Sicherheitsanforderungen. <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/access-denied-access-smb-file-share" rel="noopener noreferrer" target="_blank">Quelle – SMB: Access denied</a></p>
+<h2 id="4-erstaufnahme-und-zugriffsmoeglichkeiten">4. Erstaufnahme und Zugriffsmöglichkeiten</h2>
+<p>Vor dem ersten Befehl werden folgende Informationen erfasst:</p>
+<ol>
+<li><strong>Exakter Netzwerkpfad:</strong> z. B. <code>\\FS01\Projekte\Einkauf</code> (nicht nur „Laufwerk P:“).</li>
+<li><strong>Was scheitert konkret?</strong> Ordner öffnen, Datei lesen, speichern, löschen oder umbenennen?</li>
+<li><strong>Wer ist betroffen?</strong> Ein Benutzer, mehrere Benutzer, alle Standorte?</li>
+<li><strong>Seit wann?</strong> Seit Teamwechsel, Gruppenänderung, Update, VPN-Wechsel?</li>
+<li><strong>Unter welchem Konto?</strong> Richtige Windows-Anmeldung oder zwischengespeicherte andere Zugangsdaten?</li>
+<li><strong>Welche Berechtigung ist fachlich freigegeben?</strong> Abteilungs-/Datenverantwortliche entscheiden; der Support setzt nicht eigenmächtig höhere Rechte.</li>
+</ol>
+<h3 id="typische-zugriffssituationen">Typische Zugriffssituationen</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriffsweg</th>
+<th>Konkrete Tätigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Benutzer ist angemeldet</td>
+<td>Teams-Bildschirmfreigabe oder freigegebene Fernsteuerung</td>
+<td>Fehlermeldung, Netzwerkpfad und Benutzerkontext gemeinsam prüfen; Benutzer anleiten.</td>
+</tr>
+<tr>
+<td>Benutzer nicht vor Ort, PC für IT erreichbar</td>
+<td>Autorisierte RDP-/WinRM-Verwaltung</td>
+<td>Clientbezogene Informationen erheben; <strong>RDP nutzt eine eigene Sitzung</strong>, nicht automatisch die Sitzung des Benutzers.</td>
+</tr>
+<tr>
+<td>Fileserver erreichbar und Berechtigung zum Lesen der Konfiguration</td>
+<td>Administrationswerkzeuge / PowerShell auf <code>FS01</code></td>
+<td>SMB-Freigabe und NTFS-ACLs lesen.</td>
+</tr>
+<tr>
+<td>AD-Gruppen prüfen</td>
+<td>RSAT auf Administrationsrechner</td>
+<td>AD-Gruppenmitgliedschaft des Benutzerkontos untersuchen.</td>
+</tr>
+<tr>
+<td>Client/Server nicht erreichbar</td>
+<td>Telefonische oder Vor-Ort-Diagnose</td>
+<td>Verbindung, VPN, Zielname und Status abklären.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wesentliche Unterscheidung:</strong> <code>whoami /groups</code> zeigt die Gruppen im <strong>aktuellen Zugriffstoken der ausführenden Sitzung</strong>. Wenn der Support den Befehl über sein eigenes Administratorkonto ausführt, untersucht er damit <strong>nicht</strong> das Token des betroffenen Benutzers. Dafür muss der Befehl im Kontext von <code>FIRMA\a.meyer</code> ausgeführt werden.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb005_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-005 – Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb005_diagnosebaum.svg"/></a></div><figcaption>RB-005 – Diagnose-Entscheidungsbaum</figcaption></figure>
+<p><strong>Textalternative:</strong></p>
+<ol>
+<li>Ist nur ein Benutzer betroffen? <strong>Ja:</strong> Identität, Gruppenmitgliedschaft und aktuellen Token prüfen. <strong>Nein:</strong> gemeinsame Freigabe-/Server-/Netzänderungen untersuchen.</li>
+<li>Ist <code>FS01</code> auf TCP 445 erreichbar? <strong>Nein:</strong> DNS, VPN, Routing, Firewall und SMB-Dienst prüfen. <strong>Ja:</strong> Verbindung ist nur auf Transportebene möglich; weiter mit Authentifizierung und Freigabe.</li>
+<li>Ist <code>\\FS01\Projekte</code> grundsätzlich zugänglich? <strong>Nein:</strong> Identität, SMB-Authentifizierung, Share ACL und Richtlinien prüfen. <strong>Ja:</strong> spezifischen Unterordner und gewünschte Aktion testen.</li>
+<li>Sind Freigabe- <strong>und</strong> NTFS-Rechte ausreichend? <strong>Nein:</strong> freigegebene Soll-Berechtigungen gezielt anpassen lassen. <strong>Ja:</strong> Token, Vererbung, explizite Deny-Einträge, weitere Richtlinien und Dateisperren prüfen.</li>
+<li>Erfolgreiche Korrektur → <strong>mit dem betroffenen Konto</strong> exakt die ursprüngliche Aktion testen und Ticket dokumentieren.</li>
+</ol>
+<h2 id="6-diagnose-a-netzwerksmb-von-zugriffsrechten-unterscheiden">6. Diagnose A – Netzwerk/SMB von Zugriffsrechten unterscheiden</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client oder im Benutzerkontext autorisierte Fernwartung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft, ob der Fileserver FS01 über den üblichen SMB-TCP-Port</span>
+<span class="c"># 445 erreichbar ist. Die Anmelderechte werden dabei NICHT geprüft.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'FS01'</span> <span class="n">-Port</span> <span class="n">445</span>
+</code></pre></div><ul>
+<li><code>TcpTestSucceeded = True</code>: TCP-Port 445 ist erreichbar. Es ist <strong>noch nicht</strong> bewiesen, dass der Benutzer die Freigabe öffnen darf.</li>
+<li><code>TcpTestSucceeded = False</code>: DNS, Routing, VPN, Firewall, Serverdienst oder Verfügbarkeit können die Ursache sein.</li>
+</ul>
+<p>Weitere Prüfung:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt den Namen des angemeldeten Kontos in dieser Sitzung.</span>
+<span class="n">whoami</span>
+
+<span class="c"># Zeigt vorhandene SMB-Laufwerkszuordnungen des ausführenden Benutzers.</span>
+<span class="nb">Get-SmbMapping</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">LocalPath</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">Status</span>
+</code></pre></div><p><strong>Hinweis:</strong> Ein fehlendes Netzlaufwerk ist nicht gleichbedeutend mit fehlenden Dateiberechtigungen. Statt eines Laufwerksbuchstabens kann ein UNC-Pfad direkt getestet werden. <code>Test-Path</code> allein trennt „Pfad existiert nicht“ und „Zugriff verweigert“ nicht zuverlässig.</p>
+<h2 id="7-diagnose-b-berechtigungen-der-smb-freigabe-lesen">7. Diagnose B – Berechtigungen der SMB-Freigabe lesen</h2>
+<p><strong>Ausführungsort:</strong> <strong>Fileserver <code>FS01</code></strong>, in einer berechtigten Administrationssitzung. <code>Get-SmbShareAccess</code> wird nicht einfach auf einem beliebigen Client ausgeführt und zeigt dann automatisch den entfernten Server an.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Sucht die SMB-Freigabe mit dem Namen „Projekte“ auf diesem Server.</span>
+<span class="c"># Path gibt den lokalen Pfad an, auf den die Freigabe verweist.</span>
+<span class="nb">Get-SmbShare</span> <span class="n">-Name</span> <span class="s1">'Projekte'</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Path</span>
+
+<span class="c"># Liest die Zugriffsregeln der Freigabe „Projekte“ aus.</span>
+<span class="c"># AccountName benennt Benutzer/Gruppen; AccessRight das Recht.</span>
+<span class="c"># AccessControlType unterscheidet Allow und Deny.</span>
+<span class="nb">Get-SmbShareAccess</span> <span class="n">-Name</span> <span class="s1">'Projekte'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">AccountName</span><span class="p">,</span> <span class="n">AccessControlType</span><span class="p">,</span> <span class="n">AccessRight</span>
+</code></pre></div><p><strong>Beispielausgabe (fiktiv):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Name      AccountName                  AccessControlType AccessRight
+----      -----------                  ----------------- -----------
+Projekte  FIRMA\DL_FS01_Projekte_RW     Allow             Change
+Projekte  FIRMA\DL_FS01_Projekte_Read   Allow             Read
+</code></pre></div><p>Dies sind nur <strong>Freigaberechte</strong>. Sie beweisen weder vollständige NTFS-Rechte noch, dass die Gruppen im aktuellen Benutzertoken enthalten sind.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbshareaccess" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-SmbShareAccess</a></p>
+<h2 id="8-diagnose-c-ntfs-berechtigungen-lesen">8. Diagnose C – NTFS-Berechtigungen lesen</h2>
+<p><strong>Ausführungsort:</strong> <strong>Fileserver <code>FS01</code></strong>, mit Leseberechtigung auf die Sicherheitsinformationen des lokalen Verzeichnisses.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Speichert den lokalen Pfad zum betreffenden Unterordner.</span>
+<span class="c"># Das ist der Serverpfad, NICHT der UNC-Pfad des Mitarbeiters.</span>
+<span class="nv">$ordner</span> <span class="p">=</span> <span class="s1">'D:\Freigaben\Projekte\Einkauf'</span>
+
+<span class="c"># Liest den Sicherheitsdeskriptor (einschließlich NTFS-ACL).</span>
+<span class="nv">$acl</span> <span class="p">=</span> <span class="nb">Get-Acl</span> <span class="n">-LiteralPath</span> <span class="nv">$ordner</span>
+
+<span class="c"># Zeigt Besitzer und ob die Zugriffsvererbung deaktiviert ist.</span>
+<span class="nv">$acl</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Owner</span><span class="p">,</span> <span class="n">AreAccessRulesProtected</span>
+
+<span class="c"># Zeigt die einzelnen NTFS-Berechtigungsregeln lesbar an.</span>
+<span class="nv">$acl</span><span class="p">.</span><span class="n">Access</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">IdentityReference</span><span class="p">,</span> <span class="n">FileSystemRights</span><span class="p">,</span> <span class="n">AccessControlType</span><span class="p">,</span> <span class="n">IsInherited</span>
+</code></pre></div><p><strong>Wie werden die Werte interpretiert?</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Feld</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IdentityReference</code></td>
+<td>Benutzer oder Gruppe, für die diese Regel gilt.</td>
+</tr>
+<tr>
+<td><code>FileSystemRights</code></td>
+<td>Verfügbares Dateisystemrecht, z. B. ReadAndExecute oder Modify.</td>
+</tr>
+<tr>
+<td><code>AccessControlType</code></td>
+<td><code>Allow</code> erlaubt, <code>Deny</code> verweigert die in der Regel beschriebenen Rechte.</td>
+</tr>
+<tr>
+<td><code>IsInherited</code></td>
+<td><code>True</code>: Regel wird von einem übergeordneten Ordner geerbt.</td>
+</tr>
+<tr>
+<td><code>AreAccessRulesProtected</code></td>
+<td><code>True</code>: Vererbung für diese DACL ist geschützt/deaktiviert.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Alternative mit Windows-Kommandozeile, ebenfalls lesend:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die NTFS-Zugriffsregeln des angegebenen Ordners an.</span>
+<span class="c"># „icacls“ ist ein Windows-Programm, kein PowerShell-Cmdlet.</span>
+<span class="n">icacls</span> <span class="s1">'D:\Freigaben\Projekte\Einkauf'</span>
+</code></pre></div><p><code>icacls</code> verwendet Abkürzungen, z. B. <code>(F)</code> für Vollzugriff, <code>(M)</code> für Ändern, <code>(RX)</code> für Lesen/Ausführen, <code>(R)</code> für Lesen, <code>(I)</code> für geerbte Einträge.</p>
+<p><strong>Achtung:</strong> <code>Get-Acl</code> und <code>icacls</code> <strong>zeigen Regeln</strong>, aber berechnen nicht allein vollständig die effektive Berechtigung eines bestimmten Benutzers. Dafür sind dessen Sicherheitsgruppen, Token, Objektpfad, Vererbung, Share-Berechtigungen und gegebenenfalls weitere Sicherheitsmechanismen erforderlich.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Get-Acl</a> · <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/icacls" rel="noopener noreferrer" target="_blank">icacls</a></p>
+<h3 id="grafische-alternative-effektiver-zugriff">Grafische Alternative: „Effektiver Zugriff“</h3>
+<p>Am Fileserver: <strong>Ordner → Eigenschaften → Sicherheit → Erweitert → Effektiver Zugriff</strong>. Benutzer auswählen und die ermittelten Rechte untersuchen. Diese Anzeige ist nützlich, jedoch kein Ersatz für einen echten Zugriffstest über die betreffende SMB-Freigabe und berücksichtigt möglicherweise nicht jede Umgebungsbedingung.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/solution-guides/deploy-a-central-access-policy--demonstration-steps-" rel="noopener noreferrer" target="_blank">Microsoft Learn – Effective Access (Beispiel)</a></p>
+<h2 id="9-diagnose-d-ad-gruppenmitgliedschaft-gegen-den-aktuellen-token-pruefen">9. Diagnose D – AD-Gruppenmitgliedschaft gegen den aktuellen Token prüfen</h2>
+<p><strong>Beispiel:</strong> Die Datenverantwortlichen haben <code>a.meyer</code> zur Projektgruppe hinzugefügt. Die Gruppenzuweisung wurde im AD gespeichert, der Benutzer ist aber seitdem durchgehend angemeldet.</p>
+<h3 id="ad-gruppenmitgliedschaft-serverseitige-sicht">AD-Gruppenmitgliedschaft (serverseitige Sicht)</h3>
+<p><strong>Ausführungsort:</strong> Administrationsrechner mit RSAT/ActiveDirectory-Modul sowie Leserechten im AD.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Ruft die bekannten AD-Gruppenmitgliedschaften des Benutzers ab.</span>
+<span class="c"># -Identity gibt das zu prüfende Benutzerkonto an.</span>
+<span class="nb">Get-ADPrincipalGroupMembership</span> <span class="n">-Identity</span> <span class="s1">'a.meyer'</span> <span class="p">|</span>
+    <span class="c"># Gibt hier die Gruppennamen sortiert aus.</span>
+    <span class="nb">Select-Object</span> <span class="n">-ExpandProperty</span> <span class="n">Name</span> <span class="p">|</span>
+    <span class="nb">Sort-Object</span>
+</code></pre></div><p><strong>Grenze:</strong> Die Ausgabe ist kein vollständiger Simulator für jede verschachtelte, domänenübergreifende oder ressourcenlokale Berechtigung. Sie beschreibt AD-Gruppenzugehörigkeiten, aber nicht automatisch die aktuellen Rechte jeder geöffneten Sitzung.</p>
+<h3 id="aktueller-sitzungstoken-benutzersicht">Aktueller Sitzungstoken (Benutzersicht)</h3>
+<p><strong>Ausführungsort:</strong> <strong>Im bereits angemeldeten Windows-Kontext von <code>FIRMA\a.meyer</code></strong>, nicht unter dem Konto des Supportadministrators.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die Identität dieser konkreten Windows-Sitzung an.</span>
+<span class="n">whoami</span>
+
+<span class="c"># Zeigt die Gruppen- und SID-Informationen im aktuellen Token.</span>
+<span class="n">whoami</span> <span class="p">/</span><span class="n">groups</span>
+
+<span class="c"># Für eine ausführlichere Darstellung zusätzlich möglich:</span>
+<span class="n">whoami</span> <span class="p">/</span><span class="n">all</span>
+</code></pre></div><p><strong>Interpretation:</strong> Steht die neue Gruppe im AD, aber noch nicht im Zugriffs-Token des Benutzers, können nach Organisationsfreigabe ein vollständiges Abmelden und erneutes Anmelden sowie ein erneuter SMB-Verbindungsaufbau erforderlich sein. Ein bloßes Sperren/Entsperren des Bildschirms oder <code>gpupdate /force</code> erneuert nicht verlässlich den kompletten Windows-Anmeldetoken.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/whoami" rel="noopener noreferrer" target="_blank">Microsoft Learn – whoami</a> · <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-ADPrincipalGroupMembership</a></p>
+<h2 id="10-diagnose-e-erweiterte-serverprotokolle-l2">10. Diagnose E – Erweiterte Serverprotokolle (L2)</h2>
+<p>Wenn die Ursache weiterhin unklar ist, kann die Windows-Sicherheitsüberwachung helfen. <strong>Voraussetzung:</strong> passende Überwachungsrichtlinien, gegebenenfalls SACLs und die Berechtigung, das Security-Protokoll zu lesen. Audit-Änderungen können hohe Protokollmengen erzeugen und gehören in die verantwortete Administration.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ereignis-ID</th>
+<th>Zweck</th>
+<th>Aussagegrenze</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>5145</strong></td>
+<td>Prüfung eines Zugriffs auf eine Netzwerkfreigabe</td>
+<td>Fehlermeldungen hier beziehen sich auf die <strong>Freigabeprüfung</strong>; ein reiner NTFS-Deny muss kein 5145-Fehlerereignis erzeugen.</td>
+</tr>
+<tr>
+<td><strong>4656</strong></td>
+<td>Ein Handle auf ein Objekt wurde angefordert</td>
+<td>Kann bei entsprechender Dateisystemüberwachung auch fehlgeschlagene Zugriffsanforderungen zeigen.</td>
+</tr>
+<tr>
+<td><strong>4663</strong></td>
+<td>Auf ein Objekt wurde zugegriffen</td>
+<td>Ist für Dateisystemzugriffe <strong>kein allgemeines Fehlerereignis</strong>; Microsoft beschreibt hier erfolgreiche Nutzung eines Rechtes.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Beispiel einer rein lesenden Auswertung auf dem Fileserver:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Wählt das Security-Protokoll und die Freigabe-Audit-ID 5145.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="s1">'Security'</span>
+    <span class="n">Id</span>        <span class="p">=</span> <span class="n">5145</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddMinutes</span><span class="p">(-</span><span class="n">30</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Zeigt höchstens 20 passende Einträge.</span>
+<span class="c"># Datenmenge und Datenschutz beachten; nur befugt ausführen.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">20</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Wichtig:</strong> Sind keine Ereignisse vorhanden, heißt das nicht automatisch, dass es keine Zugriffsversuche gab. Audit-Voraussetzungen, falsches System oder falscher Zeitraum können die Erklärung sein.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/advanced-audit-policy-configuration" rel="noopener noreferrer" target="_blank">Audit-Richtlinien</a> · <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-5145" rel="noopener noreferrer" target="_blank">Event 5145</a> · <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4663" rel="noopener noreferrer" target="_blank">Event 4663</a></p>
+<h2 id="11-befunde-korrekt-in-massnahmen-ueberfuehren">11. Befunde korrekt in Maßnahmen überführen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Bestätigter Befund</th>
+<th>Geeignete Maßnahme</th>
+<th>Was vermeiden?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCP 445 nicht erreichbar</td>
+<td>DNS, Routing, Firewall, VPN, SMB-Server prüfen</td>
+<td>NTFS-Rechte ohne Befund verändern</td>
+</tr>
+<tr>
+<td>SMB-Authentifizierung scheitert</td>
+<td>Tatsächlich verwendete Identität und Sicherheitsrichtlinien prüfen</td>
+<td>SMB1 oder Gastzugriff als Schnelllösung einschalten</td>
+</tr>
+<tr>
+<td>Share-ACL zu restriktiv</td>
+<td>Durch Datenverantwortliche autorisierte, eng begrenzte Freigaberechte anpassen</td>
+<td><code>Jeder: Vollzugriff</code> setzen</td>
+</tr>
+<tr>
+<td>NTFS-ACL enthält benötigte Gruppe nicht</td>
+<td>Freigegebene Gruppenberechtigung am richtigen Ordner setzen; Vererbung beachten</td>
+<td>Vererbung rekursiv löschen/überschreiben</td>
+</tr>
+<tr>
+<td>Neue AD-Gruppe noch nicht im Sitzungstoken</td>
+<td>Geregeltes vollständiges Ab-/Anmelden und Zugriffsprüfung</td>
+<td>Fälschlich <code>gpupdate /force</code> als Token-Refresh verkaufen</td>
+</tr>
+<tr>
+<td>Expliziter <code>Deny</code> für benötigtes Recht</td>
+<td>Ursache und Sicherheitsabsicht der Regel prüfen; zuständig eskalieren</td>
+<td>Deny ohne Berechtigungsfreigabe entfernen</td>
+</tr>
+<tr>
+<td>Nur Datei schreibgeschützt/in Benutzung</td>
+<td>Dateiattribute und offenen Schreibzugriff getrennt prüfen</td>
+<td>Blind ACLs erhöhen</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="praxisbeispiel-warum-lesen-nicht-aendern-bedeutet">Praxisbeispiel: Warum „Lesen“ nicht „Ändern“ bedeutet</h3>
+<p>Ein Benutzer kann den Ordner <code>\\FS01\Projekte\Einkauf</code> öffnen und eine Excel-Datei lesen. Beim Speichern erscheint aber „Zugriff verweigert“. Das kann heißen, dass <strong>Leserechte vorhanden, Schreib-/Änderungsrechte aber nicht erteilt</strong> sind. Es kann ebenso an einer Dateisperre oder Anwendungs-/Dateikonfiguration liegen. Daher zunächst klären, ob auch eine <strong>neue Datei im freigegebenen Testordner</strong> erstellt werden darf – nur sofern ein solcher Test ausdrücklich erlaubt ist.</p>
+<h3 id="aenderungen-sind-gesonderte-freigabepflichtige-massnahmen">Änderungen sind gesonderte, freigabepflichtige Maßnahmen</h3>
+<p>Die Beispiele im Diagnosekapitel sind <strong>lesend</strong>. Das Ändern von Gruppenmitgliedschaften, <code>icacls /grant</code>, <code>icacls /reset</code>, <code>Set-Acl</code> oder <code>Grant-SmbShareAccess</code> kann Sicherheitswirkungen haben und gehört <strong>nicht</strong> in eine unbedachte Erstmaßnahme. Vor Eingriffen Soll-Rechte, Backup/Export der ACL, Änderungsumfang und Rückweg klären. Gruppen und Berechtigungen bevorzugt nach dem etablierten Rollenmodell der Organisation verwalten.</p>
+<h2 id="12-erfolgskontrolle-am-wirklichen-benutzerfall">12. Erfolgskontrolle – am wirklichen Benutzerfall</h2>
+<ol>
+<li>Betroffener Benutzer <code>FIRMA\a.meyer</code> meldet sich bei Bedarf neu an.</li>
+<li>Über <strong>denselben UNC-Pfad</strong> wird die ursprüngliche Operation wiederholt.</li>
+<li>Nur die <strong>freigegebene</strong> Operation darf möglich sein (z. B. <em>Lesen</em>, nicht automatisch <em>Ändern</em>).</li>
+<li>Vergleich mit der ursprünglich betroffenen Datei/dem Ordner, nicht nur mit einem anderen Freigabeverzeichnis.</li>
+<li>Keine ungewollten Freigaben für andere Gruppen entstanden; Änderung dokumentiert.</li>
+</ol>
+<h2 id="13-l1-l2-abgrenzung-und-eskalation">13. L1-/L2-Abgrenzung und Eskalation</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>L1 – typische Aufgaben</th>
+<th>L2 – typische Aufgaben</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Genaue Fehlermeldung und Pfad aufnehmen</td>
+<td>Komplexe ACL-/Vererbungsprobleme untersuchen</td>
+</tr>
+<tr>
+<td>Betroffenheit, Identität, Freigabe und einfache Verbindung eingrenzen</td>
+<td>SMB-Audits, AD-/Gruppennesting, Server- und zentrale Zugriffsrichtlinien analysieren</td>
+</tr>
+<tr>
+<td>Bekannte Standardverfahren durchführen, ggf. berechtigte Gruppenmitgliedschaft beantragen</td>
+<td>Genehmigte NTFS-/Share-Berechtigungsänderungen technisch umsetzen und prüfen</td>
+</tr>
+<tr>
+<td>Ergebnisse dokumentieren und sauber eskalieren</td>
+<td>Übergreifende oder sicherheitskritische Berechtigungsprobleme koordinieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Eskalieren, wenn</strong> Eigentümer-/Freigabefrage offen ist, sensible Daten betroffen sind, mehrere Abteilungen nicht mehr zugreifen können, Deny-/Vererbungsketten unklar sind oder ein Sicherheitsvorfall möglich erscheint. Die unternehmensinternen Zuständigkeiten haben Vorrang.</p>
+<h2 id="14-musterticket-rein-fiktiv">14. Musterticket (rein fiktiv)</h2>
+<p><strong>INC-005 – Zugriff auf Netzwerkordner verweigert</strong><br/>
+<strong>Symptom:</strong> Benutzer <code>FIRMA\a.meyer</code> kann <code>\\FS01\Projekte\Einkauf</code> nicht öffnen; Kollegin kann zugreifen.<br/>
+<strong>Diagnose:</strong> TCP 445 zum Server erfolgreich; Freigabe <code>Projekte</code> erreichbar. Freigabe-ACL und NTFS-ACL am Unterordner geprüft. AD-Gruppenmitgliedschaft war eingetragen, im aktuellen Benutzertoken fehlte die neue Gruppe noch.<br/>
+<strong>Ursache:</strong> Die neue Gruppenmitgliedschaft war in der bereits laufenden Windows-Sitzung noch nicht wirksam.<br/>
+<strong>Maßnahme:</strong> Nach Abstimmung laufende Arbeit gespeichert, vollständige Ab-/Anmeldung des Benutzers durchgeführt; SMB-Zugriff erneut hergestellt. Keine Berechtigungen erweitert.<br/>
+<strong>Ergebnis:</strong> Betroffener Unterordner kann mit dem vorgesehenen <strong>Leserecht</strong> geöffnet werden; eine nicht genehmigte Änderung der Dateien wurde nicht ermöglicht.<br/>
+<strong>Status:</strong> Gelöst (<strong>Beispiel</strong>, nicht praktisch ausgeführt).</p>
+<h2 id="15-lernkontrolle-praktische-tests-und-quellen">15. Lernkontrolle, praktische Tests und Quellen</h2>
+<h3 id="lernfragen-ohne-sofortige-loesung">Lernfragen (ohne sofortige Lösung)</h3>
+<ol>
+<li>Weshalb beweist <code>TcpTestSucceeded : True</code> auf Port 445 nicht, dass ein Benutzer eine Datei lesen darf?</li>
+<li>Wo musst du <code>Get-SmbShareAccess</code> und <code>Get-Acl</code> ausführen, wenn du die lokalen Rechte der Freigabe von <code>FS01</code> lesen willst?</li>
+<li>Was ist der Unterschied zwischen <strong>AD-Gruppenmitgliedschaft</strong> und den Gruppenkennungen eines <strong>Windows-Zugriffstokens</strong>?</li>
+<li>Ein Benutzer kann eine Datei lesen, aber nicht speichern. Welche mindestens zwei Ursachen würdest du prüfen?</li>
+<li>Warum ist <code>Jeder: Vollzugriff</code> keine angemessene Standardlösung?</li>
+</ol>
+<p><strong>Anki-Vorbereitung:</strong> Wissenskarten (ACL, ACE, SMB, NTFS), Verständniskarten (zwei Schranken, Token, Vererbung), Diagnosekarten (neue Gruppenmitgliedschaft, Port 445 erreichbar aber Unterordner gesperrt, Lesen möglich/Schreiben nicht). Karten werden erst nach fachlicher Prüfung in den Anki-/FSRS-Bestand übernommen.</p>
+<h3 id="eigene-validierung-noch-offen">Eigene Validierung – noch offen</h3>
+<ul>
+<li>In einer genehmigten Testumgebung eine Freigabe mit Lese- und Änderungsrechten konfigurieren.</li>
+<li>Benutzer- und Gruppenrechte gezielt verändern und die effektiven Ergebnisse prüfen.</li>
+<li>Mit zwei Benutzerkonten testen, ob ein Leser lesen, aber nicht verändern darf.</li>
+<li>Gruppenänderung und erneute Anmeldung vergleichen.</li>
+<li>Screenshots ausschließlich ohne Klarnamen, Geheimnisse und interne Netzwerkdaten veröffentlichen.</li>
+</ul>
+<h3 id="technische-quellen-stand-07112026">Technische Quellen (Stand 07.11.2026)</h3>
+<ol>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/access-denied-access-smb-file-share" rel="noopener noreferrer" target="_blank">Microsoft Learn – SMB-Freigabe: Zugriff verweigert und moderne Sicherheitsanforderungen</a> – Einordnung der Symptome und Sicherheitsänderungen.</li>
+<li><a href="https://learn.microsoft.com/de-de/iis/web-hosting/configuring-servers-in-the-windows-web-platform/configuring-share-and-ntfs-permissions" rel="noopener noreferrer" target="_blank">Microsoft Learn – Freigabe- und NTFS-Berechtigungen</a> – Zwei Berechtigungsebenen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbshareaccess" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-SmbShareAccess</a> – Freigabe-ACL auslesen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-Acl</a> – Dateisystem-Sicherheitsdeskriptor lesen.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/icacls" rel="noopener noreferrer" target="_blank">Microsoft Learn – icacls</a> – NTFS-ACL anzeigen und Optionen verstehen.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/whoami" rel="noopener noreferrer" target="_blank">Microsoft Learn – whoami</a> – Aktuelles Benutzer-/Gruppentoken überprüfen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adprincipalgroupmembership?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADPrincipalGroupMembership</a> – AD-Gruppen prüfen.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/identity/solution-guides/deploy-a-central-access-policy--demonstration-steps-" rel="noopener noreferrer" target="_blank">Microsoft Learn – Effektiver Zugriff</a> – GUI-basierte effektive Berechtigungsprüfung.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/advanced-audit-policy-configuration" rel="noopener noreferrer" target="_blank">Microsoft Learn – Advanced Audit Policy</a> – Voraussetzungen für Ereignisprotokolle.</li>
+<li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-5145" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ereignis 5145</a> – Zugriffsprüfung an SMB-Freigaben.</li>
+<li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4663" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ereignis 4663</a> – Erfolgreiche Nutzung eines Dateiobjekt-Zugriffsrechts.</li>
+</ol>
+<p><strong>Ergänzung vom 08.11.2026:</strong> <a href="grundlagen.html">Anfängerfreundliche Grundlagen zu Freigaben, NTFS und GPO</a> mit weiterer Henne-Ei-Infografik und Microsoft-Quellen.</p>
+<p><strong>Transparenz:</strong> Recherche und Didaktik sind dokumentiert; eigene Tests fehlen noch. Die beschriebenen Beispiele sind keine Behauptung über produktive Einsätze.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-005_Lernartikel.md">RB-005_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-004/index.html">← RB-004</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-006/index.html">RB-006 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

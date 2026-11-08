@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-002 Benutzerkonto gesperrt | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-002: Benutzerkonto gesperrt. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Active Directory · Kontosperre · Lernartikel</p><h1>RB-002: Benutzerkonto gesperrt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-und-ausgangssituation">1. Ticket und Ausgangssituation</a></li><li><a href="#2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</a></li><li><a href="#3-erste-fehleraufnahme-bevor-befehle-ausgefuehrt-werden">3. Erste Fehleraufnahme – bevor Befehle ausgeführt werden</a></li><li><a href="#4-zugriffswege-voraussetzungen-und-konkrete-schritte">4. Zugriffswege, Voraussetzungen und konkrete Schritte</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-diagnose-kontostatus-zentral-feststellen">6. Diagnose: Kontostatus zentral feststellen</a></li><li><a href="#7-diagnose-ereignis-4740-wann-wurde-das-konto-gesperrt">7. Diagnose: Ereignis 4740 – Wann wurde das Konto gesperrt?</a></li><li><a href="#8-diagnose-kerberos-ntlm-und-weitere-fehlgeschlagene-anmeldungen">8. Diagnose: Kerberos, NTLM und weitere fehlgeschlagene Anmeldungen</a></li><li><a href="#9-quellgeraet-untersuchen-wo-stecken-veraltete-kennwoerter">9. Quellgerät untersuchen: Wo stecken veraltete Kennwörter?</a></li><li><a href="#10-fehlerbehebung-und-kontrollierte-entsperrung">10. Fehlerbehebung und kontrollierte Entsperrung</a></li><li><a href="#11-sonderfall-microsoft-entra-smart-lockout-cloud">11. Sonderfall: Microsoft Entra Smart Lockout (Cloud)</a></li><li><a href="#12-abgrenzung-1st-und-2nd-level-eskalation">12. Abgrenzung 1st und 2nd Level / Eskalation</a></li><li><a href="#13-muster-ticketkommentar">13. Muster-Ticketkommentar</a></li><li><a href="#14-lernkontrolle-und-spaetere-anki-karten">14. Lernkontrolle und spätere Anki-Karten</a></li><li><a href="#15-quellen-geltungsbereich-und-validierungsstatus">15. Quellen, Geltungsbereich und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets · 50 typische Supportfälle · Diagnose · Lösung · Eskalation<br/>
+<strong>Kategorie:</strong> Identitätsmanagement / Windows / Active Directory / Security<br/>
+<strong>Support-Level:</strong> L1 / L2 (abhängig von Befugnissen und Betriebsmodell)<br/>
+<strong>Version:</strong> 1.0 · <strong>Dokumentationsdatum:</strong> 7. November 2026<br/>
+<strong>Status:</strong> Fachlich recherchiert · <strong>praktische Validierung ausstehend</strong><br/>
+<strong>Beispielumgebung:</strong> Windows 11 Pro, AD-Domäne <code>firma.example</code>, Domänencontroller <code>DC01.firma.example</code>, Arbeitsplatz <code>PC-023</code>, Benutzer <code>m.mustermann</code>. <strong>Sämtliche Personen, Systeme, Ausgaben und Tickets sind fiktiv.</strong></p>
+<blockquote>
+<p><strong>Geltungsbereich:</strong> Das Haupt-Runbook beschreibt die Sperre eines Benutzerkontos in einer <strong>klassischen lokalen Active-Directory-Domäne (AD DS)</strong>. Die cloudbasierte Sperre durch <strong>Microsoft Entra Smart Lockout</strong> ist ein separater Diagnosezweig. Alle gezeigten Abfragen dienen der Demonstration. Änderungen sind nur nach Prüfung der Berechtigungen und Unternehmensvorgaben zulässig.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb002_kontosperre_infografik.png" rel="noopener noreferrer" target="_blank"><img alt="Illustration zum Supportfall: Kontosperre feststellen, Quellgerät ermitteln, Ursache beheben" decoding="async" loading="lazy" src="assets/rb002_kontosperre_infografik.png"/></a></div><figcaption>Illustration zum Supportfall: Kontosperre feststellen, Quellgerät ermitteln, Ursache beheben</figcaption></figure>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Didaktische Darstellung, kein Screenshot eines tatsächlich untersuchten Vorfalls.</em></p>
+<hr/>
+<h2 id="1-ticket-und-ausgangssituation">1. Ticket und Ausgangssituation</h2>
+<p><strong>INC-002 – Domänenkonto wird wiederholt gesperrt</strong></p>
+<blockquote>
+<p>„Mein Benutzerkonto ist seit heute Morgen immer wieder gesperrt. Ein Kollege vom IT-Support hat es schon entsperrt. Eine halbe Stunde später konnte ich mich wieder nicht anmelden.“</p>
+</blockquote>
+<p><strong>Auswirkung:</strong> Der Mitarbeiter kann nicht zuverlässig auf Windows und Unternehmensressourcen zugreifen. Wiederholte Sperren können auf ein fehlerhaft konfiguriertes Gerät, gespeicherte alte Zugangsdaten oder einen Sicherheitsvorfall hinweisen.</p>
+<p><strong>Diagnoseziel:</strong> Feststellen, <strong>ob</strong> eine Kontosperre vorliegt, <strong>wann</strong> und <strong>von welchem System</strong> die auslösenden Anmeldeversuche kamen, <strong>warum</strong> sie wiederholt auftreten und <strong>wie</strong> sich die Ursache sicher beheben lässt.</p>
+<p><strong>Grundsatz:</strong> Das reine Entsperren stellt häufig nur vorübergehend die Arbeitsfähigkeit her. Ein dauerhaftes Ergebnis erfordert die Untersuchung der auslösenden Anmeldeversuche.</p>
+<h2 id="2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Einfach erklärt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AD (Active Directory)</strong></td>
+<td>Zentraler Verzeichnisdienst für Benutzer, Computer und Gruppen innerhalb einer klassischen Windows-Unternehmensdomäne.</td>
+</tr>
+<tr>
+<td><strong>AD DS (Active Directory Domain Services)</strong></td>
+<td>Microsofts Domänendienste: Verzeichnisdaten, Domänenanmeldung und weitere Infrastrukturaufgaben.</td>
+</tr>
+<tr>
+<td><strong>DC (Domain Controller)</strong></td>
+<td>Domänencontroller: Server, der Konten und Anmeldeinformationen für die Domäne bereitstellt bzw. prüft.</td>
+</tr>
+<tr>
+<td><strong>PDC-Emulator (Primary Domain Controller Emulator)</strong></td>
+<td>Besondere <strong>FSMO-Rolle</strong> in AD; spielt unter anderem bei Kennwortänderungen und Sperren eine Rolle. Nicht der einzige DC, der relevante Ereignisse haben kann.</td>
+</tr>
+<tr>
+<td><strong>FSMO (Flexible Single Master Operations)</strong></td>
+<td>Spezielle AD-Rollen, für die bestimmte Operationen jeweils einem zuständigen Domänencontroller zugewiesen werden.</td>
+</tr>
+<tr>
+<td><strong>Kerberos</strong></td>
+<td>Bevorzugtes Authentifizierungsprotokoll in AD-Umgebungen. Es arbeitet mit digitalen Tickets; ein fehlgeschlagener früher Authentifizierungsschritt kann Ereignis 4771 erzeugen.</td>
+</tr>
+<tr>
+<td><strong>NTLM (NT LAN Manager)</strong></td>
+<td>Älteres, kennwortbasiertes Challenge-Response-Authentifizierungsverfahren. Seine Prüfungen können im Ereignis 4776 erscheinen.</td>
+</tr>
+<tr>
+<td><strong>RSAT (Remote Server Administration Tools)</strong></td>
+<td>Microsoft-Werkzeuge, um beispielsweise AD vom eigenen Administrations-PC aus zu verwalten.</td>
+</tr>
+<tr>
+<td><strong>GPO (Group Policy Object)</strong></td>
+<td>Gruppenrichtlinienobjekt; kann unter anderem sicherheitsbezogene Konfigurationen vorgeben. Nicht das Standardwerkzeug zum Entsperren eines Einzelkontos.</td>
+</tr>
+<tr>
+<td><strong>PSO (Password Settings Object)</strong></td>
+<td>AD-Objekt für eine <em>Fine-Grained Password Policy</em>, also eine fein abgestufte Kennwort- und Sperrrichtlinie für bestimmte Benutzer oder Gruppen.</td>
+</tr>
+<tr>
+<td><strong>Security Event</strong></td>
+<td>Eintrag im Windows-Sicherheitsprotokoll, sofern die entsprechende Überwachung aktiviert ist.</td>
+</tr>
+<tr>
+<td><strong>Credential Manager</strong></td>
+<td>Windows-Anmeldeinformationsverwaltung; kann für bestimmte Verbindungen hinterlegte Zugangsdaten enthalten.</td>
+</tr>
+<tr>
+<td><strong>SIEM (Security Information and Event Management)</strong></td>
+<td>System zur zentralen Sammlung, Auswertung und Korrelation sicherheitsrelevanter Ereignisse.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="21-wie-kommt-es-zu-einer-kontosperre">2.1 Wie kommt es zu einer Kontosperre?</h3>
+<p>Vereinfacht sieht der Ablauf so aus:</p>
+<ol>
+<li>Ein Benutzer, eine Anwendung oder ein Dienst versucht, sich bei einer AD-Ressource anzumelden.</li>
+<li>Die Authentifizierung schlägt beispielsweise wegen eines alten Kennworts fehl.</li>
+<li>Die zuständigen Domänendienste berücksichtigen den Fehlschlag nach den geltenden Sperrregeln.</li>
+<li>Wird der Sperrschwellenwert erreicht, wird das Konto vorübergehend gesperrt.</li>
+<li>Weitere Anmeldeversuche können während der Sperre abgewiesen werden.</li>
+<li>Nach Ablauf der Richtlinienfrist oder einer <strong>autorisierten</strong> Entsperrung kann eine erfolgreiche Anmeldung wieder möglich sein. Läuft die fehlerhafte Anwendung weiter, droht eine erneute Sperre.</li>
+</ol>
+<p><strong>Die drei wichtigsten Richtlinienwerte:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Eigenschaft</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LockoutThreshold</code></td>
+<td>Anzahl fehlgeschlagener Anmeldeversuche, bei deren Erreichen das Konto gesperrt wird.</td>
+</tr>
+<tr>
+<td><code>LockoutObservationWindow</code></td>
+<td>Zeitraum für die Rücksetzung des Zählers fehlgeschlagener Versuche.</td>
+</tr>
+<tr>
+<td><code>LockoutDuration</code></td>
+<td>Zeitdauer einer Sperre; je nach Einstellung ist eine administrative Entsperrung erforderlich.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Reines Rechenbeispiel – keine empfohlene Unternehmensrichtlinie:</strong> Eine beispielhaft konfigurierte Richtlinie könnte nach fünf fehlerhaften Versuchen innerhalb eines Beobachtungsfensters von 15 Minuten für 15 Minuten sperren. Die tatsächliche Richtlinie muss stets aus der jeweiligen Domäne ausgelesen werden; für einzelne Benutzer kann zusätzlich eine fein abgestufte PSO-Richtlinie gelten.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-addefaultdomainpasswordpolicy" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADDefaultDomainPasswordPolicy</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduserresultantpasswordpolicy" rel="noopener noreferrer" target="_blank">Get-ADUserResultantPasswordPolicy</a>.</p>
+<h3 id="22-warum-kann-ein-konto-ohne-sichtbare-anmeldung-gesperrt-werden">2.2 Warum kann ein Konto ohne sichtbare Anmeldung gesperrt werden?</h3>
+<p>Nicht nur das Eingeben eines Kennworts am Windows-Anmeldebildschirm zählt. Auch Prozesse im Hintergrund können mit gespeicherten Zugangsdaten wiederholt eine Netzwerkanmeldung versuchen:</p>
+<ul>
+<li>Ein anderes Notebook oder Smartphone verwendet noch ein altes Kennwort.</li>
+<li>Eine Anwendung versucht, sich mit gespeicherten Zugangsdaten an einem Fileserver anzumelden.</li>
+<li>Ein Windows-Dienst oder eine geplante Aufgabe verwendet ein inzwischen geändertes Kontokennwort.</li>
+<li>Ein VPN-Client (Virtual Private Network) oder eine Remotedesktopverbindung verwendet veraltete Anmeldeinformationen.</li>
+<li>Ein unbefugter Dritter versucht, das Konto durch automatisierte Anmeldeversuche zu verwenden.</li>
+</ul>
+<p><strong>Wichtig:</strong> Ein Benutzerkonto kann deswegen gesperrt werden, obwohl sein Besitzer am aktuellen PC überhaupt kein falsches Kennwort eingegeben hat.</p>
+<hr/>
+<h2 id="3-erste-fehleraufnahme-bevor-befehle-ausgefuehrt-werden">3. Erste Fehleraufnahme – bevor Befehle ausgeführt werden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Frage</th>
+<th>Diagnosezweck</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Was lautet die exakte Fehlermeldung?</strong></td>
+<td>„Konto gesperrt“ von anderen Anmeldestörungen unterscheiden.</td>
+</tr>
+<tr>
+<td><strong>Seit wann und wie oft tritt es auf?</strong></td>
+<td>Wiederkehrende Versuche oder eine einmalige Fehleingabe erkennen.</td>
+</tr>
+<tr>
+<td><strong>Wurde das Kennwort kürzlich geändert?</strong></td>
+<td>Typischer Hinweis auf veraltete gespeicherte Anmeldeinformationen.</td>
+</tr>
+<tr>
+<td><strong>Welche Geräte nutzt der Mitarbeiter?</strong></td>
+<td>Notebook, Zweitrechner, Smartphone, Homeoffice-Client, Terminalserver.</td>
+</tr>
+<tr>
+<td><strong>Betrifft es nur ein Konto oder mehrere?</strong></td>
+<td>Einzelproblem von Infrastruktur- oder Sicherheitsereignis abgrenzen.</td>
+</tr>
+<tr>
+<td><strong>Gibt es unbekannte Login-Hinweise?</strong></td>
+<td>Möglichen Angriff frühzeitig erkennen und Security-Team einschalten.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sicherheitsregeln:</strong> Nie das persönliche Kennwort oder die PIN erfragen; keine unkontrollierten Testanmeldungen erzeugen; ohne Freigabe keine Sicherheitsrichtlinie lockern und keine Protokolle löschen. Bei verdächtigen Quellen zuerst die betrieblichen Security-/Incident-Prozesse beachten.</p>
+<h2 id="4-zugriffswege-voraussetzungen-und-konkrete-schritte">4. Zugriffswege, Voraussetzungen und konkrete Schritte</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriff</th>
+<th>Konkretes Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mitarbeiter sitzt im Büro, Windows-Anmeldung scheitert</td>
+<td><strong>Zentrale AD-Verwaltung</strong> via RSAT oder AD-PowerShell</td>
+<td>Kontostatus vom eigenen Administrationsrechner prüfen – es ist <strong>keine</strong> Anmeldung auf dem Benutzer-PC erforderlich.</td>
+</tr>
+<tr>
+<td>Konto wird immer wieder gesperrt</td>
+<td><strong>Domänencontroller-Sicherheitsprotokoll</strong> bzw. SIEM</td>
+<td>Ereignis 4740 zur Sperrzeit und zum möglichen Quellrechner suchen; 4771/4776/4625 zur Korrelation prüfen.</td>
+</tr>
+<tr>
+<td>Verdächtiger Quellrechner ist erreichbar</td>
+<td><strong>Verwaltete Fernwartung, PowerShell-Remoting oder Vor-Ort-Diagnose</strong></td>
+<td>Auf dem Quellgerät relevante Dienste, gespeicherte Verbindungen und geplante Aufgaben untersuchen.</td>
+</tr>
+<tr>
+<td>Quellrechner im Homeoffice, kein geeigneter Remotezugriff</td>
+<td><strong>Telefonische Anleitung + zentrale Prüfung</strong></td>
+<td>Genutzte Zweitgeräte erfragen; zentrale Protokolle sichern; Freigaben für Vor-Ort- oder andere Diagnosen klären.</td>
+</tr>
+<tr>
+<td>Mehrere Konten werden gleichzeitig gesperrt</td>
+<td><strong>Security-/Infrastruktur-Eskalation</strong></td>
+<td>Gemeinsamkeiten, betroffene Ziele, Quell-IP-Adressen und mögliche Angriffe untersuchen.</td>
+</tr>
+<tr>
+<td>Cloud-Konto / Microsoft 365 betroffen</td>
+<td><strong>Microsoft Entra Admin Center</strong></td>
+<td>Entra-Anmeldeprotokolle und Smart-Lockout-Vorgänge untersuchen; nicht mit einer AD-DS-Sperre gleichsetzen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Begriff „zentrale Verwaltung“:</strong> Man prüft ein AD-Benutzerkonto über eine Verwaltungsanwendung oder PowerShell <strong>vom eigenen berechtigten PC aus</strong>, ohne sich als Mitarbeiter an dessen Arbeitsplatz anzumelden. Auf dem Administrationsrechner muss das RSAT-/ActiveDirectory-Modul vorhanden sein; die Sicherheitsrechte müssen ausreichen.</p>
+<p><strong>Zugriff auf Domänencontroller-Protokolle:</strong> Leseberechtigung und erreichbarer Ereignisprotokolldienst sind erforderlich. Eine direkte interaktive Anmeldung auf einem DC ist für die übliche Kontostatusabfrage nicht notwendig.</p>
+<hr/>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">mermaid</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-mermaid">flowchart TD
+    A[Benutzer meldet wiederholte Kontosperre] --&gt; B{Identitätssystem?}
+    B --&gt;|Lokales AD DS| C[Kontostatus und Sperrrichtlinie auslesen]
+    B --&gt;|Entra ID| CL[Entra-Anmeldeprotokolle und Smart Lockout prüfen]
+    C --&gt; D{LockedOut = True?}
+    D --&gt;|Nein| X[Fehlermeldung und anderen Authentifizierungsfehler prüfen]
+    D --&gt;|Ja| E[4740: Sperrzeit und Caller Computer Name prüfen]
+    E --&gt; F[4771 / 4776 / 4625 zeitlich korrelieren]
+    F --&gt; G{Quelle bekannt und plausibel?}
+    G --&gt;|Ja| H[Quellgerät: Anmeldedaten, Aufgaben, Dienste untersuchen]
+    G --&gt;|Nein| I[Weitere DCs, Zielserver, Netzwerklogs, SIEM und Security prüfen]
+    H --&gt; J[Auslösende Ursache gezielt korrigieren]
+    I --&gt; J
+    J --&gt; K[Autorisierte Entsperrung, falls nötig]
+    K --&gt; L[Erneute Anmeldung und Sperren überwachen]
+    L --&gt; M[Ticket dokumentieren oder eskalieren]
+</code></pre></div><p><strong>Hinweis für GitHub Pages:</strong> Mermaid wird nicht durch jedes Website-Theme automatisch gerendert. Falls Mermaid-Unterstützung fehlt, später als SVG/PNG exportieren. Die Textschritte des Runbooks bleiben auch ohne Diagramm nutzbar.</p>
+<h2 id="6-diagnose-kontostatus-zentral-feststellen">6. Diagnose: Kontostatus zentral feststellen</h2>
+<h3 id="61-benutzerkonto-abfragen-nur-lesend">6.1 Benutzerkonto abfragen – nur lesend</h3>
+<p><strong>Ausführungsort:</strong> Berechtigter Administrationsrechner mit ActiveDirectory-Modul und Netzverbindung zu AD DS.<br/>
+<strong>Voraussetzung:</strong> Passende Lese-/Administrationsrechte.<br/>
+<strong>Wirkung:</strong> Keine Änderung des Kontos.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Lädt das ActiveDirectory-Modul in die PowerShell-Sitzung.</span>
+<span class="nb">Import-Module</span> <span class="n">ActiveDirectory</span>
+
+<span class="c"># Get-ADUser sucht den Benutzer im Active Directory.</span>
+<span class="c"># -Identity bezeichnet das konkrete Benutzerkonto.</span>
+<span class="c"># -Properties liest zusätzliche Statusinformationen aus.</span>
+<span class="nv">$user</span> <span class="p">=</span> <span class="nb">Get-ADUser</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="n">-Properties</span> <span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">LastBadPasswordAttempt</span><span class="p">,</span><span class="n">BadPwdCount</span>
+
+<span class="c"># Das Pipe-Zeichen | gibt das Benutzerobjekt an Select-Object weiter.</span>
+<span class="c"># Select-Object zeigt nur die diagnostisch benötigten Felder.</span>
+<span class="nv">$user</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">SamAccountName</span><span class="p">,</span><span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">LastBadPasswordAttempt</span><span class="p">,</span><span class="n">BadPwdCount</span>
+</code></pre></div><p><strong>Wichtige Felder:</strong></p>
+<ul>
+<li><code>LockedOut = True</code>: Konto ist gesperrt.</li>
+<li><code>Enabled = False</code>: Konto ist deaktiviert – <strong>anderer Befund</strong> als die Kontosperre.</li>
+<li><code>LastBadPasswordAttempt</code>: Zeitbezug zu einem erfassten fehlgeschlagenen Kennwortversuch; Interpretation hängt vom abgefragten DC ab.</li>
+<li><code>BadPwdCount</code>: Zähler fehlgeschlagener Kennwortversuche auf dem abgefragten DC; <strong>nicht</strong> als domänenweit konsistenter Gesamtzähler interpretieren.</li>
+</ul>
+<p><strong>Fiktive Beispielausgabe:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">SamAccountName        : m.mustermann
+Enabled               : True
+LockedOut             : True
+LastBadPasswordAttempt: 07.11.2026 08:31:55
+BadPwdCount            : 5
+</code></pre></div><p><strong>Achtung:</strong> Der Kontostatus bestätigt die Sperre, aber <strong>nicht die verursachende Anwendung</strong>.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduser" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADUser</a>.</p>
+<h3 id="62-gibt-es-weitere-gesperrte-benutzer">6.2 Gibt es weitere gesperrte Benutzer?</h3>
+<p><strong>Ausführungsort:</strong> Administrationsrechner mit AD-Modul. <strong>Wirkung:</strong> Nur lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Search-ADAccount durchsucht Active Directory nach Konten.</span>
+<span class="c"># -LockedOut filtert auf aktuell gesperrte Konten.</span>
+<span class="c"># -UsersOnly beschränkt die Suche auf Benutzerkonten.</span>
+<span class="c"># Select-Object zeigt Kontoname und Objektklasse an.</span>
+<span class="nb">Search-ADAccount</span> <span class="n">-LockedOut</span> <span class="n">-UsersOnly</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span><span class="n">SamAccountName</span><span class="p">,</span><span class="n">ObjectClass</span>
+</code></pre></div><p><strong>Interpretation:</strong> Mehrere gleichzeitige Sperren können auf ein gemeinsames Infrastrukturproblem oder auf auffällige Anmeldeversuche hindeuten. Die reine Anzahl beweist noch keinen Angriff.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/search-adaccount" rel="noopener noreferrer" target="_blank">Microsoft Learn – Search-ADAccount</a>.</p>
+<h3 id="63-geltende-kontosperrrichtlinie-ermitteln">6.3 Geltende Kontosperrrichtlinie ermitteln</h3>
+<p><strong>Ausführungsort:</strong> Administrationsrechner mit AD-Modul. <strong>Wirkung:</strong> Nur lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest die Standard-Kennwortrichtlinie der Domäne des angemeldeten Kontos.</span>
+<span class="c"># -Current LoggedOnUser wählt dessen Domäne aus.</span>
+<span class="c"># Select-Object zeigt ausschließlich die drei Sperrparameter.</span>
+<span class="nb">Get-ADDefaultDomainPasswordPolicy</span> <span class="n">-Current</span> <span class="n">LoggedOnUser</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">LockoutThreshold</span><span class="p">,</span><span class="n">LockoutObservationWindow</span><span class="p">,</span><span class="n">LockoutDuration</span>
+
+<span class="c"># Prüft, ob für diesen Benutzer eine fein abgestufte Richtlinie (PSO) gilt.</span>
+<span class="c"># Gibt es keine solche Richtlinie, kann das Ergebnis leer sein.</span>
+<span class="nb">Get-ADUserResultantPasswordPolicy</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span><span class="n">LockoutThreshold</span><span class="p">,</span><span class="n">LockoutObservationWindow</span><span class="p">,</span><span class="n">LockoutDuration</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein PSO kann für einen Benutzer andere Werte festlegen als die Standarddomänenrichtlinie. Daher <strong>nicht pauschal von „fünf Fehlversuchen“ ausgehen</strong>.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-addefaultdomainpasswordpolicy" rel="noopener noreferrer" target="_blank">Get-ADDefaultDomainPasswordPolicy</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduserresultantpasswordpolicy" rel="noopener noreferrer" target="_blank">Get-ADUserResultantPasswordPolicy</a>.</p>
+<hr/>
+<h2 id="7-diagnose-ereignis-4740-wann-wurde-das-konto-gesperrt">7. Diagnose: Ereignis 4740 – Wann wurde das Konto gesperrt?</h2>
+<p>Die Windows-Ereignis-ID <strong>4740</strong> dokumentiert, dass ein Konto gesperrt wurde. Bei AD-Benutzerkonten untersucht man dafür die Sicherheitsprotokolle der relevanten <strong>Domänencontroller (DCs)</strong>.</p>
+<p>Das Feld <strong>Caller Computer Name</strong> kann den auslösenden Rechner nennen. Es ist jedoch nicht garantiert, dass dieses Feld immer ausgefüllt ist oder die tatsächlich verursachende Anwendung erkennen lässt. Ein vermittelnder Server kann ebenfalls als Quelle erscheinen.</p>
+<h3 id="71-domaenencontroller-mit-pdc-emulatorrolle-ermitteln">7.1 Domänencontroller mit PDC-Emulatorrolle ermitteln</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Get-ADDomain liest Informationen zur aktuellen AD-Domäne.</span>
+<span class="c"># Select-Object wählt die Eigenschaft PDCEmulator aus.</span>
+<span class="nb">Get-ADDomain</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">DNSRoot</span><span class="p">,</span><span class="n">PDCEmulator</span>
+</code></pre></div><p><strong>Warum?</strong> Der PDC-Emulator ist bei Kennwort- und Kontosperrvorgängen wichtig. <strong>Nicht nur dort suchen:</strong> Je nach Anmeldeweg und DC-Struktur können relevante Ereignisse auf weiteren Domänencontrollern liegen.</p>
+<h3 id="72-ereignis-4740-remote-abfragen">7.2 Ereignis 4740 remote abfragen</h3>
+<p><strong>Ausführungsort:</strong> Berechtigter Administrationsrechner mit Zugriff auf das <strong>Security-Ereignisprotokoll</strong> eines DCs. Die Remote-Ereignisprotokollabfrage benötigt passende Berechtigungen, Firewall- und Dienstkonfigurationen.<br/>
+<strong>Wirkung:</strong> Nur lesend.<br/>
+<strong>Beispielziel:</strong> <code>DC01.firma.example</code>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Erstellt die Filterbedingungen für die Ereignissuche.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="c"># Sucht im Windows-Sicherheitsprotokoll.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Security'</span>
+    <span class="c"># Ereignis-ID 4740 steht für eine Kontosperre.</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">4740</span>
+    <span class="c"># Beschränkt die Suche auf die letzten sechs Stunden.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">6</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Liest bis zu 100 passende Ereignisse vom angegebenen DC.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-ComputerName</span> <span class="s1">'DC01.firma.example'</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">100</span> <span class="p">|</span>
+    <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+        <span class="c"># Wandelt jedes Ereignis in XML um, um strukturierte Felder auszulesen.</span>
+        <span class="nv">$xml</span> <span class="p">=</span> <span class="no">[xml]</span><span class="nv">$_</span><span class="p">.</span><span class="n">ToXml</span><span class="p">()</span>
+        <span class="c"># Erstellt eine leere Zuordnung für die Ereignisfelder.</span>
+        <span class="nv">$felder</span> <span class="p">=</span> <span class="p">@{}</span>
+        <span class="c"># Durchläuft jedes Datenfeld des Ereignisses.</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$feld</span> <span class="k">in</span> <span class="nv">$xml</span><span class="p">.</span><span class="n">Event</span><span class="p">.</span><span class="n">EventData</span><span class="p">.</span><span class="n">Data</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c"># Speichert den Inhalt unter dem jeweiligen XML-Feldnamen.</span>
+            <span class="nv">$felder</span><span class="p">[</span><span class="nv">$feld</span><span class="p">.</span><span class="n">Name</span><span class="p">]</span> <span class="p">=</span> <span class="nv">$feld</span><span class="p">.</span><span class="s1">'#text'</span>
+        <span class="p">}</span>
+        <span class="c"># Erstellt einen übersichtlichen Ergebniseintrag.</span>
+        <span class="no">[pscustomobject]</span><span class="p">@{</span>
+            <span class="n">Zeitpunkt</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">TimeCreated</span>
+            <span class="n">Konto</span>     <span class="p">=</span> <span class="nv">$felder</span><span class="p">[</span><span class="s1">'TargetUserName'</span><span class="p">]</span>
+            <span class="n">Quelle</span>    <span class="p">=</span> <span class="nv">$felder</span><span class="p">[</span><span class="s1">'CallerComputerName'</span><span class="p">]</span>
+            <span class="n">DC</span>        <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">MachineName</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="p">|</span>
+    <span class="c"># Zeigt nur die Ereignisse für den gesuchten Benutzer.</span>
+    <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Konto</span> <span class="o">-eq</span> <span class="s1">'m.mustermann'</span> <span class="p">}</span>
+</code></pre></div><p><strong>Fiktive Beispielausgabe:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Zeitpunkt           Konto          Quelle   DC
+---------           -----          ------   --
+07.11.2026 08:32:02 m.mustermann   PC-023   DC01.firma.example
+</code></pre></div><p><strong>Interpretation:</strong> Zum angegebenen Zeitpunkt wurde das Konto gesperrt; <code>PC-023</code> ist ein <strong>möglicher Quellrechner</strong>. Nun muss geprüft werden, was auf diesem Gerät zu den Fehlversuchen führte. Die Ausgabe ist kein Beweis, dass beispielsweise Outlook die Sperre ausgelöst hat.</p>
+<p><strong>Wenn keine Ereignisse erscheinen:</strong> Überwachungsrichtlinien, Log-Aufbewahrung, Zeitfenster, Berechtigungen und weitere DCs prüfen. Die Abwesenheit eines Ereignisses im abgefragten Protokoll beweist nicht, dass keine Sperre stattgefunden hat.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4740" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ereignis 4740</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent" rel="noopener noreferrer" target="_blank">Get-WinEvent</a>.</p>
+<hr/>
+<h2 id="8-diagnose-kerberos-ntlm-und-weitere-fehlgeschlagene-anmeldungen">8. Diagnose: Kerberos, NTLM und weitere fehlgeschlagene Anmeldungen</h2>
+<p>Ereignis <strong>4740</strong> beantwortet in erster Linie <strong>wann das Konto gesperrt wurde</strong>. Für <strong>warum</strong> und <strong>woher</strong> helfen ergänzende Ereignisse.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Wo typischerweise prüfen?</th>
+<th>Bedeutung und wichtige Felder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>4771</strong></td>
+<td>DC-Security-Log</td>
+<td>Kerberos-Vorauthentifizierung fehlgeschlagen; <code>IpAddress</code>, <code>Status</code>, <code>TargetUserName</code>. <code>0x18</code> ist ein typischer Hinweis auf ungültige Kennwortinformationen.</td>
+</tr>
+<tr>
+<td><strong>4776</strong></td>
+<td>DC-Security-Log für Domänenkonten bei NTLM</td>
+<td>NTLM-Anmeldeprüfung; <code>Workstation</code>, <code>Status</code>, <code>TargetUserName</code>. Beispielsweise <code>0xC000006A</code> für falsches Kennwort.</td>
+</tr>
+<tr>
+<td><strong>4625</strong></td>
+<td>Betroffener Windows-Rechner oder Dienst-/Zielserver (je nach Anmeldeweg)</td>
+<td>Fehlgeschlagene Anmeldung; unter anderem Logon Type, Status, Substatus und Quellinformationen.</td>
+</tr>
+<tr>
+<td><strong>4767</strong></td>
+<td>Passendes AD-Sicherheitsprotokoll</td>
+<td>Konto wurde entsperrt; hilfreich für die Zeitlinie nach einer administrativen Maßnahme.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Unbedingt unterscheiden:</strong> <code>4771</code> und <code>4776</code> erscheinen nicht einfach immer gleichzeitig. Sie dokumentieren unterschiedliche Authentifizierungswege. Sicherheitsprotokolle enthalten nur die Ereignisse, deren Überwachung und Aufbewahrung entsprechend konfiguriert sind.</p>
+<h3 id="81-kerberos-ereignisse-4771-fuer-einen-benutzer-auslesen">8.1 Kerberos-Ereignisse 4771 für einen Benutzer auslesen</h3>
+<p><strong>Ausführungsort:</strong> Administrationsrechner mit lesendem Zugriff auf das Security-Protokoll des angegebenen DCs. <strong>Wirkung:</strong> Nur lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Legt einen Filter für Kerberos-Vorauthentifizierungsfehler an.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Security'</span>       <span class="c"># Security-Protokoll</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">4771</span>                  <span class="c"># Kerberos-Fehlerereignis</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">6</span><span class="p">)</span>  <span class="c"># Letzte sechs Stunden</span>
+<span class="p">}</span>
+
+<span class="c"># Liest die passenden Ereignisse vom Domänencontroller.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-ComputerName</span> <span class="s1">'DC01.firma.example'</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">200</span> <span class="p">|</span>
+    <span class="k">ForEach</span><span class="n">-Object</span> <span class="p">{</span>
+        <span class="c"># Wandelt jedes Ereignis in eine lesbare XML-Struktur um.</span>
+        <span class="nv">$xml</span> <span class="p">=</span> <span class="no">[xml]</span><span class="nv">$_</span><span class="p">.</span><span class="n">ToXml</span><span class="p">()</span>
+        <span class="c"># Legt eine Zuordnung der benannten Ereignisfelder an.</span>
+        <span class="nv">$felder</span> <span class="p">=</span> <span class="p">@{}</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="nv">$feld</span> <span class="k">in</span> <span class="nv">$xml</span><span class="p">.</span><span class="n">Event</span><span class="p">.</span><span class="n">EventData</span><span class="p">.</span><span class="n">Data</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c"># Ordnet Feldname und Inhalt einander zu.</span>
+            <span class="nv">$felder</span><span class="p">[</span><span class="nv">$feld</span><span class="p">.</span><span class="n">Name</span><span class="p">]</span> <span class="p">=</span> <span class="nv">$feld</span><span class="p">.</span><span class="s1">'#text'</span>
+        <span class="p">}</span>
+        <span class="c"># Formatiert die für den Support wichtigsten Angaben.</span>
+        <span class="no">[pscustomobject]</span><span class="p">@{</span>
+            <span class="n">Zeitpunkt</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">TimeCreated</span>
+            <span class="n">Konto</span>     <span class="p">=</span> <span class="nv">$felder</span><span class="p">[</span><span class="s1">'TargetUserName'</span><span class="p">]</span>
+            <span class="n">QuellIP</span>   <span class="p">=</span> <span class="nv">$felder</span><span class="p">[</span><span class="s1">'IpAddress'</span><span class="p">]</span>
+            <span class="n">Status</span>    <span class="p">=</span> <span class="nv">$felder</span><span class="p">[</span><span class="s1">'Status'</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="p">|</span>
+    <span class="c"># Filtert nach dem betroffenen Benutzer.</span>
+    <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Konto</span> <span class="o">-eq</span> <span class="s1">'m.mustermann'</span> <span class="p">}</span>
+</code></pre></div><p><strong>Fiktiver Befund:</strong> In zeitlicher Nähe zur Sperre erscheinen mehrfach <code>4771</code>-Ereignisse mit <code>Status = 0x18</code> und der gleichen Quell-IP-Adresse. Das legt wiederholte ungültige Kerberos-Anmeldedaten nahe – die <strong>exakte Anwendung ist damit noch nicht ermittelt</strong>.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4771" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ereignis 4771</a>.</p>
+<h3 id="82-ntlm-ereignisse-4776-alternative-bei-ntlm-anmeldungen">8.2 NTLM-Ereignisse 4776 – Alternative bei NTLM-Anmeldungen</h3>
+<p>Im Windows-Ereignis <strong>4776</strong> dokumentiert <code>Workstation</code> den Quellcomputernamen; <code>Status</code> enthält den Ergebniscode. Die Prüfung kann im Ereignisprotokoll oder mit einer vergleichbaren XML-Auswertung wie oben erfolgen (Filter-ID statt <code>4771</code> auf <code>4776</code> setzen, Felder <code>TargetUserName</code>, <code>Workstation</code>, <code>Status</code> auslesen).</p>
+<p><strong>Wichtige Statuscodes:</strong></p>
+<ul>
+<li><code>0x0</code>: NTLM-Anmeldeprüfung erfolgreich.</li>
+<li><code>0xC000006A</code>: falsches Kennwort.</li>
+<li><code>0xC0000234</code>: Konto ist gesperrt.</li>
+</ul>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4776" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ereignis 4776</a>.</p>
+<h3 id="83-was-mache-ich-mit-diesen-informationen">8.3 Was mache ich mit diesen Informationen?</h3>
+<p><strong>Beispiel:</strong></p>
+<ul>
+<li>08:31:48 – Kerberos-Fehler <code>4771</code>, Quell-IP eines Arbeitsplatzrechners.</li>
+<li>08:31:54 – weiterer Kerberos-Fehler für denselben Benutzer.</li>
+<li>08:32:02 – Kontosperre <code>4740</code>, <code>Caller Computer Name = PC-023</code>.</li>
+</ul>
+<p>Die Zeitfolge deutet auf wiederholte Anmeldeversuche aus dem Umfeld von <code>PC-023</code> hin. <strong>Nächster Schritt:</strong> Das Gerät untersuchen und die verursachende Anwendung oder den Dienst anhand seiner Konfiguration und lokaler Logs identifizieren.</p>
+<p>Wird stattdessen ein unbekanntes Gerät oder eine unerwartete Quelladresse sichtbar, kann ein Security-Vorfall vorliegen. Dann nicht unbedacht entsperren oder Spuren entfernen.</p>
+<hr/>
+<h2 id="9-quellgeraet-untersuchen-wo-stecken-veraltete-kennwoerter">9. Quellgerät untersuchen: Wo stecken veraltete Kennwörter?</h2>
+<p><strong>Vorbereitung:</strong> Erst den möglichen Quellcomputer eingrenzen. Dann einen genehmigten Diagnoseweg wählen (Fernwartung, PowerShell-Remoting, Administrator-Sitzung oder vor Ort). Die folgenden Untersuchungen erfolgen nur mit den erforderlichen Rechten und im richtigen Benutzerkontext.</p>
+<h3 id="91-windows-anmeldeinformationsverwaltung">9.1 Windows-Anmeldeinformationsverwaltung</h3>
+<p>Auf dem betroffenen Rechner kann die Windows-Anmeldeinformationsverwaltung (<em>Credential Manager</em>) gespeicherte Anmeldeinformationen für bestimmte Verbindungen enthalten.</p>
+<p><strong>Grafischer Weg:</strong> Windows-Suche → „Anmeldeinformationsverwaltung“ → „Windows-Anmeldeinformationen“. Den möglicherweise betroffenen Eintrag identifizieren und nach Rücksprache aktualisieren bzw. gezielt entfernen.</p>
+<p><strong>Wichtig:</strong> Nicht alle Anmeldeinformationen werden hier angezeigt; der Tresor ist benutzerabhängig. Keine pauschale Löschung, keine Offenlegung von Kennwörtern. Bei einem gesperrten Benutzer kann eine Admin-Sitzung einen <strong>anderen</strong> Credential Manager anzeigen als die Benutzersitzung.</p>
+<h3 id="92-geplante-aufgaben-untersuchen">9.2 Geplante Aufgaben untersuchen</h3>
+<p>Eine geplante Aufgabe (Task Scheduler) kann im Hintergrund wiederholt mit einem veralteten Benutzerkennwort laufen.</p>
+<p><strong>Ausführungsort:</strong> Verdächtiger Quellcomputer mit geeigneten Rechten. <strong>Wirkung:</strong> Nur lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest auf dem aktuellen Computer die geplanten Aufgaben aus.</span>
+<span class="nb">Get-ScheduledTask</span> <span class="p">|</span>
+    <span class="c"># Zeigt Aufgabenname, Pfad, gespeicherten Ausführungsbenutzer und Status.</span>
+    <span class="nb">Select-Object</span> <span class="n">TaskName</span><span class="p">,</span><span class="n">TaskPath</span><span class="p">,@{</span>
+        <span class="n">Name</span> <span class="p">=</span> <span class="s1">'RunAsUser'</span>                <span class="c"># Name der berechneten Ausgabespalte</span>
+        <span class="n">Expression</span> <span class="p">=</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Principal</span><span class="p">.</span><span class="n">UserId</span> <span class="p">}</span> <span class="c"># Benutzer, unter dem die Aufgabe läuft</span>
+    <span class="p">},</span><span class="n">State</span>
+</code></pre></div><p><strong>Interpretation:</strong> Eine Aufgabe mit dem betroffenen Benutzerkonto ist ein <strong>Prüfkandidat</strong>, aber noch keine bestätigte Ursache. Zeitplan und Aufgabenverlaufsprotokoll mit dem Sperrzeitpunkt abgleichen. Zugangsdaten nur über den vorgesehenen Administrationsprozess korrigieren.</p>
+<h3 id="93-windows-dienste-und-dienstkonten-pruefen">9.3 Windows-Dienste und Dienstkonten prüfen</h3>
+<p>Ein Windows-Dienst kann unter einem eigenen Domänenkonto laufen. Wurde dessen Kennwort geändert, ohne den Dienst anzupassen, können Authentifizierungen scheitern.</p>
+<p><strong>Ausführungsort:</strong> Verdächtiger Quellcomputer mit Berechtigungen für Dienstinformationen. <strong>Wirkung:</strong> Nur lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Get-CimInstance liest Windows-Dienstinformationen per CIM aus.</span>
+<span class="c"># Win32_Service enthält unter anderem den Startnamen des Dienstkontos.</span>
+<span class="nb">Get-CimInstance</span> <span class="n">-ClassName</span> <span class="n">Win32_Service</span> <span class="p">|</span>
+    <span class="c"># Wählt Name, Anzeigename, Dienstkonto und aktuellen Status aus.</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span><span class="n">DisplayName</span><span class="p">,</span><span class="n">StartName</span><span class="p">,</span><span class="n">State</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein Dienst, der unter <code>FIRMA\m.mustermann</code> läuft, ist ungewöhnlich für einen normalen persönlichen Benutzer und muss geprüft werden. Dienste sollten nach Möglichkeit geeignete <strong>separate Dienstidentitäten</strong> verwenden, nicht persönliche Mitarbeiterkonten. Das Umstellen von Dienstkonten ist eine kontrollierte Administrationsmaßnahme, kein ungeprüfter L1-Standardfix.</p>
+<h3 id="94-weitere-kandidaten">9.4 Weitere Kandidaten</h3>
+<ul>
+<li>Zusätzliches Notebook oder Desktop mit veralteten Anmeldedaten.</li>
+<li>Netzwerkfreigabe oder wiederhergestellte Verbindung mit alten Credentials.</li>
+<li>VPN-Client, Remote Desktop oder eine Anwendung mit eigenem Login-Cache.</li>
+<li>Hintergrundanwendung, die regelmäßig denselben Netzwerkanmeldeversuch wiederholt.</li>
+<li>Auffällige externe Anmeldeversuche: <strong>Security-Team einschalten</strong>.</li>
+</ul>
+<p><strong>Nicht blind:</strong> Kennwörter global zurücksetzen, alle gespeicherten Anmeldeinformationen löschen oder die Kontosperrrichtlinie heruntersetzen. Diese Maßnahmen können Folgestörungen und Sicherheitsrisiken verursachen.</p>
+<hr/>
+<h2 id="10-fehlerbehebung-und-kontrollierte-entsperrung">10. Fehlerbehebung und kontrollierte Entsperrung</h2>
+<p>Die Maßnahme richtet sich nach dem <strong>nachvollziehbaren Befund</strong>.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener oder plausibler Befund</th>
+<th>Maßnahme</th>
+<th>Erfolgskontrolle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Benutzer hat sich mehrfach vertippt</td>
+<td>Eingabemethode und Benutzerkonto gemeinsam überprüfen; bei Bedarf den vorgesehenen Kennwortprozess nutzen</td>
+<td>Erfolgreiche Anmeldung; keine neuen Sperren</td>
+</tr>
+<tr>
+<td>Hinterlegte alte Anmeldedaten auf Zweitgerät</td>
+<td>Den konkreten Eintrag oder die betroffene Anwendung gezielt korrigieren</td>
+<td>Erneuter Verbindungsaufbau ohne fehlerhafte Authentifizierungen</td>
+</tr>
+<tr>
+<td>Geplante Aufgabe mit altem Kennwort</td>
+<td>Zuständigen Administrator informieren; Run-as-Konto über freigegebenes Verfahren aktualisieren</td>
+<td>Aufgabenlauf und Security-Protokolle prüfen</td>
+</tr>
+<tr>
+<td>Dienst verwendet altes Kennwort</td>
+<td>Dienstkonfiguration durch zuständigen Administrator korrigieren</td>
+<td>Dienst startet und authentifiziert sich erfolgreich</td>
+</tr>
+<tr>
+<td>Unbekannter Anmeldeursprung, viele betroffene Konten</td>
+<td>Security-/Incident-Prozess starten</td>
+<td>Auswertung und Freigabe durch verantwortliches Team</td>
+</tr>
+<tr>
+<td>Keine ausreichenden Daten</td>
+<td>Weitere DCs, Zeiträume, Logquellen und Quellgeräte prüfen</td>
+<td>Befund dokumentieren, nicht als gelöst ausgeben</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="101-entsperrung-zunaechst-simulieren--whatif-">10.1 Entsperrung zunächst simulieren (<code>-WhatIf</code>)</h3>
+<p><strong>Ausführungsort:</strong> Berechtigter AD-Administrationsrechner. <strong>Voraussetzungen:</strong> ActiveDirectory-Modul, Entsperrberechtigung und Freigabe.<br/>
+<strong>Sicherheit:</strong> Die erste Variante <strong>ändert nichts</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt an, welche Entsperraktion geplant wäre.</span>
+<span class="c"># -Identity bezeichnet exakt das betroffene AD-Konto.</span>
+<span class="c"># -WhatIf führt die Änderung NICHT durch.</span>
+<span class="nb">Unlock-ADAccount</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="n">-WhatIf</span>
+</code></pre></div><h3 id="102-konto-tatsaechlich-entsperren-nur-bei-freigabe">10.2 Konto tatsächlich entsperren – nur bei Freigabe</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Entsperrt das genannte Konto tatsächlich.</span>
+<span class="c"># -Confirm fordert vor dem Ausführen eine Bestätigung an.</span>
+<span class="c"># Diesen Befehl nur nach Identitätsprüfung und Freigabe verwenden.</span>
+<span class="nb">Unlock-ADAccount</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="n">-Confirm</span>
+</code></pre></div><p><strong>Wichtig:</strong> Eine Entsperrung allein beseitigt <strong>nicht</strong> das veraltete Kennwort in einer Anwendung. Läuft die fehlerhafte Quelle weiter, kann das Konto bald wieder gesperrt sein. Bei verdächtigen Anmeldeversuchen kann eine Entsperrung ohne Sicherheitsklärung unangemessen sein.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/unlock-adaccount" rel="noopener noreferrer" target="_blank">Microsoft Learn – Unlock-ADAccount</a>.</p>
+<h3 id="103-funktion-pruefen">10.3 Funktion prüfen</h3>
+<ol>
+<li><code>LockedOut</code> erneut kontrollieren.</li>
+<li>Den Mitarbeiter über den abgeschlossenen Schritt informieren.</li>
+<li>Anmeldung mit den <strong>eigenständig eingegebenen</strong> gültigen Zugangsdaten prüfen lassen.</li>
+<li>Ursprünglich betroffene Ressource öffnen lassen.</li>
+<li>Über einen vereinbarten Beobachtungszeitraum prüfen, ob weitere fehlgeschlagene Anmeldeversuche oder Sperren auftreten.</li>
+<li>Den tatsächlichen Beobachtungszeitraum im Ticket dokumentieren – <strong>nicht</strong> „dauerhaft behoben“ behaupten, wenn nur eine Einzelanmeldung geprüft wurde.</li>
+</ol>
+<hr/>
+<h2 id="11-sonderfall-microsoft-entra-smart-lockout-cloud">11. Sonderfall: Microsoft Entra Smart Lockout (Cloud)</h2>
+<p><strong>Microsoft Entra ID</strong> ist ein cloudbasierter Identitäts- und Zugriffsverwaltungsdienst. Der Mechanismus <strong>Smart Lockout</strong> soll insbesondere automatisierte Kennwortangriffe erschweren. Er verwendet eigene Regeln und ist <strong>nicht identisch</strong> mit der AD-DS-Kontosperre.</p>
+<p><strong>Cloud-Diagnose:</strong> Mit einer berechtigten Rolle im <a href="https://entra.microsoft.com/" rel="noopener noreferrer" target="_blank">Microsoft Entra Admin Center</a> anmelden → <strong>Entra ID → Monitoring &amp; health → Sign-in logs</strong> → Benutzer, Zeitraum und Status filtern → Fehlerdetails und Anmeldequelle überprüfen. Bei auffälligen Mustern Sicherheitsprozesse anwenden.</p>
+<p>Der Cloud-Fehlercode <code>AADSTS50053</code> kann auf Smart Lockout beziehungsweise blockierte verdächtige Anmeldeversuche hinweisen. Daraus sollte ohne weitere Prüfung <strong>nicht</strong> auf die Ursache einer lokalen AD-Sperre geschlossen werden.</p>
+<p><strong>Hybrid:</strong> In bestimmten Umgebungen können Cloud- und lokale Kontosperrregeln zusammenspielen. Wenn ein Mitarbeiter in Microsoft 365 nicht anmelden kann, folgt daraus nicht automatisch, dass sein lokales AD-Konto gesperrt ist – und umgekehrt.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/entra/identity/authentication/howto-password-smart-lockout" rel="noopener noreferrer" target="_blank">Microsoft Learn – Smart Lockout</a>, <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/concept-sign-ins" rel="noopener noreferrer" target="_blank">Entra-Anmeldeprotokolle</a>, <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/quickstart-analyze-sign-in" rel="noopener noreferrer" target="_blank">Fehlgeschlagene Anmeldung untersuchen</a>.</p>
+<hr/>
+<h2 id="12-abgrenzung-1st-und-2nd-level-eskalation">12. Abgrenzung 1st und 2nd Level / Eskalation</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>1st-Level – je nach Freigaben</th>
+<th>2nd-Level / Security – je nach Organisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ticket aufnehmen und Identität prüfen</td>
+<td>DC-Protokolle domänenübergreifend korrelieren</td>
+</tr>
+<tr>
+<td>Kontostatus im vorgesehenen Werkzeug prüfen</td>
+<td>Wiederkehrende Sperrquellen auf Clients, Servern und Diensten untersuchen</td>
+</tr>
+<tr>
+<td>Bekannte, freigegebene Standardmaßnahme ausführen</td>
+<td>Problematische Dienstkonten, Tasks und Anmeldeprozesse korrigieren</td>
+</tr>
+<tr>
+<td>Informationen zur Kennwortänderung/Zweitgeräten erfragen</td>
+<td>Richtlinien und komplexe Authentifizierungswege analysieren</td>
+</tr>
+<tr>
+<td>Befunde und Zeitpunkte dokumentieren</td>
+<td>Möglichen Angriff bewerten und Incident Response auslösen</td>
+</tr>
+<tr>
+<td>Sauber eskalieren</td>
+<td>Nachhaltige Prävention, Monitoring und Ursachenbehebung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Unverzüglich eskalieren bei:</strong> Sperren privilegierter Konten, auffälligen Quelladressen, vielen Konten mit gleichzeitigen Fehlversuchen, Verdacht auf Kennwortangriff, wiederholter Sperre nach Standardbehebung oder nicht erklärbaren Änderungen an Konten und Systemen.</p>
+<h3 id="eskalationsinformation-mindestens-erforderlich">Eskalationsinformation – mindestens erforderlich</h3>
+<ul>
+<li>Betroffener Benutzer / Konto-ID (keine Kennwörter).</li>
+<li>Genaues Fehlerbild und Beginn, möglichst mit Zeitzone.</li>
+<li>Betroffene Systeme und Anzahl der Benutzer.</li>
+<li>Kontostatus, relevante Richtlinien, Ereignis-IDs und Zeitpunkte.</li>
+<li>Gefundene Quellgeräte bzw. Quell-IP-Adressen, inklusive Unsicherheiten.</li>
+<li>Durchgeführte Maßnahmen und deren Ergebnis.</li>
+<li>Aktueller Stand: gesperrt, entsperrt, Ursache offen oder Security-Vorfall.</li>
+</ul>
+<hr/>
+<h2 id="13-muster-ticketkommentar">13. Muster-Ticketkommentar</h2>
+<blockquote>
+<p><strong>Konstruiertes Beispiel – keine real ausgeführte Störungsbearbeitung</strong></p>
+</blockquote>
+<p><strong>INC-002 – Wiederkehrende AD-Kontosperre</strong></p>
+<p><strong>Fehlerbild:</strong> Benutzerkonto <code>m.mustermann</code> wird nach Entsperrung wiederholt gesperrt.</p>
+<p><strong>Diagnose:</strong> Kontostatus über AD überprüft; <code>LockedOut = True</code>. Ereignis <code>4740</code> auf DC01 zum Sperrzeitpunkt ermittelt. <code>Caller Computer Name = PC-023</code>. Zeitgleiche fehlgeschlagene Kerberos-Anmeldungen im Ereignis <code>4771</code> korreliert. Auf <code>PC-023</code> eine geplante Aufgabe festgestellt, die unter dem persönlichen Benutzerkonto mit veralteten Anmeldeinformationen ausgeführt wurde.</p>
+<p><strong>Ursache:</strong> Geplante Aufgabe verwendete nach einer Kennwortänderung weiterhin ungültige Anmeldeinformationen.</p>
+<p><strong>Maßnahme:</strong> Ausführungskonto nach Abstimmung mit dem zuständigen Administrator korrigiert; anschließend Konto gemäß Berechtigung und Freigabe entsperrt.</p>
+<p><strong>Ergebnis:</strong> Aufgabenlauf und reguläre Windows-Anmeldung erfolgreich getestet. Während eines dokumentierten Beobachtungszeitraums keine erneute Sperre festgestellt.</p>
+<p><strong>Status:</strong> Gelöst. <strong>Hinweis:</strong> Das Beispiel ist fiktiv und setzt voraus, dass jeder genannte Prüf- und Lösungsschritt tatsächlich stattgefunden hätte.</p>
+<hr/>
+<h2 id="14-lernkontrolle-und-spaetere-anki-karten">14. Lernkontrolle und spätere Anki-Karten</h2>
+<p><strong>Wissenskarten (Begriffe und Befehle):</strong></p>
+<ul>
+<li>Was bedeutet Ereignis-ID <code>4740</code>?</li>
+<li>Welche AD-Eigenschaft zeigt eine aktuelle Kontosperre an?</li>
+<li>Was bewirkt <code>Unlock-ADAccount -WhatIf</code>?</li>
+<li>Was unterscheidet Kerberos <code>4771</code> von NTLM <code>4776</code>?</li>
+</ul>
+<p><strong>Verständniskarten (Ursachen):</strong></p>
+<ul>
+<li>Warum kann ein Konto ohne manuelle Kennworteingabe gesperrt werden?</li>
+<li>Warum beweist <code>Caller Computer Name</code> noch nicht die schuldige Anwendung?</li>
+<li>Warum ist das reine Entsperren keine nachhaltige Reparatur?</li>
+</ul>
+<p><strong>Diagnosekarten (neue Fälle):</strong></p>
+<ol>
+<li>Nach einer Kennwortänderung sperrt sich ein Konto alle 15 Minuten. Ereignis <code>4740</code> nennt einen selten genutzten Zweitrechner. Welche Hypothesen würdest du zuerst prüfen?</li>
+<li>Mehrere Konten werden gleichzeitig von unbekannten Quellen gesperrt. Warum ist das kein gewöhnlicher Kennwortreset-Fall?</li>
+<li>Im Event 4771 steht <code>0x18</code> und eine Quell-IP. Welchen nächsten Prüfweg würdest du wählen und welche Schlussfolgerung wäre voreilig?</li>
+</ol>
+<p><strong>Lernprinzip:</strong> Erst selbst Hypothesen bilden, dann anhand der Logdaten prüfen. Praktische Kompetenz wird erst durch selbstständige Bearbeitung oder nachvollziehbare Tests belegt.</p>
+<hr/>
+<h2 id="15-quellen-geltungsbereich-und-validierungsstatus">15. Quellen, Geltungsbereich und Validierungsstatus</h2>
+<p><strong>Primärquellen – Microsoft Learn:</strong></p>
+<ol>
+<li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4740" rel="noopener noreferrer" target="_blank">Ereignis 4740 – A user account was locked out</a> – Sperrereignis und Caller Computer Name.</li>
+<li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4771" rel="noopener noreferrer" target="_blank">Ereignis 4771 – Kerberos pre-authentication failed</a> – Kerberos, Quell-IP und Statuswerte.</li>
+<li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4776" rel="noopener noreferrer" target="_blank">Ereignis 4776 – Credential validation using NTLM</a> – NTLM, Workstation und Fehlercodes.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4625" rel="noopener noreferrer" target="_blank">Ereignis 4625 – An account failed to log on</a> – Fehlgeschlagene Windows-Anmeldungen und Statuscodes.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduser" rel="noopener noreferrer" target="_blank">Get-ADUser</a> – AD-Benutzer und Kontoeigenschaften auslesen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/search-adaccount" rel="noopener noreferrer" target="_blank">Search-ADAccount</a> – Gesperrte Konten suchen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-addefaultdomainpasswordpolicy" rel="noopener noreferrer" target="_blank">Get-ADDefaultDomainPasswordPolicy</a> – Standard-Sperr-/Kennwortrichtlinie.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-aduserresultantpasswordpolicy" rel="noopener noreferrer" target="_blank">Get-ADUserResultantPasswordPolicy</a> – Wirksame fein abgestufte Kennwortrichtlinie.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/unlock-adaccount" rel="noopener noreferrer" target="_blank">Unlock-ADAccount</a> – Autorisiertes Entsperren; <code>-WhatIf</code>.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent" rel="noopener noreferrer" target="_blank">Get-WinEvent</a> – Ereignisprotokolle mit PowerShell abfragen.</li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/account-lockout-and-management-tool" rel="noopener noreferrer" target="_blank">Account Lockout and Management Tools</a> – Ergänzende Microsoft-Diagnosewerkzeuge; Einsatzhinweise beachten.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/authentication/howto-password-smart-lockout" rel="noopener noreferrer" target="_blank">Microsoft Entra Smart Lockout</a> – Cloud-Kontosperre und Unterschiede zu AD DS.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/concept-sign-ins" rel="noopener noreferrer" target="_blank">Microsoft Entra Sign-in Logs</a> – Cloud-Anmeldedaten untersuchen.</li>
+</ol>
+<p><strong>Fiktive Testumgebung:</strong> <code>firma.example</code>, <code>DC01.firma.example</code>, <code>PC-023</code>, <code>m.mustermann</code>.<br/>
+<strong>Recherche-/Dokumentationsdatum:</strong> 7. November 2026.<br/>
+<strong>Validierungsstatus:</strong> Dokumentation anhand Microsoft-Quellen recherchiert; PowerShell-Beispiele sind <strong>nicht</strong> gegen eine eigene aktive AD-Domäne dieses Projekts getestet. Beispielausgaben und Muster-Ticket sind <strong>synthetisch</strong>.</p>
+<p><strong>Vor einer produktiven Ausführung:</strong> Unternehmensrichtlinien, Rechte, Remotezugänge und betriebsspezifische Vorgaben prüfen. Auf echte Benutzerdaten verzichten bzw. vollständig anonymisieren. Keine Entsperrung ohne Freigabe, keine Änderung von Sicherheitsrichtlinien als schnelle Problemlösung.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-002_Benutzerkonto-gesperrt.md">RB-002_Benutzerkonto-gesperrt.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-001/index.html">← RB-001</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-003/index.html">RB-003 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

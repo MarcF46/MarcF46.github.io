@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-008 Drucker druckt nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-008: Drucker druckt nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Druckdienste · Praxis-Runbook</p><h1>RB-008: Drucker druckt nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-l1">1. Ticketaufnahme (L1)</a></li><li><a href="#2-fehlerlokalisierung-l1">2. Fehlerlokalisierung (L1)</a></li><li><a href="#3-lesende-diagnose-client">3. Lesende Diagnose (Client)</a></li><li><a href="#4-gezielte-massnahmen-nach-befund-und-freigabe">4. Gezielte Maßnahmen (nach Befund und Freigabe)</a></li><li><a href="#5-funktionsnachweis">5. Funktionsnachweis</a></li><li><a href="#6-eskalation-l1-l2">6. Eskalation L1 → L2</a></li><li><a href="#7-muster-ticket-fiktiv">7. Muster-Ticket (fiktiv)</a></li><li><a href="#8-referenzen">8. Referenzen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte Diagnosecheckliste für L1/L2 · <strong>Version:</strong> 1.0 · <strong>Stand:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Recherchiertes Vorgehen, praktische Validierung ausstehend · <strong>Geltungsbereich:</strong> Windows-Clients, optional Windows-Printserver.</p>
+<h2 id="1-ticketaufnahme-l1">1. Ticketaufnahme (L1)</h2>
+<ul>
+<li>[ ] Benutzer, Computername, Druckername/Freigabe und Zeitpunkt erfassen.</li>
+<li>[ ] Exaktes Symptom: Kein Auftrag? Auftrag hängt? Offline? Ausgabe falsch? Auftrag angeblich erfolgreich?</li>
+<li>[ ] Eine Anwendung oder alle? Ein Benutzer oder mehrere? Anderer Drucker funktioniert?</li>
+<li>[ ] Gerät vor Ort: Papier/Toner, Fehlercode, Status, ggf. Secure Print (Freigabe durch PIN/Karte)?</li>
+<li>[ ] Drucker direkt per USB/Netzwerk oder über <code>\\PRINT01\Buero-2OG</code> eingebunden?</li>
+<li>[ ] Fernwartung/Teams-Bildschirmfreigabe, Vor-Ort-Besuch oder autorisierter Serverzugriff verfügbar?</li>
+</ul>
+<h2 id="2-fehlerlokalisierung-l1">2. Fehlerlokalisierung (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Drucker-Selbsttest scheitert</td>
+<td>Gerät, Papier, Wartung, Herstellerfehler.</td>
+</tr>
+<tr>
+<td>Nur ein Programm druckt nicht</td>
+<td>Vergleichstest aus Editor und Windows-Testseite; Anwendung/Dokument.</td>
+</tr>
+<tr>
+<td>Ein Client betroffen</td>
+<td>Lokale Druckwarteschlange, Spooler, Druckerobjekt, Treiber.</td>
+</tr>
+<tr>
+<td>Mehrere betroffen</td>
+<td>Druckerdisplay, Printserver, zentraler Dienst, Netzwerk.</td>
+</tr>
+<tr>
+<td>Client-Auftrag vorhanden, Server-Auftrag fehlt</td>
+<td>Client/Verbindung/Printserver-Zugang.</td>
+</tr>
+<tr>
+<td>Auftrag auf Printserver vorhanden, Drucker bleibt stumm</td>
+<td>Server-Spooler, Port, Netzwerkpfad zum Drucker, Gerät.</td>
+</tr>
+<tr>
+<td>Auftrag verschwindet und kommt nicht raus</td>
+<td>Richtiges Gerät, Secure Print, Fach, Logs, Port.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Abkürzungen:</strong> RDP = Remote Desktop Protocol; DNS = Domain Name System; TCP = Transmission Control Protocol; IP = Internet Protocol; GPO = Group Policy Object; WinRM = Windows Remote Management; IPP = Internet Printing Protocol.</p>
+<h2 id="3-lesende-diagnose-client">3. Lesende Diagnose (Client)</h2>
+<p><strong>Auf dem betroffenen Windows-Client:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt alle lokalen/verbundenen Drucker und den Port an.</span>
+<span class="nb">Get-Printer</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">PrinterStatus</span><span class="p">,</span> <span class="n">DriverName</span><span class="p">,</span> <span class="n">PortName</span>
+
+<span class="c"># Druckername mit dem tatsächlichen Anzeigenamen ersetzen.</span>
+<span class="nv">$drucker</span> <span class="p">=</span> <span class="s1">'Buero-2OG'</span>
+
+<span class="c"># Zeigt die Druckjobs dieser Warteschlange ohne Änderungen.</span>
+<span class="nb">Get-PrintJob</span> <span class="n">-PrinterName</span> <span class="nv">$drucker</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">ID</span><span class="p">,</span> <span class="n">UserName</span><span class="p">,</span> <span class="n">DocumentName</span><span class="p">,</span> <span class="n">JobStatus</span>
+
+<span class="c"># Prüft den lokalen Windows-Druckspooler.</span>
+<span class="nb">Get-Service</span> <span class="n">-Name</span> <span class="s1">'Spooler'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">StartType</span>
+</code></pre></div><p><strong>Auf dem berechtigten Administrationsrechner, falls Printserver eingesetzt:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest die Drucker auf dem zentralen Server.</span>
+<span class="nb">Get-Printer</span> <span class="n">-ComputerName</span> <span class="s1">'PRINT01'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">PrinterStatus</span><span class="p">,</span> <span class="n">PortName</span><span class="p">,</span> <span class="n">DriverName</span>
+
+<span class="c"># Liest dort die Aufträge einer konkreten Warteschlange.</span>
+<span class="nb">Get-PrintJob</span> <span class="n">-ComputerName</span> <span class="s1">'PRINT01'</span> <span class="n">-PrinterName</span> <span class="s1">'Buero-2OG'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">ID</span><span class="p">,</span> <span class="n">UserName</span><span class="p">,</span> <span class="n">DocumentName</span><span class="p">,</span> <span class="n">JobStatus</span>
+
+<span class="c"># Liest Ports auf dem Druckserver.</span>
+<span class="nb">Get-PrinterPort</span> <span class="n">-ComputerName</span> <span class="s1">'PRINT01'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">PrinterHostAddress</span><span class="p">,</span> <span class="n">PortNumber</span>
+</code></pre></div><p><strong>Bei Standard-TCP/IP-RAW-Port 9100 (nur wenn so konfiguriert):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Dokumentations-IP durch echte Drucker-IP ersetzen!</span>
+<span class="c"># Vom Printserver bzw. relevanten Ausgangssystem aus prüfen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'192.0.2.45'</span> <span class="n">-Port</span> <span class="n">9100</span>
+</code></pre></div><p><code>TcpTestSucceeded : True</code> beweist lediglich TCP-Erreichbarkeit – <strong>keinen erfolgreichen Druck</strong>. Bei USB, WSD oder IPP andere Prüfschritte wählen.</p>
+<h2 id="4-gezielte-massnahmen-nach-befund-und-freigabe">4. Gezielte Maßnahmen (nach Befund und Freigabe)</h2>
+<ul>
+<li>[ ] Papierstau/Materialproblem entsprechend Herstellerhinweis beheben.</li>
+<li>[ ] Bei einem blockierten Job <strong>Besitzer und Dokument</strong> klären; nur den betroffenen Auftrag entfernen.</li>
+<li>[ ] Bei nachgewiesenem lokalen Spoolerproblem Ereignisse sichern und kontrollierten Dienst-Neustart erwägen.</li>
+<li>[ ] Server-Neustart des Spoolers nur mit L2-Freigabe, Betroffeneninformation und Auswirkungsprüfung.</li>
+<li>[ ] Treiber/Port/GPO nur nach Versions- und Sicherheitsprüfung ändern; Unternehmensrichtlinien nicht umgehen.</li>
+</ul>
+<p><strong>Simulation für gezieltes Entfernen eines Druckjobs:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Beispiele an tatsächlichen Drucker und Auftrag anpassen.</span>
+<span class="nv">$drucker</span> <span class="p">=</span> <span class="s1">'Buero-2OG'</span>
+<span class="nv">$auftragId</span> <span class="p">=</span> <span class="n">17</span>
+
+<span class="c"># Prüft Auftrag vor einer Änderung.</span>
+<span class="nb">Get-PrintJob</span> <span class="n">-PrinterName</span> <span class="nv">$drucker</span> <span class="n">-ID</span> <span class="nv">$auftragId</span>
+
+<span class="c"># Zeigt an, was entfernt würde – ohne den Job zu löschen.</span>
+<span class="nb">Remove-PrintJob</span> <span class="n">-PrinterName</span> <span class="nv">$drucker</span> <span class="n">-ID</span> <span class="nv">$auftragId</span> <span class="n">-WhatIf</span>
+
+<span class="c"># NUR nach Autorisierung: Remove-PrintJob -PrinterName $drucker -ID $auftragId</span>
+</code></pre></div><p><strong>Simulation eines Spooler-Neustarts:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Greift nur auf dem System, auf dem dieser Befehl ausgeführt wird.</span>
+<span class="c"># -WhatIf soll die Maßnahme lediglich anzeigen.</span>
+<span class="nb">Restart-Service</span> <span class="n">-Name</span> <span class="s1">'Spooler'</span> <span class="n">-WhatIf</span>
+
+<span class="c"># NUR bei Freigabe: Restart-Service -Name 'Spooler'</span>
+</code></pre></div><p><strong>Kein Standardverfahren:</strong> Pauschales Löschen aus <code>%windir%\System32\spool\PRINTERS</code> oder ungeplantes Neustarten des zentralen Spoolers. Auf Printservern können dadurch Druckjobs vieler Mitarbeitender betroffen sein.</p>
+<h2 id="5-funktionsnachweis">5. Funktionsnachweis</h2>
+<ul>
+<li>[ ] Kleine, unkritische Testseite erfolgreich an den <strong>richtigen</strong> Drucker gesendet.</li>
+<li>[ ] Papier tatsächlich ausgegeben oder durch Benutzer verifiziert (nicht nur „Job beendet“).</li>
+<li>[ ] Ursprüngliche Anwendung kann erneut drucken.</li>
+<li>[ ] Bei Mehrbenutzerstörung mindestens einen zweiten Arbeitsplatz prüfen.</li>
+<li>[ ] Keine fremden Druckaufträge/Datenschutzanforderungen unzulässig beeinträchtigt.</li>
+</ul>
+<h2 id="6-eskalation-l1-l2">6. Eskalation L1 → L2</h2>
+<p>Eskalieren bei: Mehrbenutzer- oder Mehrdrucker-Störung, Printserver-Queue/Spooler, Treiber-/GPO-Sicherheitsrichtlinien, Netzwerk-Routing/Firewall, wiederkehrendem Absturz, fehlenden Berechtigungen oder Hardware-/Firmwaredefekt.</p>
+<p><strong>Übergabe:</strong> betroffene Clients/Drucker, Zeit, exakte Meldung, Queue-Status <strong>Client vs. Server</strong>, Gerätedisplay, Tests und Ergebnisse, Änderungen, Risiken und Ansprechpartner.</p>
+<h2 id="7-muster-ticket-fiktiv">7. Muster-Ticket (fiktiv)</h2>
+<p><strong>INC-008 · Windows-Druckauftrag bleibt lokal hängen</strong><br/>
+<strong>Diagnose:</strong> Ein Benutzer betroffen; Drucker und Printserver bei Kollegen funktionsfähig. Auftrag nur lokal im Client sichtbar.<br/>
+<strong>Maßnahme:</strong> Nach Zustimmung einzelnen blockierten Auftrag entfernt; erneuten Testdruck durchgeführt.<br/>
+<strong>Ergebnis:</strong> Testseite und Originalanwendung drucken wieder. Technische Ursache des ursprünglichen Jobs nicht abschließend nachgewiesen.<br/>
+<strong>Status:</strong> Gelöst – fiktive Übung, kein echter Praxisnachweis.</p>
+<h2 id="8-referenzen">8. Referenzen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/printing/troubleshoot-printing-scenarios" rel="noopener noreferrer" target="_blank">Microsoft – Troubleshooting scenarios for printing</a></li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/printmanagement/" rel="noopener noreferrer" target="_blank">Microsoft – PrintManagement-Modul</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/printmanagement/get-printjob" rel="noopener noreferrer" target="_blank">Microsoft – Get-PrintJob</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/printmanagement/remove-printjob" rel="noopener noreferrer" target="_blank">Microsoft – Remove-PrintJob</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/printing/print-spooler-service-not-running" rel="noopener noreferrer" target="_blank">Microsoft – Print Spooler service not running</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/modern-print/windows-protected-print-mode/windows-protected-print-mode" rel="noopener noreferrer" target="_blank">Microsoft – Windows Protected Print Mode</a></li>
+</ul>
+<p><strong>Status:</strong> Dokumentation recherchiert; Praxistest ausstehend. Details und Grundlagen siehe <a href="index.html">RB-008 Lernartikel</a>.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-008_Praxis-Runbook.md">RB-008_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-007/index.html">← RB-007</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-009/index.html">RB-009 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

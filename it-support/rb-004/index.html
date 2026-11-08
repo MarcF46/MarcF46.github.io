@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-004 Anwendung startet nicht oder stürzt ab | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-004: Anwendung startet nicht oder stürzt ab. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Anwendungen · Lernartikel</p><h1>RB-004: Anwendung startet nicht oder stürzt ab</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-und-ziel">1. Ausgangssituation und Ziel</a></li><li><a href="#2-grundlagen-und-begriffe">2. Grundlagen und Begriffe</a></li><li><a href="#3-fehleraufnahme-und-eingrenzung">3. Fehleraufnahme und Eingrenzung</a></li><li><a href="#4-diagnosezugriff-wie-kommt-der-support-an-informationen">4. Diagnosezugriff: Wie kommt der Support an Informationen?</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-diagnosewerkzeuge-ohne-powershell">6. Diagnosewerkzeuge ohne PowerShell</a></li><li><a href="#7-powershell-diagnose-kommentiert-und-mit-ausfuehrungsort">7. PowerShell-Diagnose – kommentiert und mit Ausführungsort</a></li><li><a href="#8-welche-ursache-passt-zu-welchem-befund">8. Welche Ursache passt zu welchem Befund?</a></li><li><a href="#9-loesungsmassnahmen-von-risikoarm-nach-eingriffsintensiv">9. Lösungsmaßnahmen – von risikoarm nach eingriffsintensiv</a></li><li><a href="#10-erfolgskontrolle">10. Erfolgskontrolle</a></li><li><a href="#11-wann-an-den-second-level-eskalieren">11. Wann an den Second Level eskalieren?</a></li><li><a href="#12-muster-ticketdokumentation-fiktiv">12. Muster-Ticketdokumentation (fiktiv)</a></li><li><a href="#13-lernkontrolle-active-recall">13. Lernkontrolle / Active Recall</a></li><li><a href="#14-visualisierung-und-nachweisstand">14. Visualisierung und Nachweisstand</a></li><li><a href="#15-offizielle-quellen-und-deren-verwendung">15. Offizielle Quellen und deren Verwendung</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-004 · <strong>Support-Level:</strong> L1/L2 · <strong>System:</strong> Windows 11 · <strong>Stand:</strong> 07.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierungsstatus:</strong> Recherchiert und als fiktives Fallbeispiel ausgearbeitet; noch nicht praktisch getestet.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb004_anwendungsfehler_infografik.png" rel="noopener noreferrer" target="_blank"><img alt="Infografik RB-004: Anwendungsfehler systematisch bearbeiten" decoding="async" loading="lazy" src="assets/rb004_anwendungsfehler_infografik.png"/></a></div><figcaption>Infografik RB-004: Anwendungsfehler systematisch bearbeiten</figcaption></figure>
+<h2 id="1-ausgangssituation-und-ziel">1. Ausgangssituation und Ziel</h2>
+<p><strong>Fiktives Ticket INC-004:</strong></p>
+<blockquote>
+<p>„Unser Inventarprogramm öffnet sich seit heute Morgen kurz und verschwindet sofort. Gestern funktionierte es noch. Ich muss dringend Geräte erfassen.“</p>
+</blockquote>
+<p><strong>Ziel:</strong> Herausfinden, ob die Anwendung überhaupt startet, abstürzt oder nicht reagiert; den Fehler auf Anwendung, Benutzerprofil, Gerät, Dienst oder Netzabhängigkeit eingrenzen; geeignete und sichere Schritte durchführen; das Ergebnis mit Belegen dokumentieren.</p>
+<p><strong>Leitgedanke:</strong> Nicht sofort neu installieren. Zuerst den Zeitpunkt des Fehlers, die betroffenen Personen und technische Befunde sichern.</p>
+<h2 id="2-grundlagen-und-begriffe">2. Grundlagen und Begriffe</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Anfängerfreundliche Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Anwendung (App)</strong></td>
+<td>Programm, das ein Benutzer für eine bestimmte Aufgabe startet.</td>
+</tr>
+<tr>
+<td><strong>Prozess</strong></td>
+<td>Laufende Instanz eines Programms. Ein Programm kann mehrere Prozesse starten.</td>
+</tr>
+<tr>
+<td><strong>PID (Process Identifier)</strong></td>
+<td>Eindeutige Nummer eines laufenden Prozesses, solange er existiert.</td>
+</tr>
+<tr>
+<td><strong>Dienst (Service)</strong></td>
+<td>Hintergrundkomponente, die ohne geöffnetes Programmfenster arbeiten kann; nicht jede Anwendung nutzt Windows-Dienste.</td>
+</tr>
+<tr>
+<td><strong>EXE (Executable)</strong></td>
+<td>Ausführbare Windows-Programmdatei, zum Beispiel <code>InventarClient.exe</code>.</td>
+</tr>
+<tr>
+<td><strong>DLL (Dynamic Link Library)</strong></td>
+<td>Programmbibliothek, die durch eine Anwendung oder Windows geladen werden kann.</td>
+</tr>
+<tr>
+<td><strong>WER (Windows Error Reporting)</strong></td>
+<td>Windows-Fehlerberichterstattung; kann Informationen über Programmabstürze erfassen.</td>
+</tr>
+<tr>
+<td><strong>Ereignisanzeige</strong></td>
+<td>Windows-Werkzeug für System-, Anwendungs- und Sicherheitsprotokolle.</td>
+</tr>
+<tr>
+<td><strong>Zuverlässigkeitsverlauf</strong></td>
+<td>Chronologische Übersicht über Softwarefehler und weitere Stabilitätsereignisse.</td>
+</tr>
+<tr>
+<td><strong>Absturz (Crash)</strong></td>
+<td>Ein Prozess wird wegen eines Fehlers unerwartet beendet.</td>
+</tr>
+<tr>
+<td><strong>Hänger (Hang)</strong></td>
+<td>Ein Prozess läuft möglicherweise weiter, reagiert aber nicht oder nur sehr langsam.</td>
+</tr>
+<tr>
+<td><strong>Add-in / Plug-in</strong></td>
+<td>Erweiterung, die zusätzliche Funktionen einbindet und selbst Fehler verursachen kann.</td>
+</tr>
+<tr>
+<td><strong>Runtime / Laufzeitumgebung</strong></td>
+<td>Softwarekomponente, die eine Anwendung zur Ausführung benötigt, beispielsweise eine bestimmte .NET-Laufzeit.</td>
+</tr>
+<tr>
+<td><strong>L1 / L2</strong></td>
+<td>First-Level-Support: Erstaufnahme und Standardmaßnahmen; Second-Level-Support: vertiefte Analyse und komplexere Fehlerbehebung.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="drei-fehlerbilder-drei-unterschiedliche-diagnosen">Drei Fehlerbilder – drei unterschiedliche Diagnosen</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Benutzer meldet</th>
+<th>Technische Frage</th>
+<th>Mögliche Spur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>„Startet gar nicht“</strong></td>
+<td>Erscheint ein Prozess? Wird er sofort beendet?</td>
+<td>Blockierte Ausführung, fehlende Datei, Lizenz, defekte Konfiguration oder Absturz beim Start.</td>
+</tr>
+<tr>
+<td><strong>„Stürzt nach einigen Sekunden ab“</strong></td>
+<td>Wann endet der Prozess, gibt es Ereignis 1000?</td>
+<td>Fehlermodul, Programmfehler, Erweiterung oder Abhängigkeit.</td>
+</tr>
+<tr>
+<td><strong>„Fenster ist eingefroren“</strong></td>
+<td>Läuft der Prozess weiter?</td>
+<td>Wartet auf Netzwerk, hängt in einer Berechnung, UI reagiert nicht.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Die drei Aussagen sind keine fertigen Diagnosen. Beispielsweise kann eine „nicht startende“ Anwendung intern sehr wohl kurz einen Prozess erzeugen und sofort abstürzen.</p>
+<h2 id="3-fehleraufnahme-und-eingrenzung">3. Fehleraufnahme und Eingrenzung</h2>
+<p>Zuerst mit dem Mitarbeiter klären:</p>
+<ol>
+<li><strong>Welche Anwendung und Version?</strong> Name, Hersteller, genaue Fehlermeldung; ggf. Screenshot ohne sensible Daten.</li>
+<li><strong>Wann trat es erstmals auf?</strong> Seit Update, Passwortwechsel, Gerätewechsel oder Netzwechsel?</li>
+<li><strong>Wer ist betroffen?</strong> Nur dieser Benutzer, alle Benutzer auf diesem Gerät oder mehrere Geräte?</li>
+<li><strong>Was passiert genau?</strong> Kein Fenster, kurzes Fenster und Absturz, Fehlermeldung oder Hänger?</li>
+<li><strong>Welche Arbeiten gehen verloren?</strong> Ungespeicherte Daten, betroffener Geschäftsprozess, Priorität.</li>
+<li><strong>Kann man den Fehler reproduzieren?</strong> Nur soweit dies ohne Datenverlust oder weitere Störung sicher ist.</li>
+</ol>
+<p><strong>Beispiel:</strong> Ist nur ein Benutzer betroffen, kommt dessen Profil, Konto oder individuelle App-Konfiguration in Betracht. Sind alle Benutzer auf einem PC betroffen, untersuchen wir stärker die Installation und lokale Abhängigkeiten. Betrifft es viele PCs gleichzeitig, prüfen wir gemeinsame Dienste, Updates und Netzressourcen.</p>
+<h2 id="4-diagnosezugriff-wie-kommt-der-support-an-informationen">4. Diagnosezugriff: Wie kommt der Support an Informationen?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriffsweg</th>
+<th>Konkret machbar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mitarbeiter ist angemeldet und kann das Problem zeigen</td>
+<td>Teams-Screen-Sharing, Windows-Schnellhilfe oder freigegebene Fernsteuerung</td>
+<td>Fehler gemeinsam reproduzieren, Einstellungen ansehen, Benutzer anleiten.</td>
+</tr>
+<tr>
+<td>PC erreichbar, technische Diagnose erforderlich</td>
+<td>RDP (<em>Remote Desktop Protocol</em>) mit eigenem berechtigtem Konto</td>
+<td>Eigene grafische Windows-Sitzung öffnen; <strong>keine gemeinsame Bildschirmfreigabe</strong>.</td>
+</tr>
+<tr>
+<td>PC erreichbar, kein grafischer Desktop nötig</td>
+<td>WinRM (<em>Windows Remote Management</em>) / PowerShell-Remoting, sofern eingerichtet</td>
+<td>Prozess- und Ereignisinformationen remote abfragen.</td>
+</tr>
+<tr>
+<td>Mehrere Geräte betroffen</td>
+<td>Zentrale IT-Verwaltung und Hersteller-Statusinformationen</td>
+<td>Installationsstand, Ausrollung, Ereignisse und zentralen Dienst prüfen.</td>
+</tr>
+<tr>
+<td>PC nicht remote erreichbar</td>
+<td>Telefonischer Support oder Vor-Ort-Diagnose</td>
+<td>Anwender anleiten oder am Gerät prüfen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Verwendete Zugangsmethoden müssen durch die IT-Abteilung freigegeben sein. RDP kann eine vorhandene lokale Sitzung sperren oder trennen und ist nicht mit gemeinsamer Maussteuerung identisch.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb004_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="Entscheidungsbaum: Anwendungsfehler eingrenzen" decoding="async" loading="lazy" src="assets/rb004_diagnosebaum.svg"/></a></div><figcaption>Entscheidungsbaum: Anwendungsfehler eingrenzen</figcaption></figure>
+<p><strong>Textalternative:</strong></p>
+<ol>
+<li><strong>Sind mehrere Benutzer oder Geräte betroffen?</strong> Ja → gemeinsame Server-, Lizenz-, Netzwerk-, Update- oder Rollout-Probleme prüfen. Nein → Client/Benutzer prüfen.</li>
+<li><strong>Läuft ein Prozess?</strong> Nein → Startblockade, Programmdatei, Berechtigungen, Installation und Ereignisse prüfen. Ja → weiter.</li>
+<li><strong>Wird er unerwartet beendet?</strong> Ja → Absturzereignisse und Fehlermodule untersuchen. Nein, aber Fenster reagiert nicht → Hänger, Ressourcen und Abhängigkeiten prüfen.</li>
+<li><strong>Nur ein Benutzer betroffen?</strong> Dann Profil-/Benutzereinstellungen prüfen. <strong>Alle Benutzer auf demselben Gerät?</strong> Dann systemweite Installation und Abhängigkeiten prüfen.</li>
+<li><strong>Befund ausreichend?</strong> Gezielte Maßnahme auswählen; sonst Befunde an L2/Hersteller eskalieren.</li>
+</ol>
+<h2 id="6-diagnosewerkzeuge-ohne-powershell">6. Diagnosewerkzeuge ohne PowerShell</h2>
+<h3 id="a-windows-ereignisanzeige">A – Windows-Ereignisanzeige</h3>
+<p><strong>Ausführungsort:</strong> Betroffener PC oder berechtigte Remoteverwaltung.</p>
+<ol>
+<li><code>Win + R</code> drücken.</li>
+<li><code>eventvwr.msc</code> eingeben und bestätigen.</li>
+<li>Zu <strong>Windows-Protokolle → Anwendung</strong> wechseln.</li>
+<li>Ereignisse zum <strong>genauen Fehlerzeitpunkt</strong> untersuchen.</li>
+<li>Interessante Quellen: <strong>Application Error</strong> (häufig Ereignis-ID <strong>1000</strong>) und <strong>Windows Error Reporting</strong> (häufig <strong>1001</strong>).</li>
+<li>Betroffene Anwendung, Modul, Zeitpunkt und Ausnahme-/Fehlercode notieren. Die konkrete Darstellung variiert.</li>
+</ol>
+<p><strong>Wichtig:</strong> Die Ereignis-ID <strong>1000</strong> im Anwendungsprotokoll ist ein typischer Hinweis auf einen Absturz. <strong>1001</strong> ist allein nicht eindeutig; die <strong>Quelle</strong> und der Ereignisinhalt sind entscheidend. Nicht jeder Startfehler erzeugt diese Ereignisse.</p>
+<h3 id="b-zuverlaessigkeitsverlauf">B – Zuverlässigkeitsverlauf</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-PC.</p>
+<p>Im Dialog <code>Win + R</code> Folgendes eingeben:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Startet den Windows-Zuverlässigkeitsverlauf.</span>
+<span class="c"># /rel wählt die Reliability-Ansicht aus.</span>
+<span class="n">perfmon</span> <span class="p">/</span><span class="n">rel</span>
+</code></pre></div><p>Die Übersicht erleichtert es, Abstürze mit Installationsterminen oder Updates zeitlich zu vergleichen. <strong>Korrelation allein beweist noch keine Ursache.</strong></p>
+<h3 id="c-task-manager">C – Task-Manager</h3>
+<p>Mit <code>Strg + Umschalt + Esc</code> öffnen. Unter <strong>Prozesse</strong> und <strong>Details</strong> prüfen: Existiert der betroffene Prozess? Nutzt er ungewöhnlich viel CPU oder Arbeitsspeicher? Reagiert er nicht? <strong>Nicht sofort „Task beenden“ auswählen</strong>, wenn ungespeicherte Arbeit verloren gehen könnte.</p>
+<h2 id="7-powershell-diagnose-kommentiert-und-mit-ausfuehrungsort">7. PowerShell-Diagnose – kommentiert und mit Ausführungsort</h2>
+<p>Die Beispiele verwenden <strong><code>InventarClient.exe</code> als fiktiven Programmnamen</strong>. Im echten Ticket muss der tatsächliche Prozess- oder Dienstname bekannt sein. Alle Abfragen in diesem Kapitel sind lesend.</p>
+<h3 id="71-prozess-vorhanden">7.1 Prozess vorhanden?</h3>
+<p><strong>Ausführungsort:</strong> Windows-Client, auf dem das Programm gestartet wurde. Alternativ in einem erlaubten PowerShell-Remote-Kontext.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Sucht nach dem laufenden Prozess „InventarClient“.</span>
+<span class="c"># Der Prozessname wird ohne die Endung „.exe“ angegeben.</span>
+<span class="c"># SilentlyContinue unterdrückt eine Fehlermeldung,</span>
+<span class="c"># wenn zum Zeitpunkt der Abfrage kein Prozess existiert.</span>
+<span class="nv">$prozess</span> <span class="p">=</span> <span class="nb">Get-Process</span> <span class="n">-Name</span> <span class="s1">'InventarClient'</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+
+<span class="c"># Zeigt nur ausgewählte Eigenschaften an.</span>
+<span class="c"># Id ist die Prozessnummer (PID), CPU die kumulierte CPU-Zeit in Sekunden.</span>
+<span class="c"># WorkingSet64 ist der aktuell genutzte physische Speicher in Byte.</span>
+<span class="nv">$prozess</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">ProcessName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">CPU</span><span class="p">,</span> <span class="n">WorkingSet64</span>
+</code></pre></div><p><strong>Interpretation:</strong> Keine Ausgabe heißt nur, dass zum Abfragezeitpunkt kein passender Prozess ermittelt wurde. Die Anwendung kann bereits beendet worden sein oder einen anderen Prozessnamen besitzen. Eine hohe kumulierte CPU-Zeit ist <strong>nicht</strong> automatisch ein aktueller CPU-Spitzenwert.</p>
+<h3 id="72-anwendungsabstuerze-der-letzten-24-stunden-suchen">7.2 Anwendungsabstürze der letzten 24 Stunden suchen</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client mit Leseberechtigung für das Application-Protokoll.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Ermittelt den Zeitpunkt vor 24 Stunden.</span>
+<span class="nv">$start</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">24</span><span class="p">)</span>
+
+<span class="c"># Definiert den Filter für Abstürze im Anwendungsprotokoll.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="c"># Windows-Protokoll „Anwendung“ auswählen.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Application'</span>
+
+    <span class="c"># Ereignis-ID 1000: häufig „Application Error“.</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">1000</span>
+
+    <span class="c"># Nur Ereignisse seit dem errechneten Startzeitpunkt.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="nv">$start</span>
+<span class="p">}</span>
+
+<span class="c"># Liest die passenden Ereignisse aus.</span>
+<span class="c"># Die Ausgabe kann mehrere verschiedene Anwendungen enthalten.</span>
+<span class="nv">$ereignisse</span> <span class="p">=</span> <span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+
+<span class="c"># Filtert die Meldung auf den fiktiven Programmnamen.</span>
+<span class="c"># Dies ist eine Textsuche: Schreibweise und Lokalisierung berücksichtigen.</span>
+<span class="nv">$treffer</span> <span class="p">=</span> <span class="nv">$ereignisse</span> <span class="p">|</span> <span class="nb">Where-Object</span> <span class="p">{</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Message</span> <span class="o">-like</span> <span class="s1">'*InventarClient.exe*'</span> <span class="p">}</span>
+
+<span class="c"># Zeigt Zeitpunkt, Quelle, ID und Meldung an.</span>
+<span class="nv">$treffer</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">ProviderName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein Treffer mit <code>ProviderName = Application Error</code> kann einen Absturz belegen. Der Eintrag nennt oft <strong>Faulting application</strong> (abgestürzte Anwendung), <strong>Faulting module</strong> (Modul, in dem der Fehler sichtbar wurde) und <strong>Exception code</strong> (Ausnahmecode). Das Fehlermodul beweist <strong>nicht automatisch</strong>, dass genau diese DLL defekt ist. Fehlende Treffer schließen einen Fehler nicht aus.</p>
+<p><strong>Beispielbefund (fiktiv):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">TimeCreated  : 07.11.2026 09:14:03
+ProviderName : Application Error
+Id           : 1000
+Message      : Faulting application name: InventarClient.exe
+               Faulting module name: InventarAddin.dll
+               Exception code: 0xc0000005
+</code></pre></div><p>Der Code <code>0xc0000005</code> verweist häufig auf eine Zugriffsverletzung im Speicher. Ohne weitere Diagnose ist nicht sicher, warum sie entstanden ist. Das angebliche Fehlermodul ist zunächst eine <strong>Hypothese</strong>, keine bewiesene Ursache.</p>
+<h3 id="73-windows-error-reporting-ergaenzend-pruefen">7.3 Windows Error Reporting ergänzend prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Sucht nach Windows Error Reporting (WER)-Ereignissen</span>
+<span class="c"># im Anwendungsprotokoll während der letzten 24 Stunden.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="c"># Anwendungsprotokoll auswählen.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Application'</span>
+
+    <span class="c"># WER-Ereignisse besitzen häufig diese Ereignis-ID.</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">1001</span>
+
+    <span class="c"># Zeitfenster auf die letzten 24 Stunden beschränken.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">24</span><span class="p">)</span>
+<span class="p">}</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span> <span class="p">|</span>
+
+<span class="c"># Gibt nur die ersten 20 Treffer aus, nicht nur für unsere App.</span>
+<span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">20</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">ProviderName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Warum ergänzend?</strong> WER kann zusätzliche Problemberichte liefern. Ereignis 1001 kommt aber auch in anderen Kontexten vor. Den <strong>ProviderName</strong>, die Meldung und den Zeitpunkt immer mit dem tatsächlichen Problem abgleichen.</p>
+<h3 id="74-abhaengiger-windows-dienst-vorhanden">7.4 Abhängiger Windows-Dienst vorhanden?</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Client beziehungsweise zuständiger Server, auf dem der Dienst installiert sein sollte.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft beispielhaft einen hypothetischen Dienst „InventarSync“.</span>
+<span class="c"># -ErrorAction vermeidet einen störenden Fehlertext,</span>
+<span class="c"># wenn der Dienst unter diesem Namen nicht existiert.</span>
+<span class="nv">$dienst</span> <span class="p">=</span> <span class="nb">Get-Service</span> <span class="n">-Name</span> <span class="s1">'InventarSync'</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span>
+
+<span class="c"># Zeigt Name, Anzeigename und aktuellen Dienststatus an.</span>
+<span class="nv">$dienst</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">DisplayName</span><span class="p">,</span> <span class="n">Status</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>Stopped</code> bedeutet, dass der Dienst nicht läuft. Das ist nur dann ein Problem, wenn die Anwendung ihn für diesen Schritt benötigt und er tatsächlich laufen sollte. Ein fehlender Dienst beweist nichts, wenn die Anwendung gar keinen solchen Dienst verwendet.</p>
+<h3 id="75-netzwerkabhaengigkeit-nur-bei-begruendetem-verdacht-pruefen">7.5 Netzwerkabhängigkeit nur bei begründetem Verdacht prüfen</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Client. Die Beispieladresse ist bewusst fiktiv und muss ersetzt werden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Testet eine TCP-Verbindung zum fiktiven Anwendungsserver.</span>
+<span class="c"># -ComputerName ist der Zielhostname.</span>
+<span class="c"># -Port 443 steht hier beispielhaft für HTTPS-Verbindungen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'app.firma.example'</span> <span class="n">-Port</span> <span class="n">443</span>
+</code></pre></div><p><code>TcpTestSucceeded : True</code> belegt nur die TCP-Erreichbarkeit dieses Ports, <strong>nicht</strong> die korrekte Funktion der Anwendung oder erfolgreiche Authentifizierung.</p>
+<h3 id="76-windows-version-und-systeminformationen-ermitteln">7.6 Windows-Version und Systeminformationen ermitteln</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest Betriebssysteminformationen über CIM aus.</span>
+<span class="c"># CIM = Common Information Model, eine Verwaltungs-Schnittstelle.</span>
+<span class="nb">Get-CimInstance</span> <span class="n">-ClassName</span> <span class="n">Win32_OperatingSystem</span> <span class="p">|</span>
+
+<span class="c"># Zeigt ausgewählte Windows-Informationen an.</span>
+<span class="nb">Select-Object</span> <span class="n">Caption</span><span class="p">,</span> <span class="n">Version</span><span class="p">,</span> <span class="n">BuildNumber</span><span class="p">,</span> <span class="n">OSArchitecture</span>
+</code></pre></div><p><strong>Reihenfolge:</strong> Erst Symptome und Anwendungslogs; Systemdetails nur bei Bedarf ergänzen.</p>
+<h2 id="8-welche-ursache-passt-zu-welchem-befund">8. Welche Ursache passt zu welchem Befund?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Technischer Befund</th>
+<th>Plausible Ursache</th>
+<th>Nächster sinnvoller Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Programm beendet sich unmittelbar, Ereignis 1000</td>
+<td>Fehler in Programm, Add-in oder Abhängigkeit</td>
+<td>Fehlermodul, Version, Änderungshistorie, Herstellerlog prüfen</td>
+</tr>
+<tr>
+<td>Nur ein Benutzer betroffen</td>
+<td>Benutzerprofil, individuelle Konfiguration, Berechtigung</td>
+<td>Mit genehmigtem Testkonto vergleichen; Benutzerdaten sichern</td>
+</tr>
+<tr>
+<td>Alle Benutzer auf einem Computer betroffen</td>
+<td>Installation, lokaler Dienst, Systemkomponente</td>
+<td>Installation, Dienststatus, Rechnerereignisse prüfen</td>
+</tr>
+<tr>
+<td>Mehrere PCs nach Update betroffen</td>
+<td>Anwendungsversion, zentraler Rollout</td>
+<td>Versionen vergleichen und Rollout-Verantwortliche kontaktieren</td>
+</tr>
+<tr>
+<td>Programm startet, meldet aber „Server nicht verfügbar“</td>
+<td>DNS, Netzwerk, Anwendungsserver, Lizenzdienst</td>
+<td>Zielhostname, TCP-Port und Serverstatus prüfen</td>
+</tr>
+<tr>
+<td>Fenster bleibt offen und reagiert nicht</td>
+<td>Hängende Verarbeitung, blockierte Ressource oder Backend-Wartezustand</td>
+<td>Ressourcen und Anwendungslogs prüfen, Datenverlust vermeiden</td>
+</tr>
+<tr>
+<td>Ereignis nennt <code>KERNELBASE.dll</code></td>
+<td>Fehler zeigt sich in Windows-Bibliothek</td>
+<td><strong>Nicht</strong> automatisch <code>KERNELBASE.dll</code> ersetzen; tatsächlichen Aufrufkontext prüfen</td>
+</tr>
+<tr>
+<td>Keine Ereignisse 1000/1001</td>
+<td>Fehler kann ohne klassischen Crash auftreten</td>
+<td>Herstellerlogs, Benutzerkontext, Sicherheitspolitik, Hintergrundprozesse prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-loesungsmassnahmen-von-risikoarm-nach-eingriffsintensiv">9. Lösungsmaßnahmen – von risikoarm nach eingriffsintensiv</h2>
+<p><strong>L1 – nach Freigabe und betrieblichem Verfahren:</strong></p>
+<ol>
+<li>Fehler genau nachstellen und dokumentieren.</li>
+<li>Einmaligen Neustart <strong>der Anwendung</strong> erwägen, nur wenn keine ungespeicherten Daten verloren gehen; vorher mit Benutzer abstimmen.</li>
+<li>Hersteller- oder Windows-Anwendungsupdates <strong>kontrolliert</strong> prüfen; in verwalteten Unternehmen Updatefreigaben beachten.</li>
+<li>Optionale Add-ins/Erweiterungen über die offiziell vorgesehene Funktion testweise deaktivieren, <strong>nur wenn dokumentiert und reversibel</strong>.</li>
+<li>Falls unterstützt: <strong>Reparieren</strong> unter Windows 11 → <em>Einstellungen → Apps → Installierte Apps → [Anwendung] → Erweiterte Optionen → Reparieren</em> oder in <em>Systemsteuerung → Programme und Features → Ändern/Reparieren</em>. Nicht jede App bietet diese Funktion.</li>
+<li>Funktionsprüfung durchführen: Anwendung starten, typischen Arbeitsablauf testen, relevante Logs erneut ansehen.</li>
+</ol>
+<p><strong>Vorsicht bei „Zurücksetzen“:</strong> Anders als „Reparieren“ kann diese Funktion Einstellungen und Anwendungsdaten löschen. Vorher Datensicherung, Herstellerhinweise und Freigabe klären. Eine Neuinstallation kann ähnlich problematisch sein.</p>
+<p><strong>L2 – bei begründetem Befund:</strong></p>
+<ul>
+<li>Hersteller- oder anwendungsspezifische Logs korrelieren; Laufzeitumgebung, Treiber und Abhängigkeiten gezielt untersuchen.</li>
+<li>Bei wiederkehrenden Crashs das <strong>Fehlermodul und den Exception Code</strong> im Kontext anderer Befunde bewerten.</li>
+<li>Bei Verdacht auf Windows-Systemdateischäden und nach Freigabe zuerst die Komponentenspeicher-Reparatur über <strong>DISM (Deployment Image Servicing and Management)</strong>, danach <strong>SFC (System File Checker)</strong> prüfen. Diese Werkzeuge sind <strong>keine Standardlösung für jeden App-Fehler</strong>.</li>
+<li>Für schwierige Crashs eventuell <strong>WER LocalDumps</strong> oder <strong>ProcDump (Sysinternals)</strong> zur Speicherabbild-Erfassung verwenden. <strong>Nur autorisiert</strong>: Dumps können Kennwörter, personenbezogene Daten und Geschäftsgeheimnisse enthalten.</li>
+<li>Herstellerkontakt, reproduzierbaren Fehler und gesammelte technische Daten zusammenstellen.</li>
+</ul>
+<h3 id="nur-bei-nachgewiesenem-systemdateiverdacht-dism-und-sfc">Nur bei nachgewiesenem Systemdateiverdacht: DISM und SFC</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client, <strong>erhöhte</strong> PowerShell- oder Eingabeaufforderung; ggf. nach Change-Freigabe. Beide Befehle können Systemdateien verändern.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># DISM: Prüft/repariert den Komponentenspeicher des laufenden Windows.</span>
+<span class="c"># /Online: Aktuell gestartetes Windows wird adressiert.</span>
+<span class="c"># /Cleanup-Image: Betriebssystemabbild wartungsbezogen bearbeiten.</span>
+<span class="c"># /RestoreHealth: Beschädigungen reparieren, soweit Quellen verfügbar.</span>
+<span class="n">DISM</span><span class="p">.</span><span class="n">exe</span> <span class="p">/</span><span class="n">Online</span> <span class="p">/</span><span class="n">Cleanup-Image</span> <span class="p">/</span><span class="n">RestoreHealth</span>
+
+<span class="c"># SFC: Prüft und repariert geschützte Windows-Systemdateien.</span>
+<span class="c"># Zwischen Programmname und Parameter steht ein Leerzeichen.</span>
+<span class="n">sfc</span><span class="p">.</span><span class="n">exe</span> <span class="p">/</span><span class="n">scannow</span>
+</code></pre></div><p>Die Reihenfolge DISM → SFC folgt der Microsoft-Anleitung, ist jedoch <strong>nur bei passender Fehlerhypothese</strong> sinnvoll. Sie kann Zeit beanspruchen und etwa durch fehlende Reparaturquellen scheitern.</p>
+<h3 id="was-wir-ausdruecklich-nicht-blind-tun">Was wir ausdrücklich nicht blind tun</h3>
+<ul>
+<li>Keine unbekannten DLL-Dateien aus dem Internet herunterladen oder ersetzen.</li>
+<li>Keine Sicherheitssoftware oder Firewall pauschal abschalten.</li>
+<li>Keine Benutzerprofile, App-Daten oder Registrierungsschlüssel ohne Backup und Änderungsfreigabe löschen.</li>
+<li>Keine erzwungene Prozessbeendigung ohne Prüfung auf Datenverlust.</li>
+<li>Kein großflächiges Rollback ohne dokumentierte Ursachenhypothese und Freigabe.</li>
+</ul>
+<h2 id="10-erfolgskontrolle">10. Erfolgskontrolle</h2>
+<p>Ein Ticket gilt als gelöst, wenn die Anwendung <strong>unter dem betroffenen Benutzerkonto</strong> wieder startet und der ursprünglich fehlgeschlagene <strong>Arbeitsablauf</strong> erfolgreich ist. Idealerweise wird die Anwendung mehrfach unter denselben Bedingungen gestartet und ein Blick auf neue Fehlerereignisse geworfen. Bei Serverabhängigkeit Funktion und Zugriff auch nach erneuter Verbindung prüfen.</p>
+<p><strong>Nur dass das Fenster erscheint, reicht nicht</strong>: Eine Inventar-Anwendung muss beispielsweise auch eine Inventarbuchung speichern können.</p>
+<h2 id="11-wann-an-den-second-level-eskalieren">11. Wann an den Second Level eskalieren?</h2>
+<ul>
+<li>Kritische Anwendung betrifft mehrere Benutzer/Standorte.</li>
+<li>Reproduzierbarer Absturz trotz vorgesehener Standardmaßnahmen.</li>
+<li>Systemdienste, Server, Datenbank, Netz- oder Identitätsabhängigkeiten beteiligt.</li>
+<li>Sicherheitsereignis, verdächtige Anwendung, Datenverlust oder hohe betriebliche Auswirkung.</li>
+<li>Analyse von Crash-Dumps, Registry-, Treiber- oder Laufzeitumgebung nötig.</li>
+<li>Fehlende Berechtigung oder nicht absehbare Risiken einer Reparatur.</li>
+</ul>
+<p><strong>Mitgeben:</strong> Ticketnummer, genaue Meldung, Zeitpunkt/Zeitzone, Benutzer/Host, Version, Anzahl Betroffener, konkrete Reproduktionsschritte, bereits geprüfte Hypothesen, Logauszüge (redigiert) und Resultate. Keine Klartextkennwörter oder vertraulichen Daten in Tickets.</p>
+<h2 id="12-muster-ticketdokumentation-fiktiv">12. Muster-Ticketdokumentation (fiktiv)</h2>
+<blockquote>
+<p><strong>INC-004 – InventarClient startet und beendet sich sofort</strong><br/>
+<strong>Fehlerbild:</strong> Anwendung auf <code>PC-023</code> beendet sich nach dem Start bei einem Benutzer.<br/>
+<strong>Diagnose:</strong> Fehler gemeinsam reproduziert. Im Anwendungsprotokoll trat zeitgleich ein Ereignis 1000 für <code>InventarClient.exe</code> auf. Gemeldetes Fehlermodul <code>InventarAddin.dll</code>. Prüfung ergab, dass das Add-in am Vortag aktualisiert wurde.<br/>
+<strong>Maßnahme:</strong> Nach Freigabe und Sicherung der Einstellungen das Add-in gemäß Herstellerverfahren testweise deaktiviert.<br/>
+<strong>Ergebnis:</strong> Anwendung ließ sich mehrfach öffnen; Inventarbuchung erfolgreich durchgeführt. Kein neuer Absturz während des Tests.<br/>
+<strong>Status:</strong> Gelöst; Herstellerkorrektur für das Add-in nachverfolgen.<br/>
+<strong>Hinweis:</strong> Dieses Beispiel wurde konstruiert und nicht praktisch ausgeführt.</p>
+</blockquote>
+<p><strong>Beweislogik:</strong> Die zeitliche Nähe zum Update und ein genanntes Modul allein beweisen die Ursache nicht. Erst der kontrollierte Vergleich vor/nach der Add-in-Änderung stärkt die Hypothese; für eine endgültige Herstelleranalyse können weitere Tests nötig sein.</p>
+<h2 id="13-lernkontrolle-active-recall">13. Lernkontrolle / Active Recall</h2>
+<p><strong>Wissen:</strong> Was ist der Unterschied zwischen Prozess und Dienst? Wofür stehen WER, PID und DLL? Mit welchem Befehl startet der Zuverlässigkeitsverlauf?</p>
+<p><strong>Verständnis:</strong> Warum ist ein Modulname im Ereignis 1000 kein endgültiger Ursachenbeweis? Warum ist <code>TcpTestSucceeded : True</code> kein Nachweis, dass die Anwendung funktioniert? Warum sollte man <code>sfc /scannow</code> nicht als ersten Schritt ausführen?</p>
+<p><strong>Diagnose:</strong> Benutzer A meldet, dass der Client nach einer neuen Erweiterung sofort abstürzt. Benutzer B hat denselben Client ohne Erweiterung und keine Probleme. Welche Hypothesen und zwei möglichst risikoarme Tests würdest du zuerst wählen? Formuliere anschließend einen Ticketkommentar mit klarer Trennung zwischen Befund und Vermutung.</p>
+<p><strong>Anki-Vorbereitung:</strong> Später getrennte Wissens-, Verständnis- und Diagnosekarten erzeugen; reale Testergebnisse erst nach eigener Durchführung ergänzen.</p>
+<h2 id="14-visualisierung-und-nachweisstand">14. Visualisierung und Nachweisstand</h2>
+<ul>
+<li>Infografik <code>assets/rb004_anwendungsfehler_infografik.png</code> ist eine <strong>KI-gestützte illustrative Darstellung</strong>, kein Screenshot eines echten Tickets.</li>
+<li>Diagnosebaum <code>assets/rb004_diagnosebaum.svg</code> ist ein <strong>eigens erstelltes Ablaufdiagramm</strong>.</li>
+<li>Terminalausgaben und Musterticket sind <strong>fiktive Beispiele</strong>.</li>
+<li><strong>Praktische Validierung ausstehend.</strong> Für spätere Validierung: kontrollierter Test, Versionen, Schrittfolge, Ergebnis, Berechtigungen und gegebenenfalls eigener Screenshot festhalten.</li>
+</ul>
+<p><strong>Bildkennzeichnung für die Website:</strong> „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“.</p>
+<h2 id="15-offizielle-quellen-und-deren-verwendung">15. Offizielle Quellen und deren Verwendung</h2>
+<p>Alle Links führen zu den jeweils angegebenen Herstellerinformationen; geprüft am <strong>07.11.2026</strong>.</p>
+<ol>
+<li><strong><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">Microsoft Learn – Application or service crashing behavior</a></strong> – Ereignisse 1000/1001, Fehlermodule und fortgeschrittene Crashanalyse. Die Hinweise gelten laut Microsoft auch für unterstützte Windows-Clients.</li>
+<li><strong><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-WinEvent</a></strong> – Protokollabfrage mit <code>-FilterHashtable</code>.</li>
+<li><strong><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/perfmon" rel="noopener noreferrer" target="_blank">Microsoft Learn – perfmon</a></strong> – Parameter <code>/rel</code> für den Zuverlässigkeitsverlauf.</li>
+<li><strong><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process?view=powershell-7.5" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-Process</a></strong> – Prozessdiagnose.</li>
+<li><strong><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-service" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-Service</a></strong> – Dienststatusabfrage.</li>
+<li><strong><a href="https://support.microsoft.com/de-de/windows/apps/repair-apps-and-programs-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Apps und Programme in Windows reparieren</a></strong> – Reparaturmöglichkeiten für installierte Anwendungen.</li>
+<li><strong><a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/using-system-file-checker-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – System File Checker</a></strong> – DISM und SFC bei Windows-Dateiproblemen.</li>
+<li><strong><a href="https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Collecting User-Mode Dumps</a></strong> – konfigurierte Speicherabbilder und Datenschutzrisiken.</li>
+<li><strong><a href="https://learn.microsoft.com/de-de/sysinternals/downloads/procdump" rel="noopener noreferrer" target="_blank">Microsoft Sysinternals – ProcDump</a></strong> – erweitertes Crash-/Hang-Diagnosewerkzeug.</li>
+</ol>
+<hr/>
+<p><strong>Projekt:</strong> 50 Tickets – 50 Supportfälle · <strong>RB-004</strong> · Recherchiert, noch nicht praktisch validiert.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-004_Lernartikel.md">RB-004_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-003/index.html">← RB-003</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-005/index.html">RB-005 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

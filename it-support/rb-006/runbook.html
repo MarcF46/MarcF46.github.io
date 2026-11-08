@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-006 Outlook sendet oder empfängt keine E-Mails | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-006: Outlook sendet oder empfängt keine E-Mails. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Microsoft 365 · Outlook · Praxis-Runbook</p><h1>RB-006: Outlook sendet oder empfängt keine E-Mails</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</a></li><li><a href="#2-entscheidung-app--oder-serverproblem-l1">2. Entscheidung: App- oder Serverproblem? (L1)</a></li><li><a href="#3-clientdiagnose-l1">3. Clientdiagnose (L1)</a></li><li><a href="#4-zentraldiagnose-l2-berechtigte-administratoren">4. Zentraldiagnose (L2 / berechtigte Administratoren)</a></li><li><a href="#5-befund-gezielte-massnahme">5. Befund → gezielte Maßnahme</a></li><li><a href="#6-erfolgskontrolle">6. Erfolgskontrolle</a></li><li><a href="#7-muster-ticketabschluss-fiktiv">7. Muster-Ticketabschluss (fiktiv)</a></li><li><a href="#8-technische-quellen">8. Technische Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte, wiederverwendbare L1/L2-Arbeitsanweisung<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 08.11.2026 · <strong>Status:</strong> Recherchiert, nicht praktisch validiert<br/>
+<strong>Geltungsbereich:</strong> Microsoft-365-Unternehmensumgebung mit Exchange Online; bei lokalem Exchange können Abläufe und Befehle abweichen.</p>
+<h2 id="1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</h2>
+<ul>
+<li>[ ] <strong>Was genau?</strong> Senden, Empfangen oder beides; Postausgang oder NDR?</li>
+<li>[ ] <strong>Wer betroffen?</strong> Eine Person oder mehrere; nur bestimmte Empfänger?</li>
+<li>[ ] <strong>Outlook-Version?</strong> Klassisch, neu oder Web; Windows-PC/Standort notieren.</li>
+<li>[ ] <strong>Konkretes Beispiel?</strong> Absender, Empfänger, Zeitpunkt und Zeitzone; keine vertraulichen Nachrichteninhalte kopieren.</li>
+<li>[ ] <strong>Änderungen?</strong> Passwort/MFA, VPN, Netzwerk, Update, Profil, neue Regeln.</li>
+<li>[ ] <strong>Berechtigter Supportweg?</strong> Bildschirmfreigabe, eigene Adminoberfläche oder Eskalation.</li>
+</ul>
+<h2 id="2-entscheidung-app--oder-serverproblem-l1">2. Entscheidung: App- oder Serverproblem? (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Prüfung</th>
+<th>Ergebnis und nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>https://outlook.office.com/mail/</code> mit <strong>dem eigenen Benutzerkonto</strong> öffnen</td>
+<td><strong>Web funktioniert, Desktop nicht:</strong> Clientdiagnose. <strong>Auch Web betroffen:</strong> Postfach/Dienst/Mail Flow prüfen.</td>
+</tr>
+<tr>
+<td>Mehrere Kollegen mit gleicher Störung?</td>
+<td>Microsoft-365-Dienststatus prüfen lassen; zentralen Vorfall priorisieren.</td>
+</tr>
+<tr>
+<td>Fehlermeldung oder NDR vorhanden?</td>
+<td>Vollständigen Code, Zeit, Absender/Empfänger dokumentieren; ggf. L2.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-clientdiagnose-l1">3. Clientdiagnose (L1)</h2>
+<p><strong>Klassisches Outlook:</strong></p>
+<ul>
+<li>[ ] Statusleiste prüfen: <strong>Verbunden / Getrennt / Verbindungsversuch / Offline arbeiten</strong>.</li>
+<li>[ ] Ggf. <strong>Senden/Empfangen → Offline arbeiten</strong> auf Online zurückstellen.</li>
+<li>[ ] <strong>Postausgang</strong> auf hängengebliebene Nachrichten untersuchen, dabei nichts mehrfach ungeprüft senden.</li>
+<li>[ ] Bei vermutetem Add-In-/Startfehler nach Freigabe <strong>Windows+R</strong> öffnen und <code>outlook.exe /safe</code> eingeben (<strong>nur klassisches Outlook</strong>).</li>
+</ul>
+<p><strong>Neues Outlook:</strong></p>
+<ul>
+<li>[ ] Neue Outlook-Variante dokumentieren; Offlineverhalten unter <strong>Einstellungen → Allgemein → Offline</strong> prüfen.</li>
+<li>[ ] Keine klassischen Profil-/OST- oder Add-In-Maßnahmen blind übertragen.</li>
+</ul>
+<p><strong>Client-Netzwerk</strong> – PowerShell am betroffenen PC:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Testet TCP-Port 443 zu EINEM Outlook-Webendpunkt.</span>
+<span class="c"># Ein positives Ergebnis beweist NICHT, dass Microsoft 365 fehlerfrei ist.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'outlook.office.com'</span> <span class="n">-Port</span> <span class="n">443</span>
+
+<span class="c"># Prüft die Namensauflösung für denselben Testhost.</span>
+<span class="nb">Resolve-DnsName</span> <span class="n">-Name</span> <span class="s1">'outlook.office.com'</span>
+</code></pre></div><p><code>TcpTestSucceeded = False</code>: DNS, Proxy, VPN, Firewall, Routing, Netzwerk prüfen.<br/>
+<code>TcpTestSucceeded = True</code>: Nur dieser TCP-Test war erfolgreich – App-Anmeldung, Endpunkte und Zustellung weiterhin offen.</p>
+<h2 id="4-zentraldiagnose-l2-berechtigte-administratoren">4. Zentraldiagnose (L2 / berechtigte Administratoren)</h2>
+<p><strong>A – Dienststatus:</strong> Microsoft 365 Admin Center <code>https://admin.microsoft.com</code> → <strong>Integrität → Dienststatus</strong> → Exchange Online.</p>
+<p><strong>B – Nachrichtenablaufverfolgung:</strong> Exchange Admin Center <code>https://admin.exchange.microsoft.com</code> → <strong>Nachrichtenfluss → Nachrichtenablaufverfolgung</strong>.</p>
+<ul>
+<li>[ ] Nachricht nach <strong>Absender, Empfänger, Zeitfenster</strong> suchen.</li>
+<li>[ ] <code>Delivered</code>: Mailtransport hat eine Zustellung registriert; Ordner, Junk, Regeln, Ansicht und ggf. Quarantäne prüfen.</li>
+<li>[ ] <code>Failed</code> / <code>Pending</code>: Detailereignisse und NDR auswerten; bei externem Ziel Transport/Empfänger prüfen.</li>
+<li>[ ] <strong>Kein Treffer:</strong> Filter, Zeitpunkt, falschen Mandanten, vorgelagerte Gateways und tatsächliche Einlieferung prüfen.</li>
+</ul>
+<p><strong>C – PowerShell bei vorliegenden Rechten</strong> – auf dem <strong>Administrationsrechner</strong>:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Bereits installiertes Modul für Exchange Online laden.</span>
+<span class="nb">Import-Module</span> <span class="n">ExchangeOnlineManagement</span>
+
+<span class="c"># Mit dem EIGENEN berechtigten Admin-Konto anmelden.</span>
+<span class="c"># Die Anmeldung kann im Browser und mit MFA erfolgen.</span>
+<span class="nb">Connect-ExchangeOnline</span> <span class="n">-UserPrincipalName</span> <span class="s1">'it.admin@firma.example'</span>
+
+<span class="c"># Start des kurzen Suchfensters: letzte 24 Stunden.</span>
+<span class="nv">$start</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">24</span><span class="p">)</span>
+
+<span class="c"># Ende des Suchfensters: jetzt.</span>
+<span class="nv">$ende</span> <span class="p">=</span> <span class="nb">Get-Date</span>
+
+<span class="c"># Nachrichtendaten für den Beispiel-Absender auswerten.</span>
+<span class="c"># Zeitstempel der Ergebnisdaten können in UTC erscheinen.</span>
+<span class="nb">Get-MessageTraceV2</span> <span class="n">-SenderAddress</span> <span class="s1">'a.meyer@firma.example'</span> <span class="n">-StartDate</span> <span class="nv">$start</span> <span class="n">-EndDate</span> <span class="nv">$ende</span> <span class="n">-ResultSize</span> <span class="n">100</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Received</span><span class="p">,</span> <span class="n">SenderAddress</span><span class="p">,</span> <span class="n">RecipientAddress</span><span class="p">,</span> <span class="n">Status</span>
+
+<span class="c"># Postfachgröße und Elementanzahl lesend prüfen.</span>
+<span class="c"># Große Größe ist NICHT gleichbedeutend mit überschrittener Quota.</span>
+<span class="nb">Get-EXOMailboxStatistics</span> <span class="n">-Identity</span> <span class="s1">'a.meyer@firma.example'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">DisplayName</span><span class="p">,</span> <span class="n">TotalItemSize</span><span class="p">,</span> <span class="n">ItemCount</span>
+
+<span class="c"># Administrationssitzung nach Abschluss sauber beenden.</span>
+<span class="nb">Disconnect-ExchangeOnline</span> <span class="n">-Confirm</span><span class="p">:</span><span class="nv">$false</span>
+</code></pre></div><p><strong>Achtung:</strong> Die E-Mail-Adressen sind Beispielwerte. Cmdlets erfordern zulässige Berechtigungen; bei fehlenden Rollen nicht versuchen, Rechte zu umgehen. <code>Get-MessageTraceV2</code> dient der <strong>Serverabfrage</strong>, nicht dem Abruf des Outlook-Client-Postausgangs.</p>
+<h2 id="5-befund-gezielte-massnahme">5. Befund → gezielte Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Klassisches Outlook versehentlich offline</td>
+<td>Online-Modus aktivieren, Synchronisierung erneut prüfen.</td>
+</tr>
+<tr>
+<td>Web funktioniert, lokale App nicht</td>
+<td>Client-/Profil-/Anmeldestatus untersuchen, OST/Profile nur nach Sicherungs- und Folgenprüfung bearbeiten.</td>
+</tr>
+<tr>
+<td>Mehrere Postfächer betroffen, Dienstvorfall</td>
+<td>Vorfall dokumentieren, Nutzer informieren, zentral eskalieren.</td>
+</tr>
+<tr>
+<td>Message Trace <code>Delivered</code>, im Posteingang „fehlt“</td>
+<td>Junk, Andere/Relevant, Regeln, verschobene/gelöschte Nachrichten, Quarantäne prüfen.</td>
+</tr>
+<tr>
+<td>NDR <code>5.x.x</code></td>
+<td>Exakten Code und beteiligten Server lesen; Regel oder Empfängerfehler gezielt untersuchen.</td>
+</tr>
+<tr>
+<td>Postfachspeicher verdächtig</td>
+<td><strong>Quota</strong> und Statistik vergleichen; keine willkürlichen Löschungen.</td>
+</tr>
+<tr>
+<td>Nachricht in Quarantäne</td>
+<td>Mit Sicherheitsteam prüfen; nicht ungeprüft freigeben.</td>
+</tr>
+<tr>
+<td>Versand nur zu einer Fremddomäne scheitert</td>
+<td>MX, Zielserver, Transport und SPF/DKIM/DMARC <em>abhängig vom NDR</em> untersuchen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht blind:</strong> Outlook neu installieren, OST löschen, Profile neu anlegen, Sicherheitsrichtlinien abschalten, Quarantäne freigeben oder E-Mails mehrfach senden.</p>
+<h2 id="6-erfolgskontrolle">6. Erfolgskontrolle</h2>
+<ul>
+<li>[ ] Ursache anhand von Befund und Maßnahme plausibel belegt.</li>
+<li>[ ] Freigegebener <strong>Testempfang</strong> funktioniert auf ursprünglich betroffenem Client.</li>
+<li>[ ] Freigegebener <strong>Testversand</strong> wird vom gewünschten Empfänger bestätigt.</li>
+<li>[ ] Postausgang geprüft, keine ungeklärten Nachrichten mehrfach verschickt.</li>
+<li>[ ] Relevante Trace-/NDR-Befunde festgehalten (ohne sensible Inhalte).</li>
+<li>[ ] Ticket mit Uhrzeit, betroffenen Systemen, Maßnahme und Testergebnis geschlossen oder begründet eskaliert.</li>
+</ul>
+<h2 id="7-muster-ticketabschluss-fiktiv">7. Muster-Ticketabschluss (fiktiv)</h2>
+<blockquote>
+<p><strong>INC-006:</strong> Benutzer meldete fehlende E-Mails im klassischen Outlook. In Outlook im Web war dieselbe Testnachricht vorhanden; keine zusätzliche Dienststörung festgestellt. Klassisches Outlook zeigte „Offline arbeiten“. Online-Modus nach Rücksprache aktiviert und Synchronisierung erneut geprüft. Testmail am Client sichtbar; Versand einer vereinbarten Testnachricht erfolgreich. <strong>Status: gelöst.</strong></p>
+</blockquote>
+<h2 id="8-technische-quellen">8. Technische Quellen</h2>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/outlook/i-can-t-send-or-receive-messages-in-outlook" rel="noopener noreferrer" target="_blank">Microsoft Support: Outlook sendet/empfängt nicht</a></li>
+<li><a href="https://support.microsoft.com/de-de/outlook/getstarted/how-to-work-offline-in-outlook-for-windows" rel="noopener noreferrer" target="_blank">Microsoft Support: Offlinearbeit in Outlook</a></li>
+<li><a href="https://learn.microsoft.com/de-de/exchange/monitoring/trace-an-email-message/new-message-trace" rel="noopener noreferrer" target="_blank">Microsoft Learn: Nachrichtenablaufverfolgung</a></li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/exchangepowershell/get-messagetracev2" rel="noopener noreferrer" target="_blank">Microsoft Learn: Get-MessageTraceV2</a></li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/exchange/connect-to-exchange-online-powershell" rel="noopener noreferrer" target="_blank">Microsoft Learn: Exchange Online PowerShell</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/exchange/email-delivery/ndr/non-delivery-reports-in-exchange-online" rel="noopener noreferrer" target="_blank">Microsoft Learn: NDRs/SMTP-Fehlercodes</a></li>
+</ul>
+<p><strong>Lernartikel:</strong> <a href="index.html">RB-006 – Ausführliche Grundlagen und Diagnose</a></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-006_Praxis-Runbook.md">RB-006_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-005/index.html">← RB-005</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-007/index.html">RB-007 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

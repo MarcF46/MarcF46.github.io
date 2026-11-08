@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-001 Windows-Anmeldung fehlgeschlagen | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-001: Windows-Anmeldung fehlgeschlagen. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Identität · AD · Lernartikel</p><h1>RB-001: Windows-Anmeldung fehlgeschlagen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-ausgangssituation">1. Ticket / Ausgangssituation</a></li><li><a href="#2-technische-grundlagen-und-begriffserklaerungen">2. Technische Grundlagen und Begriffserklärungen</a></li><li><a href="#3-erste-fehleraufnahme-vor-jedem-befehl">3. Erste Fehleraufnahme – vor jedem Befehl</a></li><li><a href="#4-zugriffsvoraussetzungen-von-wo-kann-ich-diagnostizieren">4. Zugriffsvoraussetzungen – von wo kann ich diagnostizieren?</a></li><li><a href="#5-entscheidungsbaum-welches-problem-liegt-vor">5. Entscheidungsbaum – welches Problem liegt vor?</a></li><li><a href="#6-diagnosebefehle-kommentiert-mit-ausfuehrungsort">6. Diagnosebefehle – kommentiert, mit Ausführungsort</a></li><li><a href="#7-loesungswege-abhaengig-vom-befund">7. Lösungswege – abhängig vom Befund</a></li><li><a href="#8-spezialfall-homeoffice-das-henne-ei-problem-bei-vpn">8. Spezialfall Homeoffice: Das „Henne-Ei-Problem“ bei VPN</a></li><li><a href="#9-erfolgskontrolle">9. Erfolgskontrolle</a></li><li><a href="#10-wann-eskalieren">10. Wann eskalieren?</a></li><li><a href="#11-muster-ticketkommentar-fiktiv">11. Muster-Ticketkommentar (fiktiv)</a></li><li><a href="#12-lernkontrolle-drei-kartentypen">12. Lernkontrolle: Drei Kartentypen</a></li><li><a href="#13-visualisierungen-und-screenshots">13. Visualisierungen und Screenshots</a></li><li><a href="#14-technische-referenzen-und-quellen">14. Technische Referenzen und Quellen</a></li><li><a href="#15-validierungsstatus-und-offene-punkte">15. Validierungsstatus und offene Punkte</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets · 50 typische Supportfälle · Diagnose · Lösung · Eskalation<br/>
+<strong>Kategorie:</strong> Windows 11 / Identitätsmanagement / Netzwerk / Remote-Support<br/>
+<strong>Support-Level:</strong> L1 / L2 (abhängig von Berechtigungen und Betriebsmodell)<br/>
+<strong>Version:</strong> 1.0 · <strong>Dokumentationsdatum:</strong> 7. November 2026<br/>
+<strong>Status:</strong> Fachlich recherchiert; Beispiele konstruiert; <strong>praktische Validierung ausstehend</strong><br/>
+<strong>Beispielumgebung:</strong> Windows 11 Pro, klassische AD-Domäne <code>firma.example</code>, Client <code>PC-023</code>, Benutzer <code>m.mustermann</code>. Namen sind fiktiv.</p>
+<blockquote>
+<p><strong>Geltungsbereich:</strong> Der ausführliche Diagnoseweg behandelt primär eine klassische lokale Active-Directory-Domäne. Entra-ID-, Hybrid- und Windows-Hello-Szenarien sind als eigene Abzweigungen dokumentiert. Die Beispielbefehle sind nicht als pauschale Reparaturskripte gedacht.</p>
+</blockquote>
+<h2 id="1-ticket-ausgangssituation">1. Ticket / Ausgangssituation</h2>
+<p><strong>INC-001 – Anmeldung am Windows-Arbeitsplatz nicht möglich</strong></p>
+<blockquote>
+<p>„Seit heute kann ich mich nicht mehr anmelden. Gestern hat es noch funktioniert. Windows akzeptiert meine Anmeldung nicht.“</p>
+</blockquote>
+<p><strong>Auswirkung:</strong> Der Mitarbeiter erreicht seinen Arbeitsplatz nicht; geschäftskritische Arbeit kann betroffen sein. Priorität und Dringlichkeit ergeben sich aus tatsächlicher Auswirkung und den betrieblichen Servicevereinbarungen, nicht allein aus dem Stichwort „Login“.</p>
+<p><strong>Diagnoseziel:</strong> Exakte Fehlermeldung, Kontotyp, Reichweite des Problems und erreichbare Verwaltungswege feststellen; danach die technische Ursache eingrenzen, gezielt beheben und den Erfolg prüfen.</p>
+<h2 id="2-technische-grundlagen-und-begriffserklaerungen">2. Technische Grundlagen und Begriffserklärungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Anfängerfreundliche Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AD (Active Directory)</strong></td>
+<td>Zentraler Verzeichnisdienst für Benutzer, Gruppen und Computer in Windows-Domänen.</td>
+</tr>
+<tr>
+<td><strong>AD DS (Active Directory Domain Services)</strong></td>
+<td>Die klassischen Domänendienste einschließlich der Benutzer- und Computerverwaltung.</td>
+</tr>
+<tr>
+<td><strong>DC (Domain Controller)</strong></td>
+<td>Domänencontroller: Server, der unter anderem AD-Daten bereitstellt und Domänenanmeldungen authentifiziert.</td>
+</tr>
+<tr>
+<td><strong>Microsoft Entra ID</strong></td>
+<td>Cloudbasierter Identitätsdienst; unter anderem für Microsoft-365-Anmeldungen. Nicht identisch mit AD DS.</td>
+</tr>
+<tr>
+<td><strong>Hybrid Join</strong></td>
+<td>Ein Windows-Gerät ist sowohl einer lokalen AD-Domäne als auch Microsoft Entra ID zugeordnet; die klassische Windows-Anmeldung bleibt dabei domänenbasiert.</td>
+</tr>
+<tr>
+<td><strong>Kerberos</strong></td>
+<td>Bevorzugtes Authentifizierungsprotokoll einer AD-Domäne. Es arbeitet mit zeitlich begrenzten digitalen Tickets für Dienste.</td>
+</tr>
+<tr>
+<td><strong>NTLM (NT LAN Manager)</strong></td>
+<td>Älteres Challenge-Response-Authentifizierungsverfahren; heute vor allem noch aus Kompatibilitätsgründen relevant.</td>
+</tr>
+<tr>
+<td><strong>RDP (Remote Desktop Protocol)</strong></td>
+<td>Protokoll für eine eigene grafische Remotedesktop-Sitzung.</td>
+</tr>
+<tr>
+<td><strong>WinRM (Windows Remote Management)</strong></td>
+<td>Dienst-/Protokollinfrastruktur für die Windows-Remoteverwaltung, häufig für PowerShell-Remoting.</td>
+</tr>
+<tr>
+<td><strong>RSAT (Remote Server Administration Tools)</strong></td>
+<td>Windows-Verwaltungstools, mit denen berechtigte Techniker AD und Server vom Administrations-PC aus verwalten können.</td>
+</tr>
+<tr>
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Wandelt Namen in Netzwerkadressen um und hilft beim Auffinden von Domänendiensten.</td>
+</tr>
+<tr>
+<td><strong>VPN (Virtual Private Network)</strong></td>
+<td>Geschützte Verbindung beispielsweise vom Homeoffice in das Firmennetz.</td>
+</tr>
+<tr>
+<td><strong>Windows Hello</strong></td>
+<td>Windows-Anmeldung per gerätegebundener PIN, Fingerabdruck oder Gesichtserkennung. <strong>Windows Hello for Business</strong> verwendet in Unternehmenseinsätzen unter anderem kryptografische, gerätegebundene Schlüssel. Eine PIN ist nicht dasselbe wie das Kontokennwort.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="visualisierung-identitaetssysteme">Visualisierung: Identitätssysteme</h3>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/identitaetsinfrastruktur_ueberblick.png" rel="noopener noreferrer" target="_blank"><img alt="Vier Microsoft-Identitätsszenarien: Lokales Konto, AD-Domäne, Entra ID und Hybrid" decoding="async" loading="lazy" src="assets/identitaetsinfrastruktur_ueberblick.png"/></a></div><figcaption>Vier Microsoft-Identitätsszenarien: Lokales Konto, AD-Domäne, Entra ID und Hybrid</figcaption></figure>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/identitaetsinfrastruktur_details.png" rel="noopener noreferrer" target="_blank"><img alt="Ausführliche Gegenüberstellung der Identitätsinfrastruktur, einschließlich Kerberos und NTLM" decoding="async" loading="lazy" src="assets/identitaetsinfrastruktur_details.png"/></a></div><figcaption>Ausführliche Gegenüberstellung der Identitätsinfrastruktur, einschließlich Kerberos und NTLM</figcaption></figure>
+<p><strong>Technischer Hinweis:</strong> Diese Grafiken sind didaktische Vereinfachungen und keine vollständigen Netzwerk- oder Authentifizierungsarchitekturen. Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/devices/troubleshoot-device-dsregcmd" rel="noopener noreferrer" target="_blank">Microsoft – Entra-Gerätestatus mit dsregcmd</a>, <a href="https://learn.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/hello-how-it-works" rel="noopener noreferrer" target="_blank">Windows Hello for Business: Funktionsweise</a>.</p>
+<h2 id="3-erste-fehleraufnahme-vor-jedem-befehl">3. Erste Fehleraufnahme – vor jedem Befehl</h2>
+<p><strong>Zunächst den Benutzer befragen:</strong></p>
+<ol>
+<li><strong>Wortlaut:</strong> Welche vollständige Meldung steht am Anmeldebildschirm? Bei Bedarf ein Foto <em>ohne sichtbare Zugangsdaten</em> anfordern.</li>
+<li><strong>Anmeldetyp:</strong> Kennwort, Windows-Hello-PIN, Biometrie, lokales Konto, AD-Domänenkonto oder Entra-ID-Konto?</li>
+<li><strong>Reichweite:</strong> Nur dieser Benutzer, nur dieser Rechner oder mehrere Mitarbeiter? Tritt der Fehler an einem anderen Gerät ebenfalls auf?</li>
+<li><strong>Zeitlicher Kontext:</strong> Seit wann? Kennwort geändert? Windows aktualisiert? Gerät getauscht? Im Homeoffice oder Büro?</li>
+<li><strong>Netzwerk:</strong> LAN, WLAN, Unternehmens-VPN verfügbar? Kann der Rechner einen Domänencontroller erreichen?</li>
+<li><strong>Priorität/Sicherheit:</strong> Ist das Konto absichtlich deaktiviert oder gibt es Anzeichen für verdächtige Anmeldungen?</li>
+</ol>
+<p><strong>Sicherheitsregel:</strong> Niemals das persönliche Kennwort oder die PIN des Benutzers erfragen, im Ticket notieren oder per Fernwartung entgegennehmen. Keine unbegrenzten Anmeldeversuche, die eine Kontosperre auslösen könnten.</p>
+<h3 id="typische-meldungen-diagnosezweige">Typische Meldungen / Diagnosezweige</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Meldung (sinngemäß)</th>
+<th>Mögliche Erklärung</th>
+<th>Primäre Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Benutzername oder Kennwort ist falsch“</td>
+<td>Eingabefehler, falsches Konto, veraltetes Kennwort, Offline-Cache oder andere Authentifizierungsstörung</td>
+<td>Benutzerkontext, Zeitpunkt der Kennwortänderung, Kontostatus</td>
+</tr>
+<tr>
+<td>„Konto ist gesperrt“</td>
+<td>Kontosperrrichtlinie ausgelöst</td>
+<td>AD-Kontostatus und Sperrursache</td>
+</tr>
+<tr>
+<td>„Konto deaktiviert“</td>
+<td>Administrativ gesperrte Benutzeridentität</td>
+<td>Freigabe-/Offboardingprozess</td>
+</tr>
+<tr>
+<td>„Kennwort abgelaufen“</td>
+<td>Kennwortänderung erforderlich</td>
+<td>Vorgesehenen Kennwortwechsel prüfen</td>
+</tr>
+<tr>
+<td>„Domäne nicht verfügbar“</td>
+<td>Domänencontroller nicht erreichbar; keine geeignete Offlineprüfung möglich</td>
+<td>Netzwerk, DNS, VPN, Cache-Voraussetzungen</td>
+</tr>
+<tr>
+<td>„Vertrauensstellung … fehlgeschlagen“</td>
+<td>Gestörter Secure Channel des Computerkontos</td>
+<td>L2: Computer-/Domänenbeziehung untersuchen</td>
+</tr>
+<tr>
+<td>„PIN nicht verfügbar“</td>
+<td>Windows-Hello-/Schlüssel-/Richtlinienproblem</td>
+<td>Anmeldeoption und Windows Hello prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die Meldungen sind bewusst sinngemäß. Die exakten Texte unterscheiden sich zwischen Windows-Versionen, Spracheinstellungen und Authentifizierungsarten.</p>
+<h2 id="4-zugriffsvoraussetzungen-von-wo-kann-ich-diagnostizieren">4. Zugriffsvoraussetzungen – von wo kann ich diagnostizieren?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Möglicher Zugriffsweg</th>
+<th>Konkrete Diagnose und mögliche Behebung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client im Büro, Konto fraglich</td>
+<td><strong>Zentrale AD-Verwaltung</strong> auf autorisiertem Admin-PC</td>
+<td>Benutzer über RSAT oder <code>Get-ADUser</code> prüfen. Sperre, Deaktivierung und Kennwortstatus untersuchen. Keine Clientanmeldung nötig.</td>
+</tr>
+<tr>
+<td>Client im Büro erreichbar, tiefere Diagnose nötig</td>
+<td><strong>RDP (Remote Desktop Protocol)</strong> mit eigenem berechtigtem Konto</td>
+<td>Clientseitige Logs, DNS und Domänenanbindung überprüfen. Erfordert erlaubten RDP-Zugriff und geeignete Windows-Edition.</td>
+</tr>
+<tr>
+<td>Client erreichbar, grafische Sitzung nicht erforderlich</td>
+<td><strong>PowerShell-Remoting über WinRM</strong></td>
+<td>Aus der Admin-Sitzung freigegebene Befehle auf <code>PC-023</code> ausführen; kein Benutzerdesktop erforderlich.</td>
+</tr>
+<tr>
+<td>Mitarbeiter bereits angemeldet</td>
+<td><strong>Teams / Schnellhilfe / freigegebene Fernsteuerung</strong></td>
+<td>Bildschirm gemeinsam ansehen, Schritte anleiten oder mit Einwilligung die Steuerung übernehmen; keine automatische Lösung für einen gesperrten Anmeldebildschirm.</td>
+</tr>
+<tr>
+<td>Homeoffice, kein normales Benutzer-VPN</td>
+<td><strong>Pre-Logon-VPN (VPN vor der Windows-Anmeldung)</strong> oder geeignet verwaltete Fernwartung</td>
+<td>Prüfen, ob ein Gerätetunnel oder eine andere Voranmelde-Verbindung konfiguriert ist, damit DC-Konnektivität hergestellt werden kann.</td>
+</tr>
+<tr>
+<td>Client remote nicht erreichbar</td>
+<td><strong>Serverseitige Prüfung + Vor-Ort-Unterstützung</strong></td>
+<td>Kontostatus zuerst prüfen; vor Ort LAN/WLAN, Anmeldebildschirm, zulässige lokale Administrationszugänge und Systemstatus untersuchen.</td>
+</tr>
+<tr>
+<td>Viele Benutzer gleichzeitig betroffen</td>
+<td><strong>Infrastrukturdiagnose / Incident-Eskalation</strong></td>
+<td>Gemeinsamen Fehler in DNS, Netzwerk, DC, VPN, Authentifizierungsdiensten oder Richtlinien suchen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Zentrale Verwaltung</strong> bedeutet: Berechtigte Mitarbeiter administrieren Konten oder Geräte über Verwaltungswerkzeuge, ohne auf dem PC des betroffenen Mitarbeiters angemeldet sein zu müssen. Für ein gesperrtes AD-Konto sind typischerweise AD-Benutzerverwaltung oder AD-PowerShell zuständig, nicht die Gruppenrichtlinien-Verwaltung (GPO).</p>
+<p><strong>RDP und Bildschirmfreigabe unterscheiden:</strong> Eine normale RDP-Anmeldung auf einem Windows-11-Pro-/Enterprise-Arbeitsplatz eröffnet keine gemeinsame Präsentation desselben Desktops wie Teams oder Schnellhilfe. Bestehende lokale Sitzungen können gesperrt/getrennt werden; das ist nicht automatisch eine vollständige Benutzerabmeldung. Eingehendes RDP wird von Windows Home nicht als Host unterstützt. Port 3389 nicht direkt im Internet freigeben.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/windows-server/remote/remote-server-administration-tools" rel="noopener noreferrer" target="_blank">RSAT installieren/verwalten</a>, <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access" rel="noopener noreferrer" target="_blank">Remotedesktop-Voraussetzungen</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command" rel="noopener noreferrer" target="_blank">PowerShell Invoke-Command</a>, <a href="https://learn.microsoft.com/en-us/intune/remote-help/" rel="noopener noreferrer" target="_blank">Intune Remote Help</a>.</p>
+<h2 id="5-entscheidungsbaum-welches-problem-liegt-vor">5. Entscheidungsbaum – welches Problem liegt vor?</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">mermaid</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-mermaid">flowchart TD
+    A[Windows-Anmeldung scheitert] --&gt; B{Welcher Anmeldetyp?}
+    B --&gt;|AD-Domänenkonto| C{Konto gesperrt oder deaktiviert?}
+    B --&gt;|PIN / Windows Hello| H[Hello-Verfahren und alternative erlaubte Anmeldung prüfen]
+    B --&gt;|Entra-ID-Konto| E[Entra-Anmeldeprotokolle und Gerätestatus prüfen]
+    B --&gt;|Lokales Konto| L[Lokalen Kontostatus und Anmeldeoptionen prüfen]
+    C --&gt;|Ja| D[Sperr- bzw. Deaktivierungsursache klären]
+    C --&gt;|Nein| F{Domänencontroller erreichbar?}
+    F --&gt;|Nein| G[DNS / Netzwerk / VPN / Offline-Anmeldung prüfen]
+    F --&gt;|Ja| I[Fehlermeldung und Security-Events auswerten]
+    I --&gt; J{Vertrauensstellungsfehler?}
+    J --&gt;|Ja| K[L2: Secure Channel prüfen]
+    J --&gt;|Nein| M[Weiter nach Fehlercode / Richtlinienbefund]
+    D --&gt; N[Autorisierte, gezielte Behebung]
+    G --&gt; N
+    H --&gt; N
+    E --&gt; N
+    L --&gt; N
+    K --&gt; N
+    M --&gt; N
+    N --&gt; O[Anmeldung + Ressourcen prüfen und Ticket dokumentieren]
+</code></pre></div><p><strong>Hinweis zur Website:</strong> Die Mermaid-Grafik ist als technische Quellvorlage gedacht. Bei der Veröffentlichung auf GitHub Pages muss die Unterstützung für Mermaid geprüft oder das Diagramm als eigenes SVG/PNG eingebunden werden.</p>
+<h2 id="6-diagnosebefehle-kommentiert-mit-ausfuehrungsort">6. Diagnosebefehle – kommentiert, mit Ausführungsort</h2>
+<h3 id="61-ad-konto-zentral-pruefen-l1l2-je-nach-rechten">6.1 AD-Konto zentral prüfen (L1/L2 je nach Rechten)</h3>
+<p><strong>Wo?</strong> Auf einem autorisierten Administrationsrechner mit dem ActiveDirectory-PowerShell-Modul (RSAT) und Zugriff auf einen Domänencontroller. <strong>Wirkung:</strong> Nur lesen, keine Kontenänderung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Get-ADUser liest das angegebene Benutzerobjekt aus Active Directory.</span>
+<span class="c"># -Identity: Sucht dieses konkrete AD-Konto anhand des Anmeldenamens.</span>
+<span class="c"># -Properties: Fordert zusätzliche Kontoeigenschaften an.</span>
+<span class="nv">$user</span> <span class="p">=</span> <span class="nb">Get-ADUser</span> <span class="n">-Identity</span> <span class="s1">'m.mustermann'</span> <span class="n">-Properties</span> <span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">PasswordExpired</span><span class="p">,</span><span class="n">AccountExpirationDate</span>
+
+<span class="c"># Das Pipe-Zeichen | übergibt das Ergebnis an den nächsten Befehl.</span>
+<span class="c"># Select-Object beschränkt die Ausgabe auf die ausgewählten Felder.</span>
+<span class="nv">$user</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">SamAccountName</span><span class="p">,</span><span class="n">Enabled</span><span class="p">,</span><span class="n">LockedOut</span><span class="p">,</span><span class="n">PasswordExpired</span><span class="p">,</span><span class="n">AccountExpirationDate</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>LockedOut = True</code> signalisiert eine Kontosperre; <code>Enabled = False</code> ein deaktiviertes Konto; <code>PasswordExpired = True</code> ein abgelaufenes Kennwort. Allein daraus geht die Sperrursache nicht hervor. Bei mehreren DCs kann zur Ursachenanalyse die Prüfung des relevanten Controllers nötig sein.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-aduser" rel="noopener noreferrer" target="_blank">Get-ADUser</a>.</p>
+<h3 id="62-pruefen-ob-rdp-ueberhaupt-erreichbar-ist-optionaler-diagnoseweg">6.2 Prüfen, ob RDP überhaupt erreichbar ist (optionaler Diagnoseweg)</h3>
+<p><strong>Wo?</strong> Eigener Administrationsrechner. <strong>Wirkung:</strong> Nur TCP-Verbindung prüfen, keine Anmeldung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Test-NetConnection untersucht die Verbindung zu einem Zielcomputer.</span>
+<span class="c"># -ComputerName: Name des entfernten Windows-PCs.</span>
+<span class="c"># -Port: TCP-Zielport, hier 3389 für RDP.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'PC-023'</span> <span class="n">-Port</span> <span class="n">3389</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>TcpTestSucceeded : True</code> bestätigt die TCP-Erreichbarkeit des Ports, <strong>nicht</strong> die erfolgreiche Benutzeranmeldung. <code>False</code> kann etwa durch Firewall, Netzwerk-/Routingfehler, fehlendes VPN oder einen ausgeschalteten RDP-Dienst entstehen.</p>
+<h3 id="63-grafischen-rdp-client-starten-optional">6.3 Grafischen RDP-Client starten (optional)</h3>
+<p><strong>Wo?</strong> Eigener Administrationsrechner. <strong>Voraussetzungen:</strong> RDP ist ausdrücklich freigegeben und für den Einsatzzweck geeignet.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># mstsc.exe: Startet den normalen Windows-Remotedesktopclient.</span>
+<span class="c"># /v:PC-023: Gibt den Zielcomputer an; kein Leerzeichen nach /v:.</span>
+<span class="c"># /prompt: Fordert beim Verbinden die Anmeldung an.</span>
+<span class="c"># Zwischen Programmname und Parametern steht je ein Leerzeichen.</span>
+<span class="n">mstsc</span><span class="p">.</span><span class="n">exe</span> <span class="p">/</span><span class="n">v</span><span class="p">:</span><span class="n">PC</span><span class="p">-</span><span class="n">023</span> <span class="p">/</span><span class="n">prompt</span>
+</code></pre></div><p><strong>Was geschieht?</strong> Der grafische Remotedesktopclient öffnet eine Verbindung zum Zielgerät. Man verwendet <strong>eigene, erlaubte</strong> administrative Anmeldeinformationen. Der betroffene Benutzer muss nicht zuvor angemeldet sein. Eine normale RDP-Sitzung ist keine gemeinsame Bildschirmfreigabe.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mstsc" rel="noopener noreferrer" target="_blank">mstsc</a>.</p>
+<h3 id="64-netzwerkstatus-am-client-pruefen">6.4 Netzwerkstatus am Client prüfen</h3>
+<p><strong>Wo?</strong> Auf dem betroffenen Client – lokal, per erlaubtem RDP oder über Remoteverwaltung. Ohne entsprechenden Zugang kann dieser Schritt nicht einfach ausgeführt werden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># PowerShell-Cmdlet: Zeigt Adapter-IP-Konfiguration, Gateway und DNS an.</span>
+<span class="nb">Get-NetIPConfiguration</span>
+
+<span class="c"># Windows-Kommandozeilenprogramm: Zeigt ausführliche Adapterdaten an.</span>
+<span class="c"># /all: Gibt auch zusätzliche Konfigurationsdetails aus.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">all</span>
+
+<span class="c"># Windows-Kommandozeilenprogramm: Sucht einen Domänencontroller.</span>
+<span class="c"># /dsgetdc: nennt die zu untersuchende AD-Domäne.</span>
+<span class="n">nltest</span> <span class="p">/</span><span class="n">dsgetdc</span><span class="p">:</span><span class="n">firma</span><span class="p">.</span><span class="n">example</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ist kein DC auffindbar, folgen DNS-, Netzwerk- und VPN-Tests. Auch eine erfolgreiche DC-Suche beweist noch nicht, dass die Benutzeranmeldung erfolgreich sein wird. Bei <code>ipconfig /all</code> auf falsche DNS-Server, fehlende Adressen oder fehlerhafte Gateway-Einstellungen achten.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/active-directory/domain-join-networking-errors" rel="noopener noreferrer" target="_blank">DC-Ermittlung mit nltest</a>.</p>
+<h3 id="65-mit-powershell-remoting-pruefen-alternativer-zugriff">6.5 Mit PowerShell-Remoting prüfen (alternativer Zugriff)</h3>
+<p><strong>Wo?</strong> Eigener Administrationsrechner. <strong>Voraussetzungen:</strong> WinRM-Zugang, Berechtigungen, Remoteauthentifizierung und Firewall sind korrekt konfiguriert.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Invoke-Command führt Code auf einem entfernten Rechner aus.</span>
+<span class="c"># -ComputerName bestimmt den Zielcomputer.</span>
+<span class="c"># -ScriptBlock enthält die dort ausgeführten Anweisungen.</span>
+<span class="nb">Invoke-Command</span> <span class="n">-ComputerName</span> <span class="s1">'PC-023'</span> <span class="n">-ScriptBlock</span> <span class="p">{</span>
+
+    <span class="c"># Zeigt die Netzwerkkonfiguration des Zielcomputers an.</span>
+    <span class="nb">Get-NetIPConfiguration</span>
+
+    <span class="c"># Gibt den Status aller lokalen Netzwerkadapter aus.</span>
+    <span class="nb">Get-NetAdapter</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span><span class="n">Status</span><span class="p">,</span><span class="n">LinkSpeed</span>
+<span class="p">}</span>
+</code></pre></div><p><strong>Interpretation:</strong> Die Ergebnisse kommen von <code>PC-023</code>, obwohl der Befehl am Administrations-PC gestartet wurde. Ein Benutzer muss nicht interaktiv am Ziel-PC angemeldet sein. Ein WinRM-Fehler sagt allerdings für sich allein noch nichts über das ursprüngliche Windows-Anmeldeproblem aus.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command" rel="noopener noreferrer" target="_blank">Invoke-Command</a>.</p>
+<h3 id="66-fehlgeschlagene-windows-anmeldungen-im-security-log-pruefen">6.6 Fehlgeschlagene Windows-Anmeldungen im Security-Log prüfen</h3>
+<p><strong>Wo?</strong> Auf dem betroffenen Windows-Rechner beziehungsweise dem System, auf dem die Anmeldung ausgewertet wird. Erforderlich sind ausreichende Log-Leserechte und die passende Überwachungsrichtlinie.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Definiert einen Suchfilter als PowerShell-Hashtable.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="c"># Windows-Sicherheitsprotokoll auswählen.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'Security'</span>
+    <span class="c"># Ereignis-ID 4625: fehlgeschlagene Anmeldung.</span>
+    <span class="n">Id</span> <span class="p">=</span> <span class="n">4625</span>
+    <span class="c"># Ereignisse der letzten zwei Stunden berücksichtigen.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">2</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Liest höchstens zehn passende, jüngste Ereignisse aus.</span>
+<span class="c"># Select-Object zeigt Datum, Ereignis-ID und Detailmeldung.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">10</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span><span class="n">Id</span><span class="p">,</span><span class="n">Message</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein <code>4625</code>-Ereignis kann <code>Status</code> und <code>SubStatus</code> sowie die Authentifizierungsart enthalten. Typische Werte sind <code>0xC000006A</code> (ungültiges Kennwort), <code>0xC0000234</code> (Konto gesperrt) oder <code>0xC000005E</code> (kein Anmeldeserver verfügbar). Nicht jedes Ereignis erscheint zwingend auf demselben Computer. Bei einer Domänenanmeldung können zusätzliche DC-Logs nötig sein.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4625" rel="noopener noreferrer" target="_blank">Windows-Ereignis 4625</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent" rel="noopener noreferrer" target="_blank">Get-WinEvent</a>.</p>
+<h3 id="67-kontosperren-auf-dem-zustaendigen-dc-untersuchen-l2autorisiert">6.7 Kontosperren auf dem zuständigen DC untersuchen (L2/autorisiert)</h3>
+<p><strong>Wo?</strong> Berechtigter Administrationsrechner. <strong>Voraussetzung:</strong> Remote-Lesezugriff auf das Sicherheitsprotokoll eines relevanten Domänencontrollers; Netzwerkkonnektivität und Ereignisüberwachung müssen dies unterstützen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Sucht Sperrereignisse der letzten zwei Stunden auf DC01.</span>
+<span class="c"># -ComputerName bestimmt den ausgelesenen Domänencontroller.</span>
+<span class="c"># -FilterHashtable begrenzt die Ereignisse auf ID 4740.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-ComputerName</span> <span class="s1">'DC01.firma.example'</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="s1">'Security'</span>  <span class="c"># Sicherheitsereignisse.</span>
+    <span class="n">Id</span>        <span class="p">=</span> <span class="n">4740</span>        <span class="c"># Konto wurde gesperrt.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">2</span><span class="p">)</span>  <span class="c"># Zeitfenster.</span>
+<span class="p">}</span> <span class="n">-MaxEvents</span> <span class="n">10</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span><span class="n">Id</span><span class="p">,</span><span class="n">Message</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ereignis <code>4740</code> kann Hinweise auf das Konto und den auslösenden Rechner enthalten. In Umgebungen mit mehreren Domänencontrollern muss gegebenenfalls auf weiteren DCs gesucht werden. Die Recherche von Quellgerät, alten Anmeldeinformationen oder automatisierten Aufgaben erfolgt <strong>vor</strong> einer dauerhaften Behebung.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4740" rel="noopener noreferrer" target="_blank">Windows-Ereignis 4740</a>.</p>
+<h3 id="68-entra-id-hybrid-geraetestatus-pruefen-nur-passender-diagnosezweig">6.8 Entra-ID-/Hybrid-Gerätestatus prüfen (nur passender Diagnosezweig)</h3>
+<p><strong>Wo?</strong> Betroffener Rechner bei verfügbarem berechtigtem Zugriff. Benutzerbezogene Informationen erfordern den korrekten Benutzerkontext.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Windows-Hilfsprogramm zur Diagnose des Gerätebeitrittsstatus.</span>
+<span class="c"># /status zeigt unter anderem DomainJoined und AzureAdJoined an.</span>
+<span class="n">dsregcmd</span> <span class="p">/</span><span class="n">status</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>DomainJoined : YES</code> weist auf eine lokale AD-Domänenmitgliedschaft hin; <code>AzureAdJoined : YES</code> auf einen Entra-ID-Beitritt. Sind beide Werte <code>YES</code>, liegt in der Regel eine hybride Einbindung vor. Das Ergebnis allein identifiziert nicht den gesamten Anmeldefehler.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/entra/identity/devices/troubleshoot-device-dsregcmd" rel="noopener noreferrer" target="_blank">dsregcmd-Gerätediagnose</a>.</p>
+<h3 id="69-secure-channel-pruefen-falls-ein-vertrauensstellungsfehler-vorliegt-l2">6.9 Secure Channel prüfen, falls ein Vertrauensstellungsfehler vorliegt (L2)</h3>
+<p><strong>Wo?</strong> Betroffener domänengebundener Windows-Client mit geeigneten Rechten. <strong>Wirkung:</strong> Nur Prüfung; hier bewusst <strong>keine Reparatur</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Testet die sichere Vertrauensbeziehung zur AD-Domäne.</span>
+<span class="c"># -Verbose liefert zusätzliche Diagnoseinformationen.</span>
+<span class="nb">Test-ComputerSecureChannel</span> <span class="n">-Verbose</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein negativer Test kann den Verdacht auf eine gestörte Vertrauensbeziehung stützen. Reparaturoperationen und Neuaufnahme in die Domäne erfordern eine separate, dokumentierte L2-Entscheidung; sie sind keine automatische Erstmaßnahme.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/windows-security/broken-trust-relationship-domain-joined-device-its-domain-secure-channel-issues" rel="noopener noreferrer" target="_blank">Microsoft – Broken Trust Relationship</a>.</p>
+<h2 id="7-loesungswege-abhaengig-vom-befund">7. Lösungswege – abhängig vom Befund</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Sichere Vorgehensweise</th>
+<th>Erfolgskriterium</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Falsches Konto oder Eingabefehler</td>
+<td>Benutzer-/Domänenauswahl, Tastaturlayout und Anmeldeoptionen prüfen; keine Kennwortweitergabe verlangen</td>
+<td>Vorgesehene Anmeldung funktioniert</td>
+</tr>
+<tr>
+<td>AD-Konto gesperrt</td>
+<td>Ursache (<code>4740</code>, <code>4625</code>, weitere Authentifizierungsquellen) eingrenzen; alte Anmeldedaten am auslösenden Gerät korrigieren; Konto <strong>nur nach Freigabe</strong> entsperren</td>
+<td>Keine wiederkehrende Sperre, Anmeldung erfolgreich</td>
+</tr>
+<tr>
+<td>Konto deaktiviert</td>
+<td>Deaktivierungs-/Sicherheitsgrund und Freigabe klären; nicht eigenmächtig reaktivieren</td>
+<td>Freigegebener Kontostatus, erfolgreiche Anmeldung</td>
+</tr>
+<tr>
+<td>Kennwort abgelaufen</td>
+<td>Vorgesehenen Kennwortwechsel oder autorisierte Zurücksetzung durchführen</td>
+<td>Neues Kennwort wird akzeptiert</td>
+</tr>
+<tr>
+<td>DC nicht erreichbar</td>
+<td>Netzwerk/DNS/VPN/Routing prüfen; bei Homeoffice gegebenenfalls Voranmelde-VPN verwenden</td>
+<td>Online-Authentifizierung und benötigte Ressourcen möglich</td>
+</tr>
+<tr>
+<td>Offline-Cache veraltet</td>
+<td>Prüfen, wo/wann Kennwort geändert wurde; zulässige Offline-Anmeldung und anschließende Online-Authentifizierung untersuchen</td>
+<td>Aktuelle Anmeldeinformationen funktionieren nach Online-Verbindung</td>
+</tr>
+<tr>
+<td>Windows-Hello-PIN gestört</td>
+<td>Vorgesehene alternative Anmeldeoption prüfen; PIN-/Schlüsselzurücksetzung nur nach Richtlinie</td>
+<td>Hello-Anmeldung funktioniert wieder</td>
+</tr>
+<tr>
+<td>Vertrauensstellungsfehler</td>
+<td>L2 diagnostiziert Secure Channel, Computerkonto und DC-Konnektivität; autorisierte Reparatur</td>
+<td>Trust-Test, Domänenanmeldung und Ressourcen erfolgreich</td>
+</tr>
+<tr>
+<td>Mehrere Geräte/Benutzer betroffen</td>
+<td>Größere Störung vermuten, Monitoring und Infrastrukturteam einbeziehen</td>
+<td>Ursache zentral behoben, betroffene Nutzer wieder arbeitsfähig</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtige Nicht-Maßnahmen:</strong> Nicht blind Domänenmitgliedschaft entfernen, Registry ändern, alle Netzwerkadapter zurücksetzen oder Schutzmechanismen deaktivieren. Solche Eingriffe können die Diagnose erschweren oder zusätzliche Schäden verursachen.</p>
+<h2 id="8-spezialfall-homeoffice-das-henne-ei-problem-bei-vpn">8. Spezialfall Homeoffice: Das „Henne-Ei-Problem“ bei VPN</h2>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/vpn_henne_ei.png" rel="noopener noreferrer" target="_blank"><img alt="Das Henne-Ei-Problem: Windows-Anmeldung benötigt Firmennetz, VPN benötigt Anmeldung" decoding="async" loading="lazy" src="assets/vpn_henne_ei.png"/></a></div><figcaption>Das Henne-Ei-Problem: Windows-Anmeldung benötigt Firmennetz, VPN benötigt Anmeldung</figcaption></figure>
+<p>Bei einem <strong>benutzerbasierten VPN</strong> wird die Unternehmensverbindung möglicherweise erst nach erfolgreicher Windows-Anmeldung aufgebaut. Die Anmeldung kann aber eine <strong>Online-Verbindung zum Domänencontroller</strong> benötigen – etwa wenn die aktuellen Domänen-Anmeldedaten noch nicht auf dem Laptop zwischengespeichert sind.</p>
+<p><strong>Pre-Logon-VPN</strong> (VPN vor der Anmeldung), etwa ein eingerichteter gerätebasierter Tunnel, kann diese Abhängigkeit auflösen. Solche Funktionen sind jedoch nicht mit jedem VPN-Client oder jeder Firmenkonfiguration verfügbar.</p>
+<p><strong>Beispiel:</strong> Der Mitarbeiter hat das AD-Kennwort auf <strong>einem anderen Gerät</strong> geändert. Auf dem Homeoffice-Laptop kann bei fehlender DC-Verbindung ein zuvor gespeicherter Prüfwert noch zum <strong>alten</strong> Kennwort passen. Der Laptop kann damit offline unter bestimmten Voraussetzungen den Desktop öffnen – dies bedeutet nicht, dass das alte Kennwort noch gültig für Unternehmensdienste ist. Bei einer erfolgreichen Online-Anmeldung mit dem neuen Kennwort können die lokalen Prüfdaten aktualisiert werden.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information" rel="noopener noreferrer" target="_blank">Microsoft – Cached Domain Logon Information</a>, <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/user-profiles-and-logon/cached-user-logon-fails-lsasrv-event-45058" rel="noopener noreferrer" target="_blank">Microsoft – Cached User Logon Troubleshooting</a>, <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/vpn/vpn-device-tunnel-config" rel="noopener noreferrer" target="_blank">Microsoft – Always On VPN-Gerätetunnel</a>.</p>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</em></p>
+<h2 id="9-erfolgskontrolle">9. Erfolgskontrolle</h2>
+<p>Das Ticket gilt nur als fachlich gelöst, wenn die für den Fall zutreffenden Prüfungen erfolgreich sind:</p>
+<ul>
+<li>[ ] Anmeldung mit der <strong>vorgesehenen</strong> Methode möglich (Passwort, Hello oder andere freigegebene Methode).</li>
+<li>[ ] Betroffener Rechner und Benutzerkonto sind wieder regulär nutzbar.</li>
+<li>[ ] Erforderliche Unternehmensressourcen funktionieren (z. B. Netzlaufwerk, Teams, Geschäftsanwendung).</li>
+<li>[ ] Bei vorheriger Kontosperre keine erneute Sperre im vereinbarten Beobachtungsfenster.</li>
+<li>[ ] Ursache, durchgeführte Schritte, Änderungen und Prüfergebnisse im Ticket dokumentiert.</li>
+</ul>
+<h2 id="10-wann-eskalieren">10. Wann eskalieren?</h2>
+<p><strong>Typische L2-Eskalation:</strong> Sicherer Kanal/Computervertrauen beschädigt; DC-/DNS-/Routingfehler; wiederholte Kontosperren ungeklärter Herkunft; Entra-ID-/Hybrid-Join-Fehler; defekte Windows-Hello-Schlüssel/Compliance-Richtlinien; mehrere gleichzeitig betroffene Mitarbeiter; fehlende administrative Freigaben.</p>
+<p><strong>Mitgeben:</strong> Zeit, exakte Meldung, Benutzer-ID (keine Passwörter), Computername, Standort, Netzwerkstatus, betroffener Identitätsdienst, Kontostatus, relevante Event-IDs samt Zeitstempeln und bislang durchgeführte Maßnahmen.</p>
+<h2 id="11-muster-ticketkommentar-fiktiv">11. Muster-Ticketkommentar (fiktiv)</h2>
+<p><strong>INC-001 – Windows-Anmeldung nach Kennwortänderung fehlgeschlagen</strong><br/>
+<strong>Fehlerbild:</strong> Domänen-Laptop im Homeoffice akzeptierte das aktuelle Kennwort bei fehlender Verbindung zum Unternehmensnetz nicht.<br/>
+<strong>Diagnose:</strong> AD-Konto aktiv und nicht gesperrt. Kennwortänderung erfolgte auf anderem Gerät; Laptop hatte seitdem keine Online-Authentifizierung mit dem neuen Kennwort durchgeführt.<br/>
+<strong>Ursache:</strong> Lokaler Cache beruhte noch auf zuvor verwendeten Anmeldeinformationen.<br/>
+<strong>Maßnahme:</strong> Nach Prüfung des zulässigen Verfahrens Offline-Anmeldung durchgeführt; anschließend freigegebene Unternehmensverbindung hergestellt und Online-Authentifizierung mit aktuellem Kennwort geprüft.<br/>
+<strong>Erfolgskontrolle:</strong> Aktuelle Anmeldung und Zugriff auf erforderliche Unternehmensressourcen erfolgreich.<br/>
+<strong>Status:</strong> Gelöst.</p>
+<p><em>Das ist ein konstruiertes Lernbeispiel, <strong>kein</strong> tatsächlich bearbeitetes Kundenticket.</em></p>
+<h2 id="12-lernkontrolle-drei-kartentypen">12. Lernkontrolle: Drei Kartentypen</h2>
+<p><strong>Wissenskarte:</strong> Was zeigt <code>Get-ADUser -Properties LockedOut</code> an? → Den AD-Kontostatus bezüglich einer Sperre.<br/>
+<strong>Verständniskarte:</strong> Warum kann ein vorheriges Domänenkennwort offline noch funktionieren? → Weil der Laptop gegebenenfalls noch einen lokalen Prüfwert für die frühere erfolgreiche Anmeldung nutzt.<br/>
+<strong>Diagnosekarte:</strong> Neues Passwort schlägt nur auf dem Homeoffice-Laptop ohne VPN fehl; Konto ist aktiv. Erste Hypothese? → Veraltete Offline-Anmeldedaten beziehungsweise fehlende Online-Verbindung zur Domäne; zunächst Netzwerk-/Anmeldekontext prüfen.</p>
+<h3 id="kurze-selbststaendige-uebung">Kurze selbstständige Übung</h3>
+<p><strong>Fallvariation:</strong> Zwei Benutzer an unterschiedlichen PCs im selben Büro erhalten gleichzeitig eine Meldung, dass keine Domäne verfügbar ist. Beide Konten sind aktiv und nicht gesperrt.</p>
+<p><em>Aufgabe:</em> Formuliere zwei plausible gemeinsame Ursachen und nenne für jede einen geeigneten, möglichst wenig eingreifenden Test. Anschließend kurz erklären, wann du den Fall als L1 eskalierst.</p>
+<h2 id="13-visualisierungen-und-screenshots">13. Visualisierungen und Screenshots</h2>
+<ul>
+<li><strong>Grafik A:</strong> Identitätsinfrastruktur – Übersicht (eigene KI-gestützte Illustration).</li>
+<li><strong>Grafik B:</strong> Identitätsinfrastruktur – Detail mit Kerberos und NTLM (eigene KI-gestützte Illustration).</li>
+<li><strong>Grafik C:</strong> Henne-Ei-Problem bei Pre-Logon-VPN (eigene KI-gestützte Illustration).</li>
+<li><strong>Entscheidungsbaum:</strong> Mermaid-Quellgrafik; vor Website-Veröffentlichung technisch darstellen bzw. als SVG exportieren.</li>
+<li><strong>Terminal-/Event-Log-Screenshots:</strong> Noch nicht vorhanden. Beispielausgaben sind als solche gekennzeichnet; echte Screenshots werden nur aus eigenen Tests hinzugefügt.</li>
+</ul>
+<h2 id="14-technische-referenzen-und-quellen">14. Technische Referenzen und Quellen</h2>
+<ol>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-aduser" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-ADUser</a> – AD-Kontostatus auslesen.</li>
+<li><a href="https://learn.microsoft.com/windows-server/remote/remote-server-administration-tools" rel="noopener noreferrer" target="_blank">Microsoft Learn – RSAT installieren und verwalten</a> – zentrale Verwaltung vom Administrations-PC.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mstsc" rel="noopener noreferrer" target="_blank">Microsoft Learn – mstsc</a> – Remotedesktop-Syntax und <code>/prompt</code>.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access" rel="noopener noreferrer" target="_blank">Microsoft Learn – Remotedesktop-Voraussetzungen</a> – Editionen, Netzwerk und Berechtigungen.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/invoke-command" rel="noopener noreferrer" target="_blank">Microsoft Learn – Invoke-Command</a> – PowerShell-Remoting.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-WinEvent</a> – Security-Logs filtern.</li>
+<li><a href="https://learn.microsoft.com/windows/security/threat-protection/auditing/event-4625" rel="noopener noreferrer" target="_blank">Microsoft Learn – Security Event 4625</a> – gescheiterte Anmeldung und Statuscodes.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4740" rel="noopener noreferrer" target="_blank">Microsoft Learn – Security Event 4740</a> – Kontosperrereignis.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/active-directory/domain-join-networking-errors" rel="noopener noreferrer" target="_blank">Microsoft Learn – DC-Erreichbarkeit/DNS</a> – Domänencontroller-Ermittlung und DNS.</li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/user-profiles-and-logon/cached-domain-logon-information" rel="noopener noreferrer" target="_blank">Microsoft Learn – Cached Domain Logon Information</a> – zwischengespeicherte Domänenanmeldung.</li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/user-profiles-and-logon/cached-user-logon-fails-lsasrv-event-45058" rel="noopener noreferrer" target="_blank">Microsoft Learn – Cached User Logon Troubleshooting</a> – Cache-Grenzen und Aktualisierung.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/devices/troubleshoot-device-dsregcmd" rel="noopener noreferrer" target="_blank">Microsoft Learn – dsregcmd-Diagnose</a> – Entra-ID-/Hybrid-Gerätestatus.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/hello-how-it-works" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows Hello for Business</a> – PIN, Biometrie und kryptografische Schlüssel.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/windows-security/broken-trust-relationship-domain-joined-device-its-domain-secure-channel-issues" rel="noopener noreferrer" target="_blank">Microsoft Learn – Broken Trust Relationship</a> – Secure Channel.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/vpn/vpn-device-tunnel-config" rel="noopener noreferrer" target="_blank">Microsoft Learn – Always On VPN-Gerätetunnel</a> – Voranmelde-Verbindung.</li>
+<li><a href="https://learn.microsoft.com/en-us/intune/remote-help/" rel="noopener noreferrer" target="_blank">Microsoft Learn – Intune Remote Help</a> – verwaltete Fernunterstützung.</li>
+</ol>
+<p><strong>Quellenprüfung:</strong> 7. November 2026. Die Quellen dokumentieren Verfahren, aber <strong>nicht</strong>, dass die fiktiven Fälle bereits im eigenen Labor erfolgreich durchgeführt wurden.</p>
+<h2 id="15-validierungsstatus-und-offene-punkte">15. Validierungsstatus und offene Punkte</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Bereich</th>
+<th>Status</th>
+<th>Was fehlt?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recherche / Microsoft-Dokumentation</td>
+<td>Erledigt</td>
+<td>Spätere Aktualisierungen regelmäßig prüfen</td>
+</tr>
+<tr>
+<td>Strukturierter Diagnoseablauf</td>
+<td>Theoretisch ausgearbeitet</td>
+<td>Tests an geeigneten Umgebungen</td>
+</tr>
+<tr>
+<td>AD-Kontoabfragen</td>
+<td>Nicht praktisch getestet</td>
+<td>Eigene Testausgaben protokollieren</td>
+</tr>
+<tr>
+<td>Remotezugriff (RDP/WinRM)</td>
+<td>Nicht praktisch getestet</td>
+<td>Zugriffsweg mit eigenen Geräten prüfen</td>
+</tr>
+<tr>
+<td>Security-Event-Analyse</td>
+<td>Nicht praktisch getestet</td>
+<td>4625/4740 anhand eigener Logs nachvollziehen</td>
+</tr>
+<tr>
+<td>Offline-Anmeldung / VPN</td>
+<td>Nicht praktisch getestet</td>
+<td>Nur in kontrollierter, zulässiger Testumgebung prüfen</td>
+</tr>
+<tr>
+<td>Screenshots</td>
+<td>Offen</td>
+<td>Eigene anonymisierte Aufnahmen ergänzen</td>
+</tr>
+<tr>
+<td>Lernkontrolle</td>
+<td>Vorbereitet</td>
+<td>Aufgaben ohne Lösungshilfe bearbeiten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Grundsatz:</strong> Fachlich recherchierte Verfahren, hypothetische Beispielbefunde und praktisch nachgewiesene Arbeitsschritte bleiben ausdrücklich getrennt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-001_Windows-Anmeldung.md">RB-001_Windows-Anmeldung.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-002/index.html">RB-002 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760" role="img" aria-labelledby="title desc">
+<title id="title">RB-004: Entscheidungsbaum für Anwendungsfehler</title>
+<desc id="desc">Zuerst den Nutzerkreis eingrenzen, danach prüfen, ob ein Prozess läuft, abstürzt oder hängt; anschließend anhand von Protokollen gezielte Maßnahmen wählen.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#edf8fb"/><stop offset="1" stop-color="#f5f8fc"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#214861" flood-opacity=".13"/></filter><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#4e7790"/></marker></defs>
+<rect width="1100" height="760" rx="22" fill="url(#bg)"/>
+<rect x="28" y="22" width="1044" height="67" rx="19" fill="#092946"/>
+<text x="550" y="64" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" fill="#fff" text-anchor="middle" font-weight="bold">RB-004 · Diagnose-Entscheidungsbaum</text>
+<g font-family="DejaVu Sans,Arial,sans-serif" text-anchor="middle" fill="#102d43">
+<rect x="342" y="115" width="416" height="68" rx="15" fill="#fff" stroke="#1d8293" stroke-width="2" filter="url(#s)"/>
+<text x="550" y="142" font-size="17" font-weight="bold">Anwendung startet nicht / stürzt ab</text><text x="550" y="166" font-size="13">Fehlerzeitpunkt, Meldung, Benutzer, Version erfassen</text>
+<path d="M550 183V224" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<rect x="342" y="229" width="416" height="66" rx="14" fill="#f2fbff" stroke="#1d8293" stroke-width="2"/>
+<text x="550" y="255" font-size="17" font-weight="bold">Mehrere Benutzer / Geräte betroffen?</text>
+<text x="550" y="279" font-size="13">Umfang der Störung bestimmen</text>
+<path d="M342 262H229V320" fill="none" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<path d="M758 262H871V320" fill="none" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<text x="267" y="253" font-size="13" font-weight="bold" fill="#19715c">JA</text><text x="840" y="253" font-size="13" font-weight="bold" fill="#1d8293">NEIN</text>
+<rect x="53" y="327" width="356" height="103" rx="14" fill="#e2f5eb" stroke="#2b826c" stroke-width="2"/>
+<text x="231" y="353" font-size="16" font-weight="bold">Gemeinsame Ursache prüfen</text>
+<text x="231" y="377" font-size="13">Server, Lizenz, Rollout, Netzwerk, Updates</text>
+<text x="231" y="402" font-size="13">Zentrale Verantwortliche / L2 einbeziehen</text>
+<rect x="691" y="327" width="356" height="103" rx="14" fill="#e7f3fb" stroke="#2d7897" stroke-width="2"/>
+<text x="869" y="353" font-size="16" font-weight="bold">Lokale Diagnose</text>
+<text x="869" y="377" font-size="13">Prozess vorhanden? Fenster sichtbar?</text>
+<text x="869" y="402" font-size="13">Task-Manager, Ereignisse, Benutzervergleich</text>
+<path d="M869 430V468" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<rect x="691" y="475" width="356" height="62" rx="13" fill="#fff" stroke="#1d8293" stroke-width="2"/>
+<text x="869" y="501" font-size="16" font-weight="bold">Was passiert mit dem Prozess?</text>
+<text x="869" y="523" font-size="12">Start / Absturz / Hänger unterscheiden</text>
+<path d="M691 505H552V579" fill="none" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<path d="M869 537V579" fill="none" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<text x="605" y="494" font-size="12" fill="#1b5977">Absturz / Startfehler</text>
+<text x="939" y="563" font-size="12" fill="#1b5977">Reagiert nicht</text>
+<rect x="354" y="584" width="336" height="84" rx="14" fill="#fff" stroke="#1d8293" stroke-width="2"/>
+<text x="522" y="609" font-size="16" font-weight="bold">Ereignisprotokolle prüfen</text>
+<text x="522" y="632" font-size="13">ID 1000, WER 1001, Herstellerlogs</text>
+<text x="522" y="654" font-size="12">Fehlermodul ist zunächst ein Hinweis</text>
+<rect x="718" y="584" width="329" height="84" rx="14" fill="#fff" stroke="#1d8293" stroke-width="2"/>
+<text x="882" y="609" font-size="16" font-weight="bold">Hänger eingrenzen</text>
+<text x="882" y="632" font-size="13">Ressourcen, Netzwerk, Hintergrunddienst</text>
+<text x="882" y="654" font-size="12">Datenverlust vor Abbruch beachten</text>
+<rect x="57" y="489" width="270" height="179" rx="14" fill="#fff" stroke="#2b826c" stroke-width="2"/>
+<text x="192" y="522" font-size="16" font-weight="bold">Grundregel</text>
+<text x="192" y="551" font-size="13">Befunde sichern</text>
+<text x="192" y="577" font-size="13">Hypothese testen</text>
+<text x="192" y="603" font-size="13">Gezielt reparieren</text>
+<text x="192" y="629" font-size="13">Funktion prüfen</text>
+<path d="M550 684V714" stroke="#4e7790" stroke-width="3" marker-end="url(#a)"/>
+<rect x="340" y="714" width="423" height="30" rx="10" fill="#14596a"/>
+<text x="551" y="735" font-size="13" font-weight="bold" fill="#fff">Ergebnis dokumentieren oder eskalieren</text>
+</g></svg>
