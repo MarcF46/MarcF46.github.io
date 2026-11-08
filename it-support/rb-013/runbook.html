@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-013 Benutzer benötigt Software / Softwareinstallation | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-013: Benutzer benötigt Software / Softwareinstallation. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Softwarebereitstellung · Intune · Praxis-Runbook</p><h1>RB-013: Benutzer benötigt Software / Softwareinstallation</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-intake--bevor-die-installation-beginnt">1. Intake – bevor die Installation beginnt</a></li><li><a href="#2-bereitstellungsweg-auswaehlen">2. Bereitstellungsweg auswählen</a></li><li><a href="#3-zielgeraet-pruefen--lesende-befehle">3. Zielgerät prüfen – lesende Befehle</a></li><li><a href="#4-installation-kontrolliert-ausfuehren">4. Installation kontrolliert ausführen</a></li><li><a href="#5-wenn-installation-fehlschlaegt">5. Wenn Installation fehlschlägt</a></li><li><a href="#6-abschluss-und-eskalation">6. Abschluss und Eskalation</a></li><li><a href="#herstellerreferenzen">Herstellerreferenzen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Typ:</strong> Service Request / bei Installationsfehlern Incident<br/>
+<strong>Level:</strong> L1 / L2 · <strong>Version:</strong> 1.0 · <strong>Stand:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Recherchierte Arbeitsanweisung; nicht praktisch validiert.<br/>
+<strong>Vertiefung:</strong> <a href="index.html">Ausführlicher RB-013-Lernartikel</a></p>
+<blockquote>
+<p><strong>Ziel:</strong> Genehmigte und korrekt lizenzierte Software sicher bereitstellen und ihre Nutzbarkeit belegen. <strong>Keine unfreigegebene Installation.</strong></p>
+</blockquote>
+<h2 id="1-intake--bevor-die-installation-beginnt">1. Intake – bevor die Installation beginnt</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Benutzer und Zielgerät identifiziert (Gerätename, Windows-Version, Standort).</label></li>
+<li><label><input type="checkbox"/>Software, Hersteller, Edition und gewünschte Version bekannt.</label></li>
+<li><label><input type="checkbox"/>Fachlicher Zweck und gewünschter Bereitstellungstermin dokumentiert.</label></li>
+<li><label><input type="checkbox"/>Vorhandene Installation oder Alternative im Standardsoftwarekatalog geprüft.</label></li>
+<li><label><input type="checkbox"/>Fachliche Freigabe, IT-Sicherheitsvorgaben und Lizenzstatus geklärt.</label></li>
+<li><label><input type="checkbox"/>Zuständigkeit und berechtigter Bereitstellungsweg bekannt.</label></li>
+</ul>
+<p><strong>Stop-Kriterien:</strong> Unklarer Hersteller/Download, fehlende Genehmigung oder Lizenz, Sicherheitswarnung, unbekanntes Paket → <strong>nicht eigenmächtig installieren</strong>, an zuständige Stelle weiterleiten.</p>
+<h2 id="2-bereitstellungsweg-auswaehlen">2. Bereitstellungsweg auswählen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Nächste Aktion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>App im <strong>Intune Company Portal</strong> verfügbar</td>
+<td>Benutzer zur freigegebenen Installation anleiten; Status prüfen.</td>
+</tr>
+<tr class="even">
+<td>App im <strong>Configuration Manager Software Center</strong> verfügbar</td>
+<td>Installation und gegebenenfalls Genehmigungsprozess im Software Center prüfen.</td>
+</tr>
+<tr class="odd">
+<td>App nicht sichtbar</td>
+<td>App-Zuweisung, Gruppen, Gerätezustand und Requirements zentral prüfen lassen.</td>
+</tr>
+<tr class="even">
+<td>Freigegebenes MSI-Paket, manuelle Installation erlaubt</td>
+<td>Paketquelle und Integrität prüfen, genehmigt installieren, loggen und testen.</td>
+</tr>
+<tr class="odd">
+<td>Installationsfehler</td>
+<td>Rückgabecode, Log, Kontext und Erkennungsregel untersuchen.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-zielgeraet-pruefen--lesende-befehle">3. Zielgerät prüfen – lesende Befehle</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client oder genehmigte Remoteverwaltung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Fragt Windows-Version und Betriebssystemarchitektur ab.
+Get-CimInstance -ClassName Win32_OperatingSystem |
+    Select-Object Caption, Version, OSArchitecture
+
+# Ermittelt den freien Speicherplatz auf C:.
+Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'" |
+    Select-Object DeviceID, FreeSpace, Size
+
+# Zeigt einen Ausschnitt der Software-Einträge in der Registry.
+Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' |
+    Where-Object DisplayName |
+    Select-Object DisplayName, DisplayVersion, Publisher</code></pre></div>
+<p><strong>Interpretation:</strong> Softwareeinträge können fehlen, vor allem bei benutzerbezogenen, portablen und Store-/MSIX-Apps. Weitere Details im <a href="index.html#9-powershell-lesende-vorpruefung-auf-dem-windows-client">Lernartikel</a>.</p>
+<h2 id="4-installation-kontrolliert-ausfuehren">4. Installation kontrolliert ausführen</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Versions- und Architekturkompatibilität kontrolliert.</label></li>
+<li><label><input type="checkbox"/>Verifizierte, freigegebene Quelle verwendet.</label></li>
+<li><label><input type="checkbox"/>Installationsmethode nach Unternehmensprozess gewählt.</label></li>
+<li><label><input type="checkbox"/>Bei MSI-/EXE-Paketen korrekte Herstellerparameter und benötigten Kontext verwendet.</label></li>
+<li><label><input type="checkbox"/>Rückgabecode und gegebenenfalls Logdatei dokumentiert.</label></li>
+<li><label><input type="checkbox"/>Notwendige Neustarts im geeigneten Zeitfenster abgestimmt.</label></li>
+</ul>
+<p><strong>Beispiel einer verändernden MSI-Installation – nur mit Freigabe:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Startet eine genehmigte MSI-Installation ohne Dialoge.
+# /i: Installieren, /qn: ohne GUI, /norestart: nicht automatisch neu starten.
+# /L*v: ausführliche Protokollierung; Zielordner muss bereits existieren.
+msiexec.exe /i "C:\IT-Pakete\Freigabe\Anwendung.msi" /qn /norestart /L*v "C:\IT-Logs\Anwendung-install.log"</code></pre></div>
+<p><strong>Wichtig:</strong> MSI-Schalter gelten nicht automatisch für EXE-Installer. Bei Intune erforderliche Erkennungsregeln und Rückgabecodes müssen passend konfiguriert sein.</p>
+<h2 id="5-wenn-installation-fehlschlaegt">5. Wenn Installation fehlschlägt</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Fehler / Befund</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>1603</code></td>
+<td>MSI-Log, vorausgehende Fehlermeldungen und Aktionen analysieren – kein eindeutiger Ursachenbeweis.</td>
+</tr>
+<tr class="even">
+<td><code>1618</code></td>
+<td>Andere laufende MSI-Installation prüfen und Abschluss abwarten.</td>
+</tr>
+<tr class="odd">
+<td><code>3010</code></td>
+<td>Erfolgreiche Installation, Neustart noch nötig – koordiniert nachholen.</td>
+</tr>
+<tr class="even">
+<td>„Nicht installiert“ trotz Setup-Erfolg</td>
+<td>App-Dateien, Version, Erkennungsregel, 32-/64-Bit-Pfad und Kontext prüfen.</td>
+</tr>
+<tr class="odd">
+<td>Company Portal: App nicht sichtbar</td>
+<td>Intune-Zuweisung, Benutzermitgliedschaft, Plattform und Gerätezustand prüfen.</td>
+</tr>
+<tr class="even">
+<td>App vorhanden, aber Lizenz fehlt</td>
+<td>Lizenzzuweisung und passende Anmeldung prüfen, nicht blind neu installieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Intune-Logverzeichnis:</strong> <code>C:\ProgramData\Microsoft\IntuneManagementExtension\Logs</code><br/>
+<strong>Typische Logs:</strong> <code>AppWorkload.log</code>, <code>AppActionProcessor.log</code>, <code>IntuneManagementExtension.log</code>. Logs nur mit passender Berechtigung einsehen; personenbezogene und sicherheitsrelevante Inhalte bei der Weitergabe bereinigen.</p>
+<h2 id="6-abschluss-und-eskalation">6. Abschluss und Eskalation</h2>
+<p><strong>Funktionsprüfung:</strong></p>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Gewünschte Version ist installiert und erkannt.</label></li>
+<li><label><input type="checkbox"/>Mitarbeiter kann das Programm öffnen.</label></li>
+<li><label><input type="checkbox"/>Erforderliche Unternehmensanmeldung und Lizenz funktionieren.</label></li>
+<li><label><input type="checkbox"/>Eine passende Arbeitsaufgabe wurde erfolgreich durchgeführt.</label></li>
+<li><label><input type="checkbox"/>Der Mitarbeiter hat das Ergebnis bestätigt.</label></li>
+</ul>
+<p><strong>An L2 / Paketierung eskalieren bei:</strong> fehlender Freigabe, Zuweisungs-/Erkennungsfehlern, fehlenden Lizenzen oder erforderlichen Änderungen am zentralen Deployment, mehrfachen Installationsfehlern und mehreren betroffenen Geräten. Status, Gerätekennung, Version, Fehlermeldung und relevante bereinigte Logs mitsenden.</p>
+<h3 id="muster-ticketkommentar-fiktiv">Muster-Ticketkommentar (fiktiv)</h3>
+<p><strong>SR-013 – Anforderung:</strong> Genehmigter PDF-Editor auf Windows-11-Laptop benötigt.<br/>
+<strong>Prüfung:</strong> Fachliche Genehmigung, Lizenz und Gerätekompatibilität bestätigt.<br/>
+<strong>Maßnahme:</strong> Software über freigegebenes Unternehmensportal bereitgestellt.<br/>
+<strong>Ergebnis:</strong> Start, Firmenanmeldung, Aktivierung sowie Öffnen/Bearbeiten/Speichern einer Testdatei erfolgreich.<br/>
+<strong>Status:</strong> Erledigt. <em>Fiktives Beispiel, keine reale Installation.</em></p>
+<h2 id="herstellerreferenzen">Herstellerreferenzen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/mem/intune-service/apps/apps-win32-add" rel="noopener noreferrer" target="_blank">Intune Win32-App-Zuweisung und Erkennungsregeln</a></li>
+<li><a href="https://learn.microsoft.com/de-de/intune/user-help/apps/install-apps-windows" rel="noopener noreferrer" target="_blank">Intune Unternehmensportal für Windows</a></li>
+<li><a href="https://learn.microsoft.com/en-us/mem/configmgr/core/understand/software-center" rel="noopener noreferrer" target="_blank">Configuration Manager Software Center</a></li>
+<li><a href="https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows" rel="noopener noreferrer" target="_blank">Intune Management Extension und Clientlogs</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows/win32/msi/error-codes" rel="noopener noreferrer" target="_blank">Windows Installer-Rückgabecodes</a></li>
+</ul>
+<p><em>Eigene Dokumentationskonzeption; Stand 08.11.2026. Praktische Validierung ausstehend.</em></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-013_Praxis-Runbook.md">RB-013_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-004/index.html">RB-004: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-012/index.html">← RB-012</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-014/index.html">RB-014 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

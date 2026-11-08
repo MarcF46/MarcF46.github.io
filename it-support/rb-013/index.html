@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-013 Benutzer benötigt Software / Softwareinstallation | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-013: Benutzer benötigt Software / Softwareinstallation. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Softwarebereitstellung · Intune · Lernartikel</p><h1>RB-013: Benutzer benötigt Software / Softwareinstallation</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</a></li><li><a href="#2-technische-grundlagen--was-ist-software-bereitstellen">2. Technische Grundlagen – Was ist „Software bereitstellen“?</a></li><li><a href="#3-die-haeufigsten-varianten-der-anfrage">3. Die häufigsten Varianten der Anfrage</a></li><li><a href="#4-sicherheit-lizenzen-und-freigaben--der-erste-pruefpunkt">4. Sicherheit, Lizenzen und Freigaben – der erste Prüfpunkt</a></li><li><a href="#5-zugriffswege-wo-erledigt-der-support-die-arbeit">5. Zugriffswege: Wo erledigt der Support die Arbeit?</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-standardprozess-im-first-level-support">7. Standardprozess im First-Level-Support</a></li><li><a href="#8-intune-app-zuweisung-und-erkennungsregeln-verstehen">8. Intune: App-Zuweisung und Erkennungsregeln verstehen</a></li><li><a href="#9-powershell-lesende-vorpruefung-auf-dem-windows-client">9. PowerShell: Lesende Vorprüfung auf dem Windows-Client</a></li><li><a href="#10-installation-durchfuehren--gui-winget-und-msi-sauber-unterscheiden">10. Installation durchführen – GUI, WinGet und MSI sauber unterscheiden</a></li><li><a href="#11-fehlercodes-und-installationslogs-auswerten">11. Fehlercodes und Installationslogs auswerten</a></li><li><a href="#12-vier-diagnosebeispiele-hypothese-oder-nachgewiesene-ursache">12. Vier Diagnosebeispiele: Hypothese oder nachgewiesene Ursache?</a></li><li><a href="#13-loesungsmassnahmen-erfolgskontrolle-und-eskalation">13. Lösungsmaßnahmen, Erfolgskontrolle und Eskalation</a></li><li><a href="#14-fiktiver-ticketabschluss-und-lernkontrolle">14. Fiktiver Ticketabschluss und Lernkontrolle</a></li><li><a href="#15-offizielle-quellen-und-validierungsstatus">15. Offizielle Quellen und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Service Request / Softwarebereitstellung / Windows-Client<br/>
+<strong>Support-Level:</strong> 1st / 2nd Level (betriebsabhängig)<br/>
+<strong>Systeme:</strong> Windows 11, Microsoft Intune, Microsoft Configuration Manager, Windows Installer, PowerShell<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherchedatum:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Technisch recherchiertes Fallbeispiel; <strong>noch nicht praktisch validiert</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb013_henne_ei_software.png" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: sichere Softwarebereitstellung" decoding="async" loading="lazy" src="assets/rb013_henne_ei_software.png"/></a></div><figcaption>Henne-Ei-Infografik: sichere Softwarebereitstellung</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Eine installierte Anwendung ist noch nicht automatisch eine <strong>genehmigte</strong>, <strong>korrekt lizenzierte</strong>, <strong>sicher bereitgestellte</strong> und <strong>funktionsfähige</strong> Anwendung.</p>
+</blockquote>
+<hr/>
+<h2 id="1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</h2>
+<p><strong>Fiktives Ticket SR-013:</strong></p>
+<blockquote>
+<p>„Ich benötige für meine Projektarbeit ein Programm zum Bearbeiten von PDF-Dateien. Auf meinem Laptop finde ich es nicht. Könnten Sie das bitte installieren? Ich habe morgen einen wichtigen Abgabetermin.“</p>
+</blockquote>
+<p><strong>Auswirkung:</strong> Ein benötigter Arbeitsablauf ist eingeschränkt. Es liegt nicht zwingend eine technische Störung vor.</p>
+<p><strong>Ziel:</strong> Die fachlich freigegebene und lizenzrechtlich zulässige Software in der passenden Version sicher bereitstellen, installieren und mit dem Benutzer testen.</p>
+<p><strong>Warum Service Request?</strong> Ein <em>Service Request</em> (Serviceanfrage) ist eine geplante Anforderung wie eine Softwarebereitstellung. Ein <em>Incident</em> (Störung) liegt dagegen beispielsweise vor, wenn eine bereits bereitgestellte Anwendung plötzlich nicht mehr funktioniert. Ein fehlschlagender Software-Rollout kann zusätzlich einen Incident oder ein Unterticket auslösen.</p>
+<p><strong>Erste Rückfragen:</strong> Welche Software wird benötigt? Wofür? Welche Version und Zusatzmodule? Bis wann? Auf welchem Gerät? Ist bereits eine Lizenz vorhanden? Ist die Software in der Unternehmensliste freigegeben? Ist die Anwendung möglicherweise schon installiert, aber nicht auffindbar?</p>
+<h2 id="2-technische-grundlagen--was-ist-software-bereitstellen">2. Technische Grundlagen – Was ist „Software bereitstellen“?</h2>
+<p>Eine Softwarebereitstellung umfasst mehr als einen Installationsdialog. Sie besteht aus der <strong>Anforderung, Berechtigungs- und Lizenzprüfung, Auswahl einer vertrauenswürdigen Quelle, Installation, Installationsnachweis, Funktionsprüfung und Dokumentation</strong>.</p>
+<h3 id="begriffe-und-abkuerzungen">Begriffe und Abkürzungen</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Einsteigererklärung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Deployment</strong></td>
+<td>Verteilung beziehungsweise Bereitstellung von Software auf einem oder vielen Geräten.</td>
+</tr>
+<tr class="even">
+<td><strong>Endpoint</strong></td>
+<td>Verwaltetes Endgerät, zum Beispiel ein Windows-Laptop.</td>
+</tr>
+<tr class="odd">
+<td><strong>Microsoft Intune</strong></td>
+<td>Cloudbasierte Plattform zur Geräte- und Anwendungsverwaltung.</td>
+</tr>
+<tr class="even">
+<td><strong>Company Portal (Unternehmensportal)</strong></td>
+<td>Von der IT bereitgestellter App-Katalog, aus dem Nutzer erlaubte Programme installieren können.</td>
+</tr>
+<tr class="odd">
+<td><strong>Microsoft Configuration Manager</strong></td>
+<td>Verwaltungsplattform für Geräte, Software und Betriebssysteme, oft mit lokalen Unternehmensinfrastrukturen.</td>
+</tr>
+<tr class="even">
+<td><strong>Software Center</strong></td>
+<td>Benutzeroberfläche für durch Configuration Manager bereitgestellte Software. Nicht dasselbe wie das Intune-Unternehmensportal.</td>
+</tr>
+<tr class="odd">
+<td><strong>MSI (Microsoft Installer-Paket)</strong></td>
+<td>Installationspaket, das von <strong>Windows Installer</strong> beziehungsweise <code>msiexec.exe</code> verarbeitet wird.</td>
+</tr>
+<tr class="even">
+<td><strong>EXE (Executable)</strong></td>
+<td>Ausführbare Programmdatei; Installationsparameter unterscheiden sich je nach Hersteller und Installer.</td>
+</tr>
+<tr class="odd">
+<td><strong>Win32-App</strong></td>
+<td>In Intune verwaltete klassische Windows-Desktopanwendung, häufig als <code>.intunewin</code> verpackt.</td>
+</tr>
+<tr class="even">
+<td><strong>IME (Intune Management Extension)</strong></td>
+<td>Verwaltungsagent auf Windows-Geräten, der unter anderem Intune-Win32-App-Aktionen verarbeitet.</td>
+</tr>
+<tr class="odd">
+<td><strong>Assignment (Zuweisung)</strong></td>
+<td>Festlegung, für welche Benutzer oder Geräte die App bereitsteht beziehungsweise automatisch installiert werden soll.</td>
+</tr>
+<tr class="even">
+<td><strong>Detection Rule (Erkennungsregel)</strong></td>
+<td>Regel, die kontrolliert, ob eine App als installiert erkannt wird, etwa anhand von Datei, Registry oder MSI-Produktcode.</td>
+</tr>
+<tr class="odd">
+<td><strong>Installationskontext</strong></td>
+<td>Konto, unter dem das Setup ausgeführt wird: etwa aktueller Benutzer oder <code>SYSTEM</code> (lokales Windows-Systemkonto).</td>
+</tr>
+<tr class="even">
+<td><strong>UAC (User Account Control)</strong></td>
+<td>Windows-Benutzerkontensteuerung, die administrative Änderungen absichert.</td>
+</tr>
+<tr class="odd">
+<td><strong>Hashwert / SHA-256</strong></td>
+<td>Prüfsumme eines Dateiinhalts; mit einem <strong>vertrauenswürdig vom Hersteller gelieferten Vergleichswert</strong> lassen sich Veränderungen feststellen.</td>
+</tr>
+<tr class="even">
+<td><strong>Digital signiert</strong></td>
+<td>Eine Datei kann eine überprüfbare Herausgebersignatur enthalten; das ersetzt keine Unternehmensfreigabe.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="der-ablauf-in-vier-systemebenen">Der Ablauf in vier Systemebenen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Mitarbeiter / Service-Desk-Ticket
+       |
+       v
+Freigabe + Lizenz + Sicherheitsrichtlinie
+       |
+       v
+IT-App-Katalog / Intune / Configuration Manager / genehmigtes MSI-Setup
+       |
+       v
+Verwalteter Windows-Client --&gt; Installation --&gt; Erkennung --&gt; Funktionstest</code></pre></div>
+<p>Ein Installationspaket ist dabei nicht automatisch eine Benutzerlizenz. Je nach Lizenzmodell kann zusätzlich eine Aktivierung, die Anmeldung mit einem Firmenkonto oder eine Lizenzzuweisung erforderlich sein.</p>
+<p><strong>Quelle:</strong> Microsoft Learn – <a href="https://learn.microsoft.com/de-de/intune/app-management/deployment/win32" rel="noopener noreferrer" target="_blank">Intune Win32-App-Verwaltung</a>.</p>
+<h2 id="3-die-haeufigsten-varianten-der-anfrage">3. Die häufigsten Varianten der Anfrage</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Meldung des Benutzers</th>
+<th>Worum handelt es sich?</th>
+<th>Erste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>„Ich brauche Programm X.“</td>
+<td>Neue Softwareanforderung</td>
+<td>Geschäftsbedarf, Genehmigung, Lizenz, freigegebener Katalog</td>
+</tr>
+<tr class="even">
+<td>„Das Programm ist im Portal nicht sichtbar.“</td>
+<td>Zuweisungs-/Katalogproblem</td>
+<td>Benutzer/Gruppe, Gerät, App-Zuweisung und Portalstatus</td>
+</tr>
+<tr class="odd">
+<td>„Installieren schlägt fehl.“</td>
+<td>Deployment-/Installationsstörung</td>
+<td>Fehlermeldung, Installationstyp, Log, Status und Rückgabecode</td>
+</tr>
+<tr class="even">
+<td>„Es steht ‚installiert‘, aber ich finde es nicht.“</td>
+<td>Erkennungs-, Installations- oder Verknüpfungsproblem</td>
+<td>Installationsort, App-Inventar, Erkennungsregel, Benutzerkontext</td>
+</tr>
+<tr class="odd">
+<td>„Das Programm startet, aber meldet keine Lizenz.“</td>
+<td>Aktivierungs-/Zugriffsproblem</td>
+<td>Lizenzzuweisung, Anmeldestatus, Abonnement, Netzabhängigkeiten</td>
+</tr>
+<tr class="even">
+<td>„Das Programm startet, aber eine Funktion fehlt.“</td>
+<td>Funktions-/Versionsproblem</td>
+<td>Edition, Plugins, Lizenzumfang, Berechtigungen und benötigte Komponenten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merksatz:</strong> „Installation erfolgreich“ ≠ „App korrekt erkannt“ ≠ „Benutzer kann produktiv damit arbeiten“.</p>
+<h2 id="4-sicherheit-lizenzen-und-freigaben--der-erste-pruefpunkt">4. Sicherheit, Lizenzen und Freigaben – der erste Prüfpunkt</h2>
+<p>Bevor Software verteilt wird, werden insbesondere fünf Fragen geklärt:</p>
+<ol type="1">
+<li><strong>Fachliche Freigabe:</strong> Wird die Software für die Tätigkeit benötigt? Ist sie im Standardkatalog enthalten oder muss die Fachabteilung zustimmen?</li>
+<li><strong>Lizenz:</strong> Sind ausreichende Nutzungsrechte vorhanden? Gilt die Lizenz pro Benutzer, pro Gerät, nach Funktionen oder über einen Firmenvertrag?</li>
+<li><strong>Hersteller/Bezugsquelle:</strong> Stammt das Paket aus dem genehmigten Repository oder von einer verifizierten offiziellen Herstellerquelle?</li>
+<li><strong>IT-Sicherheit:</strong> Ist die Version freigegeben? Gibt es Sicherheits-, Datenschutz-, Kompatibilitäts- oder Supportvorgaben?</li>
+<li><strong>Installation:</strong> Darf der Service Desk das Paket selbst bereitstellen, oder ist dies Aufgabe der Softwareverwaltung beziehungsweise der Paketierung?</li>
+</ol>
+<p><strong>Nicht tun:</strong> Unkontrolliert von Downloadportalen installieren, Sicherheitsmeldungen umgehen, dauerhaft lokale Administratorrechte vergeben oder fremde Lizenzschlüssel verwenden. Ein dringender Geschäftstermin hebt Genehmigungs- und Sicherheitsvorgaben nicht auf.</p>
+<p>Eine digitale Signatur ist ein Prüfhinweis. Eine gültige Signatur allein beweist nicht, dass das Programm fachlich erwünscht oder frei von Sicherheitsrisiken ist. Auch ein Hashwert ist nur als Integritätsnachweis aussagekräftig, wenn ein <strong>vertrauenswürdiger Referenzhash</strong> vorliegt.</p>
+<h2 id="5-zugriffswege-wo-erledigt-der-support-die-arbeit">5. Zugriffswege: Wo erledigt der Support die Arbeit?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Zugriffsweg</th>
+<th>Konkretes Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Software ist im <strong>Intune-Unternehmensportal</strong> verfügbar</td>
+<td>Auf dem Benutzergerät, oft begleitet per Telefon/Teams</td>
+<td>Benutzer wählt die freigegebene App im Portal und startet die Installation; Support prüft das Ergebnis.</td>
+</tr>
+<tr class="even">
+<td>Software ist über <strong>Configuration Manager</strong> verfügbar</td>
+<td>Software Center auf dem Gerät</td>
+<td>Benutzer oder Support startet die bereitgestellte Installation; Status und gegebenenfalls Genehmigungsanforderung prüfen.</td>
+</tr>
+<tr class="odd">
+<td>App soll für mehrere Geräte automatisch verteilt werden</td>
+<td>Intune-/Configuration-Manager-Adminoberfläche</td>
+<td>Berechtigte Administration prüft Paket, Gruppe, Zuweisung, Anforderungen, Erkennungsregeln und Rollout.</td>
+</tr>
+<tr class="even">
+<td>Ein freigegebenes Einzelpaket darf lokal installiert werden</td>
+<td>Berechtigtes Administrationskonto bzw. freigegebener Installationsworkflow</td>
+<td>Paketversion und Signatur prüfen, Installation dokumentiert ausführen und testen.</td>
+</tr>
+<tr class="odd">
+<td>Gerät nicht erreichbar oder ausgeschaltet</td>
+<td>Ticketsystem und zentrale Verwaltungsinformationen</td>
+<td>Genehmigung/Lizenz vorbereiten, Gerätestatus prüfen, Termin für Bereitstellung planen.</td>
+</tr>
+<tr class="even">
+<td>Installer scheitert</td>
+<td>Clientlogs und Management-Konsole</td>
+<td>Rückgabecode, Installationskontext, Anforderungen, Abhängigkeiten und Logs auswerten; bei Bedarf an L2 eskalieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Vorsicht bei Fernsupport:</strong> Eine Teams-Bildschirmfreigabe reicht aus, wenn der Benutzer erlaubte Schritte selbst durchführen kann. RDP (Remote Desktop Protocol) oder PowerShell-Remoting sind nicht zwingend erforderlich. Auf verwalteten Firmenrechnern gelten immer die internen Fernwartungs- und Berechtigungsregeln.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/intune/user-help/apps/install-apps-windows" rel="noopener noreferrer" target="_blank">Intune-Unternehmensportal für Windows</a>, <a href="https://learn.microsoft.com/en-us/mem/configmgr/core/understand/software-center" rel="noopener noreferrer" target="_blank">Configuration Manager Software Center</a>.</p>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb013_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-013 – Entscheidungsbaum zur Softwarebereitstellung" decoding="async" loading="lazy" src="assets/rb013_diagnosebaum.svg"/></a></div><figcaption>RB-013 – Entscheidungsbaum zur Softwarebereitstellung</figcaption></figure>
+<p>Der Baum trennt <strong>normale Serviceanforderungen</strong> von <strong>Installationsfehlern</strong>. Erst wenn die Genehmigung und Lizenz geklärt sind, wird ein Installationsweg ausgewählt. Treten Fehler auf, wird nicht sofort ein anderer Installer gestartet, sondern der vorhandene Vorgang analysiert.</p>
+<h2 id="7-standardprozess-im-first-level-support">7. Standardprozess im First-Level-Support</h2>
+<p><strong>Schritt 1 – Ticket vollständig aufnehmen.</strong> Softwarebezeichnung, Version, Arbeitszweck, Gerät, Benutzer, Frist, bestehende Installation und Fehlertext dokumentieren.</p>
+<p><strong>Schritt 2 – Katalog- und Freigabestatus prüfen.</strong> Ist die App bereits im Unternehmensportal oder Software Center erhältlich? Welche Freigaben erfordert das Unternehmen?</p>
+<p><strong>Schritt 3 – Lizenz klären.</strong> Eine installierte App ist nicht automatisch lizenziert. Lizenzerfordernis und Zuweisung anhand der zuständigen Quelle prüfen.</p>
+<p><strong>Schritt 4 – Zielgerät kontrollieren.</strong> Windows-Version, 64-/ARM64-Architektur, freier Speicher, Netzwerk und eventuelle Neustartanforderung ermitteln.</p>
+<p><strong>Schritt 5 – Genehmigten Bereitstellungsweg nutzen.</strong> Wenn die App im Portal zur Selbstinstallation verfügbar ist, Benutzer anleiten; andernfalls zuständige IT-Administratoren einbinden.</p>
+<p><strong>Schritt 6 – Installationsstatus UND Anwendung testen.</strong> App starten, erforderliche Anmeldung/Lizenz und mindestens einen echten Arbeitsablauf prüfen.</p>
+<p><strong>Schritt 7 – Ticket dokumentieren.</strong> Installierte Version, Weg, Zuweisung, Testergebnis und offene Punkte festhalten.</p>
+<h2 id="8-intune-app-zuweisung-und-erkennungsregeln-verstehen">8. Intune: App-Zuweisung und Erkennungsregeln verstehen</h2>
+<p>Die <strong>Intune Management Extension (IME)</strong> verarbeitet auf geeigneten Windows-Geräten unter anderem Win32-App-Bereitstellungen. Der Administrator kann eine Anwendung als <strong>Available (verfügbar)</strong> anbieten oder als <strong>Required (erforderlich)</strong> zuweisen. Verfügbare Apps können Benutzer über das Unternehmensportal installieren; erforderliche Apps werden gemäß Zuweisung automatisch bereitgestellt.</p>
+<h3 id="was-wird-auf-client-und-serverseite-geprueft">Was wird auf Client und Serverseite geprüft?</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Prüfung</th>
+<th>Ausführungsort</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>App im Unternehmensportal sichtbar?</td>
+<td>Benutzergerät / Company Portal</td>
+<td>Ist eine passende App für diesen Benutzer/dieses Gerät verfügbar?</td>
+</tr>
+<tr class="even">
+<td>Gerät in Intune vorhanden und verwaltet?</td>
+<td>Intune Admin Center</td>
+<td>Kann das Zielgerät eine Zuweisung erhalten?</td>
+</tr>
+<tr class="odd">
+<td>Zugewiesene Gruppe und Filter passend?</td>
+<td>Intune Admin Center</td>
+<td>Ist die App für diesen Benutzer/dieses Gerät vorgesehen?</td>
+</tr>
+<tr class="even">
+<td>Anforderungen erfüllt?</td>
+<td>Intune Admin Center + Gerät</td>
+<td>Unterstütztes OS, Architektur, Speicher und weitere Vorgaben?</td>
+</tr>
+<tr class="odd">
+<td>Installation ausgeführt?</td>
+<td>Intune-Appstatus + IME-Logs</td>
+<td>Wurde der Installer gestartet, und welchen Rückgabecode lieferte er?</td>
+</tr>
+<tr class="even">
+<td>App erkannt?</td>
+<td>Intune-Erkennungsregel</td>
+<td>Findet Intune die erwartete Datei, Registry-Information oder MSI-Produktkennung?</td>
+</tr>
+<tr class="odd">
+<td>Anwendung verwendbar?</td>
+<td>Benutzergerät</td>
+<td>Startet die Software und funktioniert die benötigte Aufgabe?</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="detection-rule--ein-beispiel">Detection Rule – ein Beispiel</h3>
+<p>Angenommen, ein MSI-Setup liefert Rückgabecode <code>0</code>. Die Intune-Erkennungsregel sucht aber eine andere Produktkennung als die installierte Version. Dann kann die Managementplattform den Bereitstellungsvorgang weiterhin als fehlgeschlagen oder nicht erkannt melden, <strong>obwohl Dateien installiert wurden</strong>. Vor einem erneuten Rollout muss daher die Erkennungslogik geprüft werden.</p>
+<p><strong>Wichtig:</strong> Eine Erkennungsregel prüft nur die dafür konfigurierten Merkmale. Sie ist kein vollständiger Funktionstest der Anwendung.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/mem/intune-service/apps/apps-win32-add" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32-Apps hinzufügen und zuweisen</a>.</p>
+<h2 id="9-powershell-lesende-vorpruefung-auf-dem-windows-client">9. PowerShell: Lesende Vorprüfung auf dem Windows-Client</h2>
+<p>Alle folgenden Befehle sind <strong>lesend</strong>, soweit nicht anders gekennzeichnet. Sie können lokal auf dem betreffenden Gerät oder in einem <strong>explizit genehmigten</strong> Remoteverwaltungsverfahren ausgeführt werden. Abhängig von der Abfrage sind entsprechende Leseberechtigungen nötig.</p>
+<h3 id="a-windows-version-und-architektur-abfragen">A. Windows-Version und Architektur abfragen</h3>
+<p><strong>Zweck:</strong> Ermitteln, ob das Gerät zu den Systemanforderungen passt.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Ruft Informationen zum Betriebssystem über CIM ab.
+$os = Get-CimInstance -ClassName Win32_OperatingSystem
+
+# Zeigt Name, Version und Architektur als übersichtliche Spalten.
+$os | Select-Object Caption, Version, OSArchitecture</code></pre></div>
+<p><strong>Interpretation:</strong> Ein 64-Bit-Windows bedeutet nicht automatisch, dass jede x64-Anwendung kompatibel ist. Zusätzlich zählen beispielsweise OS-Version, benötigte Abhängigkeiten und Herstellerfreigaben.</p>
+<h3 id="b-verfuegbaren-speicherplatz-abfragen">B. Verfügbaren Speicherplatz abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Liest Informationen zum logischen Laufwerk C: aus.
+$drive = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'"
+
+# Rechnet freien Speicher und Gesamtkapazität in GiB um.
+$freeGiB  = [math]::Round($drive.FreeSpace / 1GB, 2)
+$totalGiB = [math]::Round($drive.Size / 1GB, 2)
+
+# Zeigt die lesbaren Werte an, ohne etwas zu löschen.
+[pscustomobject]@{ Laufwerk = 'C:'; FreiGiB = $freeGiB; GesamtGiB = $totalGiB }</code></pre></div>
+<p><strong>Interpretation:</strong> Die Anforderungen des konkreten Pakets sind maßgeblich. Ein beliebiger pauschaler Wert für freien Speicher ist keine sichere Installationsfreigabe.</p>
+<h3 id="c-installierte-desktopsoftware-ueber-registry-uninstall-eintraege-untersuchen">C. Installierte Desktopsoftware über Registry-Uninstall-Einträge untersuchen</h3>
+<p><strong>Warum nicht <code>Win32_Product</code>?</strong> Eine Abfrage dieser WMI-Klasse kann MSI-Konsistenzprüfungen/Rekonfigurationen auslösen und ist für einen schnellen passiven Inventarcheck ungeeignet. Stattdessen lesen wir die bekannten Uninstall-Registry-Schlüssel.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Legt die bekannten Uninstall-Pfade für 64-Bit- und 32-Bit-Programme fest.
+$paths = @(
+    'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+
+# Liest vorhandene Einträge aus; ungültige Pfade werden still übersprungen.
+$apps = Get-ItemProperty -Path $paths -ErrorAction SilentlyContinue
+
+# Filtert auf Einträge mit Anzeigenamen und sortiert alphabetisch.
+$apps |
+    Where-Object { $_.DisplayName } |
+    Select-Object DisplayName, DisplayVersion, Publisher, InstallDate |
+    Sort-Object DisplayName</code></pre></div>
+<p><strong>Grenzen:</strong> Nicht jede portable App oder jeder per Benutzer installierte Store-/MSIX-Eintrag erscheint hier. <code>HKCU</code> zeigt nur den aktuellen Benutzerkontext; für andere Benutzer sind andere Benutzerprofile relevant. Fehlende Einträge beweisen nicht sicher, dass Software nicht vorhanden ist. <code>InstallDate</code> kann fehlen oder veraltet sein.</p>
+<h3 id="d-signatur-eines-bereits-freigegebenen-installationspakets-pruefen">D. Signatur eines <strong>bereits freigegebenen</strong> Installationspakets prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Beispielpfad: eine bereits durch die IT bereitgestellte Datei.
+$file = 'C:\IT-Pakete\Freigabe\Anwendung.msi'
+
+# Prüft, ob die Datei vorhanden ist.
+Test-Path -LiteralPath $file
+
+# Zeigt den Authenticode-Signaturstatus (falls eine Signatur existiert).
+Get-AuthenticodeSignature -LiteralPath $file |
+    Select-Object Status, StatusMessage, SignerCertificate
+
+# Berechnet die SHA-256-Prüfsumme des Pakets.
+Get-FileHash -LiteralPath $file -Algorithm SHA256 |
+    Select-Object Path, Algorithm, Hash</code></pre></div>
+<p><strong>Interpretation:</strong> <code>Test-Path = True</code> belegt nur, dass die Datei existiert. Eine gültige Signatur und ein Hash-Vergleich mit einem <strong>getrennt und vertrauenswürdig beschafften Referenzwert</strong> erhöhen die Sicherheit, sind aber keine automatische Freigabe. Eine fehlende Signatur erfordert eine Bewertung nach Hersteller- und Unternehmensvorgaben; nicht einfach Sicherheitsprüfungen abschalten.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.utility/get-filehash" rel="noopener noreferrer" target="_blank">Get-FileHash – Microsoft Learn</a>.</p>
+<h2 id="10-installation-durchfuehren--gui-winget-und-msi-sauber-unterscheiden">10. Installation durchführen – GUI, WinGet und MSI sauber unterscheiden</h2>
+<p>Dieser Abschnitt erläutert die Verfahren. <strong>Auf Unternehmensgeräten keine Installation ohne Freigabe ausführen.</strong></p>
+<h3 id="weg-a-unternehmensportal-oder-software-center--bevorzugt">Weg A: Unternehmensportal oder Software Center – bevorzugt</h3>
+<p>Ist die App offiziell verfügbar, bietet der freigegebene Self-Service-Katalog meist den einfachsten Weg. Hier können die notwendigen Pakete, Berechtigungen und Installationsoptionen zentral hinterlegt werden. Der Benutzer muss dafür oft <strong>keine dauerhaften Administratorrechte</strong> erhalten.</p>
+<h3 id="weg-b-winget--windows-package-manager">Weg B: WinGet – Windows Package Manager</h3>
+<p><strong>WinGet</strong> ist ein Paketmanager, der nach Anwendungen suchen, Paketinformationen anzeigen und sie – bei Freigabe – installieren kann. Ob WinGet in Unternehmensumgebungen verwendet werden darf, hängt von Richtlinien und Bezugsquellen ab.</p>
+<p><strong>Nur lesende Beispieldiagnose:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft, ob der WinGet-Befehl auf diesem Gerät verfügbar ist.
+Get-Command winget -ErrorAction SilentlyContinue
+
+# Sucht nach einem Paket im konfigurierten Paketkatalog.
+winget search --name 'PowerToys'
+
+# Zeigt Paketinformationen für eine eindeutige Paket-ID an.
+winget show --id Microsoft.PowerToys --exact --source winget</code></pre></div>
+<p><strong>Nur als Syntaxbeispiel für eine bereits genehmigte Installation – VERÄNDERT das Gerät:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Installiert das exakt benannte Paket aus der angegebenen Quelle.
+# Erst nach Unternehmensfreigabe; Quelle, Version und Lizenz prüfen!
+winget install --id Microsoft.PowerToys --exact --source winget</code></pre></div>
+<p><strong>Parameter:</strong> <code>install</code> startet die Installation, <code>--id</code> wählt die Paketkennung, <code>--exact</code> erzwingt einen genauen Treffer und <code>--source</code> legt die Paketquelle fest. WinGet ersetzt weder Lizenzkontrolle noch Change-/Freigabeprozess.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows/package-manager/winget/install" rel="noopener noreferrer" target="_blank">WinGet install – Microsoft Learn</a>.</p>
+<h3 id="weg-c-msi--microsoft-windows-installer">Weg C: MSI – Microsoft Windows Installer</h3>
+<p><strong>Nur als Syntaxbeispiel für eine genehmigte, getestete Unternehmensinstallation – VERÄNDERT das Gerät:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Legt den Pfad zu einem offiziell freigegebenen MSI-Paket fest.
+$msi = 'C:\IT-Pakete\Freigabe\Anwendung.msi'
+
+# Legt den Logpfad fest; der Ordner C:\IT-Logs muss existieren.
+$log = 'C:\IT-Logs\Anwendung-install.log'
+
+# Startet Windows Installer mit definierten Parametern.
+# /i installiert das Paket; /qn blendet die Benutzeroberfläche aus.
+# /norestart verhindert einen automatischen Neustart.
+# /L*v erzeugt ein ausführliches Installationsprotokoll.
+# ACHTUNG: Dieser Befehl installiert Software und benötigt Freigabe.
+$process = Start-Process -FilePath 'msiexec.exe' -Wait -PassThru -ArgumentList @(
+    '/i', "`"$msi`"", '/qn', '/norestart', '/L*v', "`"$log`""
+)
+
+# Zeigt den Rückgabecode des Installers nach Prozessende an.
+$process.ExitCode</code></pre></div>
+<p><strong>Warum <code>-Wait</code> und <code>-PassThru</code>?</strong> <code>-Wait</code> wartet auf die Beendigung des gestarteten Prozesses. <code>-PassThru</code> gibt ein Prozessobjekt zurück, dessen <code>ExitCode</code> den Rückgabecode liefert. Der Code muss entsprechend dem Installer und der Deploymentplattform bewertet werden. Eine Installation im SYSTEM-Kontext kann sich anders verhalten als im Benutzerkontext. Für EXE-Pakete dürfen die MSI-Schalter <strong>nicht pauschal</strong> übernommen werden; dort gilt die jeweilige Herstellerdokumentation.</p>
+<p><strong>Wichtig:</strong> Der Befehl ist ein erklärendes Beispiel, kein für unbekannte Pakete freigegebenes Produktionsskript. Logdateien können persönliche oder sensible Daten enthalten.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows/win32/msi/standard-installer-command-line-options" rel="noopener noreferrer" target="_blank">Windows Installer – Standard-Befehlszeilenoptionen</a>.</p>
+<h2 id="11-fehlercodes-und-installationslogs-auswerten">11. Fehlercodes und Installationslogs auswerten</h2>
+<h3 id="haeufige-windows-installer-rueckgabecodes">Häufige Windows-Installer-Rückgabecodes</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Code</th>
+<th>Typische Bedeutung</th>
+<th>Richtige Reaktion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>0</strong></td>
+<td>Installation laut Installer erfolgreich</td>
+<td>Danach Erkennung und Funktion prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>1602</strong></td>
+<td>Benutzer hat den Vorgang abgebrochen</td>
+<td>Nutzerhandlung und Prozess prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>1603</strong></td>
+<td>Schwerwiegender Installationsfehler, <strong>kein eindeutiger Ursachenbeweis</strong></td>
+<td>Verbose MSI-Log auswerten; vorherige Schritte und <code>Return value 3</code> im Kontext prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>1618</strong></td>
+<td>Andere MSI-Installation läuft bereits</td>
+<td>Laufende Installation identifizieren, abwarten; keinen Installerprozess blind beenden</td>
+</tr>
+<tr class="odd">
+<td><strong>1619</strong></td>
+<td>MSI-Paket nicht geöffnet</td>
+<td>Pfad, Berechtigung, Integrität, Netzquelle prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>1638</strong></td>
+<td>Andere Produktversion bereits installiert</td>
+<td>Upgrade-/Versionspfad prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>3010</strong></td>
+<td>Installation erfolgreich; Neustart zum Abschluss erforderlich</td>
+<td>Neustart koordiniert planen, nicht automatisch als Fehler behandeln</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Hinweis:</strong> Diese Bedeutungen gelten für <strong>Windows Installer</strong>. Bei anderen Installern und Intune-Paketen können benutzerdefinierte Return-Code-Zuordnungen gelten.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows/win32/msi/error-codes" rel="noopener noreferrer" target="_blank">Windows Installer – Error Codes</a>.</p>
+<h3 id="wo-sind-die-logs-bei-intune">Wo sind die Logs bei Intune?</h3>
+<p>Bei Win32-App-Deployments findet man sie normalerweise unter:</p>
+<p><code>C:\ProgramData\Microsoft\IntuneManagementExtension\Logs</code></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Logdatei</th>
+<th>Schwerpunkt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>IntuneManagementExtension.log</code></td>
+<td>IME-Check-in, Richtlinienabruf und -verarbeitung</td>
+</tr>
+<tr class="even">
+<td><code>AppWorkload.log</code></td>
+<td>App-Bereitstellung und Installations-/Erkennungsabläufe</td>
+</tr>
+<tr class="odd">
+<td><code>AppActionProcessor.log</code></td>
+<td>App-Aktionen, Anwendbarkeit und Erkennungsprüfungen</td>
+</tr>
+<tr class="even">
+<td><code>AgentExecutor.log</code></td>
+<td>Intune-basierte PowerShell-Skriptausführungen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Lesender PowerShell-Test auf einem Intune-verwalteten Gerät:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft den Standardordner für IME-Protokolle.
+$logFolder = 'C:\ProgramData\Microsoft\IntuneManagementExtension\Logs'
+Test-Path -LiteralPath $logFolder
+
+# Zeigt die verfügbaren Protokolldateien mit Änderungsdatum an.
+Get-ChildItem -LiteralPath $logFolder -Filter '*.log' -ErrorAction SilentlyContinue |
+    Select-Object Name, Length, LastWriteTime |
+    Sort-Object LastWriteTime -Descending
+
+# Liest die letzten 40 Zeilen des App-Logs, sofern vorhanden.
+# Berechtigungen und Datenschutz beachten.
+$appLog = Join-Path $logFolder 'AppWorkload.log'
+if (Test-Path -LiteralPath $appLog) {
+    Get-Content -LiteralPath $appLog -Tail 40
+}</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn das Verzeichnis fehlt, ist nicht automatisch Intune kaputt: Das Gerät verwendet möglicherweise keine IME, das Feature ist nicht eingerichtet oder die Installation des Agenten fehlt. Den Verwaltungskontext klären.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows" rel="noopener noreferrer" target="_blank">Intune Management Extension – Microsoft Learn</a>.</p>
+<h3 id="logs-bei-configuration-manager">Logs bei Configuration Manager</h3>
+<p>Bei Configuration Manager stehen unter anderem Anwendungsdeployment- und Clientlogs zur Verfügung, beispielsweise <code>AppEnforce.log</code> für die Ausführung von Anwendungsinstallationen und <code>AppDiscovery.log</code> für die Erkennung. Welche Logs auf dem Client vorhanden sind, hängt von der verwendeten Konfiguration ab. Das Software Center zeigt außerdem Installations- und Fehlerstatus.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/mem/configmgr/core/understand/software-center" rel="noopener noreferrer" target="_blank">Software Center – Microsoft Learn</a>.</p>
+<h2 id="12-vier-diagnosebeispiele-hypothese-oder-nachgewiesene-ursache">12. Vier Diagnosebeispiele: Hypothese oder nachgewiesene Ursache?</h2>
+<h3 id="fall-a--app-im-unternehmensportal-nicht-vorhanden">Fall A – App im Unternehmensportal nicht vorhanden</h3>
+<p><strong>Hypothesen:</strong> Keine Zuweisung, falsche Gruppe, falsches Gerät, nicht erfüllte Anforderungen, verzögerte Richtlinienverarbeitung. <strong>Nicht</strong> sofort Installer herunterladen. <strong>Nächster Test:</strong> Benutzer-/Gerätezielgruppe, Zuweisungsart, Filtersystem, App- und Gerätestatus in Intune prüfen.</p>
+<h3 id="fall-b--msi-liefert-1603">Fall B – MSI liefert <code>1603</code></h3>
+<p><strong>Hypothesen:</strong> Unterschiedliche Ursachen sind möglich, beispielsweise fehlende Voraussetzungen oder eine problematische Custom Action. <strong>Nächster Test:</strong> Vollständiges MSI-Log mit Zeitstempel analysieren; <code>1603</code> allein beweist keine defekte Datei oder fehlende Adminrechte.</p>
+<h3 id="fall-c--installer-liefert-0-intune-meldet-nicht-installiert">Fall C – Installer liefert <code>0</code>, Intune meldet „Nicht installiert“</h3>
+<p><strong>Hypothesen:</strong> Fehlerhafte Erkennungsregel, falsche 32-/64-Bit-Registry-Prüfung, andere Paketversion, Installation im Benutzerkontext statt Systemkontext. <strong>Nächster Test:</strong> Detection Rule und <code>AppWorkload.log</code> abgleichen und auf dem Zielgerät die tatsächlich installierte Version prüfen.</p>
+<h3 id="fall-d--installation-erfolgreich-benutzer-kann-die-app-nicht-verwenden">Fall D – Installation erfolgreich, Benutzer kann die App nicht verwenden</h3>
+<p><strong>Hypothesen:</strong> Fehlende Lizenz, nicht erlaubte Anmeldung, inkompatible Version, Benutzerprofil, Netzabhängigkeit. <strong>Nächster Test:</strong> Mit dem echten Benutzerkonto eine typische Funktion ausführen; erforderliche Lizenz und Berechtigung prüfen. Erst dann Ticket schließen.</p>
+<h2 id="13-loesungsmassnahmen-erfolgskontrolle-und-eskalation">13. Lösungsmaßnahmen, Erfolgskontrolle und Eskalation</h2>
+<h3 id="sichere-massnahmen">Sichere Maßnahmen</h3>
+<ul>
+<li>Fehlende fachliche Genehmigung oder Lizenz durch die zuständige Stelle klären.</li>
+<li>Falsche Zuweisung im Verwaltungssystem <strong>nach Freigabe</strong> korrigieren.</li>
+<li>Korrekte Paketversion, Architektur, Abhängigkeiten und Erkennungsregel überprüfen.</li>
+<li>Bei <code>1618</code> die laufende Installation feststellen und ihren regulären Abschluss abwarten.</li>
+<li>Bei <code>3010</code> einen nötigen Neustart mit dem Benutzer und dem Betriebsfenster abstimmen.</li>
+<li>Bei beschädigtem Paket ausschließlich die freigegebene Version erneut aus einer vertrauenswürdigen Quelle bereitstellen.</li>
+<li>Nach erfolgreichem Setup Anwendung mit vorgesehenem Konto tatsächlich starten und testen.</li>
+</ul>
+<h3 id="erfolgskontrolle">Erfolgskontrolle</h3>
+<p>Eine Softwareanfrage ist erst erfüllt, wenn Freigabe und Lizenz geklärt sind, die vorgesehene Version auf dem richtigen Gerät bereitsteht, erforderliche Aktivierung/Anmeldung funktioniert und der Benutzer eine für seine Arbeit relevante Funktion erfolgreich getestet hat.</p>
+<h3 id="wann-an-l2--softwarepaketierung-eskalieren">Wann an L2 / Softwarepaketierung eskalieren?</h3>
+<ul>
+<li>Paket fehlt im freigegebenen Katalog oder Sicherheitsfreigabe muss geprüft werden.</li>
+<li>Intune-Zuweisung, Detection Rules oder Requirements sind fehlerhaft.</li>
+<li>Wiederholter <code>1603</code> oder andere nicht geklärte Installationsfehler.</li>
+<li>Mehrere Geräte betroffen; möglicher Fehler am zentralen Deployment.</li>
+<li>Neue Paketierung, Abhängigkeit, Versionsmigration oder genehmigter Rollback erforderlich.</li>
+<li>Lizenz-/Datenschutz-/Sicherheitsentscheidung außerhalb der L1-Befugnisse.</li>
+</ul>
+<p><strong>Eskalationsdaten:</strong> Ticketnummer, Benutzer/Gerät, Produkt/Version, Genehmigungsstatus, gewählter Bereitstellungsweg, Zeitpunkt, Rückgabecode, relevante <strong>bereinigte</strong> Logauszüge, bereits getestete Maßnahmen und aktueller Funktionsstatus.</p>
+<h2 id="14-fiktiver-ticketabschluss-und-lernkontrolle">14. Fiktiver Ticketabschluss und Lernkontrolle</h2>
+<h3 id="fiktiver-ticketkommentar--sr-013">Fiktiver Ticketkommentar – SR-013</h3>
+<blockquote>
+<p><strong>Anfrage:</strong> Fachabteilung benötigt freigegebenen PDF-Editor auf Windows-11-Laptop.<br/>
+<strong>Prüfung:</strong> Genehmigung und verfügbare Lizenz bestätigt; Gerätezuweisung und Windows-Kompatibilität geprüft.<br/>
+<strong>Maßnahme:</strong> Anwendung über das freigegebene Unternehmensportal bereitgestellt; Installationsstatus überwacht.<br/>
+<strong>Erfolgskontrolle:</strong> Programm gestartet, Firmenlizenz erkannt; Benutzer konnte eine Testdatei öffnen, bearbeiten und speichern.<br/>
+<strong>Status:</strong> Erledigt.<br/>
+<strong>Hinweis:</strong> Ausschließlich fiktives Demonstrationsticket – keine real durchgeführte Maßnahme.</p>
+</blockquote>
+<h3 id="lernkarten--vorschlaege-fuer-anki">Lernkarten – Vorschläge für Anki</h3>
+<p><strong>Wissen:</strong> Was ist eine Intune-Erkennungsregel? – Eine Prüfung, ob eine App anhand definierter Merkmale als installiert erkannt wird.</p>
+<p><strong>Wissen:</strong> Was bedeutet Windows-Installer-Code <code>3010</code>? – Installation erfolgreich, Neustart zum Abschluss nötig.</p>
+<p><strong>Verständnis:</strong> Warum reicht der Rückgabecode <code>0</code> nicht für einen Ticketabschluss? – Er beweist keine Lizenzierung und keinen erfolgreichen Anwender-Funktionstest.</p>
+<p><strong>Verständnis:</strong> Was unterscheidet „Available“ von „Required“ in Intune? – Optional zur Installation angeboten vs. verpflichtend zugewiesen.</p>
+<p><strong>Diagnose:</strong> MSI-Code <code>1618</code>, Installation scheitert. Erste Hypothese? – Eine andere MSI-Installation läuft; die Ursache prüfen und deren Abschluss abwarten.</p>
+<p><strong>Diagnose:</strong> Intune meldet „nicht installiert“, aber die EXE startet. Was prüfen? – Detection Rules, Installationskontext, Paketversion und Logs.</p>
+<h3 id="praxisuebung-ohne-zusaetzliche-virtuelle-maschine">Praxisübung ohne zusätzliche virtuelle Maschine</h3>
+<p>Auf deinem privaten Windows-11-Gerät kannst du <strong>lesend</strong> prüfen: OS-Version mit <code>Get-CimInstance</code>, freien Speicher, installierte Programme über Registry und Paketinfos via <code>winget show</code>. <strong>Keine Testinstallation nötig.</strong> Erst den Befund dokumentieren, anschließend in eigenen Worten erklären, welche Befehle eine Änderung bewirken würden und welche nicht.</p>
+<h3 id="diagnosetest-zum-wissenstransfer">Diagnosetest zum Wissenstransfer</h3>
+<p>Ein Mitarbeiter benötigt ein genehmigtes Tool. Im Company Portal wird „Installation erfolgreich“ angezeigt, aber die App startet unter seinem Benutzerkonto mit „Lizenz fehlt“. Beschreibe die zwei nächsten Prüfungen und erkläre, warum eine erneute Installation nicht automatisch der beste nächste Schritt ist.</p>
+<h2 id="15-offizielle-quellen-und-validierungsstatus">15. Offizielle Quellen und Validierungsstatus</h2>
+<p>Die folgenden Microsoft-Quellen sind <strong>technische Referenzen</strong>, keine nachträglich behaupteten eigenen Praxistests. Bei sich ändernden Cloudoberflächen sind aktuelle Produktdokumentation und betriebliche Richtlinien maßgeblich.</p>
+<ol type="1">
+<li><a href="https://learn.microsoft.com/de-de/intune/app-management/deployment/win32" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32-App-Verwaltung in Intune</a> – Funktionsumfang und Verwaltung.</li>
+<li><a href="https://learn.microsoft.com/en-us/mem/intune-service/apps/apps-win32-add" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32-Apps hinzufügen und zuweisen</a> – Zuweisungen, Anforderungen, Erkennungsregeln, Rückgabecodes.</li>
+<li><a href="https://learn.microsoft.com/de-de/intune/user-help/apps/install-apps-windows" rel="noopener noreferrer" target="_blank">Microsoft Learn – Apps aus dem Intune-Unternehmensportal installieren</a> – Nutzerseitige Bereitstellung.</li>
+<li><a href="https://learn.microsoft.com/en-us/mem/configmgr/core/understand/software-center" rel="noopener noreferrer" target="_blank">Microsoft Learn – Configuration Manager Software Center</a> – Softwarekatalog und Installationsstatus.</li>
+<li><a href="https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows" rel="noopener noreferrer" target="_blank">Microsoft Learn – Intune Management Extension</a> – Agent, Funktionsweise und Logpfade.</li>
+<li><a href="https://learn.microsoft.com/en-us/mem/intune/apps/apps-win32-troubleshoot" rel="noopener noreferrer" target="_blank">Microsoft Learn – Intune-Win32-Apps behandeln</a> – Logauswertung und Fehleranalyse.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows/win32/msi/standard-installer-command-line-options" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows Installer-Befehlszeilenoptionen</a> – <code>msiexec</code> und Logging.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows/win32/msi/error-codes" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows Installer-Rückgabecodes</a> – Codes 0/1603/1618/3010.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/package-manager/winget/install" rel="noopener noreferrer" target="_blank">Microsoft Learn – WinGet Install</a> – Parameter und Paketquellen.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.utility/get-filehash" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-FileHash</a> – Hashwertberechnung.</li>
+</ol>
+<p><strong>Bearbeitungsstand 08.11.2026:</strong> Herstellerquellen recherchiert, fiktive Supportfälle ausgearbeitet, Befehle zur Erläuterung dokumentiert. <strong>Keine praktische Installation, keine Unternehmenslizenzprüfung und kein echter Deployment-Test durchgeführt.</strong></p>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Grafiken sind didaktische Illustrationen, keine Screenshots einer produktiven Umgebung.</em></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-013_Lernartikel.md">RB-013_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-004/index.html">RB-004: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-012/index.html">← RB-012</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-014/index.html">RB-014 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

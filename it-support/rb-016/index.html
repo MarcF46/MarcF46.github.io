@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-016 OneDrive synchronisiert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-016: OneDrive synchronisiert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Microsoft 365 · OneDrive · Synchronisation · Lernartikel</p><h1>RB-016: OneDrive synchronisiert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportticket-und-ausgangssituation">1. Supportticket und Ausgangssituation</a></li><li><a href="#2-technische-grundlagen-wie-funktioniert-die-synchronisierung">2. Technische Grundlagen: Wie funktioniert die Synchronisierung?</a></li><li><a href="#3-fehlerbilder-richtig-unterscheiden">3. Fehlerbilder richtig unterscheiden</a></li><li><a href="#4-zugriffsvoraussetzungen-und-diagnoseorte">4. Zugriffsvoraussetzungen und Diagnoseorte</a></li><li><a href="#5-sicherheit-vor-der-fehlerbehebung-welche-dateiversion-ist-noch-nicht-gesichert">5. Sicherheit vor der Fehlerbehebung: Welche Dateiversion ist noch nicht gesichert?</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-diagnosewerkzeuge-und-kommentierte-powershell-befehle">7. Diagnosewerkzeuge und kommentierte PowerShell-Befehle</a></li><li><a href="#8-dateispezifische-ursachen-namen-groesse-pfade-und-zugriffsrechte">8. Dateispezifische Ursachen: Namen, Größe, Pfade und Zugriffsrechte</a></li><li><a href="#9-wenn-aenderungen-werden-verarbeitet-nicht-endet">9. Wenn „Änderungen werden verarbeitet“ nicht endet</a></li><li><a href="#10-wenn-nur-eine-sharepoint--oder-teams-bibliothek-betroffen-ist">10. Wenn nur eine SharePoint- oder Teams-Bibliothek betroffen ist</a></li><li><a href="#11-cloud--und-infrastrukturdiagnose-durch-l2">11. Cloud- und Infrastrukturdiagnose durch L2</a></li><li><a href="#12-fehlerbehebung-von-risikoarm-zu-eingreifend">12. Fehlerbehebung: Von risikoarm zu eingreifend</a></li><li><a href="#13-erfolgskontrolle-und-dokumentierter-funktionsnachweis">13. Erfolgskontrolle und dokumentierter Funktionsnachweis</a></li><li><a href="#14-eskalation-und-muster-ticketkommentar">14. Eskalation und Muster-Ticketkommentar</a></li><li><a href="#15-lernkontrolle-transfer-und-quellen">15. Lernkontrolle, Transfer und Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Microsoft 365 · OneDrive · SharePoint · Cloud-Synchronisierung<br/>
+<strong>Support-Level:</strong> L1/L2 (abhängig von Berechtigungen und Zuständigkeiten)<br/>
+<strong>Plattform:</strong> Windows 11, OneDrive-Synchronisierungsclient, Microsoft 365<br/>
+<strong>Version / Recherchestand:</strong> 1.0 · 08.11.2026<br/>
+<strong>Validierung:</strong> Technisch recherchiertes, fiktives Übungsbeispiel. Kein produktiver Praxistest durchgeführt.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb016_henne_ei_onedrive.png" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: OneDrive synchronisiert nicht" decoding="async" loading="lazy" src="assets/rb016_henne_ei_onedrive.png"/></a></div><figcaption>Henne-Ei-Infografik: OneDrive synchronisiert nicht</figcaption></figure>
+<p><strong>Merksatz:</strong> <em>Eine Datei im Datei-Explorer zu sehen, ist kein Beweis dafür, dass ihre letzte Änderung bereits in der Cloud angekommen ist.</em></p>
+<hr/>
+<h2 id="1-supportticket-und-ausgangssituation">1. Supportticket und Ausgangssituation</h2>
+<blockquote>
+<p><strong>INC-016 – Fiktive Benutzeranfrage:</strong> „Gestern habe ich unsere Kalkulation auf meinem Laptop geändert. Heute sieht mein Kollege in SharePoint noch den alten Stand. Im Explorer ist meine neue Datei aber vorhanden.“</p>
+</blockquote>
+<p><strong>Auswirkung:</strong> Kollegen arbeiten möglicherweise mit unterschiedlichen Dateiversionen. Je nach Dokument können Informationsverlust und falsche Entscheidungen drohen.<br/>
+<strong>Ziel:</strong> Den tatsächlichen Speicherort und Synchronisierungsstand feststellen, lokale Änderungen sichern, die Fehlerursache beseitigen und die Übereinstimmung beider Dateiversionen nachweisen.</p>
+<p><strong>L1-Erstfragen:</strong></p>
+<ol type="1">
+<li>Wie heißt die betroffene Datei und <strong>wo</strong> wird sie geöffnet (vollständiger Pfad beziehungsweise SharePoint-Bibliothek)?</li>
+<li>Nur eine Datei, eine Bibliothek, ein Benutzer oder mehrere Geräte betroffen?</li>
+<li>Was steht beim OneDrive-Cloudsymbol in der Windows-Taskleiste: „Aktuell“, „Angehalten“, „Anmeldung erforderlich“, „Fehler“ oder „Änderungen werden verarbeitet“?</li>
+<li>Wurde die Datei kürzlich umbenannt, verschoben, offline bearbeitet oder gleichzeitig auf mehreren Geräten bearbeitet?</li>
+<li>Wann wurde die Datei zuletzt lokal gespeichert und wann erscheint die letzte Version in <strong>OneDrive im Web</strong> beziehungsweise SharePoint?</li>
+<li>Gibt es bereits eine Fehlermeldung? Exakten Wortlaut und Zeitstempel dokumentieren.</li>
+</ol>
+<p><strong>Datenschutz:</strong> Keine Benutzerkennwörter, MFA-Codes oder vertraulichen Dokumentinhalte anfordern. Falls Screenshots benötigt werden, Namen und personenbezogene Daten nach Unternehmensvorgaben schwärzen.</p>
+<hr/>
+<h2 id="2-technische-grundlagen-wie-funktioniert-die-synchronisierung">2. Technische Grundlagen: Wie funktioniert die Synchronisierung?</h2>
+<p><strong>OneDrive</strong> ist ein Cloudspeicher- und Dateidienst von Microsoft. Der <strong>OneDrive-Synchronisierungsclient</strong> (<code>OneDrive.exe</code>) verbindet ausgewählte Cloudinhalte mit dem lokalen Windows-Dateisystem. Er erkennt Änderungen und überträgt sie – abhängig von Netzwerk, Anmeldung, Berechtigungen und Regeln – zwischen Client und Cloud.</p>
+<p><strong>SharePoint Online</strong> stellt unter anderem gemeinsame <strong>Dokumentbibliotheken</strong> für Teams, Abteilungen und Projekte bereit. Dateien aus Microsoft Teams-Kanälen liegen häufig in solchen SharePoint-Bibliotheken. Der OneDrive-Synchronisierungsclient kann auch diese Inhalte verfügbar machen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Lokales Windows-Gerät                 Microsoft-365-Cloud
+┌──────────────────────┐               ┌──────────────────────────┐
+│ Windows-Datei-Explorer│               │ OneDrive (persönliche     │
+│  OneDrive-Ordner      │◄── OneDrive ─►│ Arbeitsdateien)          │
+│  SharePoint-Ordner    │   Sync-Client │ SharePoint (Teamdateien) │
+└──────────────────────┘               └──────────────────────────┘
+       │                                             │
+  Office-Programme                         Browser / Kollegengeräte</code></pre></div>
+<p>Eine <strong>erfolgreiche Anmeldung</strong> ist noch kein Nachweis einer erfolgreichen Synchronisierung. Der Client muss die lokale Änderung erkennen, übertragen und die Cloud muss sie akzeptieren. Auch ein anderer Benutzer muss auf dieselbe Datei beziehungsweise dieselbe Bibliothek zugreifen.</p>
+<h3 id="begriffe-und-abkuerzungen">Begriffe und Abkürzungen</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Für Einsteiger erklärt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Sync</strong></td>
+<td>Kurzform für Synchronisierung: Änderungen zwischen Speicherorten abgleichen.</td>
+</tr>
+<tr class="even">
+<td><strong>Sync-Client</strong></td>
+<td>Lokales Programm, das OneDrive- und SharePoint-Dateien mit dem PC verbindet.</td>
+</tr>
+<tr class="odd">
+<td><strong>Cloud</strong></td>
+<td>Bereitgestellte Online-Dienste und Speicher auf entfernten Servern.</td>
+</tr>
+<tr class="even">
+<td><strong>SharePoint-Bibliothek</strong></td>
+<td>Gemeinsame Dokumentablage, zum Beispiel für eine Abteilung.</td>
+</tr>
+<tr class="odd">
+<td><strong>Tenant / Mandant</strong></td>
+<td>Abgegrenzte Microsoft-365-Unternehmensumgebung.</td>
+</tr>
+<tr class="even">
+<td><strong>Files On-Demand</strong></td>
+<td>Dateien sind im Explorer sichtbar, obwohl die eigentlichen Inhalte eventuell noch nicht heruntergeladen wurden.</td>
+</tr>
+<tr class="odd">
+<td><strong>KFM (Known Folder Move)</strong></td>
+<td>OneDrive-Funktion, die bekannte Windows-Ordner wie „Desktop“, „Dokumente“ und „Bilder“ in die OneDrive-Synchronisierung einbindet.</td>
+</tr>
+<tr class="even">
+<td><strong>Quota</strong></td>
+<td>Zugewiesenes Speicherplatzkontingent.</td>
+</tr>
+<tr class="odd">
+<td><strong>HTTPS</strong></td>
+<td>Geschützte Webverbindung, meist über TCP-Port 443.</td>
+</tr>
+<tr class="even">
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt Servernamen in IP-Adressen.</td>
+</tr>
+<tr class="odd">
+<td><strong>GPO (Group Policy Object)</strong></td>
+<td>Gruppenrichtlinie zur zentralen Windows-Konfiguration.</td>
+</tr>
+<tr class="even">
+<td><strong>Intune</strong></td>
+<td>Cloudplattform zur zentralen Verwaltung von Geräten und Richtlinien.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ein wichtiger Unterschied:</strong> „Mit OneDrive verknüpfen“ und „Synchronisieren“ sind zwei Wege, um SharePoint-Inhalte im Explorer sichtbar zu machen. Microsoft empfiehlt, wenn geeignet, die OneDrive-Verknüpfung. Vor Änderungen an vorhandenen Verbindungen muss die konkrete Einrichtung geprüft werden. <a href="https://support.microsoft.com/de-de/sharepoint/sync/sync-sharepoint-and-teams-files-with-your-computer" rel="noopener noreferrer" target="_blank">Microsoft Support: SharePoint- und Teams-Dateien synchronisieren</a>.</p>
+<hr/>
+<h2 id="3-fehlerbilder-richtig-unterscheiden">3. Fehlerbilder richtig unterscheiden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Meldung / Beobachtung</th>
+<th>Mögliche Erklärung</th>
+<th>Gezielte erste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Rotes X</strong> auf Datei oder Cloudsymbol</td>
+<td>Eine oder mehrere Dateien können nicht synchronisiert werden</td>
+<td>Cloudsymbol öffnen, konkreten Dateifehler lesen</td>
+</tr>
+<tr class="even">
+<td><strong>Pausensymbol</strong></td>
+<td>Synchronisierung wurde angehalten oder automatisch pausiert</td>
+<td>Pausengrund und Einstellung prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>Graues Symbol / Anmeldung erforderlich</strong></td>
+<td>OneDrive nicht angemeldet oder Einrichtung unvollständig</td>
+<td>Richtiges Geschäfts- oder Privatkonto prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>„Änderungen werden verarbeitet“</strong></td>
+<td>Offene/große Dateien, viele Änderungen oder verzögerte Verarbeitung</td>
+<td>Laufende Dateien, Datenmenge und Zeitverlauf prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>Datei lokal neu, im Web alt</strong></td>
+<td>Upload unvollständig, falscher Pfad oder Konflikt</td>
+<td>Lokale/Cloud-Datei und Versionen vergleichen</td>
+</tr>
+<tr class="even">
+<td><strong>Nur SharePoint-Bibliothek betroffen</strong></td>
+<td>Bibliotheksrechte, Richtlinie, Verknüpfung oder Sync-Konfiguration</td>
+<td>Zugriff im Browser und Bibliothekseinstellungen prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>Datei im Explorer sichtbar, offline nicht öffnbar</strong></td>
+<td>Files On-Demand: nur online gespeicherte Platzhalterdatei</td>
+<td>Statussymbol und Onlineverfügbarkeit prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>Viele Mitarbeiter betroffen</strong></td>
+<td>Mögliche Microsoft-365-Störung oder Unternehmensnetzwerkproblem</td>
+<td>Service Health, Netzwerk und gemeinsame Richtlinien</td>
+</tr>
+</tbody>
+</table></div>
+<p>OneDrive-Symbole werden von Microsoft einzeln erklärt: <a href="https://support.microsoft.com/de-de/onedrive/what-do-the-onedrive-icons-mean" rel="noopener noreferrer" target="_blank">Microsoft Support – Bedeutung der Symbole</a>.</p>
+<h3 id="files-on-demand-genauer-erklaert">Files On-Demand genauer erklärt</h3>
+<ul>
+<li><strong>Wolke:</strong> Datei ist nur online verfügbar. Ein Eintrag im Explorer ist vorhanden, der eigentliche Dateiinhalt muss aber erst bei Bedarf heruntergeladen werden.</li>
+<li><strong>Grünes Häkchen:</strong> Datei ist lokal verfügbar und kann grundsätzlich auch offline geöffnet werden.</li>
+<li><strong>Ausgefüllter grüner Kreis mit weißem Häkchen:</strong> Die Datei ist für „Immer auf diesem Gerät speichern“ vorgemerkt.</li>
+<li><strong>Kreisende Pfeile:</strong> Eine Synchronisierungsaktivität findet statt oder steht an. Sie sind kein Erfolgsnachweis.</li>
+</ul>
+<p><strong>Nicht verwechseln:</strong> Offlineverfügbarkeit ist eine Eigenschaft der lokalen Kopie. Synchronisierungserfolg betrifft den Abgleich mit der Cloud. <a href="https://support.microsoft.com/de-de/sharepoint/sync/work-with-synced-files-in-file-explorer" rel="noopener noreferrer" target="_blank">Microsoft Support – Files On-Demand</a>.</p>
+<hr/>
+<h2 id="4-zugriffsvoraussetzungen-und-diagnoseorte">4. Zugriffsvoraussetzungen und Diagnoseorte</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Wo prüft der Support?</th>
+<th>Typische L1-/L2-Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer angemeldet, nur eine Datei betroffen</td>
+<td>OneDrive-Taskleistensymbol, Explorer, Browser</td>
+<td>Dateifehler und Dateiversionen vergleichen; lokale Änderungen schützen</td>
+</tr>
+<tr class="even">
+<td>Alle Dateien eines Benutzers betroffen</td>
+<td>Client, Kontostatus und Microsoft-365-Webportal</td>
+<td>Kontoanmeldung, Pausenstatus, Speicher und Synchronisierungsclient kontrollieren</td>
+</tr>
+<tr class="odd">
+<td>Nur eine SharePoint-Bibliothek betroffen</td>
+<td>Client und SharePoint-Browser; bei Bedarf SharePoint-Administration</td>
+<td>Berechtigungen, Offlineverfügbarkeit, Verknüpfungs-/Synchronisierungsstatus prüfen</td>
+</tr>
+<tr class="even">
+<td>Viele Geräte / Benutzer betroffen</td>
+<td>Microsoft 365 Admin Center, Microsoft 365 Apps Admin Center</td>
+<td>Service Health, gemeinsame Richtlinien und Sync Health untersuchen</td>
+</tr>
+<tr class="odd">
+<td>Client nicht remote erreichbar</td>
+<td>Telefonisch / freigegebene Fernwartung / vor Ort</td>
+<td>Exakte Meldung erfragen, Browserzugriff prüfen und je nach Umgebung Diagnosezugang herstellen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Zugriffsarten:</strong> Bei bestehender Windows-Sitzung eignet sich eine freigegebene Teams- oder Schnellhilfe-Sitzung häufig besser als eine eigene RDP-Sitzung (Remote Desktop Protocol). Für administrative Prüfungen können freigegebene Verwaltungsoberflächen und PowerShell verwendet werden. Rechte und Unternehmensrichtlinien bleiben maßgeblich.</p>
+<hr/>
+<h2 id="5-sicherheit-vor-der-fehlerbehebung-welche-dateiversion-ist-noch-nicht-gesichert">5. Sicherheit vor der Fehlerbehebung: Welche Dateiversion ist noch nicht gesichert?</h2>
+<p><strong>Dies ist der wichtigste Schutzschritt bei RB-016.</strong> Wenn eine lokale Änderung noch nicht synchronisiert wurde, kann eine vorschnelle Neuverknüpfung, ein Umzug des Ordners oder das Überschreiben der Datei den Überblick über die aktuelle Fassung zerstören.</p>
+<ol type="1">
+<li>Lokale Datei im Explorer identifizieren: <strong>vollständigen Pfad, Größe, Änderungsdatum</strong> dokumentieren.</li>
+<li>Die entsprechende Datei in OneDrive oder SharePoint <strong>im Browser</strong> suchen und Änderungsdatum, Speicherort und gegebenenfalls Versionsverlauf vergleichen.</li>
+<li>Ist die lokale Fassung aktueller oder unklar, erst eine <strong>freigegebene, geschützte Sicherungskopie außerhalb des betroffenen synchronisierten Pfads</strong> erstellen – nur an einem nach Unternehmensrichtlinie zugelassenen Ort.</li>
+<li>Prüfen, ob Dokumente parallel auf anderen Geräten bearbeitet wurden. Den Versionsverlauf nur zur <strong>Untersuchung</strong>, nicht sofort zur Wiederherstellung verwenden.</li>
+<li>Erst danach verändernde Maßnahmen anstoßen.</li>
+</ol>
+<p><strong>Nicht automatisch tun:</strong> OneDrive-Ordner löschen, synchronisierte Bibliotheken entkoppeln, Client neu installieren oder Cloudversion überschreiben. Bei sensiblen Dokumenten Eigentümer und IT-Zuständigkeit einbeziehen.</p>
+<p>Microsoft dokumentiert den Versionsverlauf, einschließlich der Möglichkeit, frühere Versionen anzusehen und mit bewusster Entscheidung wiederherzustellen: <a href="https://support.microsoft.com/de-de/onedrive/restore-a-previous-version-of-a-file-stored-in-onedrive" rel="noopener noreferrer" target="_blank">Versionsverlauf</a>.</p>
+<hr/>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb016_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="Technischer Entscheidungsbaum – RB-016" decoding="async" loading="lazy" src="assets/rb016_diagnosebaum.svg"/></a></div><figcaption>Technischer Entscheidungsbaum – RB-016</figcaption></figure>
+<p><strong>Grundgedanke:</strong> Zuerst Umfang und betroffene Version ermitteln. Danach entweder den Pfad „einzelne Datei / Bibliothek“ oder „gesamter Client / Dienst“ wählen. Die Wiederherstellung erfolgt erst nach Sicherung ungesynchronisierter Änderungen.</p>
+<hr/>
+<h2 id="7-diagnosewerkzeuge-und-kommentierte-powershell-befehle">7. Diagnosewerkzeuge und kommentierte PowerShell-Befehle</h2>
+<h3 id="71-pruefen-ob-der-onedrive-client-laeuft">7.1 Prüfen, ob der OneDrive-Client läuft</h3>
+<p><strong>Ausführungsort:</strong> Windows-Client des betroffenen Benutzers, in dessen Sitzung; in der Regel keine Administratorrechte nötig.<br/>
+<strong>Ziel:</strong> Prüfen, ob <code>OneDrive.exe</code> ausgeführt wird.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Sucht nach dem aktuell laufenden OneDrive-Prozess.
+# -Name legt den Prozessnamen ohne .exe fest.
+# -ErrorAction SilentlyContinue verhindert eine Fehlermeldung,
+# wenn kein entsprechender Prozess gefunden wird.
+Get-Process -Name 'OneDrive' -ErrorAction SilentlyContinue |
+    # Gibt Prozess-ID und Startzeit zurück.
+    Select-Object Id, ProcessName, StartTime</code></pre></div>
+<p><strong>Interpretation:</strong> Eine Ausgabe bestätigt, dass ein Prozess existiert, <strong>nicht</strong>, dass Dateien erfolgreich synchronisiert werden. Keine Ausgabe kann bedeuten, dass OneDrive nicht läuft oder nicht im aktuellen Kontext sichtbar ist. Prüfen, ob OneDrive installiert ist und in der richtigen Benutzersitzung gestartet wurde.</p>
+<h3 id="72-tatsaechliche-onedrive-programmversion-abfragen">7.2 Tatsächliche OneDrive-Programmversion abfragen</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client. <strong>Reine Leseabfrage.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Wählt den ersten gefundenen OneDrive-Prozess aus.
+$client = Get-Process -Name 'OneDrive' -ErrorAction SilentlyContinue |
+    Select-Object -First 1
+
+# Prüft, ob der Prozess gefunden wurde und ein Programmpfad verfügbar ist.
+if ($null -ne $client -and $client.Path) {
+    # Liest die Dateiversionsinformation der ausführbaren Datei.
+    (Get-Item -LiteralPath $client.Path).VersionInfo.FileVersion
+} else {
+    # Ausgabe, falls der Prozess nicht gefunden wurde.
+    'OneDrive-Prozess oder Programmpfad nicht verfügbar.'
+}</code></pre></div>
+<p><strong>Interpretation:</strong> Die Versionsnummer hilft beim Vergleich mit freigegebenen Unternehmensversionen; sie erklärt den Fehler für sich allein noch nicht.</p>
+<h3 id="73-onedrive-ordnerpfade-im-benutzerkontext-ermitteln">7.3 OneDrive-Ordnerpfade im Benutzerkontext ermitteln</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt vorhandene OneDrive-Umgebungsvariablen für diesen Benutzer.
+# Diese Pfade sind Hinweise auf lokale Sync-Verzeichnisse.
+# Nicht jeder Kontotyp setzt jede Variable.
+[PSCustomObject]@{
+    OneDrivePrivat   = $env:OneDrive
+    OneDriveGeschaeft = $env:OneDriveCommercial
+}</code></pre></div>
+<p><strong>Interpretation:</strong> Diese Werte beschreiben lokale Pfade, nicht den Cloud-Synchronisierungszustand. Ein fehlender Wert beweist keinen generellen OneDrive-Ausfall. Die genaue Datei muss über Explorer und Browser abgeglichen werden.</p>
+<h3 id="74-dateimetadaten-sicher-pruefen">7.4 Dateimetadaten sicher prüfen</h3>
+<p><strong>Ausführungsort:</strong> Client. Den Beispielpfad vorher durch die <strong>tatsächlich betroffene lokale Datei</strong> ersetzen. Der Befehl verändert die Datei nicht.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Beispielpfad durch den echten lokalen Speicherort ersetzen.
+$datei = 'C:\Users\Max\OneDrive - Beispiel GmbH\Projekt\Planung.xlsx'
+
+# Prüft, ob die Datei unter diesem Pfad vorhanden ist.
+if (Test-Path -LiteralPath $datei -PathType Leaf) {
+    # Liest Dateigröße und letztes Änderungsdatum aus.
+    Get-Item -LiteralPath $datei |
+        Select-Object FullName, Length, LastWriteTime
+} else {
+    'Die Datei wurde an diesem lokalen Pfad nicht gefunden.'
+}</code></pre></div>
+<p><strong>Wichtig:</strong> <code>LastWriteTime</code> ist nur ein lokaler Dateisystemzeitstempel und beweist keine erfolgreiche Cloudübertragung. Auch gleich große Dateien können inhaltlich abweichen. Der Vergleich mit Versionsstand im Web ist erforderlich.</p>
+<h3 id="75-namensaufloesung-des-cloudziels-pruefen">7.5 Namensauflösung des Cloudziels prüfen</h3>
+<p><strong>Ausführungsort:</strong> Client. Beispielhost <code>beispiel-my.sharepoint.com</code> durch den tatsächlich vom Unternehmen verwendeten OneDrive-/SharePoint-Host ersetzen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Fragt DNS nach der Auflösung des OneDrive-Unternehmenshosts.
+# -Name gibt den konkreten Hostnamen an.
+Resolve-DnsName -Name 'beispiel-my.sharepoint.com'</code></pre></div>
+<p><strong>Interpretation:</strong> Erfolgreiche DNS-Auflösung bedeutet nur, dass die Namensauflösung funktioniert. Weder Anmeldung noch OneDrive-Synchronisierung sind dadurch bewiesen. Bei Firmen-Proxys oder speziellen DNS-Umgebungen kann die Interpretation abweichen.</p>
+<h3 id="76-https-erreichbarkeit-fuer-den-cloudhost-pruefen">7.6 HTTPS-Erreichbarkeit für den Cloudhost prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft den Aufbau einer TCP-Verbindung auf Port 443 (HTTPS).
+# Der Hostname ist ein Beispiel und muss zum Mandanten passen.
+Test-NetConnection -ComputerName 'beispiel-my.sharepoint.com' -Port 443</code></pre></div>
+<p><strong>Interpretation:</strong> <code>TcpTestSucceeded : True</code> bestätigt eine TCP-Verbindung zum Host auf Port 443. Es bestätigt <strong>nicht</strong> erfolgreiche Authentifizierung, TLS-Prüfung, Proxykompatibilität oder Dateiübertragung. <code>False</code> ist ein Hinweis auf ein Verbindungsproblem, nicht automatisch auf eine lokale Firewall als Ursache.</p>
+<h3 id="77-optional-richtlinie-fuer-onedrive-synchronisierungsberichte-auslesen">7.7 Optional: Richtlinie für OneDrive-Synchronisierungsberichte auslesen</h3>
+<p><strong>Ausführungsort:</strong> Windows-Client in Unternehmensumgebung. Die Abfrage liest lediglich eine vorhandene Richtlinieneinstellung und setzt sie nicht.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Fragt den aktuellen Richtlinienwert für OneDrive Sync Health ab.
+# reg.exe query verändert keinen Registrierungseintrag.
+reg.exe query 'HKLM\SOFTWARE\Policies\Microsoft\OneDrive' /v EnableSyncAdminReports</code></pre></div>
+<p><strong>Interpretation:</strong> Bei gesetztem, korrekt konfiguriertem Wert kann die Übertragung von Sync-Health-Daten vorgesehen sein. Fehlt der Wert, ist die Funktion möglicherweise nicht eingerichtet. Weitere Voraussetzungen und Verzögerungen beschreibt Microsoft; aus dieser Einzelabfrage folgt nicht, ob ein Gerät bereits im Dashboard erscheint. <a href="https://learn.microsoft.com/de-de/sharepoint/sync-health" rel="noopener noreferrer" target="_blank">Microsoft Learn – Sync Health</a>.</p>
+<hr/>
+<h2 id="8-dateispezifische-ursachen-namen-groesse-pfade-und-zugriffsrechte">8. Dateispezifische Ursachen: Namen, Größe, Pfade und Zugriffsrechte</h2>
+<p>Wenn <strong>nur einzelne Dateien</strong> nicht synchronisiert werden, zuerst die konkreten Dateifehler prüfen.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Erklärung</th>
+<th>Geeigneter nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ungültige Zeichen / reservierter Dateiname</td>
+<td>OneDrive/SharePoint und Windows unterstützen bestimmte Namen nicht</td>
+<td>Dateiname gezielt gemäß Regel ändern, Auswirkungen auf Links prüfen</td>
+</tr>
+<tr class="even">
+<td>Zu langer Dateipfad</td>
+<td>Cloud und lokale Programme besitzen Längenbeschränkungen</td>
+<td>Pfad verkürzen, nicht ganze Bibliothek pauschal verschieben</td>
+</tr>
+<tr class="odd">
+<td>Sehr große Datei</td>
+<td>Upload kann Zeit benötigen; Größenlimit beachten</td>
+<td>Dateigröße und Dokumentation prüfen; ausreichend Übertragungszeit</td>
+</tr>
+<tr class="even">
+<td>Datei durch Anwendung gesperrt</td>
+<td>Geöffnete oder laufend geschriebene Datei kann Upload blockieren</td>
+<td>Speichern und Anwendung kontrolliert schließen</td>
+</tr>
+<tr class="odd">
+<td>Fehlende Schreibberechtigung</td>
+<td>Datei/SharePoint-Bibliothek lässt Änderung nicht zu</td>
+<td>Rechte und zuständige Gruppe prüfen; keine pauschale Vollzugriffsfreigabe</td>
+</tr>
+<tr class="even">
+<td>Versionskonflikt</td>
+<td>Zwei Geräte haben unterschiedliche Änderungen erzeugt</td>
+<td>Versionen bewusst vergleichen und zusammenführen</td>
+</tr>
+<tr class="odd">
+<td>Speicherplatzkontingent erreicht</td>
+<td>Cloud nimmt keine weiteren Änderungen auf</td>
+<td>Kontingent und Bereinigung/Freigabe nach Genehmigung klären</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Stand der Quellenrecherche:</strong> Microsoft nennt für einzelne Dateien ein Maximum von 250 GB; für Cloud-Dateipfade gelten eigene Grenzwerte. Für die Gesamtzahl synchronisierter Elemente existieren Empfehlungen und teils Vorschaufunktionen – <strong>keine pauschale feste Grenze ohne Prüfung des aktuellen Rollouts behaupten</strong>. <a href="https://support.microsoft.com/de-de/onedrive/restrictions-and-limitations-in-onedrive-and-sharepoint" rel="noopener noreferrer" target="_blank">Microsoft Support – Einschränkungen und Grenzwerte</a> und <a href="https://support.microsoft.com/en-us/onedrive/what-are-file-path-length-limits" rel="noopener noreferrer" target="_blank">Pfadlängen</a>.</p>
+<hr/>
+<h2 id="9-wenn-aenderungen-werden-verarbeitet-nicht-endet">9. Wenn „Änderungen werden verarbeitet“ nicht endet</h2>
+<p>Der Hinweis kann nach dem Import vieler Dateien oder nach einem Systemupdate normal sein. Mögliche Hindernisse sind unter anderem große Datenmengen, geöffnete Dateien, blockierte Dateitypen, fehlende Anmeldung oder ein Netzwerkengpass.</p>
+<p><strong>Vorgehen:</strong></p>
+<ol type="1">
+<li>Aktivitätsfenster öffnen und betroffene Dateien ermitteln.</li>
+<li>Laufende Übertragungen und Datenmengen beurteilen, nicht nach wenigen Sekunden von „hängt“ ausgehen.</li>
+<li>Prüfen, ob Datei noch in Word, Excel, einer anderen App oder einem Hintergrundprozess geöffnet ist.</li>
+<li>Status des OneDrive-Kontos, Speicher und Internetverbindung prüfen.</li>
+<li>Bei einem einzelnen Problemobjekt <strong>nur dieses</strong> isoliert untersuchen. Keine pauschalen Löschaktionen.</li>
+</ol>
+<p>Offizielle Referenz: <a href="https://support.microsoft.com/de-de/onedrive/troubleshoot-onedrive-sync-issues-stuck-on-processing-changes" rel="noopener noreferrer" target="_blank">Microsoft – OneDrive bleibt bei „Änderungen werden verarbeitet“ hängen</a>.</p>
+<hr/>
+<h2 id="10-wenn-nur-eine-sharepoint--oder-teams-bibliothek-betroffen-ist">10. Wenn nur eine SharePoint- oder Teams-Bibliothek betroffen ist</h2>
+<p>Eine Dokumentbibliothek kann im Browser funktionieren, während die lokale Synchronisierung verhindert oder fehlerhaft konfiguriert ist. Außerdem können unterschiedliche Konten, defekte Verknüpfungen, fehlende Berechtigungen und Bibliotheksrichtlinien eine Rolle spielen.</p>
+<p><strong>Sinnvolle Reihenfolge:</strong></p>
+<ol type="1">
+<li>Browserzugriff auf die <strong>genau gleiche Bibliothek</strong> mit dem betroffenen Konto prüfen.</li>
+<li>Vergleich mit einem zweiten Benutzer nur mit legitimem Zugriff und ohne Weitergabe von Kontodaten.</li>
+<li>Prüfen, ob die Bibliothek bewusst nur online bereitgestellt werden darf. Fehlt die Option „Synchronisieren“, ist das nicht zwingend ein Defekt.</li>
+<li>Feststellen, ob die Bibliothek per <strong>„Verknüpfung zu OneDrive hinzufügen“</strong> oder per <strong>„Synchronisieren“</strong> eingebunden wurde; beide Verfahren nicht blind parallel für denselben Inhalt einrichten.</li>
+<li>Bibliotheksrechte und Richtlinien nur mit den zuständigen Berechtigungen untersuchen. <strong>Keinen Sicherheitsmechanismus zum Testen abschalten.</strong></li>
+</ol>
+<p>Referenzen: <a href="https://learn.microsoft.com/de-de/troubleshoot/sharepoint/sync/troubleshoot-sync-issues" rel="noopener noreferrer" target="_blank">Microsoft Learn – Synchronisierungsprobleme</a>, <a href="https://support.microsoft.com/de-de/sharepoint/sync/sync-sharepoint-and-teams-files-with-your-computer" rel="noopener noreferrer" target="_blank">Microsoft Support – SharePoint und Teams synchronisieren</a>.</p>
+<hr/>
+<h2 id="11-cloud--und-infrastrukturdiagnose-durch-l2">11. Cloud- und Infrastrukturdiagnose durch L2</h2>
+<p>Wenn mehrere Benutzer oder Geräte betroffen sind, prüft der Second Level zunächst mögliche gemeinsame Fehlerquellen:</p>
+<ul>
+<li><strong>Microsoft 365 Service Health:</strong> Dienstmeldungen zu OneDrive/SharePoint prüfen (erfordert geeignete Adminrolle).</li>
+<li><strong>OneDrive Sync Health im Microsoft 365 Apps Admin Center:</strong> Sofern durch die Organisation eingerichtet, Geräteversion, letzte Meldung, Synchronisierungszustand und bekannte Fehler prüfen.</li>
+<li><strong>Anmeldung und Richtlinien:</strong> Geschäfts-/Schulkonto, Gerätezustand, Zugriffsrichtlinien und SharePoint-Berechtigungen abgleichen.</li>
+<li><strong>Netzwerk:</strong> DNS, Internetweg, Unternehmensproxy, Firewall, TLS-Verbindungsaufbau und Zugriffsregeln prüfen.</li>
+<li><strong>Richtlinienverteilung:</strong> Via Intune oder GPO vorgegebene OneDrive-Konfigurationen berücksichtigen.</li>
+</ul>
+<p><strong>Vorsicht beim Sync-Health-Dashboard:</strong> Die Telemetrie ist nur bei vorhandenen Voraussetzungen und aktivierter Konfiguration aussagekräftig. Die Anzeige kann zeitverzögert sein; eine fehlende Meldung bedeutet nicht automatisch, dass das Gerät ausgeschaltet oder der Client defekt ist. <a href="https://learn.microsoft.com/de-de/sharepoint/sync-health" rel="noopener noreferrer" target="_blank">Microsoft Learn – OneDrive Sync Health</a>.</p>
+<hr/>
+<h2 id="12-fehlerbehebung-von-risikoarm-zu-eingreifend">12. Fehlerbehebung: Von risikoarm zu eingreifend</h2>
+<h3 id="stufe-a--diagnose-und-einfache-korrektur-typisch-l1">Stufe A – Diagnose und einfache Korrektur (typisch L1)</h3>
+<ul>
+<li>Richtige Identität und richtigen Speicherort bestätigen.</li>
+<li>Pausierte Synchronisierung nach Klärung des Grunds <strong>fortsetzen</strong>.</li>
+<li>Fehlende Anmeldung nach regulärem Unternehmensverfahren erneuern.</li>
+<li>Datei speichern und gegebenenfalls die blockierende Anwendung schließen.</li>
+<li>Einzelnen Dateinamen, Dateipfad, Dateigröße oder konkrete Berechtigung untersuchen.</li>
+<li>OneDrive-Version und Clientstatus erfassen; bei Bedarf reguläres, freigegebenes Update.</li>
+<li>Nach dokumentierter Korrektur den betroffenen Dateivorgang testen.</li>
+</ul>
+<h3 id="stufe-b--reparatur-des-onedrive-clients-nur-gezielt-und-freigegeben">Stufe B – Reparatur des OneDrive-Clients (nur gezielt und freigegeben)</h3>
+<p>Ein Microsoft-dokumentierter <code>OneDrive.exe /reset</code> kann Sync-Probleme beheben. Der Reset setzt OneDrive-Einstellungen zurück und baut Synchronisierungsverbindungen neu auf. Microsoft erläutert ausdrücklich, dass der Reset keine Dateien absichtlich löscht; <strong>bei einem ungeklärten Synchronisierungsstand müssen lokale Änderungen dennoch zuvor gesichert und die Konfiguration dokumentiert werden</strong>. Nach dem Reset kann eine vollständige Synchronisierung erfolgen und es können Ordnerauswahlen neu erforderlich sein. <a href="https://support.microsoft.com/de-de/onedrive/reset-onedrive" rel="noopener noreferrer" target="_blank">Microsoft Support – OneDrive zurücksetzen</a>.</p>
+<p><strong>Nicht als Standard-Erstmaßnahme ausführen.</strong> Vorher prüfen: Sind alle lokalen Änderungen geschützt? Welche Konten und Bibliotheken sind verbunden? Liegt eine Berechtigung für diesen Eingriff vor?</p>
+<p><strong>Vollständiger Befehl für Windows „Ausführen“ (<code>Win</code> + <code>R</code>):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">%localappdata%\Microsoft\OneDrive\OneDrive.exe /reset</code></pre></div>
+<p>Die Leerzeichen-Schreibweise ist relevant: <strong>Nach <code>OneDrive.exe</code> folgt ein Leerzeichen und dann <code>/reset</code>.</strong> Falls Windows die ausführbare Datei dort nicht findet, nennt Microsoft auch Installationspfade unter <code>C:\Program Files\Microsoft OneDrive\OneDrive.exe</code> beziehungsweise <code>C:\Program Files (x86)\Microsoft OneDrive\OneDrive.exe</code>.</p>
+<p><strong>Entsprechendes PowerShell-Beispiel – verändernder Befehl, nur nach Freigabe:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Setzt den vollständigen Pfad zur üblichen OneDrive-Installation zusammen.
+$oneDriveExe = Join-Path $env:LOCALAPPDATA 'Microsoft\OneDrive\OneDrive.exe'
+
+# Prüft, ob die ausführbare Datei an diesem Ort existiert.
+if (Test-Path -LiteralPath $oneDriveExe -PathType Leaf) {
+    # Startet den von Microsoft dokumentierten OneDrive-Reset.
+    # ACHTUNG: Setzt Einstellungen zurück und baut Sync-Verbindungen neu auf.
+    &amp; $oneDriveExe /reset
+} else {
+    # Fordert die Prüfung eines alternativen Installationspfads an.
+    'OneDrive.exe nicht unter LOCALAPPDATA gefunden. Installationspfad prüfen.'
+}</code></pre></div>
+<p><strong>Danach:</strong> OneDrive bei Bedarf über Start öffnen, Konto-/Bibliotheksverbindungen prüfen, ggf. erneut einrichten und Synchronisierungsergebnis validieren.</p>
+<h3 id="stufe-c--eingriffe-mit-hoeherer-tragweite-l2--change-freigabe">Stufe C – Eingriffe mit höherer Tragweite (L2 / Change-Freigabe)</h3>
+<p>Neu verknüpfen, Bibliothekssynchronisierung entfernen und wieder einrichten, SharePoint-Richtlinien verändern oder OneDrive neu installieren. Hier sind Freigabe, Bestandsaufnahme und Rückfallplan notwendig. Lokale ungesicherte Daten dürfen niemals unbemerkt entfernt oder überschrieben werden.</p>
+<hr/>
+<h2 id="13-erfolgskontrolle-und-dokumentierter-funktionsnachweis">13. Erfolgskontrolle und dokumentierter Funktionsnachweis</h2>
+<p>Bei der originalen betroffenen Datei nicht nur auf das grüne Symbol vertrauen:</p>
+<ol type="1">
+<li><strong>Lokale und Cloud-Version:</strong> Gleiches Dokument und gleiche Bibliothek eindeutig bestimmen.</li>
+<li><strong>Unkritische Testdatei</strong> verwenden, die dafür freigegeben ist, z. B. <code>RB016-Sync-Test.txt</code> in einem genehmigten Testordner.</li>
+<li>Lokal eine Änderung speichern und warten, bis der Client „Aktuell“ oder die entsprechende abgeschlossene Synchronisierung zeigt.</li>
+<li>Datei im <strong>Web</strong> öffnen und Inhalt beziehungsweise Änderungsstand kontrollieren.</li>
+<li>Falls zugelassen: Cloudseitig eine weitere Änderung durchführen und den Rückweg am Client prüfen.</li>
+<li>Ursprüngliche Datei erneut mit dem berechtigten Benutzer kontrollieren; bei Konflikten erst nach Vergleich eine Variante freigeben.</li>
+<li>Testergebnis, Zeitstempel, Diagnosen und offene Punkte im Ticket festhalten.</li>
+</ol>
+<p><strong>Nicht erforderlich:</strong> Echte Unternehmensdaten für Testzwecke auf private Clouds oder unsichere Speichermedien kopieren.</p>
+<hr/>
+<h2 id="14-eskalation-und-muster-ticketkommentar">14. Eskalation und Muster-Ticketkommentar</h2>
+<h3 id="l1-an-l2-eskalieren-wenn-">L1 an L2 eskalieren, wenn ...</h3>
+<ul>
+<li>mehrere Benutzer / Geräte oder ganze Standorte betroffen sind,</li>
+<li>SharePoint-/OneDrive-Bibliotheksrechte oder organisatorische Richtlinien unklar sind,</li>
+<li>Versionenkonflikte mit geschäftskritischen Änderungen drohen,</li>
+<li>lokale Änderungen vor einer Reparatur nicht sicher identifiziert werden können,</li>
+<li>Cloud-Speicher-, Dienst- oder Identitätskonfiguration zu prüfen ist,</li>
+<li>für eine Korrektur zusätzliche Rechte oder Freigaben notwendig sind.</li>
+</ul>
+<h3 id="ticketkommentar--fiktives-beispiel">Ticketkommentar – fiktives Beispiel</h3>
+<p><strong>INC-016 – Änderungen an Projektdokument werden nicht übertragen</strong><br/>
+<strong>Fehlerbild:</strong> Mitarbeiter meldet, dass lokal gespeicherte Excel-Änderungen im SharePoint-Webzugriff nicht sichtbar sind.<br/>
+<strong>Erstdiagnose:</strong> Lokalen Dateipfad und zugehörige SharePoint-Bibliothek abgeglichen. OneDrive-Client zeigte Synchronisierungsfehler für eine einzelne Datei. Cloud-Datei hatte einen älteren Änderungsstand.<br/>
+<strong>Datensicherung:</strong> Die aktuellere lokale Fassung wurde gemäß Unternehmensrichtlinie vor weiteren Schritten separat geschützt.<br/>
+<strong>Ursache:</strong> Datei war bei der Synchronisierung durch eine laufende Anwendung blockiert.<br/>
+<strong>Maßnahme:</strong> Datei regulär gespeichert und die blockierende Anwendung kontrolliert geschlossen. OneDrive-Synchronisierungsstatus überwacht.<br/>
+<strong>Erfolgskontrolle:</strong> Die aktuelle Fassung war anschließend im SharePoint-Webzugriff verfügbar; geänderten Inhalt gemeinsam mit dem Benutzer kontrolliert.<br/>
+<strong>Status:</strong> Gelöst.</p>
+<p><em>Dieses Beispiel ist konstruiert. Es dokumentiert keine tatsächlich durchgeführte Supportmaßnahme.</em></p>
+<hr/>
+<h2 id="15-lernkontrolle-transfer-und-quellen">15. Lernkontrolle, Transfer und Quellen</h2>
+<h3 id="wissensfragen">Wissensfragen</h3>
+<ol type="1">
+<li>Was bedeutet ein blaues Wolkensymbol im Windows-Explorer?</li>
+<li>Welche Informationen liefert <code>Get-Process -Name OneDrive</code> – und was kann es nicht beweisen?</li>
+<li>Wozu dient die OneDrive-Synchronisierungs-App beim Zugriff auf SharePoint-Dateien?</li>
+</ol>
+<h3 id="verstaendnisfragen">Verständnisfragen</h3>
+<ol type="1">
+<li>Warum kann eine Datei lokal gespeichert und trotzdem in SharePoint veraltet sein?</li>
+<li>Warum ist eine funktionierende HTTPS-Verbindung noch kein Nachweis der OneDrive-Funktion?</li>
+<li>Weshalb dürfen <code>OneDrive.exe /reset</code> und die Neuverknüpfung nicht ohne Bestandsaufnahme erfolgen?</li>
+</ol>
+<h3 id="diagnoseaufgabe-ohne-vorweggenommene-loesung">Diagnoseaufgabe (ohne vorweggenommene Lösung)</h3>
+<p>Ein Kollege meldet, dass <code>Angebot.xlsx</code> auf zwei Notebooks unterschiedliche Inhalte zeigt. Beide OneDrive-Clients sind angemeldet. Einer meldet „Aktuell“, der andere zeigt bei der Datei ein rotes X. Es gibt drei verschiedene Änderungszeitstempel in lokalen Dateiansichten und im SharePoint-Webzugriff. <strong>Wie würdest du die korrekte Datenversion schützen und anschließend die Störung eingrenzen?</strong></p>
+<h3 id="anki-kartenideen">Anki-Kartenideen</h3>
+<ul>
+<li><strong>Wissenskarte:</strong> Was signalisiert die OneDrive-Wolke neben einer Datei? → Nur online verfügbar; Dateiinhalt ist nicht zwingend lokal gespeichert.</li>
+<li><strong>Verständniskarte:</strong> Warum beweist eine lokale Datei keinen Cloud-Upload? → Der Sync-Client muss die Änderung erfolgreich übertragen und der Cloud-Dienst muss sie annehmen.</li>
+<li><strong>Diagnosekarte:</strong> Nur eine Datei hat ein rotes X, alle anderen synchronisieren. Was zuerst? → Konkreten Dateifehler, Dateinamen, Dateisperre, Rechte und Konflikt prüfen.</li>
+</ul>
+<h3 id="technische-herstellerquellen-geprueft-am-08112026">Technische Herstellerquellen (geprüft am 08.11.2026)</h3>
+<ol type="1">
+<li><a href="https://support.microsoft.com/de-de/onedrive/fix-onedrive-sync-problems" rel="noopener noreferrer" target="_blank">Microsoft Support – OneDrive-Synchronisierungsprobleme beheben</a> – erster Diagnosezugang und Statussymbole.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/what-do-the-onedrive-icons-mean" rel="noopener noreferrer" target="_blank">Microsoft Support – Bedeutung der OneDrive-Symbole</a> – Explorer-, Cloud- und Fehleranzeigen.</li>
+<li><a href="https://support.microsoft.com/de-de/sharepoint/sync/work-with-synced-files-in-file-explorer" rel="noopener noreferrer" target="_blank">Microsoft Support – Mit synchronisierten Dateien im Explorer arbeiten</a> – Files On-Demand.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/troubleshoot-onedrive-sync-issues-stuck-on-processing-changes" rel="noopener noreferrer" target="_blank">Microsoft Support – „Änderungen werden verarbeitet“</a> – blockierte Dateien und lange Synchronisierung.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/restrictions-and-limitations-in-onedrive-and-sharepoint" rel="noopener noreferrer" target="_blank">Microsoft Support – Einschränkungen und Grenzwerte</a> – Namen, Pfade, Größen und Anzahl der Dateien.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/reset-onedrive" rel="noopener noreferrer" target="_blank">Microsoft Support – OneDrive zurücksetzen</a> – Voraussetzungen und dokumentierte Reset-Schritte.</li>
+<li><a href="https://learn.microsoft.com/de-de/sharepoint/sync-health" rel="noopener noreferrer" target="_blank">Microsoft Learn – OneDrive Sync Health</a> – Dashboard für Administratoren.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/sharepoint/sync/troubleshoot-sync-issues" rel="noopener noreferrer" target="_blank">Microsoft Learn – OneDrive/SharePoint-Synchronisierungsprobleme</a> – Bibliotheksregeln und Grenzen.</li>
+<li><a href="https://support.microsoft.com/de-de/sharepoint/sync/sync-sharepoint-and-teams-files-with-your-computer" rel="noopener noreferrer" target="_blank">Microsoft Support – SharePoint-/Teams-Dateien synchronisieren</a> – Verknüpfung versus Synchronisierung.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/restore-a-previous-version-of-a-file-stored-in-onedrive" rel="noopener noreferrer" target="_blank">Microsoft Support – Versionsverlauf in OneDrive</a> – Sicherung und Wiederherstellung verschiedener Versionen.</li>
+<li><a href="https://learn.microsoft.com/de-de/sharepoint/redirect-known-folders" rel="noopener noreferrer" target="_blank">Microsoft Learn – Known Folder Move</a> – Umleitung bekannter Windows-Ordner.</li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/what-do-the-onedrive-error-codes-mean" rel="noopener noreferrer" target="_blank">Microsoft Support – OneDrive-Fehlercodes</a> – Fehlermeldungen und Auslegung.</li>
+</ol>
+<p><strong>Projektstatus:</strong> Recherchiert und dokumentiert. Fiktive Beispiele. Praktische Tests und Screenshots aus einer echten Windows-/Microsoft-365-Umgebung stehen aus.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-016_Lernartikel.md">RB-016_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-005/index.html">RB-005: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-015/index.html">← RB-015</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-017/index.html">RB-017 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

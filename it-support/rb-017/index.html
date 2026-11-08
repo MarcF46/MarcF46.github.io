@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-017 Netzlaufwerk fehlt oder ist nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-017: Netzlaufwerk fehlt oder ist nicht erreichbar. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · SMB · Gruppenrichtlinien · Lernartikel</p><h1>RB-017: Netzlaufwerk fehlt oder ist nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket">1. Das Supportticket</a></li><li><a href="#2-grundlagen-netzlaufwerk-netzwerkfreigabe-und-rechte--drei-verschiedene-dinge">2. Grundlagen: Netzlaufwerk, Netzwerkfreigabe und Rechte – drei verschiedene Dinge</a></li><li><a href="#3-haeufige-fehlerbilder-und-ihre-bedeutung">3. Häufige Fehlerbilder und ihre Bedeutung</a></li><li><a href="#4-zugriffsmoeglichkeiten-des-supporttechnikers">4. Zugriffsmöglichkeiten des Supporttechnikers</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-diagnose-a--netzlaufwerkszuordnung-auf-dem-client-pruefen">6. Diagnose A – Netzlaufwerkszuordnung auf dem Client prüfen</a></li><li><a href="#7-diagnose-b--den-unc-pfad-direkt-pruefen">7. Diagnose B – Den UNC-Pfad direkt prüfen</a></li><li><a href="#8-diagnose-c--dns-netzwerk-vpn-und-smb-port">8. Diagnose C – DNS, Netzwerk, VPN und SMB-Port</a></li><li><a href="#9-diagnose-d--gpo-und-automatische-laufwerkszuordnung">9. Diagnose D – GPO und automatische Laufwerkszuordnung</a></li><li><a href="#10-diagnose-e--freigabe--und-ntfs-berechtigungen">10. Diagnose E – Freigabe- und NTFS-Berechtigungen</a></li><li><a href="#11-sonderfall-z-in-normalem-explorer-sichtbar-aber-nicht-im-admin-fenster">11. Sonderfall: Z: in normalem Explorer sichtbar, aber nicht im Admin-Fenster</a></li><li><a href="#12-gezielte-fehlerbehebung-und-nebenwirkungen">12. Gezielte Fehlerbehebung und Nebenwirkungen</a></li><li><a href="#13-erfolgskontrolle">13. Erfolgskontrolle</a></li><li><a href="#14-eskalation-musterticket-und-lernkontrolle">14. Eskalation, Musterticket und Lernkontrolle</a></li><li><a href="#15-quellen-und-pruefstatus">15. Quellen und Prüfstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Themengebiet:</strong> Windows-Client, Active Directory, Gruppenrichtlinien, SMB, Datei- und Freigabeberechtigungen<br/>
+<strong>Support-Level:</strong> L1 / L2 – abhängig von Berechtigungen und Unternehmensprozess<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 08.11.2026<br/>
+<strong>Validierung:</strong> Technisch recherchiertes Lernbeispiel; <strong>nicht praktisch im Unternehmensnetz getestet</strong>.<br/>
+<strong>Beispielumgebung:</strong> Windows 11 Pro, AD-Domäne <code>firma.example</code>, Dateiserver <code>FS01</code>, Freigabe <code>\\FS01\Projekte</code>, Netzlaufwerk <code>Z:</code> (alle Namen erfunden).</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb017_henne_ei_netzlaufwerk.png" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: Netzlaufwerk systematisch diagnostizieren" decoding="async" loading="lazy" src="assets/rb017_henne_ei_netzlaufwerk.png"/></a></div><figcaption>Henne-Ei-Infografik: Netzlaufwerk systematisch diagnostizieren</figcaption></figure>
+<h2 id="1-das-supportticket">1. Das Supportticket</h2>
+<blockquote>
+<p><strong>INC-017 (fiktiv):</strong> „Seit heute ist mein Laufwerk Z: verschwunden. Gestern konnte ich noch auf die Projektunterlagen zugreifen. Bei einem Kollegen funktioniert es weiterhin.“</p>
+</blockquote>
+<p><strong>Ziel:</strong> Herausfinden, ob nur der <strong>Laufwerksbuchstabe</strong> fehlt, die <strong>Serverfreigabe</strong> nicht erreichbar ist oder die <strong>Berechtigung</strong> den Zugriff verhindert. Die Ursache gezielt beheben und den Zugriff mit dem Benutzer überprüfen.</p>
+<p><strong>Erste Rückfragen:</strong> Seit wann? Welches Gerät, Standort und Konto? LAN, WLAN oder Homeoffice/VPN? Exakte Fehlermeldung? Nur <code>Z:</code> oder auch direkter Zugriff auf <code>\\FS01\Projekte</code> betroffen? Ein Benutzer oder die ganze Abteilung? Welche Dateien/Aktionen genau (Auflisten, Lesen, Speichern)? Wurde kürzlich eine Gruppe, GPO, Anmeldeskript oder Freigabe geändert?</p>
+<h2 id="2-grundlagen-netzlaufwerk-netzwerkfreigabe-und-rechte--drei-verschiedene-dinge">2. Grundlagen: Netzlaufwerk, Netzwerkfreigabe und Rechte – drei verschiedene Dinge</h2>
+<ul>
+<li>Eine <strong>Netzwerkfreigabe</strong> ist ein auf einem Server über das Netzwerk bereitgestellter Ordner, z. B. <code>\\FS01\Projekte</code>. Der Netzwerkpfad im Format <code>\\Server\Freigabe</code> heißt <strong>UNC-Pfad</strong> (<em>Universal Naming Convention</em>).</li>
+<li>Ein <strong>Netzlaufwerk</strong> ist ein <strong>Laufwerksbuchstabe als Verknüpfung</strong> auf diesen Pfad, z. B. <code>Z:</code> → <code>\\FS01\Projekte</code>. Der Buchstabe ist eine Komfortfunktion – nicht die Freigabe selbst.</li>
+<li><strong>SMB (Server Message Block)</strong> ist das Datei-/Freigabeprotokoll; Windows nutzt für übliches SMB über TCP standardmäßig <strong>Port 445</strong>.</li>
+<li><strong>Freigabeberechtigungen</strong> beschränken den Zugriff über die SMB-Freigabe. <strong>NTFS (New Technology File System)</strong> schützt Dateien und Ordner auf dem Dateisystem. Beide Ebenen sind für den Netzwerkzugriff maßgeblich; zusätzlich können andere Regeln eingreifen.</li>
+<li><strong>GPO (Group Policy Object, Gruppenrichtlinienobjekt)</strong> kann über <strong>Group Policy Preferences / Drive Maps</strong> die Laufwerkszuordnung automatisch für Benutzer herstellen. Eine GPO-Zuordnung verleiht <strong>nicht automatisch Datei- oder Ordnerberechtigungen</strong>.</li>
+</ul>
+<p><strong>Merksatz:</strong> <strong>Laufwerksbuchstabe ≠ erreichbare Freigabe ≠ erlaubter Zugriff.</strong> Es sind drei eigene Diagnosefragen.</p>
+<p><strong>Vereinfachter Ablauf:</strong> <code>Windows-Benutzer → Z:-Zuordnung (z. B. GPO) → DNS/Netzwerk/VPN → SMB/FS01 (TCP 445) → Freigaberecht → NTFS-Recht → Datei</code>.</p>
+<h2 id="3-haeufige-fehlerbilder-und-ihre-bedeutung">3. Häufige Fehlerbilder und ihre Bedeutung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Fehlerbild</th>
+<th>Bedeutung / denkbare Ursachen</th>
+<th>Geeigneter erster Test</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Z:</code> fehlt im Explorer</td>
+<td>GPO-Laufwerkszuordnung, Benutzerkontext, Zielgruppenfilter oder Anmeldeskript</td>
+<td>UNC-Pfad <code>\\FS01\Projekte</code> direkt öffnen</td>
+</tr>
+<tr class="even">
+<td><code>Z:</code> sichtbar, rotes X / „Netzwerkpfad wurde nicht gefunden“</td>
+<td>Gespeicherte Zuordnung; Servername, DNS, VPN, Routing, SMB-Verbindung oder Freigabename problematisch</td>
+<td><code>Get-SmbMapping</code>, <code>Resolve-DnsName</code>, TCP 445 prüfen</td>
+</tr>
+<tr class="odd">
+<td>UNC-Pfad erreichbar, aber „Zugriff verweigert“</td>
+<td>Authentifizierung, Freigabe-/NTFS-Regeln oder Sicherheitsrichtlinie</td>
+<td>Benutzeridentität, Freigabe- und NTFS-Rechte prüfen</td>
+</tr>
+<tr class="even">
+<td>Ordner öffnet, Speichern geht nicht</td>
+<td>Schreiben/Ändern fehlt, Sperre, Speicherkapazität, Schutzfunktion</td>
+<td>Tatsächliche Operation und Fehlermeldung testen</td>
+</tr>
+<tr class="odd">
+<td><code>Z:</code> nur in Admin-PowerShell nicht sichtbar</td>
+<td>Unterschiedliche Windows-Anmeldesitzungen/UAC-Kontext</td>
+<td>In normaler Benutzer-Sitzung und Admin-Sitzung vergleichen</td>
+</tr>
+<tr class="even">
+<td>Alle Benutzer betroffen</td>
+<td>Gemeinsam genutzter Server, DNS, Netzwerk, GPO oder Dienst</td>
+<td>Wirkungskreis und zentralen Serverstatus klären</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht verwechseln:</strong> Ein nicht zugeordnetes Laufwerk ist noch kein Beweis, dass die Freigabe offline oder das Benutzerkonto falsch berechtigt ist.</p>
+<h2 id="4-zugriffsmoeglichkeiten-des-supporttechnikers">4. Zugriffsmöglichkeiten des Supporttechnikers</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Zugriff / Ausführungsort</th>
+<th>Konkreter Weg</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer angemeldet, <code>Z:</code> fehlt</td>
+<td>Benutzersitzung am PC; Teams/Schnellhilfe bei zulässiger Fernunterstützung</td>
+<td>UNC-Pfad im Explorer testen, Benutzerkontext und Mapping prüfen</td>
+</tr>
+<tr class="even">
+<td>Client im Firmennetz, Remoting erlaubt</td>
+<td>IT-Administrationsgerät → WinRM/RDP, <strong>mit berechtigtem Konto</strong></td>
+<td>Netzwerkkonnektivität prüfen; beachten: Remote-/Admin-Kontext zeigt nicht zwingend die Laufwerke des betroffenen Benutzers</td>
+</tr>
+<tr class="odd">
+<td>Homeoffice</td>
+<td>Benutzer-PC mit Unternehmens-VPN</td>
+<td>VPN aufbauen/Status prüfen, internen DNS und SMB-Zugriff testen</td>
+</tr>
+<tr class="even">
+<td>Dateiserver- oder Berechtigungsprüfung nötig</td>
+<td>FS01 / zugelassenes Managementsystem</td>
+<td>Freigabe und NTFS-ACL unter autorisiertem Konto prüfen</td>
+</tr>
+<tr class="odd">
+<td>Viele Benutzer betroffen</td>
+<td>L2: Dateiserver, GPO, DNS, VPN, Netzwerkbetrieb</td>
+<td>Gemeinsamen Fehler eingrenzen und koordinieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sicherheit:</strong> Kein Benutzerpasswort erfragen. Keine dauerhaften Administratorrechte vergeben. Share- oder NTFS-Rechte nur nach Genehmigung und geringstmöglichem Zugriff ändern.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb017_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-017 – Diagnosebaum" decoding="async" loading="lazy" src="assets/rb017_diagnosebaum.svg"/></a></div><figcaption>RB-017 – Diagnosebaum</figcaption></figure>
+<ol type="1">
+<li><strong>Ist <code>Z:</code> überhaupt sichtbar?</strong> Wenn nein: UNC-Pfad direkt testen, danach Zuordnung/GPO untersuchen.</li>
+<li><strong>Ist <code>\\FS01\Projekte</code> direkt erreichbar?</strong> Wenn nein: DNS, Route/VPN, TCP 445 und Freigabename prüfen.</li>
+<li><strong>Kommt „Zugriff verweigert“?</strong> Wenn ja: Identität, Freigaberecht, NTFS-Recht und andere Zugriffskontrollen untersuchen.</li>
+<li><strong>Lässt sich die benötigte Operation ausführen?</strong> Wenn nur Lesen funktioniert: Schreibrechte / Datei- oder Dienstsperren untersuchen.</li>
+<li><strong>Nach Behebung:</strong> In der richtigen Benutzersitzung sowohl <code>Z:</code> als auch UNC-Zugriff und die konkrete Tätigkeit prüfen.</li>
+</ol>
+<h2 id="6-diagnose-a--netzlaufwerkszuordnung-auf-dem-client-pruefen">6. Diagnose A – Netzlaufwerkszuordnung auf dem Client prüfen</h2>
+<p><strong>Ziel:</strong> Feststellen, ob der Laufwerksbuchstabe einer SMB-Freigabe zugeordnet ist.<br/>
+<strong>Ausführungsort:</strong> PowerShell im <strong>Kontext des betroffenen angemeldeten Benutzers</strong>, vorzugsweise nicht erhöht.<br/>
+<strong>Voraussetzung:</strong> Der Client ist ansprechbar; die Abfrage verändert nichts.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die SMB-Zuordnungen dieser Windows-Sitzung an.
+Get-SmbMapping |
+    # Wählt die für die Fehlersuche relevanten Eigenschaften aus.
+    Select-Object LocalPath, RemotePath, Status
+
+# Fragt gezielt die Zuordnung von Z: ab.
+Get-SmbMapping -LocalPath 'Z:'
+
+# Zeigt die Netzwerkverbindungen der aktuellen Benutzersitzung.
+# net.exe ist ein Windows-Kommandozeilenprogramm, kein PowerShell-Cmdlet.
+net use</code></pre></div>
+<p><strong>Beispielbefund (fiktiv):</strong> Keine Ausgabe für <code>Z:</code> – hier fehlt die Zuordnung. Das bedeutet <strong>nicht</strong>, dass <code>\\FS01\Projekte</code> unerreichbar ist.<br/>
+<strong>Grenze:</strong> Erhöhte PowerShell, RDP, WinRM oder ein anderer Benutzer können einen <strong>anderen Sitzungskontext</strong> abfragen. Microsoft dokumentiert insbesondere Unterschiede bei über UAC verknüpften Sitzungen.</p>
+<h2 id="7-diagnose-b--den-unc-pfad-direkt-pruefen">7. Diagnose B – Den UNC-Pfad direkt prüfen</h2>
+<p><strong>Ziel:</strong> GPO-/Laufwerksbuchstabenfehler von einem echten Freigabeproblem trennen.<br/>
+<strong>Ausführungsort:</strong> Betroffener Windows-Client in der Benutzersitzung.</p>
+<p><strong>Schritt im Explorer:</strong> <code>Win + E</code> → Adressleiste → <code>\\FS01\Projekte</code> → Eingabetaste. Der Pfad funktioniert auch ohne <code>Z:</code>-Zuordnung, sofern Netzwerk und Berechtigungen passen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft den Zugriff auf den angegebenen UNC-Pfad im aktuellen Kontext.
+# True: Der Pfad ist in diesem Kontext nutzbar.
+# False: Mehrere Ursachen möglich, unter anderem Nichterreichbarkeit
+# oder fehlende Berechtigung; Ergebnis alleine ist nicht eindeutig.
+Test-Path -LiteralPath '\\FS01\Projekte'
+
+# Listet Ordnerinhalte – nur wenn Leserechte vorhanden sind.
+# Keine Schreib- oder Löschoperation.
+Get-ChildItem -LiteralPath '\\FS01\Projekte' -ErrorAction Stop |
+    Select-Object -First 10 Name, Mode</code></pre></div>
+<p><strong>Befundinterpretation:</strong> UNC funktioniert, <code>Z:</code> fehlt → zuerst Zuordnung/GPO. UNC mit „Pfad nicht gefunden“ → Netzwerk/DNS/SMB/Freigabe. UNC mit „Zugriff verweigert“ → Authentifizierung/Berechtigung. Der Unterschied der genauen Fehlermeldung ist wichtig.</p>
+<h2 id="8-diagnose-c--dns-netzwerk-vpn-und-smb-port">8. Diagnose C – DNS, Netzwerk, VPN und SMB-Port</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client beziehungsweise ein anderer Client im selben relevanten Netzwerksegment.<br/>
+<strong>Voraussetzung:</strong> Der Servername <code>FS01</code> ist hier beispielhaft; im Unternehmen den realen Hostnamen einsetzen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft, ob der Dateiservername zu einer IP-Adresse aufgelöst wird.
+Resolve-DnsName -Name 'FS01'
+
+# Zeigt IP-Adresse, Standardgateway und DNS-Server am Client.
+Get-NetIPConfiguration
+
+# Testet die TCP-Erreichbarkeit des SMB-Dienstes auf Port 445.
+# Ein erfolgreiches Ergebnis beweist NICHT die Benutzerberechtigung
+# oder einen funktionierenden Zugriff auf die Freigabe.
+Test-NetConnection -ComputerName 'FS01' -Port 445
+
+# Zeigt bestehende SMB-Sitzungen und das verwendete SMB-Dialekt an.
+# Gibt es noch keine aktive SMB-Verbindung, kann die Ausgabe leer sein.
+Get-SmbConnection |
+    Select-Object ServerName, ShareName, UserName, Dialect</code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><code>Resolve-DnsName</code> fehlgeschlagen → Namensauflösung und Domänen-DNS prüfen.</li>
+<li><code>TcpTestSucceeded : False</code> → Netzwerk/VPN, Routing, Firewall oder SMB-Dienst prüfen. Nur der TCP-Test reicht nicht für eine eindeutige Ursachenfeststellung.</li>
+<li><code>TcpTestSucceeded : True</code>, aber UNC nicht nutzbar → Freigabename, Authentifizierung, SMB-Protokollzustand und Rechte weiter untersuchen.</li>
+<li><code>ping</code> ist ergänzend möglich, aber ICMP kann gesperrt sein. Ein fehlgeschlagener Ping ist kein sicherer Nachweis, dass der SMB-Dienst nicht erreichbar ist.</li>
+</ul>
+<p><strong>Vorsicht:</strong> SMB-Port 445 nicht ungeschützt über das öffentliche Internet öffnen. Für Homeofficezugriffe vorgesehene VPN- oder andere abgesicherte Zugriffswege benutzen.</p>
+<h2 id="9-diagnose-d--gpo-und-automatische-laufwerkszuordnung">9. Diagnose D – GPO und automatische Laufwerkszuordnung</h2>
+<p><strong>Begriffe:</strong> <strong>GPP (Group Policy Preferences)</strong> sind Gruppenrichtlinieneinstellungen, die unter anderem Laufwerke zuordnen. <strong>OU (Organizational Unit)</strong> ist eine Organisationseinheit im AD, mit der sich Benutzer und Computer gliedern lassen. <strong>Item-Level Targeting</strong> bezeichnet zusätzliche Zielgruppenbedingungen für ein einzelnes Richtlinienelement.</p>
+<p><strong>Typischer Verwaltungsweg:</strong> Gruppenrichtlinienverwaltung → betroffene Benutzer-GPO → <code>Benutzerkonfiguration → Einstellungen → Windows-Einstellungen → Laufwerkszuordnungen</code> (engl. <em>User Configuration → Preferences → Windows Settings → Drive Maps</em>). Dort sind <strong>Aktion</strong> (Create/Update/Replace/Delete), <strong>Zielpfad</strong>, <strong>Buchstabe</strong>, <strong>Sicherheitsfilterung</strong> und mögliche <strong>Zielgruppenbedingungen</strong> zu prüfen.</p>
+<p><strong>Ausführungsort:</strong> Betroffener Benutzer-PC, normale oder entsprechend berechtigte Sitzung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt den Ergebnissatz der Gruppenrichtlinien für den Benutzer.
+# gpresult.exe ist ein Windows-Programm.
+gpresult /scope user /r
+
+# Exportiert den Benutzer-Richtlinienbericht als HTML-Datei.
+# Der Operator $env:TEMP liest den temporären Ordner des Kontos.
+# /h schreibt den Report als Datei, keine GPO wird geändert.
+gpresult /scope user /h "$env:TEMP\RB017-GPResult.html"
+
+# Öffnet den gespeicherten Bericht mit dem Standardbrowser.
+Start-Process "$env:TEMP\RB017-GPResult.html"</code></pre></div>
+<p><strong>Einordnung:</strong> Steht das erwartete GPO nicht im Bericht, prüfe OU-Verknüpfung, Benutzer, Gruppen-/Sicherheitsfilter, WMI-Filter, Vererbung, Richtlinienverarbeitung und Netzwerkanbindung. Ist die GPO vorhanden, aber <code>Z:</code> fehlt, prüfe das konkrete <strong>Drive-Maps-Einstellungselement</strong> einschließlich Targeting und Ereignisprotokollen; eine vorhandene GPO beweist noch keine erfolgreiche Laufwerkszuordnung.</p>
+<h3 id="gpp-fehler-im-ereignisprotokoll">GPP-Fehler im Ereignisprotokoll</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Liest die letzten passenden GPP-Ereignisse aus dem Anwendungslog.
+# 4098: Ein Preference-Element ließ sich nicht anwenden.
+# 4096: Ein Preference-Element wurde erfolgreich angewendet.
+# Der Ereignistext muss auf "Drive Maps" beziehungsweise
+# die betroffene Zuordnung geprüft werden – nicht jedes Ereignis
+# betrifft das Netzlaufwerk.
+Get-WinEvent -FilterHashtable @{
+    LogName = 'Application'
+    Id = 4096,4098
+    StartTime = (Get-Date).AddDays(-2)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 25 TimeCreated, Id, ProviderName, Message</code></pre></div>
+<p><strong>Hinweis:</strong> Abhängig von Windows-Konfiguration und Protokollierung können Ereignisse fehlen. Ergänzend: Ereignisanzeige → <code>Anwendungs- und Dienstprotokolle → Microsoft → Windows → GroupPolicy → Operational</code>. Microsoft beschreibt dort unter anderem die Verarbeitung der Drive-Maps-Erweiterung; ein <strong>erfolgreich angewendetes</strong> Laufwerk kann nachträglich durch ein anderes Anmeldeskript wieder entfernt werden.</p>
+<p><strong>Verändernde Maßnahmen nur gezielt:</strong> <code>gpupdate /target:user /force</code> erzwingt eine Richtlinienaktualisierung und kann weitere Einstellungen verändern; daher erst nach Diagnose, im richtigen Kontext und nach Freigabe. „Replace“ kann Zuordnungen neu erstellen; in produktiven GPOs nicht experimentell umstellen.</p>
+<h2 id="10-diagnose-e--freigabe--und-ntfs-berechtigungen">10. Diagnose E – Freigabe- und NTFS-Berechtigungen</h2>
+<p><strong>Ausführungsort:</strong> Dateiserver <code>FS01</code> selbst oder eine berechtigte Verwaltungsverbindung zu diesem Server. Die tatsächliche lokale Serverpfadangabe muss bekannt sein.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die Berechtigungen auf der SMB-Freigabe 'Projekte'.
+# Dieser Aufruf ist auf dem DATEISERVER auszuführen.
+Get-SmbShareAccess -Name 'Projekte' |
+    Select-Object AccountName, AccessControlType, AccessRight
+
+# Liest die NTFS-Zugriffsregeln des echten lokalen Ordnerpfads aus.
+# Beispiel: Der Pfad muss der tatsächlichen Freigabe entsprechen.
+Get-Acl -LiteralPath 'D:\Freigaben\Projekte' |
+    Select-Object -ExpandProperty Access |
+    Select-Object IdentityReference, FileSystemRights, AccessControlType, IsInherited</code></pre></div>
+<p><strong>Auf dem betroffenen Client:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die Benutzeridentität dieser Sitzung an.
+whoami
+
+# Zeigt die in dieser aktuellen Sitzung vorhandenen Gruppen an.
+# Gruppenänderungen in Active Directory erscheinen unter Umständen
+# erst nach einer neuen geeigneten Anmeldung im Zugriffstoken.
+whoami /groups</code></pre></div>
+<p><strong>Grenzen:</strong> Eine einzelne <code>Get-Acl</code>-Zeile beweist nicht die effektiven Rechte. Erlaubende/verweigernde Regeln, Gruppen, Vererbung und gegebenenfalls weitergehende Zugriffskontrollen können zusammenwirken. Prüfe zudem den gewünschten Vorgang: <strong>Auflisten ≠ Lesen ≠ Schreiben ≠ Löschen</strong>. Mehr dazu im Grundlagenkapitel von RB-005.</p>
+<h2 id="11-sonderfall-z-in-normalem-explorer-sichtbar-aber-nicht-im-admin-fenster">11. Sonderfall: Z: in normalem Explorer sichtbar, aber nicht im Admin-Fenster</h2>
+<p>Bei aktivierter <strong>UAC (User Account Control / Benutzerkontensteuerung)</strong> können eine normale Benutzersitzung und eine erhöhte Administratorsitzung unterschiedliche Zuordnungen sehen. Der Support darf daraus nicht vorschnell schließen, die Zuordnung sei gelöscht oder die GPO defekt.</p>
+<p><strong>Vorgehen:</strong> Zuerst <code>Get-SmbMapping</code> oder <code>net use</code> <strong>nicht erhöht</strong> beim betroffenen Benutzer ausführen. Danach die erhöhten Kontexte bei Bedarf vergleichen. Für bestimmte Aufgaben den UNC-Pfad statt eines Benutzer-Laufwerksbuchstabens verwenden. Windows-Registrierungsänderungen wie <code>EnableLinkedConnections</code> oder das Deaktivieren von UAC sind <strong>keine allgemeine Standardlösung</strong>; Microsoft dokumentiert Grenzen und Sicherheitsaspekte.</p>
+<h2 id="12-gezielte-fehlerbehebung-und-nebenwirkungen">12. Gezielte Fehlerbehebung und Nebenwirkungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Nachgewiesener Befund</th>
+<th>Geeignete Maßnahme</th>
+<th>Vorher beachten</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>UNC funktioniert, <code>Z:</code> fehlt und Zuordnung ist nicht gesetzt</td>
+<td>GPO-Targeting/Zuordnung im zuständigen Verfahren korrigieren oder nach Freigabe Mapping erneuern</td>
+<td>Kein globaler GPO-Eingriff ohne Freigabe; Laufwerksbuchstabenkonflikte beachten</td>
+</tr>
+<tr class="even">
+<td>Kein interner Serverzugriff im Homeoffice</td>
+<td>Firmen-VPN und Netzroute/DNS nach vorgegebenem Verfahren herstellen</td>
+<td>Nicht SMB/445 ins Internet freigeben</td>
+</tr>
+<tr class="odd">
+<td>SMB TCP 445 nicht erreichbar</td>
+<td>Firewall/Route/Serverdienst durch zuständiges Team prüfen</td>
+<td>Keine pauschale Firewallabschaltung</td>
+</tr>
+<tr class="even">
+<td>UNC erreicht, aber Benutzer erhält „Zugriff verweigert“</td>
+<td>Zugewiesene AD-Gruppe, Share- und NTFS-Rechte gezielt korrigieren</td>
+<td>Least Privilege: keine pauschalen Vollzugriffsrechte</td>
+</tr>
+<tr class="odd">
+<td>Abteilung betroffen / Laufwerk verschwindet nach Login</td>
+<td>GPO, Anmeldeskripte und Laufwerkszuordnungen zentral korrelieren</td>
+<td>Änderungen wirken gegebenenfalls auf viele Benutzer</td>
+</tr>
+<tr class="even">
+<td>Andere Sitzung zeigt andere Zuordnung</td>
+<td>Benutzerkontext korrigieren; gezielt UNC nutzen</td>
+<td>UAC nicht abschalten</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="beispiel-nur-nach-freigabe-eine-laufwerkszuordnung-herstellen">Beispiel: Nur nach Freigabe eine Laufwerkszuordnung herstellen</h3>
+<p><strong>Voraussetzung:</strong> Richtiger freigegebener UNC-Pfad, Buchstabe frei, Benutzer berechtigt; keine widersprechende zentrale Richtlinie. <strong>Verändernder Befehl</strong>, nicht als erster Diagnoseschritt verwenden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die vorhandenen Zuordnungen, bevor eine Änderung erfolgt.
+Get-SmbMapping | Select-Object LocalPath, RemotePath, Status
+
+# Ordnet im aktuellen Benutzerkontext die Freigabe dem Laufwerk Z: zu.
+# Dieser Schritt VERÄNDERT die Zuordnung auf dem Client.
+# Nur mit Freigabe / dokumentierter Standardmaßnahme ausführen.
+net use Z: \\FS01\Projekte /persistent:yes
+
+# Prüft anschließend, ob die Zuordnung vorhanden ist.
+Get-SmbMapping -LocalPath 'Z:'</code></pre></div>
+<p><strong>Parameter:</strong> <code>/persistent:yes</code> merkt sich die Zuordnung für spätere Anmeldungen im aktuellen Kontext. In GPO-verwalteten Umgebungen kann die GPO eine solche manuelle Zuordnung später ändern/ersetzen/entfernen. Deshalb nicht blind als „Dauerlösung“ verwenden. <strong>Nicht</strong> pauschal <code>net use * /delete</code>, gespeicherte Zugangsdaten löschen oder GPO-„Replace“ anpassen.</p>
+<h2 id="13-erfolgskontrolle">13. Erfolgskontrolle</h2>
+<ol type="1">
+<li>Der richtige Benutzer sieht <code>Z:</code> im Explorer (falls erwartet).</li>
+<li><code>Z:</code> verweist auf den korrekten UNC-Pfad – nicht auf irgendeine andere Freigabe.</li>
+<li>Der direkte UNC-Pfad funktioniert.</li>
+<li>Die <strong>benötigte</strong> Operation wird mit dem Benutzer getestet (z. B. berechtigte Testdatei öffnen und nach Freigabe im vorgesehenen Testordner speichern).</li>
+<li>Bei GPO-Fehlern werden Richtlinienzustand und Ereignisse kontrolliert; bei Wiederholungsfehlern ggf. erneute Benutzeranmeldung testen.</li>
+<li>Fehlerursache, Tests, betroffene Benutzer, Änderungen und Ergebnis dokumentieren.</li>
+</ol>
+<h2 id="14-eskalation-musterticket-und-lernkontrolle">14. Eskalation, Musterticket und Lernkontrolle</h2>
+<h3 id="l1--l2-eskalieren-wenn-">L1 → L2 eskalieren, wenn ...</h3>
+<ul>
+<li>mehrere Benutzer/Standorte betroffen sind;</li>
+<li>GPO-Verknüpfungen, Zielgruppenfilter, Anmeldeskripte oder Dateiserver-Konfiguration geändert werden müssten;</li>
+<li>SMB-Netzwerkpfad, DFS-Namespace, DNS, VPN oder zentrale Sicherheitsregeln untersucht werden müssen;</li>
+<li>Share-/NTFS-Rechte nach Genehmigung geändert werden müssen, aber L1 keine entsprechenden Rechte hat;</li>
+<li>sicherheitsrelevante Auffälligkeiten oder wiederkehrende Probleme vorliegen.</li>
+</ul>
+<h3 id="muster-ticketkommentar--fiktiv">Muster-Ticketkommentar – fiktiv</h3>
+<p><strong>INC-017 – Netzlaufwerk Z: fehlt nach Benutzeranmeldung</strong><br/>
+<strong>Symptom:</strong> Nur ein Benutzer sieht <code>Z:</code> nicht; direkte Eingabe von <code>\\FS01\Projekte</code> ist erfolgreich.<br/>
+<strong>Diagnose:</strong> SMB/FS01 und Berechtigung funktionieren. Auf dem Client fehlt die <code>Z:</code>-Zuordnung. Benutzerbezogenen GPO-Bericht und Drive-Maps-Ereignisse untersucht; die Zuordnung wurde wegen einer fehlerhaften Zielgruppenbedingung nicht angewendet.<br/>
+<strong>Ursache:</strong> Fehlerhafte GPP-Targeting-Konfiguration für die betroffene Benutzergruppe.<br/>
+<strong>Maßnahme:</strong> Zielgruppenbedingung nach Freigabe durch die zuständige Administration korrigiert; Benutzer-Richtlinien erneut verarbeitet und die Zuordnung geprüft.<br/>
+<strong>Ergebnis:</strong> <code>Z:</code> zeigt auf <code>\\FS01\Projekte</code>; berechtigte Projektdatei geöffnet; Fehler nicht mehr reproduzierbar.<br/>
+<strong>Status:</strong> Gelöst. <strong>Hinweis:</strong> Dieses Ticket beschreibt <strong>kein tatsächlich ausgeführtes Ereignis</strong>.</p>
+<h3 id="lernkontrolle--active-recall">Lernkontrolle – Active Recall</h3>
+<p><strong>Wissenskarte:</strong> Was ist ein UNC-Pfad? – Ein Netzwerkpfad im Format <code>\\Server\Freigabe</code>.<br/>
+<strong>Verständniskarte:</strong> Warum kann <code>Z:</code> fehlen, obwohl die Freigabe funktioniert? – Weil die Laufwerkszuordnung unabhängig von der Freigabe existiert.<br/>
+<strong>Diagnosekarte:</strong> <code>Z:</code> fehlt, UNC funktioniert; welche zwei Prüfungen folgen? – Mapping im Benutzerkontext und GPO/Drive Maps.<br/>
+<strong>Transferkarte:</strong> UNC erreichbar, aber „Zugriff verweigert“; welchen Abschnitt aus RB-005 brauchst du? – Zusammenspiel von SMB-Freigabe- und NTFS-Rechten.</p>
+<p><strong>Übung ohne Musterlösung:</strong> Drei Mitarbeiter derselben Abteilung melden ein fehlendes Laufwerk, eine vierte Person nicht. Der UNC-Pfad ist erreichbar, <code>Get-SmbMapping</code> zeigt bei den drei Mitarbeitern kein <code>Z:</code>. Welche drei Diagnosehypothesen prüfst du in welcher Reihenfolge und welche Ergebnisse würden sie widerlegen?</p>
+<h2 id="15-quellen-und-pruefstatus">15. Quellen und Prüfstatus</h2>
+<p>Die Quellen stützen die beschriebenen <strong>Verfahren</strong>, nicht ein tatsächlich durchgeführtes Testprotokoll. Herstellerseiten können sich ändern.</p>
+<ol type="1">
+<li><strong>Microsoft Learn – Group Policy Preferences:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-preferences" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-preferences</a><br/>
+<em>Verwendet für Drive Maps, GPP-Verarbeitung und Item-Level Targeting.</em></li>
+<li><strong>Microsoft Learn – Szenario: GPO mapped drive doesn't apply:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/group-policy/scenario-guide-gpo-to-map-network-drive-doesn-t-apply-as-expected" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/group-policy/scenario-guide-gpo-to-map-network-drive-doesn-t-apply-as-expected</a><br/>
+<em>Verwendet für GPO-/Event-/Anmeldeskript-Diagnose.</em></li>
+<li><strong>Microsoft Learn – gpresult:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/gpresult" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/gpresult</a><br/>
+<em>Verwendet für Berichtserstellung und Parameter.</em></li>
+<li><strong>Microsoft Learn – Group Policy Preferences events:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/information-group-policy-preferences-events" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/information-group-policy-preferences-events</a><br/>
+<em>Verwendet für Ereignis-IDs 4096 und 4098.</em></li>
+<li><strong>Microsoft Learn – Get-SmbMapping:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbmapping" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbmapping</a><br/>
+<em>Verwendet für Zuordnungsdiagnose.</em></li>
+<li><strong>Microsoft Learn – Get-SmbConnection:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbconnection" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbconnection</a><br/>
+<em>Verwendet für aktive SMB-Sitzungen.</em></li>
+<li><strong>Microsoft Learn – Get-SmbShareAccess:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbshareaccess" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbshareaccess</a><br/>
+<em>Verwendet für Freigabeberechtigungen.</em></li>
+<li><strong>Microsoft Learn – Mapped drives not available in elevated command prompt:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/mapped-drives-not-available-from-elevated-command" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/mapped-drives-not-available-from-elevated-command</a><br/>
+<em>Verwendet für UAC-/Sitzungskontext-Sonderfall.</em></li>
+<li><strong>Microsoft Learn – Applying Group Policy troubleshooting:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/applying-group-policy-troubleshooting-guidance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/applying-group-policy-troubleshooting-guidance</a><br/>
+<em>Verwendet für Ereignisanzeige und Richtlinienanalyse.</em></li>
+</ol>
+<p><strong>Status:</strong> Recherchiert und für Lernzwecke aufbereitet; Screenshots/Befehlausgaben sind beispielhaft. Keine produktive oder virtuelle Testumgebung wurde für dieses Dokument eingerichtet. <strong>Praxisvalidierung:</strong> offen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-017_Lernartikel.md">RB-017_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-005/index.html">RB-005: verwandter Supportfall</a> · <a href="../rb-011/index.html">RB-011: VPN-Verbindung schlägt fehl</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-016/index.html">← RB-016</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-018/index.html">RB-018 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

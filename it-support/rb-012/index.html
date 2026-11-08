@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-012 Multifaktor-Authentifizierung funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-012: Multifaktor-Authentifizierung funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Entra ID · MFA · Microsoft 365 · Lernartikel</p><h1>RB-012: Multifaktor-Authentifizierung funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</a></li><li><a href="#2-grundlagen-was-bedeutet-mfa-und-was-wird-ueberprueft">2. Grundlagen: Was bedeutet MFA und was wird überprüft?</a></li><li><a href="#3-abkuerzungen-und-begriffe-fuer-anfaenger">3. Abkürzungen und Begriffe für Anfänger</a></li><li><a href="#4-die-vier-wichtigsten-fehlerbilder-unterscheiden">4. Die vier wichtigsten Fehlerbilder unterscheiden</a></li><li><a href="#5-zugriff-und-diagnose-wo-arbeitet-der-support">5. Zugriff und Diagnose: Wo arbeitet der Support?</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-l1-problemaufnahme-und-smartphone-pruefen-zunaechst-ohne-aenderungen">7. L1: Problemaufnahme und Smartphone prüfen (zunächst ohne Änderungen)</a></li><li><a href="#8-entra-anmeldeprotokolle-der-zuverlaessigere-naechste-schritt">8. Entra-Anmeldeprotokolle: Der zuverlässigere nächste Schritt</a></li><li><a href="#9-powershell-lesende-diagnose-mit-microsoft-graph">9. PowerShell: Lesende Diagnose mit Microsoft Graph</a></li><li><a href="#10-conditional-access-und-authentifizierungsstaerke--der-l2-zweig">10. Conditional Access und Authentifizierungsstärke – der L2-Zweig</a></li><li><a href="#11-geraet-verloren-oder-ersetzt-sicherer-wiederherstellungsweg">11. Gerät verloren oder ersetzt: Sicherer Wiederherstellungsweg</a></li><li><a href="#12-diagnosebeispiele--hypothese-gegen-befund">12. Diagnosebeispiele – Hypothese gegen Befund</a></li><li><a href="#13-erfolgskontrolle-und-eskalation">13. Erfolgskontrolle und Eskalation</a></li><li><a href="#14-fiktiver-ticketabschluss-und-lernkontrolle">14. Fiktiver Ticketabschluss und Lernkontrolle</a></li><li><a href="#15-offizielle-quellen-und-validierungsstatus">15. Offizielle Quellen und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-012 · <strong>Support-Level:</strong> 1st / 2nd Level · <strong>Systeme:</strong> Microsoft Entra ID, Microsoft 365, Microsoft Authenticator, Windows 11, iOS/Android<br/>
+<strong>Dokumentationsstand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierungsstatus:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert; <strong>nicht praktisch validiert</strong>. Sämtliche Personen, Konten und Beispielereignisse sind fiktiv.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb012_henne_ei_mfa.png" rel="noopener noreferrer" target="_blank"><img alt="RB-012 – Multifaktor-Authentifizierung funktioniert nicht: Henne-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb012_henne_ei_mfa.png"/></a></div><figcaption>RB-012 – Multifaktor-Authentifizierung funktioniert nicht: Henne-Ei-Infografik</figcaption></figure>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Didaktische Darstellung; die tatsächlich erlaubten Anmeldemethoden hängen von den Entra-Richtlinien ab. <strong>Wichtige Präzisierung:</strong> Eine E-Mail-Adresse ist bei gewöhnlichen Microsoft-Entra-Arbeits-/Schulkonten nicht automatisch ein zulässiger zweiter MFA-Faktor; E-Mail kann beispielsweise zur Self-Service-Kennwortrücksetzung eingesetzt werden. Die konkrete Methodenrichtlinie ist maßgeblich.</em></p>
+<h2 id="1-ausgangssituation-das-supportticket">1. Ausgangssituation: Das Supportticket</h2>
+<p><strong>Fiktives Ticket INC-012</strong></p>
+<blockquote>
+<p>„Mein Microsoft-365-Kennwort wird akzeptiert, aber auf meinem Smartphone kommt keine Bestätigungsaufforderung mehr. Gestern ging es noch. Ich kann Outlook und Teams deshalb nicht öffnen.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Benutzer <code>m.mustermann@firma.example</code>, Microsoft Entra ID als Cloud-Identitätsdienst, Microsoft 365 und Microsoft Authenticator auf einem Android-Smartphone. <code>firma.example</code> ist eine reservierte Beispieldomäne; keine echten Zugangsdaten verwenden.</p>
+<p><strong>Ziel:</strong> Herausfinden, ob die Anmeldeanforderung überhaupt bei der richtigen Authentifizierungsmethode ankommt, warum sie nicht erfolgreich abgeschlossen wird und wie der Zugang <strong>ohne Abschalten von MFA</strong> sicher wiederhergestellt werden kann.</p>
+<p><strong>Leitsatz:</strong> „MFA geht nicht“ beschreibt noch nicht den Fehler. Ein Smartphone ohne Benachrichtigung, ein verlorenes Gerät und eine durch Sicherheitsrichtlinien verweigerte Anmeldung benötigen unterschiedliche Lösungen.</p>
+<h2 id="2-grundlagen-was-bedeutet-mfa-und-was-wird-ueberprueft">2. Grundlagen: Was bedeutet MFA und was wird überprüft?</h2>
+<p><strong>MFA (Multi-Factor Authentication; Multifaktor-Authentifizierung)</strong> bedeutet, dass eine Anmeldung durch mehr als einen unabhängigen Faktor abgesichert wird. Typische Faktorarten:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Faktor</th>
+<th>Bedeutung</th>
+<th>Beispiel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Wissen</strong></td>
+<td>Etwas, das der Benutzer weiß</td>
+<td>Kennwort oder PIN</td>
+</tr>
+<tr class="even">
+<td><strong>Besitz</strong></td>
+<td>Etwas, das der Benutzer besitzt</td>
+<td>Registriertes Smartphone, Hardware-Sicherheitsschlüssel</td>
+</tr>
+<tr class="odd">
+<td><strong>Biometrie</strong></td>
+<td>Ein persönliches körperliches Merkmal</td>
+<td>Fingerabdruck oder Gesichtserkennung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Zwei Kennwörter sind nicht automatisch zwei unterschiedliche Faktoren. Eine PIN kann in einem geeigneten gerätegebundenen System einen Schlüssel entsperren; sie ist dann nicht einfach eine zweite frei übertragbare Kennwortabfrage. Für eine konkrete Entra-Anmeldung zählt, welche Methode und welche <strong>Authentifizierungsstärke</strong> die Richtlinie anerkennt.</p>
+<h3 id="beteiligte-systeme--stark-vereinfacht">Beteiligte Systeme – stark vereinfacht</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-PC / Browser / Outlook
+         |
+         v
+Microsoft Entra ID (Cloud-Identitätsdienst)
+         |
+         +-- Kennwort / primäre Anmeldung oder passwortlose Methode
+         |
+         +-- MFA-Anforderung / Conditional Access
+                    |
+                    +--&gt; Microsoft Authenticator (Push oder Code)
+                    +--&gt; zugelassene weitere Methode, z. B. FIDO2
+                    +--&gt; Wiederherstellung über Temporary Access Pass (falls erlaubt)
+         |
+         v
+Zugriffstoken / Anwendung (z. B. Microsoft 365)</code></pre></div>
+<p>Die tatsächliche Reihenfolge hängt vom Anmeldeverfahren ab: <em>Passwortlose Anmeldung</em> und ein <strong>Passkey</strong> funktionieren nicht einfach als „Kennwort plus zusätzliche Push-Nachricht“. Die Grafik ist deshalb ein Lernmodell, kein vollständiger Netzwerk-Mitschnitt.</p>
+<p><strong>Microsoft Authenticator:</strong> App für Android und iOS, die Push-Bestätigungen, Einmalcodes und unter bestimmten Voraussetzungen passwortlose Anmeldeverfahren beziehungsweise Passkeys bereitstellt. <strong>Microsoft Entra ID:</strong> Cloud-Dienst, der Benutzeridentitäten und Zugriffsbedingungen verwaltet. <strong>Conditional Access (bedingter Zugriff):</strong> Regeln, die eine Cloud-Anmeldung abhängig von Benutzer, Anwendung, Gerätezustand, Risiko und weiteren Kriterien erlauben, blockieren oder zusätzliche Nachweise verlangen.</p>
+<p>Quellen: <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-authenticator-app" rel="noopener noreferrer" target="_blank">Microsoft Authenticator – Grundlagen</a> · <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-strengths" rel="noopener noreferrer" target="_blank">Authentifizierungsstärken</a></p>
+<h2 id="3-abkuerzungen-und-begriffe-fuer-anfaenger">3. Abkürzungen und Begriffe für Anfänger</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Erklärung</th>
+<th>Warum wichtig?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>MFA</strong></td>
+<td>Multi-Factor Authentication – Anmeldung über mehrere unabhängige Faktoren</td>
+<td>Schützt vor alleiniger Nutzung gestohlener Kennwörter.</td>
+</tr>
+<tr class="even">
+<td><strong>Entra ID</strong></td>
+<td>Microsofts cloudbasierter Identitäts- und Zugriffsverwaltungsdienst</td>
+<td>Bewertet Cloud-Anmeldungen und verwaltet Authentifizierungsmethoden.</td>
+</tr>
+<tr class="odd">
+<td><strong>Tenant</strong></td>
+<td>Logisch getrennte Microsoft-Cloud-Organisation („Mandant“)</td>
+<td>Benutzer und Richtlinien gehören zu einem bestimmten Unternehmen.</td>
+</tr>
+<tr class="even">
+<td><strong>Authenticator</strong></td>
+<td>Microsoft-App zur Bestätigung oder Codeerzeugung</td>
+<td>Auf dem Smartphone können mehrere Konten registriert sein.</td>
+</tr>
+<tr class="odd">
+<td><strong>Push</strong></td>
+<td>Benachrichtigung, die eine Prüfung oder Bestätigung in der App anfordert</td>
+<td>Benötigt geeignete App-/Geräte-/Netzwerkvoraussetzungen.</td>
+</tr>
+<tr class="even">
+<td><strong>Number Matching</strong></td>
+<td>Nummernabgleich: Die im Anmeldefenster gezeigte Zahl wird in der Authenticator-App eingegeben</td>
+<td>Schützt gegen versehentliche Freigaben; eine Aufforderung muss zur eigenen Anmeldung passen.</td>
+</tr>
+<tr class="odd">
+<td><strong>TOTP</strong></td>
+<td>Time-based One-Time Password – zeitabhängiger Einmalcode</td>
+<td>Benötigt korrekte Zeit; typischerweise ohne Push-Nachricht.</td>
+</tr>
+<tr class="even">
+<td><strong>OATH</strong></td>
+<td>Initiative/Standards für zeitbasierte oder ereignisbasierte Einmalcodes</td>
+<td>Häufig im Zusammenhang mit Authenticator-Codes.</td>
+</tr>
+<tr class="odd">
+<td><strong>FIDO2 / Passkey</strong></td>
+<td>Kryptografische, geräte- oder schlüsselbasierte Anmeldemethode</td>
+<td>Kann phishing-resistente Anmeldung ermöglichen.</td>
+</tr>
+<tr class="even">
+<td><strong>Conditional Access</strong></td>
+<td>Richtlinien für bedingten Zugriff auf Cloud-Ressourcen</td>
+<td>Kann MFA oder stärkere Methoden verlangen – oder Zugang blockieren.</td>
+</tr>
+<tr class="odd">
+<td><strong>Authentication Strength</strong></td>
+<td>Authentifizierungsstärke: definierte Mindestkombination von Methoden</td>
+<td>Eine vorhandene SMS-Methode kann für eine geforderte phishing-resistente Anmeldung unzureichend sein.</td>
+</tr>
+<tr class="even">
+<td><strong>TAP</strong></td>
+<td>Temporary Access Pass – befristeter Zugriffspass</td>
+<td>Kontrollierte Konto-Wiederherstellung und Registrierung neuer Methoden.</td>
+</tr>
+<tr class="odd">
+<td><strong>UPN</strong></td>
+<td>User Principal Name – Anmeldename, oft im E-Mail-Format</td>
+<td>Identifiziert den Benutzer in Entra ID.</td>
+</tr>
+<tr class="even">
+<td><strong>Microsoft Graph</strong></td>
+<td>Microsoft-Schnittstelle zur Verwaltung und Abfrage von Cloud-Ressourcen</td>
+<td>Ermöglicht lesende PowerShell-Analysen mit Rollen/Scopes.</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope</strong></td>
+<td>Angeforderte API-Berechtigung für die Programmsitzung</td>
+<td>Ein Scope allein ersetzt keine passende Administrationsrolle.</td>
+</tr>
+<tr class="even">
+<td><strong>SSPR</strong></td>
+<td>Self-Service Password Reset – eigenständige Kennwortzurücksetzung</td>
+<td>Nicht gleichbedeutend mit MFA-Wiederherstellung.</td>
+</tr>
+<tr class="odd">
+<td><strong>AADSTS</strong></td>
+<td>Präfix für viele Microsoft-Entra-Anmeldefehlercodes</td>
+<td>Hilfreich für die Zuordnung in den Anmeldeprotokollen.</td>
+</tr>
+<tr class="even">
+<td><strong>Sign-in Logs</strong></td>
+<td>Entra-Anmeldeprotokolle</td>
+<td>Zeigen Status, Methoden und angewendete Richtlinien.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="4-die-vier-wichtigsten-fehlerbilder-unterscheiden">4. Die vier wichtigsten Fehlerbilder unterscheiden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Benutzerbeobachtung</th>
+<th>Mögliche Ursachen</th>
+<th>Nächste sichere Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A. Keine Push-Benachrichtigung</strong></td>
+<td>App-Benachrichtigungen gesperrt, Smartphone offline, Energiesparen, veraltete App, falsche Methode</td>
+<td>Benachrichtigungseinstellungen, App, Verbindung und Entra-Anmeldedetails prüfen</td>
+</tr>
+<tr class="even">
+<td><strong>B. Code wird abgelehnt/ist abgelaufen</strong></td>
+<td>Falsches Konto, Zeitabweichung, Tippfehler, nicht mehr gültige Registrierung</td>
+<td>Konto/Codeart und automatische Gerätezeit prüfen; Fehlercode dokumentieren</td>
+</tr>
+<tr class="odd">
+<td><strong>C. Neues/defektes/verlorenes Smartphone</strong></td>
+<td>Registrierte Methode auf nicht mehr verfügbarem Gerät</td>
+<td>Identität sicher prüfen; zugelassene Ersatzmethode oder TAP verwenden</td>
+</tr>
+<tr class="even">
+<td><strong>D. MFA erfüllt, aber Zugriff verweigert</strong></td>
+<td>Conditional-Access-Richtlinie, erforderliche Authentifizierungsstärke, Gerätekonformität oder Risikoprüfung</td>
+<td>Entra-Anmeldeprotokoll → Authentifizierungsdetails und Conditional Access</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sonderfall:</strong> Benutzer erhält eine Push-Aufforderung, ohne selbst eine Anmeldung gestartet zu haben. <strong>Nicht genehmigen!</strong> Als möglichen Sicherheitsvorfall behandeln und nach Unternehmensverfahren melden – nicht als normales Benachrichtigungsproblem abtun.</p>
+<h2 id="5-zugriff-und-diagnose-wo-arbeitet-der-support">5. Zugriff und Diagnose: Wo arbeitet der Support?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Zugriffsweg</th>
+<th>Konkretes Vorgehen / Grenzen</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer kann am PC arbeiten, aber nicht in Microsoft 365 anmelden</td>
+<td>Telefon, Teams über eine noch verfügbare Sitzung, andere freigegebene Fernwartung</td>
+<td>Exakte Meldung und Smartphone-Einstellungen gemeinsam prüfen; kein MFA-Code im Gespräch abfragen</td>
+</tr>
+<tr class="even">
+<td>Benutzer kann seine Sicherheitsinformationen mit einer anderen gültigen Methode öffnen</td>
+<td><a href="https://mysignins.microsoft.com/security-info" rel="noopener noreferrer" target="_blank">mysignins.microsoft.com/security-info</a></td>
+<td>Benutzer verwaltet nach Richtlinie selbst alternative Methoden</td>
+</tr>
+<tr class="odd">
+<td>Benutzer hat keine nutzbare MFA-Methode mehr</td>
+<td>Microsoft Entra Admin Center mit geeignetem Administrationskonto</td>
+<td>Identität nach Sicherheitsprozess verifizieren; TAP oder genehmigte Neuregistrierung durchführen</td>
+</tr>
+<tr class="even">
+<td>Mehrere Mitarbeiter gleichzeitig betroffen</td>
+<td>Entra-Dienststatus, Anmeldeprotokolle, zentrale Methoden-/Conditional-Access-Richtlinien</td>
+<td>Vor Massenänderungen Auswirkungen und Security-Verantwortliche klären</td>
+</tr>
+<tr class="odd">
+<td>Kein Zugriff auf Admin Center oder fehlende Rechte</td>
+<td>Berechtigtes Identitäts-/Security-Team (L2)</td>
+<td>Fehlercodes, Zeit, Benutzer-UPN und Korrelations-ID eskalieren, keine Sicherheitsregeln umgehen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Begriffe:</strong> <em>Zentrale Verwaltung</em> heißt hier: Der Administrator untersucht den Benutzerstatus auf der Unternehmensplattform, <strong>ohne sich auf dem betroffenen Windows-PC anmelden zu müssen</strong>. Das ist keine Bearbeitung einer lokalen Gruppenrichtlinie (GPO). <strong>GPOs</strong> steuern klassische Windows-/Domänenkonfigurationen, während Entra-Authentifizierungsmethoden und Conditional Access in der Cloud verwaltet werden.</p>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb012_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-012 – Diagnosebaum bei MFA-Störungen" decoding="async" loading="lazy" src="assets/rb012_diagnosebaum.svg"/></a></div><figcaption>RB-012 – Diagnosebaum bei MFA-Störungen</figcaption></figure>
+<p><strong>Textalternative:</strong> Benutzer startet Anmeldung? Nein, unbekannte Push-Anfrage → Sicherheitsvorfall. Ja → Passwort/Primäranmeldung erfolgreich? Nein → RB-001/RB-003. Ja → MFA angefordert? Nein → anderes Anmeldeproblem. Ja → ist Gerät/Methode verfügbar? Nein → Identitätsprüfung und Wiederherstellung. Ja → Push/Code lokal prüfen. Danach Entra-Anmeldedetails und Conditional Access prüfen. Nur bestätigte Ursache beheben, Funktionstest, Dokumentation.</p>
+<h2 id="7-l1-problemaufnahme-und-smartphone-pruefen-zunaechst-ohne-aenderungen">7. L1: Problemaufnahme und Smartphone prüfen (zunächst ohne Änderungen)</h2>
+<p><strong>Fragen:</strong> Welche genaue Fehlermeldung? Seit wann? Nur ein Gerät oder mehrere? Welche Anwendung? App/Push/Einmalcode/Passkey? Smartphone gewechselt? Eigene Anmeldung ausgelöst? Sind weitere Mitarbeiter betroffen?</p>
+<h3 id="71-sichere-benutzerpruefungen">7.1 Sichere Benutzerprüfungen</h3>
+<ol type="1">
+<li>Smartphone besitzt Internetzugang (WLAN oder mobile Daten), Flugmodus aus.</li>
+<li>Richtige Microsoft-Authenticator-App, richtiges Geschäfts-/Schulkonto ausgewählt.</li>
+<li>App ist aktuell; Systemuhr und Zeitzone werden automatisch bezogen.</li>
+<li>App-Benachrichtigungen und Betriebsmodi prüfen (Nicht stören, Batterieoptimierung).</li>
+<li>Bei Push-Bestätigung die <strong>zur eigenen Anmeldung gehörige Nummer</strong> korrekt vergleichen.</li>
+<li>Nur falls von der Richtlinie vorgesehen: <strong>Andere Anmeldemethode verwenden</strong> und eine bereits registrierte Alternative auswählen.</li>
+</ol>
+<p><strong>Nicht als Erstmaßnahme:</strong> App-Konto entfernen, App deinstallieren, Smartphone zurücksetzen, MFA generell deaktivieren oder wiederholt unbekannte Push-Anfragen bestätigen. Eine Entfernung der einzigen registrierten Methode kann den Zugang weiter erschweren.</p>
+<p><strong>Wichtig:</strong> Microsoft beschreibt bei Authenticator mögliche Benachrichtigungs-, Verbindungs-, Uhrzeit- und Aktualisierungsprobleme. Diese lokalen Ursachen erklären jedoch nicht jeden serverseitigen Anmeldefehler. <a href="https://support.microsoft.com/de-de/authenticator/troubleshoot-problems-with-microsoft-authenticator" rel="noopener noreferrer" target="_blank">Microsoft Support: Authenticator-Problembehandlung</a></p>
+<h3 id="72-push-und-einmalcode-nicht-verwechseln">7.2 Push und Einmalcode nicht verwechseln</h3>
+<ul>
+<li><strong>Push:</strong> Eine bestehende Internetverbindung und der Benachrichtigungskanal des Smartphones spielen mit hinein.</li>
+<li><strong>Zeitbasierter Einmalcode (TOTP):</strong> Der Code wird durch einen synchronisierten geheimen Schlüssel und die aktuelle Zeit erzeugt; es ist nicht in jedem Fall eine laufende Internetverbindung zum Anzeigen des Codes nötig.</li>
+<li><strong>Number Matching:</strong> Microsoft fordert beim Push-Verfahren die Übernahme einer angezeigten Nummer in die App. Der Support <strong>erfragt die Nummer oder den Code nicht</strong>, um sich selbst als Benutzer anzumelden.</li>
+</ul>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/how-to-mfa-number-match" rel="noopener noreferrer" target="_blank">Microsoft Learn – Nummernabgleich</a></p>
+<h2 id="8-entra-anmeldeprotokolle-der-zuverlaessigere-naechste-schritt">8. Entra-Anmeldeprotokolle: Der zuverlässigere nächste Schritt</h2>
+<p><strong>Ausführungsort:</strong> <a href="https://entra.microsoft.com/" rel="noopener noreferrer" target="_blank">Microsoft Entra Admin Center</a> im Browser des berechtigten Support-/Administrationsrechners. Zum Anzeigen von Anmeldeprotokollen benötigt das Konto eine geeignete Rolle, z. B. <strong>Reports Reader (Berichtsleser)</strong>. Verfügbarkeit von Detaildaten und Aufbewahrungszeit hängen von Lizenzierung und Protokollkonfiguration ab.</p>
+<p><strong>Navigation:</strong> <strong>Entra ID → Überwachung &amp; Integrität → Anmeldeprotokolle</strong> (Oberflächentexte können versions- und sprachabhängig abweichen).</p>
+<p><strong>Vorgehen:</strong> Benutzer-UPN, Zeitfenster und Anwendung filtern → das passende Anmeldeereignis öffnen → Registerkarten <strong>Basic info / Grundlegende Informationen</strong>, <strong>Authentication Details / Authentifizierungsdetails</strong>, <strong>Conditional Access / bedingter Zugriff</strong> prüfen.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Feld</th>
+<th>Interpretation</th>
+<th>Hinweis</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer/UPN</td>
+<td>Ist das richtige Konto betroffen?</td>
+<td>Gleiche Anzeigenamen können unterschiedliche Konten haben.</td>
+</tr>
+<tr class="even">
+<td>Status / AADSTS-Code</td>
+<td>Warum wurde die Anmeldung abgewiesen oder nicht abgeschlossen?</td>
+<td>Code immer mit den Details prüfen.</td>
+</tr>
+<tr class="odd">
+<td>Zeitpunkt / Correlation ID</td>
+<td>Zuordnung zu genau diesem Anmeldeversuch</td>
+<td>Bei Eskalation hilfreich; Zeitzonen beachten.</td>
+</tr>
+<tr class="even">
+<td>Authentication Details</td>
+<td>Welche Methode wurde versucht, und mit welchem Ergebnis?</td>
+<td>Hilft zwischen Push, Code und Richtlinienproblem zu unterscheiden.</td>
+</tr>
+<tr class="odd">
+<td>Conditional Access</td>
+<td>Welche Richtlinien wurden ausgewertet bzw. haben blockiert?</td>
+<td>Manche Details benötigen zusätzliche Rollen.</td>
+</tr>
+<tr class="even">
+<td>Geräteinformationen</td>
+<td>Verwaltet, konform, Browser/Betriebssystem</td>
+<td>Kein Beweis für die physische Position.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Typische Fehlercodes (Diagnosehinweise, keine alleinige Ursachenbestätigung):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Code</th>
+<th>Bedeutung</th>
+<th>Geeigneter nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>AADSTS500121</strong></td>
+<td>MFA-Anforderung nicht abgeschlossen</td>
+<td>Was meldet die Authentifizierungsdetailansicht? App, Benutzeraktion, Zeitfenster und Methode vergleichen.</td>
+</tr>
+<tr class="even">
+<td><strong>AADSTS53000</strong></td>
+<td>Gerät erfüllt die erforderliche Konformität nicht</td>
+<td>Gerätekonformität und zuständige Richtlinie prüfen; Intune-/L2-Team.</td>
+</tr>
+<tr class="odd">
+<td><strong>AADSTS53003</strong></td>
+<td>Zugriff durch Conditional Access blockiert</td>
+<td>Konkrete Richtlinie und deren Bedingungen untersuchen, nicht pauschal MFA deaktivieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Präzisierung:</strong> Bei einigen Anmeldeabläufen werden mehrere Einträge erzeugt, und ein scheinbar erfolgreicher Schritt heißt nicht, dass die gesamte Anmeldung erfolgreich war. Außerdem schützt Conditional Access <strong>Cloud-Ressourcen</strong>, nicht unmittelbar den lokalen Windows-Anmeldebildschirm.</p>
+<p>Quellen: <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/concept-sign-ins" rel="noopener noreferrer" target="_blank">Entra-Anmeldeprotokolle</a> · <a href="https://learn.microsoft.com/de-de/entra/identity/monitoring-health/concept-sign-in-log-activity-details" rel="noopener noreferrer" target="_blank">Anmeldedetails interpretieren</a> · <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Conditional Access untersuchen</a></p>
+<h2 id="9-powershell-lesende-diagnose-mit-microsoft-graph">9. PowerShell: Lesende Diagnose mit Microsoft Graph</h2>
+<p><strong>Achtung:</strong> Für Cloud-Anmeldungen verwendet man nicht <code>Get-ADUser</code> oder ein lokales Windows-Ereignis 4625 als primäre Entra-Diagnose. Geeignet sind das <strong>Entra Admin Center</strong> und ggf. <strong>Microsoft Graph PowerShell</strong>. Die Beispiele sind <strong>nur lesend</strong>, setzen eine vom Unternehmen genehmigte Microsoft-Graph-Installation, passende API-Scopes und Entra-Rollen voraus und verwenden fiktive Benutzernamen.</p>
+<h3 id="91-modul-pruefen-und-eine-berechtigte-sitzung-aufbauen">9.1 Modul prüfen und eine berechtigte Sitzung aufbauen</h3>
+<p><strong>Ausführungsort:</strong> Freigegebener Administrationsrechner mit PowerShell 7 oder unterstützter Windows PowerShell.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft, ob das Graph-Authentifizierungsmodul bereits installiert ist.
+# Dieser Befehl verändert das System nicht.
+Get-Module -ListAvailable Microsoft.Graph.Authentication
+
+# Prüft, ob das Berichtsmodul für Entra-Anmeldeprotokolle vorhanden ist.
+Get-Module -ListAvailable Microsoft.Graph.Reports
+
+# Prüft, ob das Modul für Authentifizierungsmethoden vorhanden ist.
+Get-Module -ListAvailable Microsoft.Graph.Identity.SignIns
+
+# Baut eine Graph-Verbindung mit angefragten LESEberechtigungen auf.
+# -Scopes legt die beantragten API-Berechtigungen fest.
+# Eine Anmeldung und ggf. Administratorzustimmung können erforderlich sein.
+Connect-MgGraph -Scopes 'AuditLog.Read.All','UserAuthenticationMethod.Read.All'
+
+# Zeigt, unter welchem Konto und mit welchen Scopes die Sitzung läuft.
+Get-MgContext | Select-Object Account, TenantId, Scopes</code></pre></div>
+<p><strong>Interpretation:</strong> Eine erfolgreiche Anmeldung bei Graph bedeutet <strong>nicht</strong>, dass alle Daten gelesen werden dürfen. Zusätzlich können passende Entra-Rollen und Genehmigungen erforderlich sein. Module niemals ohne Freigabe auf Unternehmenssystemen installieren.</p>
+<h3 id="92-benutzeranmeldungen-abfragen">9.2 Benutzeranmeldungen abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Beispielkonto: nur Platzhalter aus der Dokumentation.
+$userUpn = 'm.mustermann@firma.example'
+
+# Erstellt einen OData-Filter für genau dieses Benutzerkonto.
+# Nur die Anmeldungen dieses Kontos werden angefordert.
+$filter = "userPrincipalName eq '$userUpn'"
+
+# Liest maximal 10 jüngere Ereignisse über Microsoft Graph.
+# Dies ist eine reine Leseoperation.
+$signIns = Get-MgAuditLogSignIn -Filter $filter -Top 10
+
+# Zeigt Zeitpunkt, Anwendung, Ergebniscode und Korrelations-ID an.
+$signIns |
+    Sort-Object CreatedDateTime -Descending |
+    Select-Object CreatedDateTime, AppDisplayName, CorrelationId,
+        @{Name='ErrorCode';Expression={$_.Status.ErrorCode}},
+        @{Name='FailureReason';Expression={$_.Status.FailureReason}}</code></pre></div>
+<p><strong>Ergebnis:</strong> Fehlercode und Uhrzeit mit dem vom Benutzer gemeldeten Versuch abgleichen. Der Fehlercode ist ein Ausgangspunkt, nicht die vollständige Ursache. Bei unklaren Authentifizierungsdetails ist die Portalansicht häufig übersichtlicher.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.reports/get-mgauditlogsignin" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-MgAuditLogSignIn</a></p>
+<h3 id="93-registrierte-authenticator-methoden-abfragen">9.3 Registrierte Authenticator-Methoden abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Das zu prüfende Benutzerkonto bestimmen.
+$userUpn = 'm.mustermann@firma.example'
+
+# Listet registrierte Microsoft-Authenticator-Methoden des Kontos.
+# Dieser Befehl führt KEINE Neuregistrierung und KEINE Löschung aus.
+Get-MgUserAuthenticationMicrosoftAuthenticatorMethod -UserId $userUpn |
+    Select-Object Id, DisplayName, DeviceTag, PhoneAppVersion</code></pre></div>
+<p><strong>Interpretation:</strong> Eine registrierte Methode beweist nicht, dass das Smartphone aktuell erreichbar oder verwendbar ist. Wenn keine Methode erscheint, trotzdem die Methodenrichtlinie, den Benutzerkontext und die Abfrageberechtigung prüfen. Geräteinformationen und Registrierungen sind Sicherheitsdaten und gehören nicht ungeschützt in öffentliche Dokumentation.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/powershell/module/microsoft.graph.identity.signins/get-mguserauthenticationmicrosoftauthenticatormethod" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-MgUserAuthenticationMicrosoftAuthenticatorMethod</a></p>
+<h2 id="10-conditional-access-und-authentifizierungsstaerke--der-l2-zweig">10. Conditional Access und Authentifizierungsstärke – der L2-Zweig</h2>
+<p><strong>Fallbeispiel:</strong> Die Mitarbeiterin kann sich zwar mit ihrem Kennwort anmelden und eine SMS empfangen, aber eine bestimmte Anwendung fordert eine <em>phishing-resistente Authentifizierung</em>. Eine SMS reicht für diese Richtlinie <strong>nicht</strong> aus.</p>
+<p><strong>Daraus folgt:</strong> Eine vorhandene alternative Methode ist nicht automatisch eine <strong>zulässige</strong> alternative Methode. Es kommt auf die konkrete Kombination der Authentifizierungsstärke an. Nach Microsofts Dokumentation gehören beispielsweise geeignete FIDO2-Passkeys/Sicherheitsschlüssel zu den phishing-resistenten Methoden; eine gewöhnliche SMS-Bestätigung nicht.</p>
+<p>Für die Analyse: passende Anmeldung öffnen → Conditional-Access-Tab → betroffene Richtlinie und erforderliche Steuerelemente → zugelassene Methodenrichtlinie → Geräte- und Benutzerbedingungen. Richtlinien nicht global abschalten, um einem Einzelfall kurzfristig Zugriff zu geben.</p>
+<p>Quellen: <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-strengths" rel="noopener noreferrer" target="_blank">Authentifizierungsstärken</a> · <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-methods-manage" rel="noopener noreferrer" target="_blank">Richtlinien für Authentifizierungsmethoden</a> · <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Conditional Access – Fehleranalyse</a></p>
+<h2 id="11-geraet-verloren-oder-ersetzt-sicherer-wiederherstellungsweg">11. Gerät verloren oder ersetzt: Sicherer Wiederherstellungsweg</h2>
+<p><strong>Voraussetzung für jede administrative Wiederherstellung:</strong> Benutzeridentität nach dem <strong>intern freigegebenen Identitätsprüfungsverfahren</strong> feststellen. Ein behaupteter Name in einem Telefonanruf oder eine E-Mail allein genügt nicht. Verfahren können beispielsweise ein Rückruf über eine bereits bekannte interne Nummer, eine dokumentierte persönliche Identifizierung oder weitere durch die Organisation vorgeschriebene Nachweise sein. <strong>Keine Kennwörter, TANs, Einmalcodes oder Authenticator-Bestätigungen abfragen.</strong></p>
+<h3 id="111-wenn-eine-bereits-registrierte-alternative-verfuegbar-ist">11.1 Wenn eine bereits registrierte Alternative verfügbar ist</h3>
+<p>Der Benutzer kann, <strong>falls richtlinienkonform</strong>, während der Anmeldung „Andere Methode verwenden“ auswählen und anschließend seine Sicherheitsinformationen unter <a href="https://mysignins.microsoft.com/security-info" rel="noopener noreferrer" target="_blank">mysignins.microsoft.com/security-info</a> pflegen. Die neue Methode erst erfolgreich testen, bevor die alte, nicht mehr verfügbare Registrierung entfernt wird.</p>
+<h3 id="112-wenn-keine-methode-verfuegbar-ist-temporary-access-pass-tap">11.2 Wenn keine Methode verfügbar ist: Temporary Access Pass (TAP)</h3>
+<p>Ein <strong>TAP (Temporary Access Pass; befristeter Zugriffspass)</strong> ist ein zeitlich begrenzter Anmeldecode, der einmalig oder mehrfach innerhalb seines Gültigkeitsfensters verwendet werden kann. Er unterstützt insbesondere die <strong>Registrierung neuer sicherer Authentifizierungsmethoden</strong>, wenn die bisherigen verloren gegangen sind.</p>
+<p><strong>Administrativer Ablauf (nur nach Freigabe):</strong></p>
+<ol type="1">
+<li>Identität des Mitarbeiters nach Unternehmensvorgabe nachweisbar prüfen; Ticket und Berechtigung erfassen.</li>
+<li>Prüfen, ob die <strong>TAP-Methode in der Entra-Authentifizierungsmethodenrichtlinie</strong> für diesen Benutzer zugelassen ist.</li>
+<li>Berechtigter Administrator öffnet <strong>Entra ID → Benutzer → [Benutzer] → Authentifizierungsmethoden → Authentifizierungsmethode hinzufügen → Temporary Access Pass</strong>.</li>
+<li>Geeignetes, möglichst kurzes Gültigkeitsfenster und gegebenenfalls <strong>Einmalverwendung</strong> entsprechend Unternehmensrichtlinie festlegen.</li>
+<li>Code auf <strong>freigegebenem, vertraulichem Weg</strong> an den nachweislich identifizierten Benutzer übergeben. <strong>Nie im Ticket, öffentlichen Chat oder unverschlüsselten Wissensartikel speichern.</strong></li>
+<li>Benutzer registriert mit dem TAP eine neue zulässige Methode, testet seine Anmeldung und entfernt nach Freigabe alte, nicht mehr nutzbare Registrierungen.</li>
+<li>Wiederherstellung samt administrativer Aktion und erfolgreicher Kontrolle dokumentieren – ohne Geheimniswerte.</li>
+</ol>
+<p><strong>Berechtigungen:</strong> Zum Anlegen von TAPs für reguläre Benutzer ist typischerweise die Rolle <strong>Authentication Administrator</strong> oder eine passend privilegierte Rolle erforderlich; das Aktivieren der TAP-Richtlinie braucht <strong>Authentication Policy Administrator</strong>. Administratoren können nicht beliebig ihre eigenen Methoden zurücksetzen. Der Gültigkeitsbereich und die erlaubte Nutzung werden durch die Richtlinie eingeschränkt.</p>
+<p><strong>Achtung:</strong> Ein TAP ersetzt nicht allgemein das normale Kennwort. Außerdem bedeutet sein Ablauf nicht zwingend, dass zuvor ausgestellte Sitzungstoken augenblicklich verschwinden.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-authentication-temporary-access-pass" rel="noopener noreferrer" target="_blank">Microsoft Learn – Temporary Access Pass</a></p>
+<h3 id="113-require-re-register-mfa-nicht-als-standardknopf-verwenden">11.3 „Require re-register MFA“ nicht als Standardknopf verwenden</h3>
+<p>Die Entra-Option <strong>„Erneute MFA-Registrierung erforderlich“</strong> kann vorhandene Telefonnummern, Authenticator-Apps und weitere Authentifizierungsmethoden entfernen beziehungsweise zurücksetzen. Das ist eine <strong>verändernde administrative Aktion</strong>, die einen Benutzer ohne Wiederherstellungsweg aussperren kann. Sie ist <strong>kein harmloser Test</strong> und darf nicht ohne Identitätsprüfung, Berechtigung, dokumentierte Freigabe und funktionierenden Wiederherstellungsplan eingesetzt werden.</p>
+<p>Auch <strong>Sitzungen widerrufen</strong> ist ein eigener Vorgang und nicht identisch mit dem Austausch einer Authenticator-Registrierung.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-mfa-userdevicesettings" rel="noopener noreferrer" target="_blank">Microsoft Learn – Authentifizierungsmethoden verwalten</a></p>
+<h2 id="12-diagnosebeispiele--hypothese-gegen-befund">12. Diagnosebeispiele – Hypothese gegen Befund</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Technischer Befund</th>
+<th>Plausible Ursache</th>
+<th>Gezielte, sichere Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Entra-Anmeldung zeigt MFA-Anfrage, aber keine Push-Meldung am Smartphone</td>
+<td>Benachrichtigung oder App/Netzwerkproblem; alternativ falsche registrierte Methode</td>
+<td>Lokale Einstellungen und Entra-Registrierung abgleichen, nur freigegebene Korrektur durchführen</td>
+</tr>
+<tr class="even">
+<td>Zeitbasierter Code wird regelmäßig abgelehnt</td>
+<td>Uhrzeitabweichung oder falsches Konto/Registrierung</td>
+<td>Automatische Uhrzeit, betroffenen Account und verwendete Methode prüfen</td>
+</tr>
+<tr class="odd">
+<td>Benutzer hat Smartphone verloren; kein Ersatzfaktor</td>
+<td>Methode nicht verfügbar</td>
+<td>Identitätsprüfung → TAP oder definierter Recovery-Prozess → neue Methode registrieren</td>
+</tr>
+<tr class="even">
+<td>Fehler <strong>AADSTS53003</strong> mit CA-Details</td>
+<td>Conditional-Access-Sperre</td>
+<td>Betroffene Regel, Geräte-/Risiko-/Anwendungsbedingungen durch zuständiges Team prüfen</td>
+</tr>
+<tr class="odd">
+<td>SMS funktioniert, aber App verlangt phishing-resistente Authentifizierung</td>
+<td>SMS erfüllt geforderte Authentifizierungsstärke nicht</td>
+<td>Zugelassene stärkere Methode bereitstellen, keine Richtlinienabsenkung als Schnelllösung</td>
+</tr>
+<tr class="even">
+<td>Mehrere Benutzer gleichzeitig keine Push-Anforderung</td>
+<td>Mögliches zentrales Dienst-/Richtlinienproblem</td>
+<td>Dienststatus und zeitgleiche Entra-Ereignisse korrelieren, L2/Identity-Team</td>
+</tr>
+<tr class="odd">
+<td>Unbekannte Push-Anfrage ohne eigene Anmeldung</td>
+<td>Möglicher Angriff / unbefugte Anmeldung</td>
+<td>Nicht bestätigen, Security-Incident-Prozess auslösen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="13-erfolgskontrolle-und-eskalation">13. Erfolgskontrolle und Eskalation</h2>
+<p><strong>Ein erfolgreicher Login ist der maßgebliche Funktionstest.</strong> Nur ein neuer Eintrag unter „Sicherheitsinformationen“ genügt nicht.</p>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Benutzer meldet sich mit der vorgesehenen Methode bei der betroffenen Anwendung an.</label></li>
+<li><label><input type="checkbox"/>Die gewählte MFA-Methode funktioniert; bei Number Matching stimmt die Zahl mit dem eigenen Anmeldevorgang überein.</label></li>
+<li><label><input type="checkbox"/>Der Zugang entspricht der geltenden Conditional-Access-Richtlinie.</label></li>
+<li><label><input type="checkbox"/>Nicht mehr verfügbare Methoden wurden nach Freigabe sicher bereinigt.</label></li>
+<li><label><input type="checkbox"/>Keine Geheimniswerte wurden im Ticket gespeichert.</label></li>
+</ul>
+<p><strong>Eskalation an L2 / Identity / Security bei:</strong> fehlenden administrativen Rechten, unklarer Identitätsprüfung, keiner möglichen Wiederherstellungsmethode, wiederholter Sperre durch Richtlinien, ungewöhnlichen Push-Anfragen, Problemen mehrerer Benutzer, gesperrten Administratoren oder Verdacht auf Kontoübernahme.</p>
+<p><strong>Mitgeben:</strong> Benutzer-UPN, Zeitpunkt inklusive Zeitzone, App, Fehlermeldung/AADSTS-Code, Correlation ID, anonymisierte Befunde, bereits versuchte <strong>nicht-invasiven</strong> Maßnahmen, Status der Identitätsprüfung – keine Kennwörter, QR-Geheimnisse, TAPs oder Einmalcodes.</p>
+<h2 id="14-fiktiver-ticketabschluss-und-lernkontrolle">14. Fiktiver Ticketabschluss und Lernkontrolle</h2>
+<h3 id="muster-ticketkommentar-fiktiver-erfolgreicher-vorgang">Muster-Ticketkommentar (fiktiver erfolgreicher Vorgang)</h3>
+<p><strong>Ticket:</strong> INC-012 – Microsoft-365-Anmeldung scheitert bei MFA<br/>
+<strong>Fehlerbild:</strong> Nach Smartphone-Wechsel keine nutzbare Microsoft-Authenticator-Methode mehr verfügbar.<br/>
+<strong>Diagnose:</strong> Primäre Anmeldung erfolgreich. Anmeldeprotokolle auf betroffene MFA-Anforderung geprüft. Bisherige registrierte Authenticator-Methode verweist auf das nicht mehr verfügbare Gerät.<br/>
+<strong>Sicherheitsprüfung:</strong> Benutzeridentität gemäß dokumentiertem Unternehmensverfahren bestätigt; Maßnahme freigegeben.<br/>
+<strong>Maßnahme:</strong> Über genehmigten Temporary-Access-Pass-Prozess neue zulässige Authentifizierungsmethode registriert und alten Geräteeintrag nach Erfolgskontrolle entfernt.<br/>
+<strong>Ergebnis:</strong> Erfolgreiche Anmeldung an der betroffenen Anwendung mit der neuen MFA-Methode bestätigt.<br/>
+<strong>Status:</strong> Gelöst. Keine Codes/Token im Ticket dokumentiert.</p>
+<h3 id="anki-active-recall-lernfragen">Anki-/Active-Recall-Lernfragen</h3>
+<p><strong>Wissensfragen:</strong></p>
+<ol type="1">
+<li>Wofür stehen MFA, TAP, TOTP und UPN?</li>
+<li>Wo findet ein Administrator die Entra-Anmeldeprotokolle?</li>
+<li>Was zeigt ein <code>AADSTS53003</code> grundsätzlich an?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong> 4. Warum ist eine erfolgreiche Kennwortprüfung kein Beleg für eine abgeschlossene Cloud-Anmeldung? 5. Warum kann eine vorhandene SMS-Methode für eine Anwendung ungeeignet sein? 6. Warum ist „Require re-register MFA“ keine harmlose Diagnosemaßnahme?</p>
+<p><strong>Diagnosefragen:</strong> 7. Der Benutzer erhält keine Push-Benachrichtigung. Was untersuchst du lokal, was serverseitig? 8. Ein Benutzer meldet zehn unerwartete Bestätigungsanfragen. Welches Risiko liegt vor und was unterlässt du? 9. Ein Mitarbeiter hat sein einziges MFA-Gerät verloren. Welche Voraussetzungen gelten für die Wiederherstellung?</p>
+<p><strong>Transferübung ohne vorgegebene Lösung:</strong> Ein Mitarbeiter kann sich über einen FIDO2-Sicherheitsschlüssel bei einer Anwendung anmelden, bei einer zweiten Anwendung aber trotz registrierter Authenticator-Push-Methode nicht. Lege mindestens drei Diagnosehypothesen mit je einem geeigneten Test und einem konkreten erwarteten Befund fest. Formuliere danach eine 3-Satz-Eskalation an das Identity-Team.</p>
+<h2 id="15-offizielle-quellen-und-validierungsstatus">15. Offizielle Quellen und Validierungsstatus</h2>
+<p><strong>Herstellerquellen (geprüft am 08.11.2026):</strong></p>
+<ol type="1">
+<li><a href="https://support.microsoft.com/de-de/authenticator/troubleshoot-problems-with-microsoft-authenticator" rel="noopener noreferrer" target="_blank">Microsoft Support – Authenticator-Probleme beheben</a> – App, Push, Zeit, Netzwerk und Benachrichtigungen.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-authenticator-app" rel="noopener noreferrer" target="_blank">Microsoft Learn – Microsoft Authenticator als Authentifizierungsmethode</a> – Funktionsarten und Registrierung.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/how-to-mfa-number-match" rel="noopener noreferrer" target="_blank">Microsoft Learn – Nummernabgleich</a> – Nummernbestätigung bei Push-Anmeldungen.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/concept-sign-ins" rel="noopener noreferrer" target="_blank">Microsoft Learn – Microsoft Entra-Anmeldeprotokolle</a> – Anmeldung, Fehlerfelder und Suchfilter.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/monitoring-health/concept-sign-in-log-activity-details" rel="noopener noreferrer" target="_blank">Microsoft Learn – Anmeldeprotokoll-Details</a> – Authentifizierungsdetails und Richtlinienauswertung.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Microsoft Learn – Conditional-Access-Anmeldefehler</a> – CA-Ursachen, AADSTS-Fehler und Richtlinienanalyse.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-strengths" rel="noopener noreferrer" target="_blank">Microsoft Learn – Authentifizierungsstärken</a> – Welche Methoden die jeweilige Sicherheitsanforderung erfüllen.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-mfa-userdevicesettings" rel="noopener noreferrer" target="_blank">Microsoft Learn – Authentifizierungsmethoden verwalten</a> – Registrierungs-Reset, administrative Rollen und Sitzungen.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/howto-authentication-temporary-access-pass" rel="noopener noreferrer" target="_blank">Microsoft Learn – Temporary Access Pass</a> – Ablauf und Wiederherstellung.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.reports/get-mgauditlogsignin" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-MgAuditLogSignIn</a> – Lesender Graph-Befehl.</li>
+<li><a href="https://learn.microsoft.com/powershell/module/microsoft.graph.identity.signins/get-mguserauthenticationmicrosoftauthenticatormethod" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-MgUserAuthenticationMicrosoftAuthenticatorMethod</a> – Lesende Authenticator-Abfrage.</li>
+<li><a href="https://learn.microsoft.com/de-de/entra/identity/authentication/concept-authentication-methods-manage" rel="noopener noreferrer" target="_blank">Microsoft Learn – Richtlinien für Authentifizierungsmethoden</a> – zulässige Verfahren und Richtlinienverwaltung.</li>
+</ol>
+<p><strong>Was belegt ist:</strong> Die grundsätzlichen Diagnose- und Wiederherstellungsverfahren sind anhand der verlinkten Herstellerdokumentation ausgearbeitet.<br/>
+<strong>Was nicht belegt ist:</strong> Es wurde kein realer Entra-Tenant oder echtes betriebsinternes Benutzerkonto untersucht. Es gibt keinen produktiven Nachweis für einen der Beispiel-Fehler.<br/>
+<strong>Nächste praktische Validierung:</strong> Nur mit ausdrücklicher Berechtigung in einem freigegebenen Testtenant, ohne reale Mitarbeiterkonten und ohne Absenkung der MFA-Sicherheit.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-012_Lernartikel.md">RB-012_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-003/index.html">RB-003: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-011/index.html">← RB-011</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-013/index.html">RB-013 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

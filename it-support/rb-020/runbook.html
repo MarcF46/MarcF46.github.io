@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-020 E-Mail-Anhang lässt sich nicht öffnen | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-020: E-Mail-Anhang lässt sich nicht öffnen. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Outlook · Dateiformate · Sicherheit · Praxis-Runbook</p><h1>RB-020: E-Mail-Anhang lässt sich nicht öffnen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#a-fehleraufnahme-l1">A. Fehleraufnahme (L1)</a></li><li><a href="#b-diagnosefolge-l1">B. Diagnosefolge (L1)</a></li><li><a href="#c-leseabfragen-in-powershell">C. Leseabfragen in PowerShell</a></li><li><a href="#d-befundabhaengige-loesung">D. Befundabhängige Lösung</a></li><li><a href="#e-erfolgskontrolle">E. Erfolgskontrolle</a></li><li><a href="#f-eskalation-an-l2security">F. Eskalation an L2/Security</a></li><li><a href="#g-beispiel-ticketnotiz-fiktiv">G. Beispiel-Ticketnotiz (fiktiv)</a></li><li><a href="#quellen-microsoft">Quellen (Microsoft)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Support-Level:</strong> L1, bei Sicherheits-/Serverbefunden L2/Security<br/>
+<strong>Status:</strong> Recherchiert · praktische Validierung ausstehend<br/>
+<strong>Gültigkeit:</strong> Windows 11, Outlook klassisch / neu / Web, Unternehmensumgebungen mit Exchange Online<br/>
+<strong>Wichtig:</strong> Ausschließlich freigegebene, erwartete Anhänge untersuchen. Verdächtige Dateien nicht öffnen, weiterleiten oder Schutzmaßnahmen umgehen.</p>
+<h2 id="a-fehleraufnahme-l1">A. Fehleraufnahme (L1)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Exakte Fehlermeldung, Zeitpunkt, Absender und betroffene Datei erfasst.</label></li>
+<li><label><input type="checkbox"/>Dateiendung, Größe und Anzahl der betroffenen Anhänge dokumentiert.</label></li>
+<li><label><input type="checkbox"/>Klären: Vorschau, Download oder Öffnen in einer Zielanwendung schlägt fehl?</label></li>
+<li><label><input type="checkbox"/>Outlook-Version und Unternehmens-/Privatkonto erfasst.</label></li>
+<li><label><input type="checkbox"/>Verdachtsmomente auf Phishing, Malware oder Schutzblockierung geprüft.</label></li>
+</ul>
+<p><strong>Bei verdächtiger Datei sofort:</strong> Nicht öffnen! Sicherheitsprozess befolgen und L2/Security eskalieren.</p>
+<h2 id="b-diagnosefolge-l1">B. Diagnosefolge (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Test / Frage</th>
+<th>Ergebnis</th>
+<th>Nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nachricht oder Anhang fehlt bereits im Postfach?</td>
+<td>Ja</td>
+<td>Zustellung / Quarantäne durch L2 prüfen</td>
+</tr>
+<tr class="even">
+<td>Gibt Outlook eine aktive Sicherheitsblockierung aus?</td>
+<td>Ja</td>
+<td>Keine Umgehung; Security-Befund prüfen lassen</td>
+</tr>
+<tr class="odd">
+<td>Funktioniert dieselbe <strong>freigegebene</strong> Datei in Outlook im Web?</td>
+<td>Ja, aber Desktop nein</td>
+<td>Client, Download, Dateizuordnung, Office-App</td>
+</tr>
+<tr class="even">
+<td>Funktioniert nur Vorschau nicht?</td>
+<td>Ja</td>
+<td>Vorgesehene App-Öffnung (nur vertrauenswürdige Datei), Previewer untersuchen</td>
+</tr>
+<tr class="odd">
+<td>Funktionieren lokale harmlose Testdateien gleichen Typs?</td>
+<td>Nein</td>
+<td>Standard-App / Anwendung prüfen</td>
+</tr>
+<tr class="even">
+<td>Nur diese eine freigegebene Datei betroffen?</td>
+<td>Ja</td>
+<td>Integrität und Dateiquelle über autorisierte Referenzkopie prüfen</td>
+</tr>
+<tr class="odd">
+<td>Mehrere Benutzer / verschiedene Geräte betroffen?</td>
+<td>Ja</td>
+<td>Zentrale Regeln, Dienst- oder Sicherheitsbefund untersuchen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="c-leseabfragen-in-powershell">C. Leseabfragen in PowerShell</h2>
+<p><strong>Ort:</strong> Benutzerrechner. <strong>Nur</strong> für selbst erstellte oder geprüfte, autorisierte Testdateien.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Pfad auf eine freigegebene, ungefährliche Testdatei anpassen.
+$pfad = 'C:\Support-Test\Beispiel.txt'
+
+# Existenz am angegebenen Ort prüfen.
+Test-Path -LiteralPath $pfad
+
+# Namen, Dateiendung, Größe und Pfad anzeigen.
+Get-Item -LiteralPath $pfad |
+    Select-Object Name, Extension, Length, FullName
+
+# SHA-256-Hash zum Vergleich mit vertrauenswürdiger Referenz berechnen.
+Get-FileHash -LiteralPath $pfad -Algorithm SHA256</code></pre></div>
+<p><strong>Interpretation:</strong> Hashgleichheit bedeutet <strong>inhaltliche Übereinstimmung</strong>, nicht Sicherheitsfreigabe. Eine Dateiendung beweist keinen ungefährlichen Inhalt.</p>
+<h2 id="d-befundabhaengige-loesung">D. Befundabhängige Lösung</h2>
+<ul>
+<li><strong>Keine passende App:</strong> Genehmigte App installieren / passende Standard-App unter <code>Einstellungen → Apps → Standard-Apps</code> zuordnen.</li>
+<li><strong>Vorschaufehler:</strong> Freigegebenen Anhang alternativ in der passenden, genehmigten Anwendung öffnen; Vorschau-/Clientproblem separat dokumentieren.</li>
+<li><strong>Beschädigte Datei:</strong> Intakte Kopie über freigegebenen Unternehmensweg erbitten; nicht wahllos Dateiendung ändern.</li>
+<li><strong>Office-App defekt:</strong> Dokumentierte Reparaturmaßnahme nach Freigabe; keine pauschale Neuinstallation.</li>
+<li><strong>Geschützte Ansicht:</strong> Sicherheitshinweis beachten; Bearbeitung nur nach Prüfung des Dokuments und erlaubtem Unternehmensverfahren.</li>
+<li><strong>Outlook-Blockierung / Defender-Quarantäne:</strong> <strong>Keine</strong> Blockade abschalten oder durch ZIP/Umbenennen umgehen. L2/Security entscheidet über den zulässigen Weg.</li>
+<li><strong>Zentraler Fehler:</strong> L2 prüft Outlook/Exchange/Defender/Dienststatus.</li>
+</ul>
+<h2 id="e-erfolgskontrolle">E. Erfolgskontrolle</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Freigegebene Datei lässt sich in der vorgesehenen Anwendung öffnen.</label></li>
+<li><label><input type="checkbox"/>Inhalt/Version und erforderliche Funktion (z. B. Lesen/Bearbeiten) kontrolliert.</label></li>
+<li><label><input type="checkbox"/>Sicherheitsvorgaben bleiben aktiviert.</label></li>
+<li><label><input type="checkbox"/>Ursache, getestete Wege und Ergebnis im Ticket dokumentiert.</label></li>
+</ul>
+<h2 id="f-eskalation-an-l2security">F. Eskalation an L2/Security</h2>
+<p><strong>Sofort</strong>, wenn Sicherheitswarnung/Quarantäne, fragwürdiger Dateityp, Unternehmensrichtlinien, Datenverlustverdacht, mehrere Betroffene oder fehlende Rechte vorliegen. Übergeben: exakte Meldung, Anhangstyp, Zeit, Benutzer, Outlook-Version, Webvergleich, Prüfresultate und vorhandene Sicherheitsereignisnummern. <strong>Originalanhänge nicht unkontrolliert weiterleiten.</strong></p>
+<h2 id="g-beispiel-ticketnotiz-fiktiv">G. Beispiel-Ticketnotiz (fiktiv)</h2>
+<p><strong>INC-020 · Fehlerbild:</strong> XLSX-Anhang in Outlook Desktop öffnet sich nicht.<br/>
+<strong>Diagnose:</strong> Identität und erwarteten Absender geprüft; Webvergleich erfolgreich. Auf dem Client keine passende genehmigte Tabellen-App zugeordnet.<br/>
+<strong>Maßnahme:</strong> Bereitstellung der genehmigten Anwendung, Standardzuordnung eingerichtet.<br/>
+<strong>Erfolg:</strong> Harmloser XLSX-Test und freigegebener Anhang erfolgreich geöffnet.<br/>
+<strong>Status:</strong> Gelöst – <em>nur Beispiel, nicht real getestet</em>.</p>
+<h2 id="quellen-microsoft">Quellen (Microsoft)</h2>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/outlook/mail/open-save-and-edit-attachments-received-in-outlook" rel="noopener noreferrer" target="_blank">Anlagen öffnen / speichern</a></li>
+<li><a href="https://support.microsoft.com/de-de/outlook/blocked-attachments-in-outlook" rel="noopener noreferrer" target="_blank">Blockierte Anlagen</a></li>
+<li><a href="https://support.microsoft.com/de-de/office/collab-files/what-is-protected-view" rel="noopener noreferrer" target="_blank">Geschützte Ansicht</a></li>
+<li><a href="https://learn.microsoft.com/de-de/defender-office-365/safe-attachments-about?view=o365-worldwide" rel="noopener noreferrer" target="_blank">Safe Attachments</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/apps/change-default-apps-in-windows" rel="noopener noreferrer" target="_blank">Standard-Apps</a></li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/microsoft.powershell.utility/get-filehash" rel="noopener noreferrer" target="_blank">Get-FileHash</a></li>
+</ul>
+<p><strong>Verweis:</strong> Vollständige Erklärungen, Diagramme, Anki und Sicherheitskontext enthält <code>RB-020_Lernartikel.md</code>.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-020_Praxis-Runbook.md">RB-020_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-006/index.html">RB-006: verwandter Supportfall</a> · <a href="../rb-019/index.html">RB-019: Outlook-Profil beschädigt</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-019/index.html">← RB-019</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

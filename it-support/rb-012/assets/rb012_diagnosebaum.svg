@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1880" role="img" aria-labelledby="title desc">
+<title id="title">RB-012: MFA funktioniert nicht – Diagnose-Entscheidungsbaum</title>
+<desc id="desc">Von der Prüfung des eigenen Anmeldeversuchs über Kennwort, MFA-Verfügbarkeit, App, Entra-Protokoll und Conditional Access bis zur Funktionsprüfung. Jede Fehlentscheidung führt zur passenden sicherheitsorientierten Maßnahme.</desc>
+<rect width="1200" height="1880" rx="24" fill="#eefaff"/>
+<rect width="1200" height="125" rx="22" fill="#082948"/>
+<text x="600" y="51" font-size="34" font-weight="700" text-anchor="middle" fill="#43e3dc" font-family="DejaVu Sans,Arial,sans-serif">RB-012 · MFA-Diagnose</text>
+<text x="600" y="91" font-size="20" text-anchor="middle" fill="#ffffff" font-family="DejaVu Sans,Arial,sans-serif">Erst Fehlerbild und Identität prüfen – niemals Sicherheit umgehen</text>
+<rect x="345" y="160" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="202" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">1. Eigene Anmeldung</text>
+<text x="600" y="235" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">ausgelöst?</text>
+<path d="M600 266 V408" stroke="#159187" stroke-width="5" fill="none"/>
+<polygon points="592,395 600,408 608,395" fill="#159187"/>
+<text x="633" y="316" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="700" fill="#117869">JA</text>
+<rect x="24" y="158" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="170.0" y="202" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: Push nicht bestätigen!</text>
+<text x="170.0" y="229" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">Sicherheitsvorfall melden.</text>
+<path d="M345 213 H316" stroke="#d69b36" stroke-width="4"/>
+<polygon points="327,205 316,213 327,221" fill="#d69b36"/>
+<text x="330" y="198" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<rect x="345" y="420" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="462" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">2. Primäre Anmeldung</text>
+<text x="600" y="495" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">erfolgreich?</text>
+<path d="M600 526 V668" stroke="#159187" stroke-width="5" fill="none"/>
+<polygon points="592,655 600,668 608,655" fill="#159187"/>
+<text x="633" y="576" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="700" fill="#117869">JA</text>
+<rect x="884" y="418" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="1030.0" y="462" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: Kennwort / Konto</text>
+<text x="1030.0" y="489" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">nach RB-001 / RB-003 prüfen.</text>
+<path d="M855 473 H884" stroke="#d69b36" stroke-width="4"/>
+<polygon points="873,465 884,473 873,481" fill="#d69b36"/>
+<text x="868" y="458" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<rect x="345" y="680" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="722" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">3. Zugelassene MFA-</text>
+<text x="600" y="755" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">Methode verfügbar?</text>
+<path d="M600 786 V928" stroke="#159187" stroke-width="5" fill="none"/>
+<polygon points="592,915 600,928 608,915" fill="#159187"/>
+<text x="633" y="836" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="700" fill="#117869">JA</text>
+<rect x="24" y="678" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="170.0" y="722" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: Identität prüfen,</text>
+<text x="170.0" y="749" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">Recovery / TAP (mit Freigabe).</text>
+<path d="M345 733 H316" stroke="#d69b36" stroke-width="4"/>
+<polygon points="327,725 316,733 327,741" fill="#d69b36"/>
+<text x="330" y="718" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<rect x="345" y="940" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="982" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">4. Push oder Code</text>
+<text x="600" y="1015" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">funktioniert?</text>
+<path d="M600 1046 V1188" stroke="#159187" stroke-width="5" fill="none"/>
+<polygon points="592,1175 600,1188 608,1175" fill="#159187"/>
+<text x="633" y="1096" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="700" fill="#117869">JA</text>
+<rect x="884" y="938" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="1030.0" y="982" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: App, Internet, Zeit,</text>
+<text x="1030.0" y="1009" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">Benachrichtigungen prüfen.</text>
+<path d="M855 993 H884" stroke="#d69b36" stroke-width="4"/>
+<polygon points="873,985 884,993 873,1001" fill="#d69b36"/>
+<text x="868" y="978" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<rect x="345" y="1200" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="1242" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">5. Entra-Logs und</text>
+<text x="600" y="1275" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">CA-Regel geprüft?</text>
+<path d="M600 1306 V1448" stroke="#159187" stroke-width="5" fill="none"/>
+<polygon points="592,1435 600,1448 608,1435" fill="#159187"/>
+<text x="633" y="1356" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="700" fill="#117869">JA</text>
+<rect x="24" y="1198" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="170.0" y="1242" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: Anmeldung, Methode,</text>
+<text x="170.0" y="1269" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">AADSTS, Richtlinie prüfen.</text>
+<path d="M345 1253 H316" stroke="#d69b36" stroke-width="4"/>
+<polygon points="327,1245 316,1253 327,1261" fill="#d69b36"/>
+<text x="330" y="1238" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<rect x="345" y="1460" width="510" height="106" rx="17" fill="#ffffff" stroke="#2b8d9d" stroke-width="3"/>
+<text x="600" y="1502" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">6. Richtlinienkonformer</text>
+<text x="600" y="1535" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="23" font-weight="700" fill="#19344d">Zugriff erfolgreich?</text>
+<rect x="884" y="1458" width="292" height="111" rx="17" fill="#fff6e4" stroke="#e1a64b" stroke-width="2.8"/>
+<text x="1030.0" y="1502" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">NEIN: Befund mit ID,</text>
+<text x="1030.0" y="1529" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="400" fill="#19344d">Zeit und Code an L2.</text>
+<path d="M855 1513 H884" stroke="#d69b36" stroke-width="4"/>
+<polygon points="873,1505 884,1513 873,1521" fill="#d69b36"/>
+<text x="868" y="1498" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="700" fill="#a76b16">NEIN</text>
+<path d="M600 1566 V1635" stroke="#159187" stroke-width="5"/>
+<polygon points="592,1623 600,1635 608,1623" fill="#159187"/>
+<rect x="305" y="1638" width="590" height="113" rx="17" fill="#d7f8ee" stroke="#158566" stroke-width="3"/>
+<text x="600" y="1680" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="25" font-weight="700" fill="#19344d">Erfolg nachweisen</text>
+<text x="600" y="1713" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="400" fill="#19344d">Zugriff testen und Ticket dokumentieren</text>
+<rect x="50" y="1794" width="1100" height="55" rx="13" fill="#082948" stroke="#082948" stroke-width="1"/>
+<text x="600" y="1829" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="700" fill="#ffffff">Keine MFA-Codes erfragen · Keine Richtlinien pauschal abschalten</text>
+</svg>

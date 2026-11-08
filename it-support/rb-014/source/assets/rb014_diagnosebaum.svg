@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1730" viewBox="0 0 1200 1730">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#108579"/></marker></defs>
+<rect width="1200" height="1730" rx="20" fill="#f6fbfe"/>
+<rect x="22" y="20" width="1156" height="110" rx="22" fill="#0f2b47"/>
+<text x="600" y="71" font-family="DejaVu Sans,Arial,sans-serif" font-size="33" font-weight="bold" text-anchor="middle" fill="#faffff">RB-014 · Diagnose-Entscheidungsbaum</text>
+<text x="600" y="105" font-family="DejaVu Sans,Arial,sans-serif" font-size="20" text-anchor="middle" fill="#75e4db">Anwendungszugriff: Erreichbarkeit → Anmeldung → Berechtigung</text>
+<rect x="294" y="161" width="612" height="99" rx="18" fill="#e9f5ff" stroke="#2c799a" stroke-width="2.5"/>
+<text x="312" y="189" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="#0d405b">START · Supportanfrage</text>
+<text x="312" y="218" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Benutzer, Anwendung, Soll-Rolle und Fehlermeldung ermitteln.</text>
+<path d="M600 260 L600 295" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="300" width="612" height="110" rx="18" fill="#ecf7ff" stroke="#2b90a5" stroke-width="2.5"/>
+<text x="312" y="328" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="#0d405b">1 · Genehmigung vorhanden?</text>
+<text x="312" y="357" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Bei Neuvergabe: Fachverantwortung, Rolle, Lizenz prüfen.</text>
+<text x="312" y="378" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Bei bestehender Störung: bisherigen Zugriff erfassen.</text>
+<rect x="20" y="306" width="252" height="118" rx="18" fill="#fff6ec" stroke="#e6a33a" stroke-width="2.5"/>
+<text x="38" y="334" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">NEIN → Freigabe</text>
+<text x="38" y="355" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">klären</text>
+<text x="38" y="381" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">Keine Rechte ohne Auftrag.</text>
+<text x="38" y="402" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">Least Privilege beachten.</text>
+<path d="M294 355 H272" stroke="#e6a33a" stroke-width="3.5" fill="none"/>
+<path d="M600 410 L600 449" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="455" width="612" height="100" rx="18" fill="#ecf7ff" stroke="#2b90a5" stroke-width="2.5"/>
+<text x="312" y="483" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="#0d405b">2 · App technisch erreichbar?</text>
+<text x="312" y="512" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">DNS, VPN und benötigten TCP-Port prüfen.</text>
+<rect x="20" y="450" width="252" height="132" rx="18" fill="#fff4ec" stroke="#df8953" stroke-width="2.5"/>
+<text x="38" y="478" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">NEIN →</text>
+<text x="38" y="499" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">Netzwerkzweig</text>
+<text x="38" y="525" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">RB-010 / RB-011 prüfen:</text>
+<text x="38" y="546" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">DNS, Routing, Firewall, VPN.</text>
+<path d="M294 500 H272" stroke="#df8953" stroke-width="3.5" fill="none"/>
+<path d="M600 555 L600 602" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="607" width="612" height="110" rx="18" fill="#ecf7ff" stroke="#2b90a5" stroke-width="2.5"/>
+<text x="312" y="635" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="#0d405b">3 · Anmeldung / SSO erfolgreich?</text>
+<text x="312" y="664" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Richtiges Konto? Fehlercode? Entra-Anmeldeprotokolle?</text>
+<text x="312" y="685" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">MFA und Conditional Access berücksichtigen.</text>
+<rect x="20" y="615" width="252" height="148" rx="18" fill="#fff1ef" stroke="#d7635b" stroke-width="2.5"/>
+<text x="38" y="643" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">NEIN → Identität</text>
+<text x="38" y="664" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">prüfen</text>
+<text x="38" y="690" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">AADSTS50105:</text>
+<text x="38" y="711" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">App-Zuweisung / Gruppe.</text>
+<text x="38" y="732" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">Sonst: Sign-in-Log, MFA, CA.</text>
+<path d="M294 662 H272" stroke="#d7635b" stroke-width="3.5" fill="none"/>
+<path d="M600 717 L600 773" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="778" width="612" height="125" rx="18" fill="#ecf7ff" stroke="#2b90a5" stroke-width="2.5"/>
+<text x="312" y="806" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="#0d405b">4 · Gewünschte Funktion erlaubt?</text>
+<text x="312" y="835" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Anwendung geöffnet, aber Menü/Daten gesperrt?</text>
+<text x="312" y="856" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">App-Rolle, In-App-Recht und Lizenz prüfen.</text>
+<rect x="928" y="785" width="250" height="145" rx="18" fill="#fff6e9" stroke="#d99d37" stroke-width="2.5"/>
+<text x="946" y="813" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">NEIN → App-Rolle</text>
+<text x="946" y="834" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="bold" fill="17">prüfen</text>
+<text x="946" y="860" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">Genehmigte Fachrolle?</text>
+<text x="946" y="881" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">App-eigene Rechte?</text>
+<text x="946" y="902" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" font-weight="normal" fill="#172d45">Zielkonto provisioniert?</text>
+<path d="M906 847 H928" stroke="#d99d37" stroke-width="3.5" fill="none"/>
+<path d="M600 903 L600 959" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="964" width="612" height="127" rx="18" fill="#e2f7ed" stroke="#2e967e" stroke-width="2.5"/>
+<text x="312" y="992" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="18">5 · Änderung gezielt durchführen</text>
+<text x="312" y="1021" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Nur zugewiesene Person / Gruppe / Rolle ändern.</text>
+<text x="312" y="1042" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Direkte Mitgliedschaft und Provisioning prüfen.</text>
+<text x="312" y="1063" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Keine globale Sicherheitsrichtlinie abschalten.</text>
+<path d="M600 1091 L600 1148" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="1153" width="612" height="127" rx="18" fill="#e2f7ed" stroke="#2e967e" stroke-width="2.5"/>
+<text x="312" y="1181" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="18">6 · Mit dem Benutzer Funktion testen</text>
+<text x="312" y="1210" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Neu anmelden, falls nötig; richtiges Konto nutzen.</text>
+<text x="312" y="1231" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Nicht nur Login, sondern genehmigte Fachfunktion testen.</text>
+<text x="312" y="1252" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">Freigabe und Prüfergebnis im Ticket dokumentieren.</text>
+<path d="M600 1280 L600 1339" stroke="#108579" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+<rect x="294" y="1344" width="612" height="102" rx="18" fill="#c9ebdc" stroke="#2e967e" stroke-width="2.5"/>
+<text x="312" y="1372" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="bold" fill="17">ABGESCHLOSSEN · oder begründet eskalieren</text>
+<text x="312" y="1401" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" font-weight="normal" fill="#172d45">L2 bei SSO-Claims, Provisioning, Rollenmapping oder CA.</text>
+<rect x="40" y="1500" width="1120" height="180" rx="20" fill="#fff5d9" stroke="#e0a322" stroke-width="2"/>
+<text x="65" y="1547" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="bold" fill="#6b4303">Merksatz: Anmeldung ist nicht dasselbe wie Berechtigung.</text>
+<text x="65" y="1588" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="22" font-weight="normal" fill="#5d420a">Authentifizierung: Wer bist du?</text>
+<text x="65" y="1622" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="22" font-weight="normal" fill="#5d420a">Autorisierung: Welche Anwendungen und Funktionen darfst du verwenden?</text>
+<text x="65" y="1654" text-anchor="start" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" font-weight="bold" fill="#8a3e11">Keine Adminrechte pauschal vergeben, MFA/Conditional Access nicht blind abschalten.</text>
+</svg>
