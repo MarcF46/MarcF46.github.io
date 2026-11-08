@@ -1220,3 +1220,36 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 @media (max-width:760px) {
   .site-header .nav { min-height: 76px; }
 }
+
+/* Einheitliche Social-Buttons, kontrastreiche Navigation und lesbarer Portfolio-Claim. */
+.nav-links a.nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(64, 87, 117, .22);
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  padding: .55rem .88rem;
+  color: var(--text);
+  white-space: nowrap;
+  text-shadow: none;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.nav-links a.nav-button:hover,
+.nav-links a.nav-button:focus-visible {
+  background: #e8f3ff;
+  border-color: #8bbdea;
+  color: var(--brand);
+}
+.hero-title { text-wrap: balance; font-size: clamp(2.1rem, 4vw, 3.5rem); line-height: 1.15; }
+@media (max-width: 760px) {
+  .mobile-nav-links a.nav-button {
+    margin-top: .15rem;
+    border: 1px solid rgba(64,87,117,.20);
+    border-radius: 10px;
+    background: #f2f7fd;
+  }
+  .mobile-nav-links a.nav-button:hover,
+  .mobile-nav-links a.nav-button:focus-visible { background: #e8f3ff; color: var(--brand); }
+  .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+}
