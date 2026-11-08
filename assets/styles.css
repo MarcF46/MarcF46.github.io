@@ -1182,8 +1182,8 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 /* Portfolio-Feinschliff: einheitliche Links, Abstände, Panorama in fixierter Navigation. */
 .site-header {
   background:
-    linear-gradient(90deg, rgba(255,255,255,.83), rgba(255,255,255,.72) 50%, rgba(255,255,255,.83)),
-    url("images/maschsee-hannover-ki-panorama.webp") center 46% / cover no-repeat;
+    linear-gradient(90deg, rgba(255,255,255,.46), rgba(255,255,255,.29) 50%, rgba(255,255,255,.43)),
+    url("images/maschsee-hannover-ki-panorama.webp?v=20261108-final") center center / 100% 100% no-repeat;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: 0 2px 14px rgba(20, 32, 51, .09);
@@ -1202,10 +1202,21 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 @media (max-width: 760px) {
   .site-header {
     background:
-      linear-gradient(90deg, rgba(255,255,255,.85), rgba(255,255,255,.71), rgba(255,255,255,.85)),
-      url("images/maschsee-hannover-ki-panorama.webp") center 46% / cover no-repeat;
+      linear-gradient(90deg, rgba(255,255,255,.61), rgba(255,255,255,.39), rgba(255,255,255,.60)),
+      url("images/maschsee-hannover-ki-panorama.webp?v=20261108-final") center center / 100% 100% no-repeat;
   }
   .mobile-nav-links {
     background: rgba(255,255,255,.97);
   }
+}
+
+/* Hannover-Panorama: klar sichtbar, während Navigation kontrastreich bleibt. */
+.site-header .nav { min-height: 84px; }
+.site-header .logo,
+.site-header .nav-links > a,
+.site-header .mobile-menu > summary {
+  text-shadow: 0 1px 2px rgba(255,255,255,.90);
+}
+@media (max-width:760px) {
+  .site-header .nav { min-height: 76px; }
 }
