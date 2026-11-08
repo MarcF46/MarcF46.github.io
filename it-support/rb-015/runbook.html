@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-015 Microsoft Teams funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-015: Microsoft Teams funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Microsoft 365 · Teams · Collaboration · Praxis-Runbook</p><h1>RB-015: Microsoft Teams funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme">1. Ticketaufnahme</a></li><li><a href="#2-sofortige-eingrenzung">2. Sofortige Eingrenzung</a></li><li><a href="#3-lesende-windows-diagnose">3. Lesende Windows-Diagnose</a></li><li><a href="#4-administratorpruefungen-nur-mit-freigabeberechtigung">4. Administratorprüfungen (nur mit Freigabe/Berechtigung)</a></li><li><a href="#5-protokolle-sichern">5. Protokolle sichern</a></li><li><a href="#6-befundabhaengige-massnahmen">6. Befundabhängige Maßnahmen</a></li><li><a href="#7-funktionspruefung">7. Funktionsprüfung</a></li><li><a href="#8-eskalation-an-l2">8. Eskalation an L2</a></li><li><a href="#technische-referenzen">Technische Referenzen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Level:</strong> L1/L2 · <strong>Status:</strong> Recherchierte Arbeitsanweisung, nicht praktisch validiert · <strong>Version:</strong> 1.0 (08.11.2026)</p>
+<blockquote>
+<p><strong>Kurzprinzip:</strong> Umfang erfassen → Teams im Web vergleichen → Dienst/Identität/Client/Medien prüfen → gezielt beheben → mit Benutzer testen.</p>
+</blockquote>
+<h2 id="1-ticketaufnahme">1. Ticketaufnahme</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Benutzer, Gerät, Standort, Uhrzeit, Screenshot/exakten Fehlercode erfassen.</label></li>
+<li><label><input type="checkbox"/>Betroffene Funktion: <strong>Start / Anmeldung / Chat / Kanal / Audio / Video / Dateien</strong>.</label></li>
+<li><label><input type="checkbox"/>Ein Benutzer, mehrere am selben Standort oder unternehmensweit?</label></li>
+<li><label><input type="checkbox"/>Seit wann? Änderungen an Passwort, MFA, Gerät, Updates oder Netz?</label></li>
+<li><label><input type="checkbox"/><strong>Teams im Web</strong> mit gleichem Geschäftskonto zum Vergleich getestet?</label></li>
+</ul>
+<h2 id="2-sofortige-eingrenzung">2. Sofortige Eingrenzung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nur Desktop-App betroffen</td>
+<td>Teams-Client, Version, lokales App-Profil, Supportprotokolle</td>
+</tr>
+<tr class="even">
+<td>Web und Desktop betroffen</td>
+<td>Konto/Entra-Anmeldeprotokolle, Lizenz, Dienststatus, Netzwerk</td>
+</tr>
+<tr class="odd">
+<td>Viele Benutzer betroffen</td>
+<td>Microsoft-365-Service-Health, zentrale Netzwerk-/Richtlinienänderungen</td>
+</tr>
+<tr class="even">
+<td>Nur Meeting-Audio/-Video</td>
+<td>Teams-Geräte, Windows-Berechtigungen, Netzwerkqualität, Call Analytics</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine vorschnelle Neuinstallation oder Cache-Löschung.</strong> Microsoft weist ausdrücklich darauf hin, dass Cache-Löschung für einige Chat-/Kanalprobleme ungeeignet ist und Diagnoseprotokolle entfernen kann.</p>
+<h2 id="3-lesende-windows-diagnose">3. Lesende Windows-Diagnose</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client im Benutzerkontext oder erlaubte Admin-Fernwartung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt Teams-Prozesse an, soweit sie vorhanden sind.
+Get-Process -Name 'ms-teams','msteams' -ErrorAction SilentlyContinue |
+    # Ausgabe auf wenige Eigenschaften beschränken.
+    Select-Object ProcessName, Id, StartTime
+
+# Prüft das neue Teams-App-Paket im aktuellen Benutzerkontext.
+Get-AppxPackage -Name 'MSTeams' |
+    # Version und Installationsort anzeigen.
+    Select-Object Name, Version, InstallLocation
+
+# Prüft die DNS-Auflösung eines Microsoft-Teams-Webnamens.
+Resolve-DnsName -Name 'teams.microsoft.com'
+
+# Testet TCP/443; beweist noch keine funktionierende Teams-Anmeldung.
+Test-NetConnection -ComputerName 'teams.microsoft.com' -Port 443</code></pre></div>
+<h2 id="4-administratorpruefungen-nur-mit-freigabeberechtigung">4. Administratorprüfungen (nur mit Freigabe/Berechtigung)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/><strong>Microsoft 365 Admin Center → Service health:</strong> Ist ein relevanter Incident bekannt?</label></li>
+<li><label><input type="checkbox"/><strong>Microsoft Entra Admin Center → Sign-in logs:</strong> Benutzer, Uhrzeit, Fehlercode, Korrelations-ID, Conditional Access.</label></li>
+<li><label><input type="checkbox"/>Teams Admin Center: Richtlinie, Teams-Berechtigung und bei Audio/Video <strong>Call Analytics</strong>.</label></li>
+<li><label><input type="checkbox"/>Lizenz, Accountstatus und ggf. Conditional-Access-Anforderungen prüfen.</label></li>
+<li><label><input type="checkbox"/>Bei mehreren Standorten: Proxy, Firewall, Endpunkte, DNS und Netzwerkqualität durch zuständiges Team prüfen.</label></li>
+</ul>
+<h2 id="5-protokolle-sichern">5. Protokolle sichern</h2>
+<p><strong>Neues Teams unter Windows:</strong> <strong>Strg + Alt + Umschalt + 1</strong> erfasst Teams-Supportdateien. Auf Datenschutz und UTC-Zeitstempel achten; Informationen nur über autorisierte Wege weitergeben.</p>
+<p><a href="https://learn.microsoft.com/de-de/microsoftteams/log-files" rel="noopener noreferrer" target="_blank">Microsoft – Teams-Protokolldateien</a></p>
+<h2 id="6-befundabhaengige-massnahmen">6. Befundabhängige Maßnahmen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Befund</th>
+<th>Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Client hängt, Web geht</td>
+<td>Teams vollständig beenden/neu starten, ggf. Update/Reparatur gemäß Unternehmensprozess</td>
+</tr>
+<tr class="even">
+<td>Fehler bleibt nur im neuen Teams</td>
+<td>Protokolle sichern; bei begründetem Verdacht Reset der App-Einstellungen als bewusste Änderung</td>
+</tr>
+<tr class="odd">
+<td>Conditional Access blockiert</td>
+<td>Richtlinienbefund sichern und verantwortliches Identity-/Security-Team einbinden</td>
+</tr>
+<tr class="even">
+<td>Microsoft-365-Incident</td>
+<td>Kommunikation und Eskalation statt lokaler „Reparatur“</td>
+</tr>
+<tr class="odd">
+<td>Falsches Mikrofon/Kamera</td>
+<td>In Teams und Windows das richtige Gerät freigeben und auswählen</td>
+</tr>
+<tr class="even">
+<td>Schlechte Besprechungsqualität</td>
+<td>Funknetz/Headset/Call Analytics/Standortpfad untersuchen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht tun:</strong> Sicherheitsrichtlinien pauschal deaktivieren, Benutzerkennwörter erfragen, blind Teams-Cache löschen oder fremde Sessions übernehmen.</p>
+<h2 id="7-funktionspruefung">7. Funktionsprüfung</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>Ursprüngliche Fehlermeldung erscheint nicht mehr.</label></li>
+<li><label><input type="checkbox"/>Benutzer kann sich mit dem vorgesehenen Konto anmelden.</label></li>
+<li><label><input type="checkbox"/>Betroffene Funktion wurde <strong>zusammen mit dem Benutzer</strong> erfolgreich geprüft.</label></li>
+<li><label><input type="checkbox"/>Wenn Meetings betroffen: Testanruf/Besprechung für Audio und Video.</label></li>
+<li><label><input type="checkbox"/>Ticket enthält Ursache bzw. gesicherten Befund, Maßnahmen, Testergebnis und ggf. Eskalationsdaten.</label></li>
+</ul>
+<h2 id="8-eskalation-an-l2">8. Eskalation an L2</h2>
+<p>Wenn Authentifizierung/Richtlinien, zentrale Service-Probleme, Client-Bereitstellung oder Medienpfade nicht im L1-Rahmen gelöst werden können: exakten Fehlertext, Uhrzeit, betroffene Geräte/Standorte, Desktop-vs-Web-Befund, Anmeldeprotokoll-Korrelation und Supportdateien an berechtigtes Team übergeben.</p>
+<h3 id="ticketmuster-fiktiv">Ticketmuster (fiktiv)</h3>
+<p><strong>INC-015:</strong> Desktop-Anmeldung fehlgeschlagen, Web funktioniert. Dienststatus ohne bekannten relevanten Ausfall; lokaler Teams-Client als wahrscheinlicher Problemort eingegrenzt. Teams-Supportprotokolle gesichert, genehmigte App-Reparatur durchgeführt; anschließender Test mit Benutzer erfolgreich. <strong>Status:</strong> gelöst (fiktives Beispiel).</p>
+<h2 id="technische-referenzen">Technische Referenzen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/microsoftteams/teams-administration/clear-teams-cache" rel="noopener noreferrer" target="_blank">Teams-Cache – Grenzen und Reset des neuen Clients</a></li>
+<li><a href="https://learn.microsoft.com/de-de/microsoftteams/log-files" rel="noopener noreferrer" target="_blank">Teams-Protokolle sammeln</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/microsoftteams/teams-sign-in/resolve-sign-in-errors" rel="noopener noreferrer" target="_blank">Teams-Anmeldefehler</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Conditional Access prüfen</a></li>
+<li><a href="https://learn.microsoft.com/de-de/microsoftteams/monitor-call-quality-qos" rel="noopener noreferrer" target="_blank">Teams-Anrufqualität</a></li>
+</ul>
+<p><strong>Validierung:</strong> Technisch recherchiert, in diesem Projekt noch nicht praktisch getestet.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-015_Praxis-Runbook.md">RB-015_Praxis-Runbook.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-006/index.html">RB-006: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-014/index.html">← RB-014</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-016/index.html">RB-016 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

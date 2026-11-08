@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-015 Microsoft Teams funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-015: Microsoft Teams funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Microsoft 365 · Teams · Collaboration · Lernartikel</p><h1>RB-015: Microsoft Teams funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportticket-und-ausgangssituation">1. Supportticket und Ausgangssituation</a></li><li><a href="#2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</a></li><li><a href="#3-fehlerbilder-einordnen">3. Fehlerbilder einordnen</a></li><li><a href="#4-zugriffsvoraussetzungen-und-diagnosewege">4. Zugriffsvoraussetzungen und Diagnosewege</a></li><li><a href="#5-ursachen-und-pruefprioritaet">5. Ursachen und Prüfpriorität</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-praktische-diagnose-lesende-befehle-mit-zeilenkommentaren">7. Praktische Diagnose: Lesende Befehle mit Zeilenkommentaren</a></li><li><a href="#8-desktop-gegen-web-vergleichen">8. Desktop gegen Web vergleichen</a></li><li><a href="#9-anmeldung-mfa-und-conditional-access">9. Anmeldung, MFA und Conditional Access</a></li><li><a href="#10-dienste-und-tenant-pruefen">10. Dienste und Tenant prüfen</a></li><li><a href="#11-audio-kamera-und-besprechungsqualitaet">11. Audio, Kamera und Besprechungsqualität</a></li><li><a href="#12-gezielte-fehlerbehebung-und-risiken">12. Gezielte Fehlerbehebung und Risiken</a></li><li><a href="#13-erfolgskontrolle-und-l1l2-abgrenzung">13. Erfolgskontrolle und L1/L2-Abgrenzung</a></li><li><a href="#14-muster-ticket-und-lernkontrolle">14. Muster-Ticket und Lernkontrolle</a></li><li><a href="#15-quellen-methodik-und-validierungsstatus">15. Quellen, Methodik und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Themenbereich:</strong> Microsoft 365 / Collaboration / Client- und Dienstdiagnose<br/>
+<strong>Support-Level:</strong> L1/L2<br/>
+<strong>Umgebung:</strong> Neues Microsoft Teams für Windows 11, Teams im Web, Microsoft Entra ID, Microsoft 365<br/>
+<strong>Version:</strong> 1.0 · 08.11.2026<br/>
+<strong>Status:</strong> Anhand von Microsoft Learn recherchiert; praktische Validierung ausstehend. Alle Beispielmeldungen, Namen und Tickets sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb015_henne_ei_teams.png" rel="noopener noreferrer" target="_blank"><img alt="RB-015 – Henne-Ei-Infografik: Microsoft Teams systematisch diagnostizieren" decoding="async" loading="lazy" src="assets/rb015_henne_ei_teams.png"/></a></div><figcaption>RB-015 – Henne-Ei-Infografik: Microsoft Teams systematisch diagnostizieren</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Nicht jedes Teams-Problem ist ein Teams-Clientproblem. Anmeldung, Cloud-Dienst, Netzwerk, lokale App, Endgeräte und Richtlinien müssen voneinander unterschieden werden.</p>
+</blockquote>
+<h2 id="1-supportticket-und-ausgangssituation">1. Supportticket und Ausgangssituation</h2>
+<p><strong>INC-015 (fiktiv):</strong> „Seit heute früh startet Teams zwar, aber ich kann mich nicht anmelden. Bei zwei Kollegen funktioniert es. Im Browser kann ich Teams teilweise öffnen, aber auf meinem Laptop nicht.“</p>
+<p><strong>Ziel:</strong> Das Fehlerbild einordnen, den tatsächlich betroffenen Bestandteil bestimmen, risikoarme Tests durchführen, die Ursache gezielt beheben und die Funktion gemeinsam mit dem Benutzer überprüfen.</p>
+<p><strong>Erste Rückfragen:</strong> Seit wann tritt der Fehler auf? Welche Meldung inklusive Fehlercode wird angezeigt? Betrifft es nur einen Benutzer oder mehrere? Funktioniert Teams im Browser? Funktionieren Outlook und andere Microsoft-365-Dienste? Ist nur Chat oder speziell Meeting/Audio/Video betroffen?</p>
+<h2 id="2-technische-grundlagen-und-abkuerzungen">2. Technische Grundlagen und Abkürzungen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Einsteigererklärung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Teams-Client</strong></td>
+<td>Teams-Programm auf dem PC; das neue Teams verwendet unter Windows eine andere App-Technologie als das frühere klassische Teams.</td>
+</tr>
+<tr class="even">
+<td><strong>Teams im Web</strong></td>
+<td>Teams im unterstützten Browser; sinnvoll als Vergleichstest, aber nicht identisch mit einer vollständigen Diagnosesicherung.</td>
+</tr>
+<tr class="odd">
+<td><strong>Microsoft 365</strong></td>
+<td>Cloudplattform, zu deren Diensten Teams und weitere Geschäftsanwendungen gehören.</td>
+</tr>
+<tr class="even">
+<td><strong>Microsoft Entra ID</strong></td>
+<td>Cloudbasierter Dienst, der die Benutzeridentität und den Zugang zu Diensten verwaltet.</td>
+</tr>
+<tr class="odd">
+<td><strong>SSO (Single Sign-On)</strong></td>
+<td>Einmalige Anmeldung, die den Zugriff auf mehrere Dienste erleichtern kann.</td>
+</tr>
+<tr class="even">
+<td><strong>MFA (Multi-Factor Authentication)</strong></td>
+<td>Zusätzliche Prüfung eines zweiten Faktors neben einem Passwort.</td>
+</tr>
+<tr class="odd">
+<td><strong>Conditional Access</strong></td>
+<td>Entra-Richtlinien, die festlegen, unter welchen Bedingungen eine Anmeldung zulässig ist.</td>
+</tr>
+<tr class="even">
+<td><strong>Cache (Zwischenspeicher)</strong></td>
+<td>Lokal gespeicherte Daten, die den Ablauf beschleunigen. Löschen ist keine universelle Lösung.</td>
+</tr>
+<tr class="odd">
+<td><strong>WebView2</strong></td>
+<td>Microsoft-Edge-basierte Komponente, die moderne Windows-Anwendungen für Weboberflächen einsetzen können.</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>Zwischenstation für Netzwerkzugriffe; kann Unternehmensregeln durchsetzen.</td>
+</tr>
+<tr class="odd">
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt Namen in Netzwerkadressen.</td>
+</tr>
+<tr class="even">
+<td><strong>TLS (Transport Layer Security)</strong></td>
+<td>Verschlüsseltes Transportprotokoll, meist für HTTPS-Verbindungen.</td>
+</tr>
+<tr class="odd">
+<td><strong>CQD (Call Quality Dashboard)</strong></td>
+<td>Teams-Werkzeug zur Analyse organisationsweiter Audio-/Videoqualität.</td>
+</tr>
+<tr class="even">
+<td><strong>QoS (Quality of Service)</strong></td>
+<td>Priorisierung bestimmter Netzwerkdaten zur Verbesserung zeitkritischer Verbindungen.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="vereinfachte-infrastruktur">Vereinfachte Infrastruktur</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Client (neues Teams)       Browser (Teams im Web)
+            \                           /
+             \       Internet /        /
+              ---- Unternehmensnetz ---
+                         |
+               Microsoft 365 / Teams
+                         |
+               Microsoft Entra ID
+              (Anmeldung / Richtlinien)
+                         |
+            Chat / Besprechung / Dateien</code></pre></div>
+<p>Die tatsächliche Infrastruktur umfasst mehrere Microsoft-Dienste und Endpunkte. Teams kann deshalb teilweise funktionieren, obwohl etwa die Anmeldung, bestimmte Inhalte oder die Medienübertragung beeinträchtigt sind. <strong>Eine erfolgreiche Anmeldung beweist nicht, dass die Besprechungsqualität gut ist.</strong></p>
+<h2 id="3-fehlerbilder-einordnen">3. Fehlerbilder einordnen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>Denkbare Ursachen</th>
+<th>Erster Vergleichstest</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Teams startet nicht oder beendet sich</td>
+<td>Clientpaket, WebView2, Berechtigungen, lokale App-Umgebung</td>
+<td>Funktioniert Teams im Web?</td>
+</tr>
+<tr class="even">
+<td>Anmeldefehler oder Endlosschleife</td>
+<td>Konto, Entra ID, MFA, Conditional Access, Netzwerk/Proxy</td>
+<td>Exakten Fehlercode und Entra-Anmeldeprotokoll prüfen</td>
+</tr>
+<tr class="odd">
+<td>Chat/Kanal zeigt Inhalte nicht</td>
+<td>Dienstzustand, Richtlinien, Anzeige-/Synchronisationsfehler</td>
+<td>Andere Benutzer und Webansicht vergleichen; Logs vor Cache-Löschen sichern</td>
+</tr>
+<tr class="even">
+<td>Kamera oder Mikrofon fehlt</td>
+<td>Geräteauswahl, Windows-Gerätezugriff, Treiber, Hardware</td>
+<td>Testanruf, Windows-Geräteprüfung</td>
+</tr>
+<tr class="odd">
+<td>Schlechte Sprache oder Videoaussetzer</td>
+<td>Netzqualität, Paketverlust, WLAN, Geräte, Medienpfad</td>
+<td>Teams-Meeting-Diagnose/Call Analytics, andere Verbindung testen</td>
+</tr>
+<tr class="even">
+<td>Teams nur bei vielen Benutzern gestört</td>
+<td>Microsoft-365-Störung oder zentrale Netz-/Richtlinienänderung</td>
+<td>Service Health und organisationsweiten Umfang prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> „Teams funktioniert nicht“ ist noch keine Diagnose. Wir grenzen zuerst den betroffenen Funktionsbereich ein.</p>
+<h2 id="4-zugriffsvoraussetzungen-und-diagnosewege">4. Zugriffsvoraussetzungen und Diagnosewege</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Zugriff</th>
+<th>Konkreter Ablauf</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Benutzer ist in Windows angemeldet</td>
+<td>Teams-Bildschirmfreigabe, Schnellhilfe oder Vor-Ort-Support</td>
+<td>Symptom gemeinsam nachvollziehen, Fehlertext aufnehmen, Client/Web vergleichen</td>
+</tr>
+<tr class="even">
+<td>Teams selbst ist ausgefallen</td>
+<td>Telefon, Windows-Schnellhilfe oder zugelassene Fernwartung</td>
+<td>Unabhängigen Supportkanal verwenden; nicht auf eine kaputte Teams-Sitzung verlassen</td>
+</tr>
+<tr class="odd">
+<td>Verdacht auf Anmelde-/Richtlinienproblem</td>
+<td>Entra Admin Center mit Leseberechtigung</td>
+<td>Fehlgeschlagene Anmeldung anhand Uhrzeit, Benutzer, Korrelations-ID prüfen</td>
+</tr>
+<tr class="even">
+<td>Mehrere Benutzer betroffen</td>
+<td>Microsoft 365 Admin Center und Teams Admin Center</td>
+<td>Dienststatus und organisatorische Auswirkungen untersuchen</td>
+</tr>
+<tr class="odd">
+<td>Nur Meeting-Audio schlecht</td>
+<td>Teams Admin Center / Call Analytics, CQD je nach Rolle</td>
+<td>Medienqualität, Gerät und Netzbedingungen bewerten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Datenschutz:</strong> Supportprotokolle können Kontoinformationen, Geräte- und Sitzungsdetails enthalten. Nur über freigegebene Wege sammeln und weitergeben.</p>
+<h2 id="5-ursachen-und-pruefprioritaet">5. Ursachen und Prüfpriorität</h2>
+<ol type="1">
+<li><strong>Einzelner Benutzer/Client:</strong> lokales Teams-Profil, App-Update, Geräteprobleme, Anmeldung.</li>
+<li><strong>Mehrere Benutzer an einem Standort:</strong> Proxy, Firewall, DNS, Routing, WLAN, Standortnetz.</li>
+<li><strong>Mehrere Standorte:</strong> zentrale Richtlinie, Identitätsdienst oder Cloud-Störung.</li>
+<li><strong>Nur einzelne Funktion:</strong> Teams-Richtlinie, Teams/SharePoint/Exchange-Abhängigkeit, Anwendungszugriff, Audio/Video.</li>
+</ol>
+<p>Die Reihenfolge wird an Befunde angepasst. Ein Dienststatus „gesund“ schließt nicht jede regionale oder benutzerspezifische Störung aus.</p>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb015_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-015 – Technischer Diagnosebaum" decoding="async" loading="lazy" src="assets/rb015_diagnosebaum.svg"/></a></div><figcaption>RB-015 – Technischer Diagnosebaum</figcaption></figure>
+<p><strong>Merksatz:</strong> Erst Umfang → dann betroffene Ebene → dann konkrete Maßnahme.</p>
+<h2 id="7-praktische-diagnose-lesende-befehle-mit-zeilenkommentaren">7. Praktische Diagnose: Lesende Befehle mit Zeilenkommentaren</h2>
+<h3 id="71-teams-prozess-auf-dem-client-pruefen">7.1 Teams-Prozess auf dem Client prüfen</h3>
+<p><strong>Ausführungsort:</strong> Lokaler Windows-11-Client oder zulässig verwaltete Remotesitzung. <strong>Rechte:</strong> Normalerweise Benutzerkontext ausreichend. <strong>Wirkung:</strong> Lesend.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Liest Prozesse, deren Namen auf Teams hinweisen.
+# -ErrorAction SilentlyContinue unterdrückt nur die Meldung, wenn nichts gefunden wird.
+Get-Process -Name 'ms-teams','msteams' -ErrorAction SilentlyContinue |
+    # Zeigt Namen, Prozesskennung (Id), Startzeit und Arbeitsspeicherbelegung.
+    Select-Object ProcessName, Id, StartTime, WorkingSet64</code></pre></div>
+<p><strong>Interpretation:</strong> Kein Treffer kann auf einen nicht gestarteten Client hinweisen, beweist aber weder einen Installationsfehler noch einen fehlerhaften Cloud-Dienst. Ein vorhandener Prozess beweist keine erfolgreiche Anmeldung.</p>
+<h3 id="72-pruefen-ob-das-neue-teams-als-app-installiert-ist">7.2 Prüfen, ob das neue Teams als App installiert ist</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Fragt Teams-Pakete des aktuell angemeldeten Windows-Benutzers ab.
+# Get-AppxPackage ist eine lesende Abfrage, keine Neuinstallation.
+Get-AppxPackage -Name 'MSTeams' |
+    # Zeigt den Paketnamen, die Version und den Installationsort.
+    Select-Object Name, Version, InstallLocation</code></pre></div>
+<p><strong>Interpretation:</strong> Kein Ergebnis in diesem Benutzerkontext ist ein Hinweis auf eine fehlende Registrierung, aber kein Nachweis, dass Teams systemweit nicht vorhanden ist. Bei verwalteten Geräten weitere Bereitstellungsdaten prüfen.</p>
+<h3 id="73-grundlegende-verbindung-pruefen">7.3 Grundlegende Verbindung prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Löst den Teams-Webnamen per DNS auf.
+Resolve-DnsName -Name 'teams.microsoft.com'
+
+# Testet eine TCP-Verbindung auf HTTPS-Port 443.
+# Ein positiver Wert beweist nur den TCP-Aufbau, nicht die Funktion von Teams.
+Test-NetConnection -ComputerName 'teams.microsoft.com' -Port 443</code></pre></div>
+<p><strong>Interpretation:</strong> Fehlgeschlagene Namensauflösung spricht für eine DNS-/Netzwerkprüfung. <code>TcpTestSucceeded : True</code> ist <em>kein</em> vollständiger Teams-Gesundheitstest. Unternehmens-Proxys oder Sicherheitssoftware können den tatsächlichen Datenfluss zusätzlich beeinflussen.</p>
+<h3 id="74-systemzeit-und-lokale-windows-ereignisse-kontrollieren">7.4 Systemzeit und lokale Windows-Ereignisse kontrollieren</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die lokale Uhrzeit mit Zeitzonenoffset an.
+Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'
+
+# Liest nur die letzten Windows-Anwendungsereignisse ab Ereignis-ID 1000.
+# Ereignis 1000 kann auf einen Prozessabsturz hinweisen, muss aber Teams zugeordnet werden.
+Get-WinEvent -FilterHashtable @{
+    # Protokoll der Anwendungen.
+    LogName = 'Application'
+    # Möglicher Anwendungsfehler (nicht exklusiv Teams).
+    Id = 1000
+    # Nur Ereignisse der letzten zwei Stunden.
+    StartTime = (Get-Date).AddHours(-2)
+} -ErrorAction SilentlyContinue |
+    # Begrenzte Ausgabe für die erste Sichtung.
+    Select-Object -First 10 TimeCreated, ProviderName, Message</code></pre></div>
+<p><strong>Interpretation:</strong> Nur Einträge auswerten, die zeitlich und anhand des Anwendungsnamens tatsächlich zum gemeldeten Fehler passen. Die Ereignis-ID allein beweist keine Teams-Ursache.</p>
+<h3 id="75-supportdateien-fuer-teams-sichern">7.5 Supportdateien für Teams sichern</h3>
+<p>In Teams unter Windows lassen sich Diagnoseprotokolle über <strong>Strg + Alt + Umschalt + 1</strong> beziehungsweise den dafür vorgesehenen Menüpunkt erfassen. Die Protokolle werden standardmäßig im Download-Ordner bereitgestellt. Vor der Weitergabe prüfen, welche Konten darin dokumentiert sein könnten und ob ein genehmigter Supportweg vorliegt. Zeiten können in UTC aufgezeichnet sein.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/microsoftteams/log-files" rel="noopener noreferrer" target="_blank">Microsoft Learn – Teams-Protokolldateien</a>.</p>
+<h2 id="8-desktop-gegen-web-vergleichen">8. Desktop gegen Web vergleichen</h2>
+<p><strong>Test A:</strong> Auf demselben Arbeitsplatz Teams im unterstützten Browser öffnen (<code>https://teams.microsoft.com/</code>).<br/>
+<strong>Test B:</strong> Mit demselben Benutzer und im Rahmen der Sicherheitsrichtlinien vergleichen: Anmeldung? Chat? Besprechung?<br/>
+<strong>Test C:</strong> Ggf. bei einem zweiten berechtigten Benutzer prüfen, ob dieselbe Störung besteht.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Ergebnis</th>
+<th>Wahrscheinliche Prüfspur</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Web funktioniert, Desktop nicht</td>
+<td>Clientpaket, lokale App-Daten, Profil, WebView2, Desktop-Richtlinien</td>
+</tr>
+<tr class="even">
+<td>Web und Desktop scheitern</td>
+<td>Identitäts-/Lizenzproblem, Tenant-Richtlinie, Dienststatus oder Netzwerk</td>
+</tr>
+<tr class="odd">
+<td>Nur eine Funktion scheitert</td>
+<td>Berechtigung, Teams-Richtlinie, dienstspezifische Abhängigkeit</td>
+</tr>
+<tr class="even">
+<td>Browser geht im Firmennetz, nicht im Homeoffice</td>
+<td>VPN-/Proxy-/DNS-/Zugriffsbedingungen getrennt prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p>Das ist eine <strong>Eingrenzung</strong>, kein automatischer Ursachenbeweis.</p>
+<h2 id="9-anmeldung-mfa-und-conditional-access">9. Anmeldung, MFA und Conditional Access</h2>
+<p><strong>Microsoft Entra ID</strong> ist die Cloud-Identitätsverwaltung. Bei fehlerhaften Teams-Anmeldungen unter anderem prüfen:</p>
+<ul>
+<li>Exakte Fehlermeldung und Fehlercode (z. B. <code>0xCAA20004</code> als möglicher Hinweis auf Conditional Access).</li>
+<li>Ob das richtige Arbeits- oder Schulkonto verwendet wird.</li>
+<li>Ob die benötigte Lizenz und die vorgesehenen Nutzungsrechte vorhanden sind.</li>
+<li>Ob eine MFA-Anforderung vorliegt und erfolgreich abgeschlossen wurde.</li>
+<li>Im <strong>Entra Admin Center → Entra ID → Monitoring &amp; health → Sign-in logs</strong>: Zeit, Status, betroffene Ressource, Korrelations-ID und Conditional-Access-Ergebnis.</li>
+</ul>
+<p><strong>Nicht</strong> das Kennwort telefonisch erfragen; Conditional Access oder MFA nicht pauschal deaktivieren. Zugriffsprobleme können zudem durch Teams-Abhängigkeiten wie SharePoint oder Exchange verursacht werden.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Microsoft Learn – Conditional Access bei Anmeldeproblemen</a>.</p>
+<h2 id="10-dienste-und-tenant-pruefen">10. Dienste und Tenant prüfen</h2>
+<p>Bei mehreren betroffenen Benutzern prüft ein entsprechend berechtigter Administrator im <strong>Microsoft 365 Admin Center</strong> den Bereich <strong>Service health</strong> auf bekannte Incidents/Advisories. Zusätzlich kann im <strong>Teams Admin Center</strong> eine funktionsspezifische Analyse erfolgen.</p>
+<p>Ein globaler Dienstvorfall wird nicht durch Neuinstallation eines lokalen Teams-Clients behoben. In diesem Fall: Auswirkungen dokumentieren, Benutzer informieren, Microsoft-Status verfolgen und notwendige organisatorische Eskalation durchführen.</p>
+<h2 id="11-audio-kamera-und-besprechungsqualitaet">11. Audio, Kamera und Besprechungsqualität</h2>
+<p>Wenn Chat funktioniert, aber Meetings fehlerhaft sind, sind die diagnostischen Schwerpunkte anders:</p>
+<ul>
+<li>In Teams <strong>Einstellungen → Geräte</strong>: korrektes Mikrofon, Lautsprecher und Kamera auswählen; Testanruf soweit verfügbar.</li>
+<li>Windows <strong>Einstellungen → Datenschutz und Sicherheit</strong>: Kamera- und Mikrofonzugriff kontrollieren.</li>
+<li>Headset, USB-Verbindung, Bluetooth-Verbindung und Treiber prüfen.</li>
+<li>Eine Testbesprechung mit bewusst ausgewähltem Gerät durchführen.</li>
+<li>Bei Qualitätsproblemen: Latenz, Paketverlust, WLAN-Qualität und ggf. VPN-Routing/Proxy untersuchen.</li>
+<li>Als L2, sofern berechtigt: Teams Admin Center <strong>Call Analytics</strong> für einzelne Anrufe und <strong>CQD (Call Quality Dashboard)</strong> für Muster im Unternehmen heranziehen.</li>
+</ul>
+<p><strong>Wichtig:</strong> <code>ping</code> oder ein TCP-Test auf 443 allein reichen nicht aus, um Echtzeit-Audioqualität nachzuweisen.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/microsoftteams/monitor-call-quality-qos" rel="noopener noreferrer" target="_blank">Microsoft Learn – Teams-Anrufqualität</a>.</p>
+<h2 id="12-gezielte-fehlerbehebung-und-risiken">12. Gezielte Fehlerbehebung und Risiken</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Nachgewiesener/ausreichend eingegrenzter Befund</th>
+<th>Geeigneter nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nur der Desktop-Client ist betroffen; Web funktioniert</td>
+<td>Teams vollständig beenden und neu starten, Versionsstand prüfen, bei Bedarf appseitige Reparatur</td>
+</tr>
+<tr class="even">
+<td>Lokales neues Teams zeigt weiterhin Fehler</td>
+<td>Nach Sicherung benötigter Protokolle gezieltes Zurücksetzen über Windows-App-Einstellungen erwägen</td>
+</tr>
+<tr class="odd">
+<td>Anmeldung wird durch Richtlinie blockiert</td>
+<td>Berechtigte Admins prüfen anwendbare Conditional-Access-/Geräterichtlinien; Freigabeprozess einhalten</td>
+</tr>
+<tr class="even">
+<td>Dienstvorfall im Microsoft-365-Status sichtbar</td>
+<td>Incident dokumentieren und kommunizieren, nicht lokal „herumreparieren“</td>
+</tr>
+<tr class="odd">
+<td>Mikrofon/Kamera ist falsches Gerät</td>
+<td>Geräteauswahl und Windows-Berechtigungen richtig einstellen</td>
+</tr>
+<tr class="even">
+<td>Netzqualität schlecht</td>
+<td>Lokalen Funk-/Kabelweg, Paketverluste und Teams-Call-Daten untersuchen</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="besonders-wichtig-teams-cache-nicht-blind-loeschen">Besonders wichtig: Teams-Cache nicht blind löschen</h3>
+<p>Microsoft weist in der aktuellen Dokumentation ausdrücklich darauf hin, dass das Löschen des Teams-Caches <strong>kein allgemeiner erster Schritt</strong> ist. Bei fehlendem Chatverlauf, nicht angezeigten Kanälen oder Benachrichtigungsproblemen kann dieser Eingriff wertvolle Diagnoseprotokolle entfernen, ohne die Ursache zu beheben.</p>
+<p>Für das <strong>neue Teams</strong> beschreibt Microsoft gegebenenfalls das Zurücksetzen unter <strong>Windows → Einstellungen → Apps → Installierte Apps → Microsoft Teams → Erweiterte Optionen → Zurücksetzen</strong>. Dabei werden lokale App-Daten und Personalisierungen entfernt. Vorher Fehlerbild, relevante Protokolle und mögliche Auswirkungen berücksichtigen.</p>
+<p><strong>Nicht verwechseln:</strong> Das alte klassische Teams hat andere Cachepfade als das neue Teams. Alte Internetanleitungen können daher unpassend sein.</p>
+<p>Quelle: <a href="https://learn.microsoft.com/de-de/troubleshoot/microsoftteams/teams-administration/clear-teams-cache" rel="noopener noreferrer" target="_blank">Microsoft Learn – Teams-Clientcache löschen</a>.</p>
+<h2 id="13-erfolgskontrolle-und-l1l2-abgrenzung">13. Erfolgskontrolle und L1/L2-Abgrenzung</h2>
+<p><strong>Erfolgskontrolle:</strong> Der betroffene Nutzer meldet sich mit dem vorgesehenen Arbeitskonto an, kann Chat und die ursprünglich fehlerhafte Funktion ausführen und bestätigt die Behebung. Ein reiner Start der Teams-App reicht nicht.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>First Level (L1)</th>
+<th>Second Level (L2)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fehleraufnahme, Umfang, Versions- und Webvergleich</td>
+<td>Tenant, Entra, Conditional Access, Teams-Richtlinien</td>
+</tr>
+<tr class="even">
+<td>Geräteauswahl, lokale Verbindung und App-Neustart</td>
+<td>Organisationsweite Netzwerk-/Proxy-/Medienanalyse</td>
+</tr>
+<tr class="odd">
+<td>Genehmigte Standardmaßnahmen</td>
+<td>Logkorrelation, Call Analytics, CQD, Bereitstellung</td>
+</tr>
+<tr class="even">
+<td>Dokumentation und saubere Eskalation</td>
+<td>Nachhaltige Lösung, Change-/Incident-Management</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="14-muster-ticket-und-lernkontrolle">14. Muster-Ticket und Lernkontrolle</h2>
+<p><strong>Fiktives Ticket INC-015:</strong><br/>
+<strong>Fehlerbild:</strong> Teams-Desktop-App meldet Anmeldung nicht möglich; Teams im Web funktioniert.<br/>
+<strong>Diagnose:</strong> Benutzerkonto, Dienststatus und Vergleich im Web geprüft. Neuer Teams-Client startet, verliert aber die lokale Anmeldung. Fehlerdetails und Teams-Supportdateien aufgenommen.<br/>
+<strong>Maßnahme:</strong> Nach Dokumentation und Freigabe lokale App-Reparatur vorgenommen; kein Reset von Richtlinien oder Sicherheitsmechanismen.<br/>
+<strong>Ergebnis:</strong> Desktop-Anmeldung und Test-Chat erfolgreich.<br/>
+<strong>Status:</strong> Gelöst – <strong>fiktives Lernbeispiel</strong>, nicht praktisch im Rahmen dieses Projekts getestet.</p>
+<p><strong>Active-Recall-Fragen:</strong></p>
+<ol type="1">
+<li>Warum ist der Web-/Desktop-Vergleich so hilfreich?</li>
+<li>Warum darf „Teams-Prozess läuft“ nicht mit „Teams funktioniert“ gleichgesetzt werden?</li>
+<li>Welche Probleme lassen sich nicht durch Cache-Löschen beheben?</li>
+<li>Was unterscheidet Clientproblem, Entra-Anmeldeproblem und Teams-Dienstvorfall?</li>
+<li>Warum reicht <code>Test-NetConnection -Port 443</code> nicht aus, um Anrufqualität zu bestätigen?</li>
+</ol>
+<p><strong>Anki-Karten (Beispiele):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Kategorie</th>
+<th>Vorderseite</th>
+<th>Rückseite</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wissen</td>
+<td>Was bedeutet SSO?</td>
+<td>Single Sign-On: Anmeldung, die Zugriff auf mehrere Dienste erleichtern kann.</td>
+</tr>
+<tr class="even">
+<td>Verständnis</td>
+<td>Warum zuerst Teams im Web testen?</td>
+<td>Trennt Client-spezifische Fehler von dienst- oder kontoweiten Problemen.</td>
+</tr>
+<tr class="odd">
+<td>Diagnose</td>
+<td>Desktop kaputt, Web geht. Was zuerst?</td>
+<td>Lokale Teams-Version, Profil und Client-Logs prüfen.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="15-quellen-methodik-und-validierungsstatus">15. Quellen, Methodik und Validierungsstatus</h2>
+<p>Die hier beschriebenen Verfahren wurden anhand der folgenden offiziellen Herstellerdokumentation recherchiert. Sie ersetzen keine mandantenspezifischen IT-Freigaben oder Hersteller-Supportfälle.</p>
+<ol type="1">
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/microsoftteams/teams-administration/clear-teams-cache" rel="noopener noreferrer" target="_blank">Teams-Clientcache löschen – Microsoft Learn</a> – Unterschiede zwischen klassischem und neuem Teams; Warnungen vor vorschnellem Cache-Löschen.</li>
+<li><a href="https://learn.microsoft.com/de-de/microsoftteams/log-files" rel="noopener noreferrer" target="_blank">Teams-Protokolldateien sammeln – Microsoft Learn</a> – Supportdateien und Tastenkombination.</li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/microsoftteams/teams-sign-in/resolve-sign-in-errors" rel="noopener noreferrer" target="_blank">Teams-Anmeldefehler beheben – Microsoft Learn</a> – Fehlercodes und Anmeldefehler.</li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">Conditional Access untersuchen – Microsoft Learn</a> – Richtlinien und Anmeldeprotokolle.</li>
+<li><a href="https://learn.microsoft.com/de-de/microsoftteams/monitor-call-quality-qos" rel="noopener noreferrer" target="_blank">Teams-Anrufqualität – Microsoft Learn</a> – CQD und Call Analytics.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/microsoftteams/teams-administration/resolve-new-teams-launch-issues" rel="noopener noreferrer" target="_blank">Neuen Teams-Client starten – Microsoft Learn</a> – spezifische Startfehler und Ursachen.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/microsoftteams/teams-administration/resolve-teams-client-crash-issues" rel="noopener noreferrer" target="_blank">Teams-Clientabstürze – Microsoft Learn</a> – WebView2 und Medienstack.</li>
+</ol>
+<p><strong>Stand der Recherche:</strong> 08.11.2026. <strong>Praktische Validierung:</strong> ausstehend. Befehle und Diagnoseausgaben sind als lehrreiche Beispiele beschrieben und wurden nicht als tatsächlich ausgeführte Tests dokumentiert.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-015_Lernartikel.md">RB-015_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-006/index.html">RB-006: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-014/index.html">← RB-014</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-016/index.html">RB-016 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

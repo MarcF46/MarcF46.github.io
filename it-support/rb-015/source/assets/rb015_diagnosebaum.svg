@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1580" viewBox="0 0 1080 1580" role="img" aria-labelledby="title desc"><title id="title">RB-015 Diagnosebaum für Microsoft Teams</title><desc id="desc">Technischer Entscheidungsbaum mit Dienststatus, Webvergleich, Identität, Client und Audio-Video-Diagnose.</desc><defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#477a8d"/></marker><linearGradient id="hd" x1="0" x2="1"><stop stop-color="#063454"/><stop offset="1" stop-color="#0f687a"/></linearGradient></defs><rect width="1080" height="1580" fill="#f4f9fc"/><rect x="28" y="24" width="1024" height="101" rx="20" fill="url(#hd)"/><text x="540" y="67" font-size="29" font-weight="bold" fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif">RB-015 · Diagnose-Entscheidungsbaum</text><text x="540" y="98" font-size="18" fill="#caeef6" text-anchor="middle" font-family="DejaVu Sans,Arial,sans-serif">Microsoft Teams funktioniert nicht · L1 / L2</text>
+<rect x="302" y="161" width="476" height="99" rx="17" fill="#fff" stroke="#177b91" stroke-width="3"/>
+<text x="540.0" y="193" font-size="20" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Start: Teams funktioniert nicht</text>
+<text x="540.0" y="225" font-size="17" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Fehlertext, Uhrzeit, Funktion aufnehmen</text>
+<path d="M540 260V305" fill="none" stroke="#477a8d" stroke-width="4" marker-end="url(#arrow)"/>
+<rect x="302" y="312" width="476" height="113" rx="17" fill="#e7f5f6" stroke="#177b91" stroke-width="3"/>
+<text x="540.0" y="344" font-size="20" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Wie groß ist die Störung?</text>
+<text x="540.0" y="376" font-size="17" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Ein Benutzer, Standort oder viele?</text>
+<path d="M302 371H229V494M778 371H851V494" stroke="#477a8d" stroke-width="4" fill="none"/>
+<text x="140" y="464" font-family="Arial" font-size="20" fill="#0b5f6e" font-weight="bold">Viele</text>
+<text x="872" y="464" font-family="Arial" font-size="20" fill="#0b5f6e" font-weight="bold">Einzelne</text>
+<rect x="34" y="504" width="465" height="174" rx="17" fill="#fff4e7" stroke="#eaa447" stroke-width="3"/>
+<text x="266.5" y="536" font-size="19" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Zentrale Störung prüfen</text>
+<text x="266.5" y="568" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Microsoft 365 Service Health</text>
+<text x="266.5" y="594" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Weitere Benutzer / Standorte</text>
+<text x="266.5" y="620" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Netz / Proxy / Richtlinien</text>
+<rect x="581" y="504" width="465" height="174" rx="17" fill="#eaf5fc" stroke="#5b9fb7" stroke-width="3"/>
+<text x="813.5" y="536" font-size="19" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Teams im Web vergleichen</text>
+<text x="813.5" y="568" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Web funktioniert → Clientspur</text>
+<text x="813.5" y="594" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Web scheitert → Anmeldung / Dienst</text>
+<text x="813.5" y="620" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Nur einzelne Funktion → Funktionsspur</text>
+<path d="M267 678V714H540M814 678V714H540V767" fill="none" stroke="#477a8d" stroke-width="4" marker-end="url(#arrow)"/>
+<rect x="302" y="779" width="476" height="119" rx="17" fill="#fff" stroke="#177b91" stroke-width="3"/>
+<text x="540.0" y="811" font-size="20" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Was ist konkret betroffen?</text>
+<text x="540.0" y="843" font-size="17" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Start / Anmeldung / Chat / Meeting?</text>
+<path d="M302 840H230V975M778 840H851V975" stroke="#477a8d" stroke-width="4" fill="none"/>
+<rect x="34" y="990" width="465" height="189" rx="17" fill="#eaf5fc" stroke="#5b9fb7" stroke-width="3"/>
+<text x="266.5" y="1022" font-size="19" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Start / Login / Chat</text>
+<text x="266.5" y="1054" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Appversion und Paket prüfen</text>
+<text x="266.5" y="1080" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Entra-Anmeldeprotokoll / MFA</text>
+<text x="266.5" y="1106" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Conditional Access / Lizenz</text>
+<text x="266.5" y="1132" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Teams-Supportlogs sichern</text>
+<rect x="581" y="990" width="465" height="189" rx="17" fill="#eaf5fc" stroke="#5b9fb7" stroke-width="3"/>
+<text x="813.5" y="1022" font-size="19" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Meeting / Audio / Video</text>
+<text x="813.5" y="1054" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Geräte und Windows-Berechtigungen</text>
+<text x="813.5" y="1080" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Netzqualität / WLAN / Headset</text>
+<text x="813.5" y="1106" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Call Analytics / CQD (L2)</text>
+<text x="813.5" y="1132" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Testanruf durchführen</text>
+<path d="M267 1179V1221H540M814 1179V1221H540V1276" fill="none" stroke="#477a8d" stroke-width="4" marker-end="url(#arrow)"/>
+<rect x="252" y="1288" width="576" height="135" rx="17" fill="#e1f5ea" stroke="#438a68" stroke-width="3"/>
+<text x="540.0" y="1320" font-size="19" font-weight="bold" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Gezielt beheben und testen</text>
+<text x="540.0" y="1352" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Nur passende, genehmigte Maßnahme</text>
+<text x="540.0" y="1378" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Mit Benutzer ursprüngliche Funktion prüfen</text>
+<text x="540.0" y="1404" font-size="16" text-anchor="middle" fill="#0c2e42" font-family="DejaVu Sans,Arial,sans-serif">Ticket dokumentieren oder eskalieren</text>
+<rect x="39" y="1456" width="1002" height="85" rx="14" fill="#fff1dc" stroke="#e3aa3c" stroke-width="3"/><text x="540" y="1490" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3b13" font-family="DejaVu Sans,Arial,sans-serif">Sicherheitsregel: Nicht blind Cache löschen, Richtlinien abschalten</text><text x="540" y="1517" text-anchor="middle" font-size="20" font-weight="bold" fill="#7c3b13" font-family="DejaVu Sans,Arial,sans-serif">oder Teams neu installieren · Erst Befunde sichern!</text></svg>
