@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marc Fahlbusch | IT-Praxis & Lernumgebungen</title>
   <meta name="description" content="Praxisnahe IT-Lernumgebungen zu Windows Server, Active Directory, Linux, Docker, Monitoring, Backup und Automatisierung – zum Nachbauen, Verstehen und Vertiefen.">
-  <link rel="stylesheet" href="assets/styles.css?v=20261102-3">
+  <link rel="stylesheet" href="assets/styles.css?v=20261108-1">
 </head>
 <body id="top">
   <header class="site-header">
@@ -23,6 +23,7 @@
         <a href="#about">Über mich</a>
         <a href="#contact">Kontakt</a>
         <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="nav-button linkedin-nav" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
       </div>
       <details class="mobile-menu">
         <summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary>
@@ -34,6 +35,7 @@
         <a href="#about">Über mich</a>
         <a href="#contact">Kontakt</a>
         <a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="nav-button linkedin-nav" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a>
       </div>
       </details>
     </nav>
@@ -54,8 +56,8 @@
           Netzwerken und Automatisierung. Aufbau, Konfiguration, Tests, Fehlerbilder und Lösungswege werden so
           dokumentiert, dass sie möglichst einfach nachvollzogen und selbst ausprobiert werden können.
         </p>
-        <p class="share-note"><strong>Nachbauen, Weitergeben und Weiterempfehlen ist ausdrücklich erwünscht. 😉</strong></p>
 
+        <p class="hardware-note"><strong>IT-Labs mit 16 GB RAM:</strong> Meine Lernumgebungen sind bewusst so konzipiert, dass sie auch auf einem einfachen Laptop nachvollzogen und in wesentlichen Teilen nachgebaut werden können – ohne teure Spezialhardware.</p>
         <div class="hero-actions">
           <a class="button primary" href="#topics">Themen entdecken</a>
           <a class="button secondary" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub ansehen</a>
@@ -63,13 +65,13 @@
       </div>
 
       <aside class="hero-card" aria-label="Technische Schwerpunkte">
-        <p class="card-kicker">Schwerpunkte</p>
+        <p class="card-kicker">Meine Schwerpunkte</p>
         <ul>
-          <li><strong>Windows & Active Directory</strong><span>Server, Identitäten, Richtlinien und Berechtigungen</span></li>
-          <li><strong>Linux-Administration</strong><span>Dienste, Netzwerk, Logs und Betriebsdiagnose</span></li>
-          <li><strong>Automatisierung</strong><span>PowerShell, wiederholbare Abläufe und Zustandsprüfung</span></li>
-          <li><strong>Docker & DevOps</strong><span>Containerbetrieb, Sicherheit und CI/CD-Grundlagen</span></li>
-          <li><strong>Monitoring & Recovery</strong><span>Überwachung, Alarmierung, Backup und Wiederherstellung</span></li>
+          <li><strong>IT-Support & Troubleshooting</strong><span>1st/2nd Level, strukturierte Fehleranalyse und verständliche Runbooks</span></li>
+          <li><strong>Windows & Microsoft 365</strong><span>Active Directory, Benutzerverwaltung, Rechte und PowerShell</span></li>
+          <li><strong>Linux & Automatisierung</strong><span>Administration, Dienste, Shell, wiederholbare Abläufe</span></li>
+          <li><strong>Netzwerke & OPNsense</strong><span>TCP/IP, Firewall-Regeln, Hyper-V und sichere Segmentierung</span></li>
+          <li><strong>Monitoring & Recovery</strong><span>Docker, Prometheus, Grafana und überprüfte Wiederherstellung</span></li>
         </ul>
       </aside>
     </section>
@@ -160,6 +162,12 @@
             <li><strong>Konfigurieren:</strong> AD, Gruppen, Rechte, DNS, DHCP, NAT und GPOs verbinden.</li>
             <li><strong>Prüfen:</strong> Sicherheits- und Sollzustandskontrollen durchführen.</li>
           </ol>
+          <figure class="project-diagram">
+            <a href="projects.html#windows" aria-label="Architekturdiagramm zu windows in der Dokumentation ansehen">
+              <img src="assets/diagrams/windows-infrastructure.svg" alt="Windows-Infrastruktur mit Hyper-V und Active Directory" loading="lazy" decoding="async">
+            </a>
+            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
+          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#windows">Dokumentation öffnen</a>
             <a class="button secondary" href="https://github.com/MarcF46/windows_infrastructure_automation_lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
@@ -185,6 +193,12 @@
             <li>Reverse Proxy, HTTPS, Healthchecks und Readiness praktisch prüfen.</li>
             <li>Backup/Restore, Image Scanning und CI/CD als Betriebsbausteine einordnen.</li>
           </ul>
+          <figure class="project-diagram">
+            <a href="projects.html#docker" aria-label="Architekturdiagramm zu docker in der Dokumentation ansehen">
+              <img src="assets/diagrams/docker-runtime.svg" alt="Docker-Architektur mit Reverse Proxy und Containern" loading="lazy" decoding="async">
+            </a>
+            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
+          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#docker">Dokumentation öffnen</a>
             <a class="button secondary" href="https://github.com/MarcF46/docker-portfolio-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
@@ -210,6 +224,12 @@
             <li>Alarmregeln sowie Webhook-Zustellung praktisch testen.</li>
             <li>Fehlerzustände simulieren und strukturiert untersuchen.</li>
           </ul>
+          <figure class="project-diagram">
+            <a href="projects.html#monitoring" aria-label="Architekturdiagramm zu monitoring in der Dokumentation ansehen">
+              <img src="assets/diagrams/monitoring-flow.svg" alt="Monitoring-Architektur mit Prometheus und Grafana" loading="lazy" decoding="async">
+            </a>
+            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
+          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#monitoring">Dokumentation öffnen</a>
             <a class="button secondary" href="https://github.com/MarcF46/docker-portfolio-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
@@ -235,6 +255,12 @@
             <li>Runbooks und Incident Cards für wiederholbare Abläufe erstellen.</li>
             <li>Fehler schichtweise statt durch reine Befehlsausführung diagnostizieren.</li>
           </ul>
+          <figure class="project-diagram">
+            <a href="projects.html#ubuntu" aria-label="Architekturdiagramm zu ubuntu in der Dokumentation ansehen">
+              <img src="assets/diagrams/ubuntu-administration.svg" alt="Ubuntu-Administration und strukturierte Betriebsdiagnose" loading="lazy" decoding="async">
+            </a>
+            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
+          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#ubuntu">Dokumentation öffnen</a>
             <a class="button secondary" href="https://github.com/MarcF46/ubuntu-lab-baseline" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
@@ -260,6 +286,12 @@
             <li>Testdaten sichern und einen Restore praktisch durchführen.</li>
             <li>Wiederherstellung und Repository zusätzlich mit <code>borg check</code> prüfen.</li>
           </ul>
+          <figure class="project-diagram">
+            <a href="projects.html#borg" aria-label="Architekturdiagramm zu borg in der Dokumentation ansehen">
+              <img src="assets/diagrams/borg-backup-restore.svg" alt="BorgBackup-Sicherungs- und Wiederherstellungsablauf" loading="lazy" decoding="async">
+            </a>
+            <figcaption>Architekturvorschau · zur vollständigen Darstellung klicken</figcaption>
+          </figure>
           <div class="project-actions">
             <a class="button primary" href="projects.html#borg">Dokumentation öffnen</a>
             <a class="button secondary" href="https://github.com/MarcF46/linux-borg-backup-restore-lab" target="_blank" rel="noopener noreferrer">GitHub-Repository</a>
@@ -409,41 +441,56 @@
       </article>
     </section>
 
-    <section class="section" id="about">
+    <section class="section about-section" id="about" aria-labelledby="about-heading">
+      <div class="about-landscape" role="img" aria-label="Naturpanorama mit Bergen und grüner Landschaft"></div>
       <div class="profile-panel">
-        <div>
-          <p class="eyebrow">Über diese Seite</p>
-          <h2>Praktischer Lernweg statt reine Selbstdarstellung.</h2>
+        <div class="profile-copy">
+          <p class="eyebrow">Über mich</p>
+          <h2 id="about-heading">Neugierig, praxisorientiert und gerne im Austausch.</h2>
           <p>
-            Ich nutze diese Webpräsenz, um meine praktische Auseinandersetzung mit Systemintegration,
-            Administration, Infrastruktur und Automatisierung nachvollziehbar festzuhalten.
-            Der Nutzen für andere steht dabei bewusst mit im Vordergrund: Inhalte sollen verständlich,
-            nachbaubar und als Ausgangspunkt für eigene Übungen verwendbar sein.
+            Ich bin Fachinformatiker für Systemintegration und interessiere mich besonders dafür,
+            wie IT-Systeme zusammenspielen – und was passiert, wenn einmal etwas nicht funktioniert.
+            Statt nur eine Lösung zu übernehmen, möchte ich die Ursache verstehen, testen und nachvollziehbar dokumentieren.
           </p>
           <p>
-            Gleichzeitig zeigt die Dokumentation, mit welchen Themen ich mich beschäftige, welche
-            technischen Zusammenhänge ich praktisch erprobe und wie ich beim Lernen, Testen und
-            Troubleshooting vorgehe.
+            Meine Begeisterung gilt der Systemadministration, Linux, Netzwerken und Automatisierung.
+            Ich arbeite gerne strukturiert, probiere neue Werkzeuge praktisch aus und lerne aus echten Fehlerbildern.
+            Hier zeige ich nicht nur Ergebnisse, sondern auch meinen Weg dorthin: mit Konfigurationen, Prüfungen
+            und ehrlicher Einordnung dessen, was bereits umgesetzt ist und was noch entwickelt wird.
+          </p>
+          <p class="about-hardware">
+            <strong>IT-Lernen soll nicht an teurer Hardware scheitern.</strong> Ich entwickle meine Labs bewusst
+            auf einem normalen Laptop mit 16 GB Arbeitsspeicher. Gerade Auszubildende und Menschen in einer
+            IT-Umschulung sollen die grundlegenden Übungen selbst nachbauen können.
+            Je nach Lab, CPU und verfügbarer SSD-Kapazität werden dafür Komponenten nacheinander statt gleichzeitig betrieben.
           </p>
         </div>
-
-        <div class="profile-links">
-          <a class="profile-link" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">
-            <strong>GitHub</strong>
-            <span>Öffentliche Repositories und technische Dokumentation</span>
-          </a>
-          <a class="profile-link" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">
-            <strong>LinkedIn</strong>
-            <span>Berufliches Profil und aktuelle Themen</span>
-          </a>
-        </div>
+        <aside class="profile-aside" aria-label="Profilbild und berufliche Vernetzung">
+          <figure class="profile-portrait">
+            <img src="https://avatars.githubusercontent.com/u/284396455?v=4" alt="Profilbild aus meinem GitHub-Profil" loading="lazy" decoding="async" width="320" height="320">
+            <figcaption>Marc Fahlbusch · IT-Praxis und Systemintegration</figcaption>
+          </figure>
+          <p class="connect-note"><strong>Du möchtest dich vernetzen?</strong> Auf LinkedIn freue ich mich über fachlichen Austausch und berufliche Kontakte.</p>
+          <div class="profile-links">
+            <a class="profile-link" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">
+              <strong>Auf LinkedIn vernetzen ↗</strong>
+              <span>Berufliches Profil</span>
+            </a>
+            <a class="profile-link" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">
+              <strong>GitHub ↗</strong>
+              <span>Öffentliche Repositories und technische Dokumentation</span>
+            </a>
+          </div>
+        </aside>
       </div>
+      <p class="landscape-credit">Hintergrundfoto: <a href="https://commons.wikimedia.org/wiki/File:Bavarian_mountain_landscape.jpg" target="_blank" rel="noopener noreferrer">LNA-DEV / Wikimedia Commons</a>,
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>; Ausschnitt durch die Hintergrunddarstellung.</p>
     </section>
     <section class="section" id="contact" aria-labelledby="contact-heading">
       <div class="section-heading">
         <p class="eyebrow">Kontakt</p>
         <h2 id="contact-heading">Lass uns ins Gespräch kommen.</h2>
-        <p>Du hast Fragen zu meinen IT-Projekten, möchtest dich fachlich austauschen oder hast eine berufliche Anfrage? Ich freue mich über deine Nachricht.</p>
+        <p>Ob Fragen zu meinen IT-Projekten, kollegialer Fachaustausch oder eine berufliche Anfrage – ich freue mich über deine Nachricht.</p>
         <div class="hero-actions">
           <a class="button primary" href="mailto:marcfahlbusch@pm.me?subject=Anfrage%20%C3%BCber%20die%20IT-Webseite">E-Mail schreiben ↗</a>
         </div>
