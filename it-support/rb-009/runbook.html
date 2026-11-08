@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-009 WLAN-Verbindung funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-009: WLAN-Verbindung funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Netzwerke · WLAN · Praxis-Runbook</p><h1>RB-009: WLAN-Verbindung funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</a></li><li><a href="#2-problem-einer-ebene-zuordnen">2. Problem einer Ebene zuordnen</a></li><li><a href="#3-lesende-diagnose-am-windows-client">3. Lesende Diagnose am Windows-Client</a></li><li><a href="#4-wlan-ereignisse-und-verbindungsverlauf">4. WLAN-Ereignisse und Verbindungsverlauf</a></li><li><a href="#5-ip--dns--und-dienstzugriff-pruefen">5. IP-, DNS- und Dienstzugriff prüfen</a></li><li><a href="#6-besonderheit-firmen-wlan-mit-8021x-l2">6. Besonderheit Firmen-WLAN mit 802.1X (L2)</a></li><li><a href="#7-veraendernde-massnahmen-ausschliesslich-nach-befund">7. Verändernde Maßnahmen ausschließlich nach Befund</a></li><li><a href="#8-funktionskontrolle">8. Funktionskontrolle</a></li><li><a href="#9-eskalation-l1-l2">9. Eskalation L1 → L2</a></li><li><a href="#10-fiktiver-ticketkommentar">10. Fiktiver Ticketkommentar</a></li><li><a href="#11-herstellerquellen">11. Herstellerquellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte Support-Checkliste (L1/L2) · <strong>Stand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Fachlich recherchiert; praktisch nicht validiert. Beispielnamen/IP-Adressen sind fiktiv.</p>
+<h2 id="1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</h2>
+<ul>
+<li>[ ] Client, Benutzer, Standort, betroffene SSID (<em>Service Set Identifier</em>, WLAN-Name) und Zeitpunkt notieren.</li>
+<li>[ ] Symptom festhalten: WLAN fehlt / nicht sichtbar / Anmeldung scheitert / verbunden ohne IP / verbunden ohne Internet / wiederkehrender Abbruch.</li>
+<li>[ ] Exakte Windows-Meldung, Update/Standort-/Profiländerung, aktuelle Verbindung und Reichweite erfragen.</li>
+<li>[ ] Prüfen: Einzelgerät, mehrere Benutzer am selben AP (<em>Access Point</em>, WLAN-Funkstation) oder ganzer Standort?</li>
+<li>[ ] Fernzugriff vorhanden? Falls die Verbindung über WLAN läuft, keine risikoreichen Netzwerkänderungen aus der Fernwartung heraus durchführen.</li>
+<li>[ ] Freigaben, Wartungsfenster und Datenschutzregeln klären.</li>
+</ul>
+<h2 id="2-problem-einer-ebene-zuordnen">2. Problem einer Ebene zuordnen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Nächster Diagnosezweig</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Adapter / kein WLAN-Schalter</td>
+<td>Adapter, Treiber, Funkstatus und WLAN-Dienst (<code>WlanSvc</code>)</td>
+</tr>
+<tr>
+<td>SSID wird nicht angezeigt</td>
+<td>AP, Funkabdeckung, Frequenzband, Netzprofil/Policy</td>
+</tr>
+<tr>
+<td>SSID sichtbar, Authentifizierung scheitert</td>
+<td>WLAN-Profil, WPA2/WPA3, bei Unternehmen 802.1X/EAP/Zertifikat/NPS</td>
+</tr>
+<tr>
+<td>Verbunden, IPv4 <code>169.254.x.x</code></td>
+<td>DHCP (<em>Dynamic Host Configuration Protocol</em>), VLAN, AP-Uplink</td>
+</tr>
+<tr>
+<td>IP plausibel, interne Dienste nicht erreichbar</td>
+<td>DNS, Standardgateway, Routing, Firewall, VPN, Dienst</td>
+</tr>
+<tr>
+<td>Nur zeitweise, standortabhängig</td>
+<td>BSSID, Signal, Kanal, Roaming, AP/Controller</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merksatz:</strong> WLAN-Funkverbindung ≠ funktionierender IP-/DNS-/Internet-Zugang.</p>
+<h2 id="3-lesende-diagnose-am-windows-client">3. Lesende Diagnose am Windows-Client</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-11-Client, ggf. mit Administratorrechten für die Ereignis-/Berichtsdaten.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Listet Netzwerkadapter und deren Zustand auf.</span>
+<span class="nb">Get-NetAdapter</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">InterfaceDescription</span><span class="p">,</span> <span class="n">LinkSpeed</span>
+
+<span class="c"># Prüft den Dienst zur Verwaltung von WLAN-Profilen/-Verbindungen.</span>
+<span class="nb">Get-Service</span> <span class="n">-Name</span> <span class="s1">'WlanSvc'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">StartType</span>
+
+<span class="c"># Zeigt WLAN-Verbindungsstatus, SSID, BSSID und Signal.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">interfaces</span>
+
+<span class="c"># Listet sichtbare Netze und einzelne Access Points (BSSID/Kanal).</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">networks</span> <span class="n">mode</span><span class="p">=</span><span class="n">bssid</span>
+
+<span class="c"># Zeigt die Netzwerkkonfiguration einschließlich DHCP/DNS.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">all</span>
+
+<span class="c"># Zeigt IP-Adressen, Gateways und DNS-Server in PowerShell.</span>
+<span class="nb">Get-NetIPConfiguration</span>
+</code></pre></div><p><strong>Interpretation:</strong> SSID nicht sichtbar → Funk/AP/Profil prüfen. Authentifizierung fehlgeschlagen → WLAN-Logs/EAP prüfen. <code>169.254.x.x</code> bei erwartetem DHCP → DHCP-Weg überprüfen, nicht blind feste IP setzen.</p>
+<h2 id="4-wlan-ereignisse-und-verbindungsverlauf">4. WLAN-Ereignisse und Verbindungsverlauf</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client; für den Bericht eine erhöhte PowerShell/Eingabeaufforderung.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Schreibt einen WLAN-HTML-Bericht auf die lokale Festplatte.</span>
+<span class="c"># Der Speicherort erscheint nach Ausführung in der Konsole.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">wlanreport</span>
+
+<span class="c"># Name des WLAN-Ereignisprotokolls festlegen.</span>
+<span class="nv">$log</span> <span class="p">=</span> <span class="s1">'Microsoft-Windows-WLAN-AutoConfig/Operational'</span>
+
+<span class="c"># Ereignisse aus den letzten zwei Stunden anzeigen.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="nv">$log</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">2</span><span class="p">)</span>
+<span class="p">}</span> <span class="n">-MaxEvents</span> <span class="n">20</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Prüfen:</strong> Fehlerversuchszeit, BSSID, WLAN-Verbindungs-/Trennungsgrund. Der HTML-Bericht fasst unter anderem Ereignisse der letzten <strong>drei Tage</strong> zusammen. Er enthält potenziell vertrauliche Netzwerkinformationen: <strong>vor Weitergabe und Veröffentlichung bereinigen</strong>.</p>
+<h2 id="5-ip--dns--und-dienstzugriff-pruefen">5. IP-, DNS- und Dienstzugriff prüfen</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client; nur passende Unternehmensziele verwenden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Namensauflösung für ein tatsächlich bekanntes internes Ziel.</span>
+<span class="c"># Den Platzhalternamen in der Praxis ersetzen.</span>
+<span class="nb">Resolve-DnsName</span> <span class="s1">'intranet.firma.example'</span>
+
+<span class="c"># TCP-Verbindung zu einem internen HTTPS-Ziel prüfen.</span>
+<span class="c"># 192.0.2.20 ist eine reservierte Dokumentationsadresse.</span>
+<span class="c"># Für reale Tests die echte Zieladresse einsetzen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'192.0.2.20'</span> <span class="n">-Port</span> <span class="n">443</span>
+</code></pre></div><p><strong>Auswertung:</strong> Kein Name auflösbar → DNS prüfen. Name auflösbar, Port nicht erreichbar → Ziel, Routing und Firewall prüfen. Ping alleine beweist wenig, da ICMP blockiert sein kann.</p>
+<h2 id="6-besonderheit-firmen-wlan-mit-8021x-l2">6. Besonderheit Firmen-WLAN mit 802.1X (L2)</h2>
+<ul>
+<li>[ ] Authentifizierungsmethode im verwalteten WLAN-Profil feststellen.</li>
+<li>[ ] EAP (<em>Extensible Authentication Protocol</em>)-/Zertifikatsstatus und vorgesehenen Servernamen prüfen.</li>
+<li>[ ] Keine Zertifikats- oder Serveridentitätsprüfung deaktivieren.</li>
+<li>[ ] Bei Microsoft NPS (<em>Network Policy Server</em>) entsprechende Security-Events vergleichen: <strong>6272</strong> Zugang gewährt, <strong>6273</strong> Zugang verweigert; Reason Code lesen.</li>
+<li>[ ] AP/Controller, RADIUS (<em>Remote Authentication Dial-In User Service</em>), Netzwerkpolicy, VLAN und DHCP aufeinander abstimmen.</li>
+<li>[ ] Benutzer-/Geräte-Zertifikate nicht eigenmächtig erneuern oder exportieren.</li>
+</ul>
+<h2 id="7-veraendernde-massnahmen-ausschliesslich-nach-befund">7. Verändernde Maßnahmen ausschließlich nach Befund</h2>
+<ul>
+<li>[ ] Funkadapter/Flugmodus nur nach Zustimmung prüfen und gegebenenfalls korrigieren.</li>
+<li>[ ] Erkennbar fehlerhafte WLAN-Profile nur über freigegebenen GPO-/MDM-Prozess (Gruppenrichtlinien/Geräteverwaltung) neu bereitstellen.</li>
+<li>[ ] Treiberwechsel oder Netzwerkreset nicht als ersten Schritt; Diagnose vorher sichern.</li>
+<li>[ ] DHCP-/DNS-/VLAN-/AP-Problem zentral mit zuständigem Team beheben lassen.</li>
+<li>[ ] AP- oder WLAN-Controller-Neustarts nur geplant: Mehrbenutzer-Auswirkungen berücksichtigen.</li>
+<li>[ ] Keine „Sicherheits-Workarounds“ wie das Abschalten der Serverzertifikatsprüfung.</li>
+</ul>
+<h2 id="8-funktionskontrolle">8. Funktionskontrolle</h2>
+<ul>
+<li>[ ] Richtige SSID/BSSID und Verbindungsstatus geprüft.</li>
+<li>[ ] Bei Enterprise-WLAN Authentifizierung und Richtlinien korrekt.</li>
+<li>[ ] Passende IP-Konfiguration und erwartete DNS-/Gateway-Werte.</li>
+<li>[ ] Gewünschte Unternehmensanwendung erreichbar.</li>
+<li>[ ] Bei Roaming-/Abbruchproblem mehrminütige oder ortsbezogene Nachprüfung.</li>
+<li>[ ] Änderungen, Ursache, Ergebnisse und eventuelle Restunsicherheit im Ticket dokumentiert.</li>
+</ul>
+<h2 id="9-eskalation-l1-l2">9. Eskalation L1 → L2</h2>
+<p>Bei mehreren betroffenen Nutzern, AP-/Controller-/NPS-/RADIUS-/802.1X-/Zertifikats-/VLAN-/DHCP-/Firewall-/Routing-Problemen, wiederkehrenden Verbindungsabbrüchen oder fehlenden Berechtigungen eskalieren.</p>
+<p><strong>Mitgeben:</strong> Client, SSID/BSSID (nur intern), Gebäude/Etage, Zeitpunkt, Fehlermeldung, IP-Konfiguration, anonymisierte WLAN-Berichte/Logs, Gegenprobe mit anderem Client, bisherige Maßnahmen, Auswirkung.</p>
+<h2 id="10-fiktiver-ticketkommentar">10. Fiktiver Ticketkommentar</h2>
+<p><strong>INC-009 – WLAN sichtbar, keine Unternehmens-IP.</strong> Ein Client betroffen. WLAN-Adapter aktiv, Funknetz verbunden, IPv4-Adresse <code>169.254.x.x</code>. DHCP-Zuweisung fehlgeschlagen; genaue Ursache noch offen. Diagnosebericht gesichert, kein Profil gelöscht; zur Prüfung von WLAN-VLAN, DHCP und AP-Uplink an Netzwerkteam eskaliert. <strong>Status: Eskaliert, nicht gelöst.</strong></p>
+<h2 id="11-herstellerquellen">11. Herstellerquellen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Erweiterte WLAN-Diagnose</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/connectivity-networking/analyze-the-wireless-network-report" rel="noopener noreferrer" target="_blank">Microsoft Support – WLAN-Bericht</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/netsh-wlan" rel="noopener noreferrer" target="_blank">Microsoft Learn – netsh wlan</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/802-1x-authentication-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – 802.1X-Diagnose</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-network-policy-server" rel="noopener noreferrer" target="_blank">Microsoft Learn – NPS-Diagnose</a></li>
+</ul>
+<p><strong>Details, Grundlagen und Beispielinterpretationen:</strong> <a href="index.html">RB-009 Lernartikel</a>. <strong>Praktischer Test:</strong> Noch nicht durchgeführt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-009_Praxis-Runbook.md">RB-009_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-008/index.html">← RB-008</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-010/index.html">RB-010 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

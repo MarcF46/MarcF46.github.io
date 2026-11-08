@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-010 Keine Netzwerk- oder Internetverbindung | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-010: Keine Netzwerk- oder Internetverbindung. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">TCP/IP · Netzwerkdiagnose · Praxis-Runbook</p><h1>RB-010: Keine Netzwerk- oder Internetverbindung</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-und-scope-l1">1. Ticketaufnahme und Scope (L1)</a></li><li><a href="#2-diagnoseebene-bestimmen">2. Diagnoseebene bestimmen</a></li><li><a href="#3-lesende-clientdiagnose">3. Lesende Clientdiagnose</a></li><li><a href="#4-erreichbarkeit-von-gateway-dns-und-dienst">4. Erreichbarkeit von Gateway, DNS und Dienst</a></li><li><a href="#5-unternehmensumgebung-l1l2">5. Unternehmensumgebung (L1/L2)</a></li><li><a href="#6-aenderung-erst-nach-befund-und-freigabe">6. Änderung erst nach Befund und Freigabe</a></li><li><a href="#7-funktionspruefung-und-abschluss">7. Funktionsprüfung und Abschluss</a></li><li><a href="#8-l2-eskalation-bei">8. L2-Eskalation bei</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte L1-/L2-Arbeitsanweisung · <strong>Version 1.0 (08.11.2026)</strong><br/>
+<strong>Status:</strong> Recherchiert; nicht praktisch validiert. Adressen und Namen im Beispiel sind fiktiv.</p>
+<h2 id="1-ticketaufnahme-und-scope-l1">1. Ticketaufnahme und Scope (L1)</h2>
+<ul>
+<li>[ ] Benutzer, Client, Standort, Zeitpunkt und exakte Fehlermeldung dokumentieren.</li>
+<li>[ ] Geht LAN/WLAN nicht, ist „Kein Internet“ angezeigt, oder ist nur ein Dienst betroffen?</li>
+<li>[ ] Sind mehrere Geräte/Standorte betroffen? Änderungen an VPN, Netzwerk, Updates bekannt?</li>
+<li>[ ] Welcher Diagnosezugang steht zur Verfügung? Läuft eine Remotesitzung über das betroffene Interface?</li>
+<li>[ ] <strong>Keine</strong> unkoordinierten Resets, Firewall-Abschaltungen, DNS-Änderungen oder DHCP-Erneuerungen durchführen.</li>
+</ul>
+<h2 id="2-diagnoseebene-bestimmen">2. Diagnoseebene bestimmen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Zuerst prüfen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Adapter-Link</td>
+<td>Adapter, Kabel, WLAN, Switchport</td>
+</tr>
+<tr>
+<td>IPv4 <code>169.254.x.x</code> und DHCP erwartet</td>
+<td>DHCP-Bezug, VLAN, Link, DHCP-Relay/-Server</td>
+</tr>
+<tr>
+<td>IP plausibel, Gateway fraglich</td>
+<td>Netzmaske, Routen, Zielzugriff</td>
+</tr>
+<tr>
+<td>Direkte IP-Verbindung funktioniert, Name nicht</td>
+<td>DNS-Server, Zonen/Einträge, VPN-DNS</td>
+</tr>
+<tr>
+<td>Name löst auf, Zielport nicht erreichbar</td>
+<td>Dienst, Route, Firewall, Proxy</td>
+</tr>
+<tr>
+<td>„Kein Internet“, aber konkrete Ziele erreichbar</td>
+<td>NCSI-/Proxy-Prüfungen gesondert</td>
+</tr>
+<tr>
+<td>Mehrere Benutzer betroffen</td>
+<td>Zentrale Infrastruktur und L2 informieren</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-lesende-clientdiagnose">3. Lesende Clientdiagnose</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-11-Rechner, PowerShell. Vorher Adapter und verwendete Remoteverbindung feststellen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Netzwerkadapter und Link-Status ausgeben.</span>
+<span class="nb">Get-NetAdapter</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">InterfaceDescription</span><span class="p">,</span> <span class="n">LinkSpeed</span>
+
+<span class="c"># IP-Adressen, Gateway und DNS-Server anzeigen.</span>
+<span class="nb">Get-NetIPConfiguration</span>
+
+<span class="c"># DHCP-/Adapterdetails anzeigen; Windows-Programm in PowerShell.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">all</span>
+
+<span class="c"># IPv4-Routingtabelle anzeigen; Windows-Programm in PowerShell.</span>
+<span class="n">route</span> <span class="n">print</span> <span class="p">-</span><span class="n">4</span>
+
+<span class="c"># Standardrouten gezielt auslesen.</span>
+<span class="nb">Get-NetRoute</span> <span class="n">-AddressFamily</span> <span class="n">IPv4</span> <span class="n">-DestinationPrefix</span> <span class="s1">'0.0.0.0/0'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">DestinationPrefix</span><span class="p">,</span> <span class="n">NextHop</span><span class="p">,</span> <span class="n">InterfaceAlias</span><span class="p">,</span> <span class="n">RouteMetric</span>
+</code></pre></div><p><strong>Auswertung:</strong> Bei DHCP-erwarteter Adresse <code>169.254.x.x</code> DHCP-Pfad prüfen. Mehrere Interfaces können unterschiedliche Routen/DNS-Werte verwenden. Eine hohe <code>LinkSpeed</code> ist kein Internet-Speedtest.</p>
+<h2 id="4-erreichbarkeit-von-gateway-dns-und-dienst">4. Erreichbarkeit von Gateway, DNS und Dienst</h2>
+<p><strong>Die Adressen müssen aus der tatsächlichen Sollkonfiguration übernommen werden.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Beispielhaftes Gateway per ICMP testen; ICMP kann blockiert sein.</span>
+<span class="n">ping</span> <span class="n">192</span><span class="p">.</span><span class="n">168</span><span class="p">.</span><span class="n">50</span><span class="p">.</span><span class="n">1</span>
+
+<span class="c"># Namensauflösung über die eingerichtete DNS-Konfiguration testen.</span>
+<span class="nb">Resolve-DnsName</span> <span class="n">-Name</span> <span class="s1">'www.microsoft.com'</span>
+
+<span class="c"># Einen dokumentierten internen DNS-Server direkt befragen.</span>
+<span class="nb">Resolve-DnsName</span> <span class="n">-Name</span> <span class="s1">'intranet.firma.example'</span> <span class="n">-Server</span> <span class="s1">'192.168.50.10'</span>
+
+<span class="c"># TCP-Verbindung zu einem konkreten internen HTTPS-Dienst testen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'192.168.50.20'</span> <span class="n">-Port</span> <span class="n">443</span>
+
+<span class="c"># Browser-/Webdienst-Auflösung und TCP-Verbindung getrennt beurteilen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'www.microsoft.com'</span> <span class="n">-Port</span> <span class="n">443</span>
+</code></pre></div><p><strong>Interpretation:</strong> Erfolgreicher TCP-Porttest beweist noch keine funktionierende Anwendung. Erfolgloses Ping beweist keinen generellen Ausfall. Bei Proxy-/VPN-Netzen kann direkter TCP-Zugriff von Browserzugriff abweichen.</p>
+<h2 id="5-unternehmensumgebung-l1l2">5. Unternehmensumgebung (L1/L2)</h2>
+<ul>
+<li>[ ] Soll-DNS und DNS-Suffix prüfen; in AD-Umgebungen <strong>keinen</strong> öffentlichen Resolver blind eintragen.</li>
+<li>[ ] DHCP-Clientstatus, Lease, VLAN, DHCP-Server/Relay und Scope untersuchen.</li>
+<li>[ ] VPN-Verbindung und Routen zum konkreten internen oder externen Ziel vergleichen.</li>
+<li>[ ] Proxy/PAC für die betroffene Anwendung berücksichtigen. <code>netsh winhttp show proxy</code> zeigt <strong>nur die WinHTTP-Proxykonfiguration</strong>.</li>
+<li>[ ] Firewall- und Routingregeln nicht pauschal deaktivieren.</li>
+<li>[ ] Bei Windows-Meldung „Kein Internet“ ggf. NCSI prüfen; Zieltests bleiben entscheidend.</li>
+</ul>
+<h2 id="6-aenderung-erst-nach-befund-und-freigabe">6. Änderung erst nach Befund und Freigabe</h2>
+<ul>
+<li>[ ] Link-/Kabel-/Portproblem gezielt beheben.</li>
+<li>[ ] DHCP-Lease <strong>nur bei begründeter Diagnose</strong> kontrolliert erneuern; Remoteverbindung kann abbrechen.</li>
+<li>[ ] Falsche DNS-/Route-/VPN-/Proxykonfiguration gemäß Unternehmensstandard korrigieren.</li>
+<li>[ ] Gemeinsame Infrastrukturänderungen ausschließlich durch zuständige Administrationsstelle.</li>
+<li>[ ] Diagnosezustand vorher dokumentieren; gegebenenfalls Rückfallweg bereithalten.</li>
+</ul>
+<h2 id="7-funktionspruefung-und-abschluss">7. Funktionsprüfung und Abschluss</h2>
+<ul>
+<li>[ ] Netzwerkadapter verbunden; IP, Gateway, DNS und Route plausibel.</li>
+<li>[ ] Benötigte Dienste mit Namen und vorgesehenem Protokoll/Port erreichbar.</li>
+<li>[ ] Tatsächliche Anwendung mit dem Benutzer erneut testen.</li>
+<li>[ ] Nebeneffekte für VPN/Firmennetz prüfen.</li>
+<li>[ ] Ursache, Befund, Maßnahme, Ergebnis, Uhrzeit und Freigabe im Ticket dokumentieren.</li>
+</ul>
+<h2 id="8-l2-eskalation-bei">8. L2-Eskalation bei</h2>
+<p>Gemeinsamem Standortausfall, DHCP-/DNS-/Router-/Firewall-/VPN-Problemen außerhalb der L1-Berechtigung, widersprüchlichen Messwerten oder Störungen, die nicht reproduzierbar eingegrenzt werden können. Mitliefern: Umfang, Zeit, betroffener Adapter, anonymisierte IP-/Routing-/DNS-Daten, konkrete Tests und bereits ausgeführte Änderungen.</p>
+<p><strong>Quelle/Vertiefung:</strong> <a href="index.html">Ausführlicher RB-010-Lernartikel</a> einschließlich Microsoft-Dokumentation und Entscheidungsbaum.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-010_Praxis-Runbook.md">RB-010_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-009/index.html">← RB-009</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-009 WLAN-Verbindung funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-009: WLAN-Verbindung funktioniert nicht. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Netzwerke · WLAN · Lernartikel</p><h1>RB-009: WLAN-Verbindung funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-und-ticket">1. Ausgangssituation und Ticket</a></li><li><a href="#2-technische-grundlagen-wlan-ist-nicht-dasselbe-wie-internet">2. Technische Grundlagen – WLAN ist nicht dasselbe wie Internet</a></li><li><a href="#3-wlan-anmeldung-privat-vs-unternehmen">3. WLAN-Anmeldung: Privat vs. Unternehmen</a></li><li><a href="#4-fehleraufnahme-und-eingrenzung">4. Fehleraufnahme und Eingrenzung</a></li><li><a href="#5-zugriffsvoraussetzungen-von-wo-kann-der-support-diagnostizieren">5. Zugriffsvoraussetzungen: Von wo kann der Support diagnostizieren?</a></li><li><a href="#6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</a></li><li><a href="#7-lesende-clientdiagnose-adapter-und-wlan">7. Lesende Clientdiagnose: Adapter und WLAN</a></li><li><a href="#8-den-wlan-verlaufsbericht-und-ereignisse-untersuchen">8. Den WLAN-Verlaufsbericht und Ereignisse untersuchen</a></li><li><a href="#9-nach-erfolgreicher-wlan-anmeldung-ipdhcpdns-pruefen">9. Nach erfolgreicher WLAN-Anmeldung: IP/DHCP/DNS prüfen</a></li><li><a href="#10-unternehmens-wlan-8021x-zertifikate-und-nps-l2">10. Unternehmens-WLAN: 802.1X, Zertifikate und NPS (L2)</a></li><li><a href="#11-ursachenbezogene-loesungen-statt-pauschaler-resets">11. Ursachenbezogene Lösungen statt pauschaler Resets</a></li><li><a href="#12-erfolgskontrolle-verbunden-allein-reicht-nicht">12. Erfolgskontrolle – „Verbunden“ allein reicht nicht</a></li><li><a href="#13-wann-wird-von-l1-an-l2-eskaliert">13. Wann wird von L1 an L2 eskaliert?</a></li><li><a href="#14-muster-ticketkommentar-fiktiv">14. Muster-Ticketkommentar (fiktiv)</a></li><li><a href="#15-lernkontrolle-und-technische-quellen">15. Lernkontrolle und technische Quellen</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-009 · <strong>Support-Level:</strong> 1st / 2nd Level · <strong>Umgebung:</strong> Windows 11, WLAN-Adapter, Access Point, DHCP/DNS, optional Unternehmens-WLAN (802.1X)<br/>
+<strong>Dokumentationsstand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierungsstatus:</strong> Fachlich anhand offizieller Microsoft-Dokumentation recherchiert. Alle Namen, Messwerte und Testergebnisse sind <strong>fiktive Lernbeispiele</strong>; ein eigener Praxistest steht aus.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb009_henne_ei_wlan.png" rel="noopener noreferrer" target="_blank"><img alt="RB-009: WLAN-Verbindung funktioniert nicht – Henne-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb009_henne_ei_wlan.png"/></a></div><figcaption>RB-009: WLAN-Verbindung funktioniert nicht – Henne-Ei-Infografik</figcaption></figure>
+<p><em>Infografik: Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Illustrative Darstellung und keine Aufnahme einer tatsächlichen Kundenumgebung.</em></p>
+<h2 id="1-ausgangssituation-und-ticket">1. Ausgangssituation und Ticket</h2>
+<p><strong>Fiktives Ticket INC-009:</strong></p>
+<blockquote>
+<p>„Mein Laptop zeigt das Firmen-WLAN an, aber ich kann mich seit heute Morgen nicht mehr verbinden. Mein Kollege sitzt neben mir und ist ganz normal online.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Windows-11-Laptop <code>NB-023</code>, Firmen-WLAN mit Netzwerkname <code>Firma-Intern</code>, mehrere Access Points (APs). Die Gerätenamen und die SSID sind erfunden.</p>
+<p><strong>Ziel:</strong> Feststellen, ob die Störung beim WLAN-Adapter, der Funksichtbarkeit, der WLAN-Anmeldung, der IP-Konfiguration oder bei der Erreichbarkeit des benötigten Dienstes liegt. Nur die nachgewiesene Fehlerursache beheben.</p>
+<p><strong>Grundregel:</strong> „WLAN geht nicht“ ist ein Symptom. Nicht automatisch Treiber löschen, WLAN-Profile zurücksetzen oder den Access Point neu starten.</p>
+<h2 id="2-technische-grundlagen-wlan-ist-nicht-dasselbe-wie-internet">2. Technische Grundlagen – WLAN ist nicht dasselbe wie Internet</h2>
+<p>Ein typischer Verbindungspfad lautet:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Laptop
+   │ WLAN-Funkadapter und Treiber
+   ▼
+Funkverbindung zum Access Point (AP)
+   │ WLAN-Anmeldung: WPA2/WPA3 Personal oder Enterprise
+   ▼
+Lokales Netzwerk: Switch / VLAN / DHCP / Gateway
+   │ DNS und Routing / Firewall
+   ▼
+Firmennetz oder Internet / gewünschter Dienst
+</code></pre></div><p><strong>Wichtig:</strong> Das Funknetz kann erfolgreich verbunden sein, während die IP-Adresse fehlt, DNS nicht antwortet oder eine Firewall den eigentlichen Zugriff verhindert. Ein WLAN-Symbol mit Empfangsbalken beweist nicht, dass eine konkrete Website erreichbar ist.</p>
+<h3 id="begriffe-verstaendlich-erklaert">Begriffe verständlich erklärt</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung</th>
+<th>Relevanz im Ticket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WLAN (Wireless Local Area Network)</strong></td>
+<td>Drahtloses lokales Netzwerk.</td>
+<td>Verbindet den Client über Funk mit dem lokalen Netz.</td>
+</tr>
+<tr>
+<td><strong>Wi-Fi</strong></td>
+<td>Marken-/Technikbezeichnung für interoperable WLAN-Produkte.</td>
+<td>Im Alltag meist gleichbedeutend mit WLAN verwendet.</td>
+</tr>
+<tr>
+<td><strong>SSID (Service Set Identifier)</strong></td>
+<td>Der angezeigte Name eines WLANs, z. B. <code>Firma-Intern</code>.</td>
+<td>Ein Name kann an mehreren Access Points angeboten werden.</td>
+</tr>
+<tr>
+<td><strong>AP (Access Point)</strong></td>
+<td>Funkbasisstation, die WLAN-Clients mit dem Netzwerk verbindet.</td>
+<td>Einzelner defekter AP kann nur einen Gebäudeteil betreffen.</td>
+</tr>
+<tr>
+<td><strong>BSSID (Basic Service Set Identifier)</strong></td>
+<td>Kennung der jeweiligen Funkzelle, häufig die MAC-Adresse des AP-Radios.</td>
+<td>Hilft, einen betroffenen Access Point zu ermitteln.</td>
+</tr>
+<tr>
+<td><strong>MAC-Adresse (Media Access Control)</strong></td>
+<td>Kennung einer Netzwerkschnittstelle auf der Sicherungsschicht; bei WLAN können zufällige Client-Adressen verwendet werden.</td>
+<td>Kann in AP-Logs und WLAN-Berichten vorkommen.</td>
+</tr>
+<tr>
+<td><strong>WPA2/WPA3 (Wi-Fi Protected Access)</strong></td>
+<td>Sicherheitsstandards für WLANs.</td>
+<td>Modus und Schlüssel-/Anmeldemethode müssen zueinander passen.</td>
+</tr>
+<tr>
+<td><strong>802.1X</strong></td>
+<td>Standard für port-/netzwerkbasierte Zugangskontrolle, häufig im Firmen-WLAN.</td>
+<td>WLAN kann sichtbar sein, aber Anmeldung am Netz scheitert.</td>
+</tr>
+<tr>
+<td><strong>EAP (Extensible Authentication Protocol)</strong></td>
+<td>Rahmenwerk für verschiedene Authentifizierungsmethoden in 802.1X.</td>
+<td>Häufig z. B. EAP-TLS mit Zertifikaten.</td>
+</tr>
+<tr>
+<td><strong>RADIUS (Remote Authentication Dial-In User Service)</strong></td>
+<td>Protokoll zur Weiterleitung und Prüfung von Zugangsversuchen.</td>
+<td>AP/Controller kann eine Anmeldung durch einen RADIUS-Server prüfen lassen.</td>
+</tr>
+<tr>
+<td><strong>NPS (Network Policy Server)</strong></td>
+<td>Microsofts Implementierung eines RADIUS-/Netzwerkrichtlinienservers.</td>
+<td>Ereignisse <code>6272</code> (gewährt) und <code>6273</code> (verweigert) unterstützen L2-Diagnose.</td>
+</tr>
+<tr>
+<td><strong>DHCP (Dynamic Host Configuration Protocol)</strong></td>
+<td>Weist Clients automatisch IP-Adresse, Subnetzmaske, Gateway und meist DNS-Server zu.</td>
+<td>Eine fehlende Zuweisung kann zu <code>169.254.x.x</code> führen.</td>
+</tr>
+<tr>
+<td><strong>APIPA (Automatic Private IP Addressing)</strong></td>
+<td>Automatische IPv4-Link-Local-Adresse aus <code>169.254.0.0/16</code>.</td>
+<td>Hinweis auf fehlgeschlagene DHCP-Zuweisung bei entsprechend konfiguriertem Client.</td>
+</tr>
+<tr>
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt Hostnamen in IP-Adressen.</td>
+<td>DNS-Fehler können wie ein WLAN-Ausfall aussehen.</td>
+</tr>
+<tr>
+<td><strong>VLAN (Virtual Local Area Network)</strong></td>
+<td>Logische Trennung von Netzwerksegmenten auf Layer 2.</td>
+<td>Falsche Zuordnung kann DHCP oder interne Ressourcen blockieren.</td>
+</tr>
+<tr>
+<td><strong>GPO (Group Policy Object)</strong></td>
+<td>Gruppenrichtlinienobjekt zur zentralen Windows-Konfiguration.</td>
+<td>Firmen-WLAN-Profile können zentral verteilt werden.</td>
+</tr>
+<tr>
+<td><strong>MDM (Mobile Device Management)</strong></td>
+<td>Zentrale Geräteverwaltung, z. B. Microsoft Intune.</td>
+<td>Verteilt WLAN-Profile, Zertifikate und Sicherheitseinstellungen.</td>
+</tr>
+<tr>
+<td><strong>Roaming</strong></td>
+<td>Wechsel eines WLAN-Clients zwischen Access Points.</td>
+<td>Bei Bewegung im Gebäude können kurze Unterbrechungen auftreten.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft – WLAN-Fehlersuche</a> · <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/802-1x-authentication-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft – 802.1X-Fehlersuche</a></p>
+<h2 id="3-wlan-anmeldung-privat-vs-unternehmen">3. WLAN-Anmeldung: Privat vs. Unternehmen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Heim-WLAN (häufig)</th>
+<th>Unternehmens-WLAN (häufig)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WPA2-/WPA3-Personal mit gemeinsamem WLAN-Passwort</td>
+<td>WPA2-/WPA3-Enterprise mit 802.1X und individueller oder gerätebezogener Anmeldung</td>
+</tr>
+<tr>
+<td>WLAN-Router bzw. AP prüft den gemeinsamen Schlüssel</td>
+<td>AP/Controller leitet Authentifizierung häufig über RADIUS an NPS oder einen anderen Authentifizierungsdienst weiter</td>
+</tr>
+<tr>
+<td>Falsches WLAN-Passwort kann Verbindungsaufbau verhindern</td>
+<td>Abgelaufenes Zertifikat, Richtlinie oder falsche EAP-Konfiguration kann Verbindungsaufbau verhindern</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>EAP-TLS (Extensible Authentication Protocol – Transport Layer Security)</strong> verwendet typischerweise Zertifikate. Bei geschützter 802.1X-Anmeldung muss der Client die Identität des richtigen Servers prüfen können. <strong>Diese Prüfung niemals einfach abschalten</strong>, um eine Verbindung zu erzwingen: Sonst kann ein betrügerisches Funknetz unter Umständen Zugangsdaten oder andere Informationen abgreifen.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/windows-server/networking/technologies/extensible-authentication-protocol/network-access?tabs=eap-tls%2Cserveruserprompt-eap-tls%2Ceap-sim" rel="noopener noreferrer" target="_blank">Microsoft – EAP / Serverzertifikatsvalidierung</a></p>
+<h2 id="4-fehleraufnahme-und-eingrenzung">4. Fehleraufnahme und Eingrenzung</h2>
+<p><strong>Fragen an den Benutzer:</strong> Seit wann? Exakte Windows-Meldung? Ist <code>Firma-Intern</code> sichtbar? Ist eine Verbindung möglich? Bricht sie später ab? Nur dieser Laptop oder mehrere? Nur an einem Ort? War ein Update, Kennwortwechsel oder Gerätewechsel vorausgegangen? Funktioniert LAN? Besteht gerade eine Fernwartungssitzung über das betroffene WLAN?</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Erster Verdacht</th>
+<th>Nächster Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein WLAN-Schalter / kein Adapter sichtbar</td>
+<td>Hardware, Funk deaktiviert, Treiber oder Dienst</td>
+<td>Geräte-Manager, <code>Get-NetAdapter</code>, <code>Get-Service WlanSvc</code></td>
+</tr>
+<tr>
+<td>WLAN aktiv, aber Firmen-SSID fehlt</td>
+<td>Funkabdeckung, Frequenzband, AP, Richtlinie</td>
+<td>Sichtbare Netze, AP-Vergleich, Nachbarclient</td>
+</tr>
+<tr>
+<td>SSID sichtbar, Verbindung scheitert</td>
+<td>WLAN-Profil, WPA-/802.1X-Anmeldung</td>
+<td>Exakte Meldung, WLAN-Bericht, WLAN-AutoConfig-Log</td>
+</tr>
+<tr>
+<td>WLAN verbunden, <code>169.254.x.x</code></td>
+<td>Möglicherweise DHCP-Fehler</td>
+<td><code>ipconfig /all</code>, DHCP/VLAN-Pfad prüfen</td>
+</tr>
+<tr>
+<td>WLAN verbunden, IP plausibel, Website lädt nicht</td>
+<td>DNS, Gateway, Proxy, Firewall oder Zielsystem</td>
+<td>Gateway, DNS und konkreten Dienst gezielt prüfen</td>
+</tr>
+<tr>
+<td>Abbrüche nur in einem Gebäudeabschnitt</td>
+<td>Funkqualität, AP, Roaming, Interferenzen</td>
+<td>BSSID/Kanal/Signal und AP-Logs vergleichen</td>
+</tr>
+<tr>
+<td>Mehrere Nutzer betroffen</td>
+<td>AP, Controller, RADIUS/NPS, DHCP, Netzwerksegment</td>
+<td>Infrastruktur-Eskalation mit betroffenen SSIDs/APs</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Ein Ausfall der Internetverbindung kann mit intaktem Firmen-WLAN einhergehen. Ebenso kann eine Website ausfallen, obwohl der restliche Netzwerkzugang funktioniert.</p>
+<h2 id="5-zugriffsvoraussetzungen-von-wo-kann-der-support-diagnostizieren">5. Zugriffsvoraussetzungen: Von wo kann der Support diagnostizieren?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriff</th>
+<th>Vorgehen und Grenzen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Benutzer ist noch am Windows-Desktop</td>
+<td>Teams-Bildschirmfreigabe / Schnellhilfe, falls noch Netz verfügbar</td>
+<td>WLAN-Symbol und Fehlermeldung gemeinsam ansehen.</td>
+</tr>
+<tr>
+<td>WLAN getrennt, aber LAN angeschlossen</td>
+<td>Remoteverwaltung via kabelgebundenem Netz, wenn freigegeben</td>
+<td>Client-Befehle ausführen, ohne den problematischen WLAN-Pfad vorauszusetzen.</td>
+</tr>
+<tr>
+<td>Laptop außerhalb der Firma, WLAN ausgefallen</td>
+<td>Telefonischer Support / Vor-Ort-Diagnose</td>
+<td>Nutzer führt lesende Tests lokal aus; keine Fernverbindung über das ausgefallene WLAN erwarten.</td>
+</tr>
+<tr>
+<td>Zentrale Infrastruktur betroffen</td>
+<td>AP-/WLAN-Controller-/RADIUS-Management durch berechtigte IT</td>
+<td>AP-Verbindungsstatus, AAA-/NPS-Logs, VLAN und DHCP prüfen.</td>
+</tr>
+<tr>
+<td>WLAN-Profil zentral verwaltet</td>
+<td>GPO / MDM (z. B. Intune)</td>
+<td>Zugewiesenes Profil und Zertifikate mit berechtigtem Administrationskonto prüfen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Ein WLAN-Adapter darf während einer darüber laufenden Remoteverbindung nicht unüberlegt deaktiviert, zurückgesetzt oder der Treiber entfernt werden. Die Supportsitzung kann sofort abbrechen.</p>
+<h2 id="6-diagnose-entscheidungsbaum">6. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb009_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-009 – Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb009_diagnosebaum.svg"/></a></div><figcaption>RB-009 – Diagnose-Entscheidungsbaum</figcaption></figure>
+<p><strong>Textalternative:</strong> Adapter funktionsfähig? → SSID sichtbar? → WLAN-Anmeldung erfolgreich? → DHCP/IP korrekt? → Gateway/DNS/Ziel erreichbar? → gezielt beheben und testen. Einzelne Schritte können bei offensichtlichem Mehrbenutzer-/AP-Ausfall parallel untersucht werden.</p>
+<h2 id="7-lesende-clientdiagnose-adapter-und-wlan">7. Lesende Clientdiagnose: Adapter und WLAN</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-11-Client, in dessen aktiver Benutzer- oder Administrationssitzung; PowerShell. Einige <code>netsh</code>-Abfragen benötigen erhöhte Rechte oder können von Unternehmensrichtlinien eingeschränkt sein.</p>
+<h3 id="a-adapter-und-wlan-dienst-pruefen">A – Adapter und WLAN-Dienst prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Get-NetAdapter listet die Netzwerkschnittstellen auf.</span>
+<span class="c"># Select-Object beschränkt die Darstellung auf Name, Status,</span>
+<span class="c"># Hardwarebeschreibung und gemeldete Verbindungsgeschwindigkeit.</span>
+<span class="nb">Get-NetAdapter</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">InterfaceDescription</span><span class="p">,</span> <span class="n">LinkSpeed</span>
+
+<span class="c"># Prüft den Windows-Dienst für die automatische WLAN-Konfiguration.</span>
+<span class="c"># Dieser heißt intern WlanSvc (WLAN AutoConfig).</span>
+<span class="nb">Get-Service</span> <span class="n">-Name</span> <span class="s1">'WlanSvc'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">StartType</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>Status = Up</code> beim Adapter beweist noch nicht den Internetzugang. Ein nicht laufender <code>WlanSvc</code> kann dazu führen, dass WLAN-Funktionen nicht verfügbar sind. <strong>Nicht automatisch einen deaktivierten Unternehmensdienst starten</strong>, ohne zu klären, ob dies durch Richtlinien vorgegeben wurde.</p>
+<h3 id="b-wlan-verbindungszustand-abfragen">B – WLAN-Verbindungszustand abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># netsh ist ein Windows-Kommandozeilenwerkzeug, kein PowerShell-Cmdlet.</span>
+<span class="c"># 'wlan' wählt die WLAN-Funktionen aus.</span>
+<span class="c"># 'show interfaces' zeigt unter anderem SSID, BSSID, Signal, Funktyp.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">interfaces</span>
+
+<span class="c"># Zeigt sichtbare Funknetze mit BSSID, Kanal und Signalwerten.</span>
+<span class="c"># mode=bssid erweitert die Detailansicht um einzelne Funkzellen.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">networks</span> <span class="n">mode</span><span class="p">=</span><span class="n">bssid</span>
+
+<span class="c"># Zeigt installierte WLAN-Treiber- und Fähigkeitsinformationen.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">drivers</span>
+
+<span class="c"># Listet lokal gespeicherte WLAN-Profile (keine Kennwörter ausgeben).</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">profiles</span>
+</code></pre></div><p><strong>Auswertung:</strong> Ist die korrekte <strong>SSID</strong> verbunden? Welcher <strong>BSSID</strong> (Access Point) versorgt den Client? Wie stark ist das Signal? Liegt ein Netz auf 2,4, 5 oder 6 GHz? Der angezeigte Signalwert ist nur ein Hinweis; daraus allein lässt sich keine exakte Ursache oder Durchsatzrate ableiten.</p>
+<p><strong>Datenschutz:</strong> Namen von Firmen-WLANs, BSSIDs/MAC-Adressen und Profildaten können intern vertraulich sein. Niemals ungeschwärzt auf einer öffentlichen Website veröffentlichen. <strong>Nicht</strong> <code>key=clear</code> verwenden, um WLAN-Schlüssel offenzulegen.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/netsh-wlan" rel="noopener noreferrer" target="_blank">Microsoft Learn – netsh wlan</a></p>
+<h2 id="8-den-wlan-verlaufsbericht-und-ereignisse-untersuchen">8. Den WLAN-Verlaufsbericht und Ereignisse untersuchen</h2>
+<h3 id="a-wlan-bericht-erzeugen">A – WLAN-Bericht erzeugen</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client, in einer als Administrator gestarteten PowerShell oder Eingabeaufforderung. Der Befehl erstellt eine <strong>Datei</strong> und ist damit nicht völlig lesend; er setzt aber keine Netzwerkkonfiguration zurück.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Erstellt einen HTML-Bericht zu jüngsten WLAN-Verbindungen.</span>
+<span class="c"># Der Befehl zeigt nach Abschluss den vollständigen Speicherpfad.</span>
+<span class="n">netsh</span> <span class="n">wlan</span> <span class="n">show</span> <span class="n">wlanreport</span>
+</code></pre></div><p>Der Bericht enthält unter anderem WLAN-Sitzungen, Verbindungsabbrüche und Adapterinformationen. Microsoft beschreibt, dass er WLAN-Ereignisse aus <strong>den letzten drei Tagen</strong> gruppiert. Er wird im Browser geöffnet; Speicherort aus der Ausgabe übernehmen, statt einen festen Pfad vorauszusetzen.</p>
+<p><strong>Besonders prüfen:</strong> Uhrzeit des Fehlversuchs, Verbindungsversuch, Trennungsgrund, Adapter/Treiber, wiederholte Roaming-Ereignisse. Der Bericht kann personenbezogene bzw. Netzwerkkennungen enthalten.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/connectivity-networking/analyze-the-wireless-network-report" rel="noopener noreferrer" target="_blank">Microsoft Support – Drahtlosnetzwerkbericht analysieren</a></p>
+<h3 id="b-wlan-autoconfig-ereignisse-auslesen">B – WLAN-AutoConfig-Ereignisse auslesen</h3>
+<p><strong>Ausführungsort:</strong> Derselbe Client, mit Berechtigung zum Lesen des entsprechenden Windows-Ereignisprotokolls.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Definiert den Namen des WLAN-Betriebsprotokolls.</span>
+<span class="nv">$protokoll</span> <span class="p">=</span> <span class="s1">'Microsoft-Windows-WLAN-AutoConfig/Operational'</span>
+
+<span class="c"># Legt den Beginn des Untersuchungszeitraums fest:</span>
+<span class="c"># zwei Stunden vor dem aktuellen Zeitpunkt.</span>
+<span class="nv">$start</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">2</span><span class="p">)</span>
+
+<span class="c"># Filtert Ereignisse nach Log und Startzeit.</span>
+<span class="c"># MaxEvents begrenzt die Anzahl zurückgegebener Einträge.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="p">@{</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="nv">$protokoll</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="nv">$start</span>
+<span class="p">}</span> <span class="n">-MaxEvents</span> <span class="n">30</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">LevelDisplayName</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Interpretation:</strong> Zeitstempel mit dem Verbindungsversuch des Benutzers abgleichen. Die <strong>Ereignis-ID allein</strong> reicht oft nicht für eine Ursache: Beschreibung/Reason Code und Kontext prüfen. Es kann sein, dass das Protokoll deaktiviert oder kein Zugriff möglich ist.</p>
+<p><strong>GUI-Alternative:</strong> <code>eventvwr.msc</code> öffnen → <strong>Anwendungs- und Dienstprotokolle → Microsoft → Windows → WLAN-AutoConfig → Operational</strong>.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – fortgeschrittene WLAN-Diagnose</a></p>
+<h2 id="9-nach-erfolgreicher-wlan-anmeldung-ipdhcpdns-pruefen">9. Nach erfolgreicher WLAN-Anmeldung: IP/DHCP/DNS prüfen</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client. Die folgenden Befehle lesen Konfigurations- und Netzwerkstatus, verändern die Netzwerkkonfiguration aber nicht.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt IP-Adressen, Standardgateway und konfigurierte DNS-Server.</span>
+<span class="nb">Get-NetIPConfiguration</span>
+
+<span class="c"># Zeigt zusätzlich DHCP-Status, IP-Lease und Adapterdetails.</span>
+<span class="c"># ipconfig ist ein externes Windows-Programm.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">all</span>
+
+<span class="c"># Testet Namensauflösung für einen bekannten internen Dienst.</span>
+<span class="c"># 'intranet.firma.example' ist ein Platzhalter, kein reales Ziel.</span>
+<span class="nb">Resolve-DnsName</span> <span class="s1">'intranet.firma.example'</span>
+
+<span class="c"># Testet die TCP-Verbindung zum tatsächlichen internen Ziel.</span>
+<span class="c"># -ComputerName bezeichnet das Ziel, -Port den TCP-Dienst.</span>
+<span class="c"># Beispiel-IP aus dem Dokumentationsnetz – in der Praxis ersetzen.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'192.0.2.20'</span> <span class="n">-Port</span> <span class="n">443</span>
+</code></pre></div><div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Interpretation und nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adapter hat <code>169.254.x.x</code></td>
+<td>Unter automatischer IPv4-Konfiguration Hinweis auf nicht erfolgreiche DHCP-Zuweisung; DHCP, VLAN und AP-Uplink prüfen.</td>
+</tr>
+<tr>
+<td>Gültige IP, aber kein Standardgateway</td>
+<td>Je nach Netzwerkdesign fehlt möglicherweise eine Route aus dem lokalen Subnetz.</td>
+</tr>
+<tr>
+<td>Gateway erreichbar, Name wird nicht aufgelöst</td>
+<td>DNS-Einstellungen, DNS-Server oder Namensbereich prüfen.</td>
+</tr>
+<tr>
+<td>DNS löst auf, Zielport nicht erreichbar</td>
+<td>Routing, Firewall, Zielsystem oder Anwendung untersuchen; DNS allein beweist keinen erfolgreichen Dienstzugriff.</td>
+</tr>
+<tr>
+<td>Ein einzelner Dienst ist nicht erreichbar</td>
+<td>Zielserver, Proxy, VPN oder dienstspezifische Sperre prüfen; WLAN kann intakt sein.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Hinweise:</strong> <code>169.254.x.x</code> betrifft <strong>IPv4</strong>; ein System kann gleichzeitig eine funktionierende IPv6-Verbindung besitzen. ICMP-Ping kann durch Firewallrichtlinien blockiert sein. Der Windows-Hinweis „Kein Internet“ basiert auf einer Erreichbarkeitsprüfung und beweist nicht automatisch, dass jedes interne Netzwerkziel unerreichbar ist.</p>
+<h2 id="10-unternehmens-wlan-8021x-zertifikate-und-nps-l2">10. Unternehmens-WLAN: 802.1X, Zertifikate und NPS (L2)</h2>
+<p>Bei einem Firmen-WLAN mit <strong>WPA2/WPA3-Enterprise</strong> kann eine Verbindung bereits in der Zugangskontrolle scheitern, bevor der Client eine betriebliche IPv4-Adresse bekommt.</p>
+<p><strong>Vereinfachter Ablauf:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Client mit 802.1X-Profil/Zertifikat
+    │ Identität / EAP-Anmeldung
+    ▼
+Access Point bzw. WLAN-Controller
+    │ RADIUS-Anfrage
+    ▼
+RADIUS-/NPS-Server (+ ggf. AD / PKI)
+    │ Zugang erlaubt oder abgelehnt
+    ▼
+Zugriff auf zugewiesenes Netzwerk/VLAN
+    │ DHCP und weitere Netzwerkdienste
+    ▼
+Interne Ressourcen
+</code></pre></div><p><strong>PKI (Public Key Infrastructure)</strong> bezeichnet die Infrastruktur zum Ausstellen, Verwalten und Überprüfen digitaler Zertifikate.</p>
+<h3 id="typische-fehler">Typische Fehler</h3>
+<ul>
+<li>Zertifikat abgelaufen, nicht vorhanden oder nicht vertrauenswürdig.</li>
+<li>Serverzertifikat passt nicht zu dem im WLAN-Profil erwarteten Authentifizierungsserver.</li>
+<li>Benutzer/Computer nicht für die Netzwerkrichtlinie autorisiert.</li>
+<li>Falsche EAP-Methode, veraltetes verwaltetes WLAN-Profil oder fehlerhafte Zertifikatsverteilung.</li>
+<li>AP/Controller kann den RADIUS-Server nicht erreichen.</li>
+<li>Nach erfolgreicher Authentifizierung falsches VLAN oder fehlender DHCP-Zugriff.</li>
+</ul>
+<h3 id="serverseitige-nps-ereignisse">Serverseitige NPS-Ereignisse</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ereignis</th>
+<th>Bedeutung im NPS-Sicherheitsprotokoll</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>6272</code></td>
+<td>Der Network Policy Server hat Netzwerkzugriff gewährt.</td>
+</tr>
+<tr>
+<td><code>6273</code></td>
+<td>Der Network Policy Server hat Netzwerkzugriff verweigert.</td>
+</tr>
+<tr>
+<td><code>6274</code></td>
+<td>Eine Anfrage wurde vom NPS verworfen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nur mit entsprechender Berechtigung</strong> werden Uhrzeit, Benutzer/Computer, Anfrager, passende Richtlinie und <strong>Reason Code</strong> auf dem NPS verglichen. Die Ereignisse sind nur bei entsprechender Auditkonfiguration verfügbar. Ist die Organisation nicht auf Microsoft NPS aufgebaut, gelten die Logs ihrer tatsächlichen RADIUS-/WLAN-Lösung.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/802-1x-authentication-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Problembehandlung bei 802.1X</a> · <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-network-policy-server" rel="noopener noreferrer" target="_blank">Microsoft Learn – NPS-Fehlersuche</a></p>
+<p><strong>Sicherheitsgrenze:</strong> Keine Zertifikatsvalidierung deaktivieren, EAP-Methode auf unsicher umstellen oder Unternehmens-WLAN-Zugangsdaten „testweise“ über unbekannte WLANs eingeben. Fehler an Richtlinien/Zertifikaten an die zuständige L2-/Netzwerk-/Identity-Abteilung eskalieren.</p>
+<h2 id="11-ursachenbezogene-loesungen-statt-pauschaler-resets">11. Ursachenbezogene Lösungen statt pauschaler Resets</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Befund</th>
+<th>Gezielte Maßnahme</th>
+<th>Risiko/Grenze</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WLAN per Hardwaretaste/Flugmodus deaktiviert</td>
+<td>Nach Rückfrage einschalten</td>
+<td>Unternehmensrichtlinien beachten.</td>
+</tr>
+<tr>
+<td>Nur bestimmter Gebäudeteil ohne WLAN</td>
+<td>AP-/Controllerstatus und Verkabelung prüfen lassen</td>
+<td>AP-Neustart betrifft ggf. viele Clients; L2/Netzwerkteam.</td>
+</tr>
+<tr>
+<td>WLAN-Profil nach Richtlinienwechsel veraltet</td>
+<td>Version und Zuweisung über GPO/MDM klären; autorisiert neu bereitstellen</td>
+<td>Ein blind gelöschtes Profil kann Zugang endgültig unterbrechen.</td>
+</tr>
+<tr>
+<td>Zertifikat ungültig oder fehlt</td>
+<td>Zertifikatskette, Gültigkeit, Zuweisung prüfen; PKI-/MDM-Team einschalten</td>
+<td>Serverprüfung nicht abschalten.</td>
+</tr>
+<tr>
+<td>DHCP fehlgeschlagen</td>
+<td>Zuständigen Scope, VLAN, DHCP-Relay und AP-Uplink prüfen</td>
+<td>Keine unkoordinierten statischen IPs vergeben.</td>
+</tr>
+<tr>
+<td>DNS falsch</td>
+<td>Zuweisungsquelle (DHCP/VPN/MDM) korrigieren lassen</td>
+<td>Keine öffentlichen DNS-Server als pauschale Lösung für interne Namen.</td>
+</tr>
+<tr>
+<td>Funkabbrüche/geringes Signal</td>
+<td>BSSID/Kanal/Signalverlauf, Störungen, Roaming und AP-Konfiguration korrelieren</td>
+<td>Ursache erst nach Messung benennen.</td>
+</tr>
+<tr>
+<td>Bekannter Treiberfehler nach Update</td>
+<td>Herstellerfreigegebene Version/erlaubten Rollback prüfen</td>
+<td>Änderung ggf. mit Neustart/Verbindungsabbruch.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Erst nach Freigabe und Sicherung der Diagnosebasis:</strong> Änderungen an Adapter, Netzprofil, Treiber oder Netzwerkstack erwägen. Microsoft empfiehlt, WLAN-Profile, Treiber und Netzwerkstack nicht vorschnell zurückzusetzen, weil dabei wichtige Diagnoseinformationen verloren gehen können.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – WLAN-Fehlersuche, Grundlagen vor Reset</a></p>
+<h2 id="12-erfolgskontrolle-verbunden-allein-reicht-nicht">12. Erfolgskontrolle – „Verbunden“ allein reicht nicht</h2>
+<ul>
+<li>[ ] Geplante SSID und zulässiger Authentifizierungsmodus sind verbunden.</li>
+<li>[ ] Bei Unternehmens-WLAN: Anmeldung an der vorgesehenen Infrastruktur erfolgreich.</li>
+<li>[ ] IP-Konfiguration ist für das Zielnetz plausibel (bei Bedarf IPv4 <strong>und</strong> IPv6 prüfen).</li>
+<li>[ ] Benötigter interner Dienst und gegebenenfalls Internetzugang funktionieren.</li>
+<li>[ ] Verbindung bleibt in der relevanten Alltagssituation stabil (Standort, Bewegung, Energiesparzustand).</li>
+<li>[ ] Bei mehreren Betroffenen den Zustand eines weiteren Clients prüfen.</li>
+<li>[ ] Abweichungen, Eingriffe und Restrisiken dokumentieren.</li>
+</ul>
+<h2 id="13-wann-wird-von-l1-an-l2-eskaliert">13. Wann wird von L1 an L2 eskaliert?</h2>
+<p><strong>L1:</strong> Fehlerbild aufnehmen, Clientstatus, WLAN-Funknetz, IP-/DNS-Informationen und WLAN-Bericht prüfen; freigegebene Standardmaßnahmen durchführen; Benutzer verständlich informieren.</p>
+<p><strong>L2/Netzwerk-/Identity-Team:</strong> AP-/Controllerstörungen, NPS/RADIUS-, 802.1X-, Zertifikats-, VLAN-, DHCP-Relay-, Routing-, Firewall- und standortweite Probleme; wiederkehrende Roaming-Fehler; Änderungen an verwalteten WLAN-Profilen oder Treibern.</p>
+<p><strong>Eskalationspaket:</strong> Zeitpunkt mit Zeitzone, Clientname, OS-Version, SSID/BSSID (intern vertraulich), betroffener Standort/AP, Verbindungsstatus, Fehlertext, IP-Konfiguration, anonymisierter WLAN-Bericht, Ereignisse, Vergleichsgerät, Änderungen, Auswirkungen und notwendige Freigaben.</p>
+<h2 id="14-muster-ticketkommentar-fiktiv">14. Muster-Ticketkommentar (fiktiv)</h2>
+<p><strong>Ticket:</strong> INC-009 – Firmen-WLAN verbindet, aber interne Ressourcen nicht erreichbar.</p>
+<p><strong>Fehlerbild:</strong> Windows-11-Laptop <code>NB-023</code> zeigt <code>Firma-Intern</code> als verbunden. Unternehmensanwendungen sind nicht erreichbar; ein Kollege am selben Standort ist nicht betroffen.</p>
+<p><strong>Diagnose:</strong> WLAN-Adapter und Anmeldung erfolgreich. <code>ipconfig /all</code> zeigte eine automatische IPv4-Adresse aus <code>169.254.0.0/16</code> statt des erwarteten Unternehmensnetzes. Nächste Prüfung des DHCP-/VLAN-Pfads veranlasst.</p>
+<p><strong>Ursache:</strong> <strong>Nicht abschließend nachgewiesen.</strong> Verdacht auf fehlgeschlagene DHCP-Zuweisung; DHCP-Server, WLAN-VLAN, Relay oder AP-Uplink müssen geprüft werden.</p>
+<p><strong>Maßnahme:</strong> Diagnoseinformationen und Zeitpunkt dokumentiert; an zuständiges L2-Netzwerkteam mit Befund übergeben. Kein WLAN-Profil gelöscht und keine sicherheitsrelevanten Einstellungen geändert.</p>
+<p><strong>Ergebnis:</strong> Noch offen – nicht als „gelöst“ markiert.</p>
+<p><strong>Status:</strong> Eskaliert. <em>Alle Angaben sind fiktive Lernwerte, keine tatsächlich ausgeführte Diagnose.</em></p>
+<h2 id="15-lernkontrolle-und-technische-quellen">15. Lernkontrolle und technische Quellen</h2>
+<h3 id="wissensfragen">Wissensfragen</h3>
+<ol>
+<li>Wofür stehen SSID und BSSID, und was ist der Unterschied?</li>
+<li>Was bedeutet eine IPv4-Adresse aus <code>169.254.0.0/16</code> bei aktivem DHCP?</li>
+<li>Welche Informationen liefert <code>netsh wlan show wlanreport</code>?</li>
+</ol>
+<h3 id="verstaendnisfragen">Verständnisfragen</h3>
+<ol>
+<li>Warum beweist die Anzeige „WLAN verbunden“ keinen funktionierenden DNS-Zugriff?</li>
+<li>Warum darf bei 802.1X die Zertifikatsprüfung nicht für einen schnellen Test deaktiviert werden?</li>
+<li>Warum sollte ein WLAN-Profil vor der Sicherung des Fehlerzustands nicht pauschal gelöscht werden?</li>
+</ol>
+<h3 id="diagnoseaufgabe">Diagnoseaufgabe</h3>
+<p><strong>Neues fiktives Szenario:</strong> Drei Mitarbeiter an derselben Gebäudeecke verlieren während Videokonferenzen regelmäßig das WLAN. An einem anderen Flur passiert dies nicht. IP-Adressen sind nach erneuter Verbindung korrekt. <strong>Welche Informationen würdest du zuerst vergleichen, bevor du die WLAN-Adaptertreiber austauschst?</strong></p>
+<h3 id="offizielle-quellen-und-verwendung">Offizielle Quellen und Verwendung</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Quelle</th>
+<th>Wofür im Runbook verwendet?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Advanced troubleshooting wireless network connectivity</a></td>
+<td>Symptomorientierte WLAN-Diagnose, Logs, BSSID, Warnungen vor Resets</td>
+</tr>
+<tr>
+<td><a href="https://support.microsoft.com/de-de/windows/experience/connectivity-networking/fix-wi-fi-connection-issues-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – WLAN-Probleme beheben</a></td>
+<td>Windows-11-Grunddiagnose, DHCP/IP und Netzwerkreset als spätere Maßnahme</td>
+</tr>
+<tr>
+<td><a href="https://support.microsoft.com/de-de/windows/experience/connectivity-networking/analyze-the-wireless-network-report" rel="noopener noreferrer" target="_blank">Microsoft Support – Drahtlosnetzwerkbericht</a></td>
+<td><code>netsh wlan show wlanreport</code>, HTML-Auswertung und Zeitraum</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/netsh-wlan" rel="noopener noreferrer" target="_blank">Microsoft Learn – netsh wlan</a></td>
+<td>Syntax der WLAN-Kommandozeilenbefehle</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/802-1x-authentication-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – 802.1X-Authentifizierung untersuchen</a></td>
+<td>WLAN-AutoConfig, NPS-Ereignisse, Reason Codes</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/windows-server/networking/technologies/extensible-authentication-protocol/network-access?tabs=eap-tls%2Cserveruserprompt-eap-tls%2Ceap-sim" rel="noopener noreferrer" target="_blank">Microsoft Learn – Extensible Authentication Protocol</a></td>
+<td>EAP, Zertifikatsvalidierung und Sicherheitsgrenzen</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-network-policy-server" rel="noopener noreferrer" target="_blank">Microsoft Learn – NPS-Problembehandlung</a></td>
+<td>Netzwerkrichtlinienserver und NPS-Auditing</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recherche- und Prüfdatum:</strong> 08.11.2026. <strong>Praktische Validierung:</strong> Ausstehend. <strong>Veröffentlichung:</strong> Nur mit anonymisierten Beispielwerten und ohne interne WLAN-Profile, Kennwörter oder Zertifikatsschlüssel.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-009_Lernartikel.md">RB-009_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-008/index.html">← RB-008</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-010/index.html">RB-010 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-010 Keine Netzwerk- oder Internetverbindung | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-010: Keine Netzwerk- oder Internetverbindung. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">TCP/IP · Netzwerkdiagnose · Lernartikel</p><h1>RB-010: Keine Netzwerk- oder Internetverbindung</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-und-supportticket">1. Ausgangssituation und Supportticket</a></li><li><a href="#2-was-ist-der-unterschied-zwischen-netzwerk-internet-und-einer-anwendung">2. Was ist der Unterschied zwischen Netzwerk, Internet und einer Anwendung?</a></li><li><a href="#3-was-fragt-der-first-level-zuerst">3. Was fragt der First Level zuerst?</a></li><li><a href="#4-von-wo-darf-und-kann-der-support-diagnostizieren">4. Von wo darf und kann der Support diagnostizieren?</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-erste-lesende-diagnose-adapter-und-ip-konfiguration">6. Erste lesende Diagnose: Adapter und IP-Konfiguration</a></li><li><a href="#7-gateway-und-routing-pruefen">7. Gateway und Routing prüfen</a></li><li><a href="#8-dns-namensaufloesung-untersuchen">8. DNS-Namensauflösung untersuchen</a></li><li><a href="#9-konkretes-ziel-und-tcp-port-pruefen">9. Konkretes Ziel und TCP-Port prüfen</a></li><li><a href="#10-proxy-vpn-firewall-und-die-windows-meldung-kein-internet">10. Proxy, VPN, Firewall und die Windows-Meldung „Kein Internet“</a></li><li><a href="#11-interpretation-typischer-diagnosebefunde">11. Interpretation typischer Diagnosebefunde</a></li><li><a href="#12-veraenderungen-nur-nach-konkretem-befund">12. Veränderungen nur nach konkretem Befund</a></li><li><a href="#13-1st--und-2nd-level-abgrenzung">13. 1st- und 2nd-Level-Abgrenzung</a></li><li><a href="#14-fiktiver-musterfall-und-professioneller-ticketkommentar">14. Fiktiver Musterfall und professioneller Ticketkommentar</a></li><li><a href="#15-lernkontrolle-und-wissenstransfer">15. Lernkontrolle und Wissenstransfer</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-010 · <strong>Support-Level:</strong> 1st / 2nd Level · <strong>Umgebung:</strong> Windows 11, Ethernet/WLAN, IP, DHCP, DNS, Routing, Firewall, VPN<br/>
+<strong>Dokumentationsstand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierung:</strong> Fachlich mit Microsoft-Dokumentation abgeglichen. Alle Geräte, Ausgaben, Zeitpunkte und Lösungen im Beispielticket sind <strong>fiktiv</strong>; praktische Tests stehen aus.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb010_henne_ei_netzwerk.png" rel="noopener noreferrer" target="_blank"><img alt="RB-010: Keine Netzwerk- oder Internetverbindung – Henne-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb010_henne_ei_netzwerk.png"/></a></div><figcaption>RB-010: Keine Netzwerk- oder Internetverbindung – Henne-Ei-Infografik</figcaption></figure>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Grafik ist eine didaktische Vereinfachung. DNS ist beispielsweise ein Dienst zur Namensauflösung und <strong>nicht zwingend eine Station, die jedes Datenpaket passiert</strong>; ebenso sind die in der Grafik genannten Adressen nur Beispiele.</em></p>
+<h2 id="1-ausgangssituation-und-supportticket">1. Ausgangssituation und Supportticket</h2>
+<p><strong>Fiktives Ticket INC-010:</strong></p>
+<blockquote>
+<p>„Seit heute Morgen funktioniert das Internet auf meinem Windows-Rechner nicht. Im Browser laden keine Seiten. Gestern konnte ich noch normal arbeiten.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Windows 11 Pro, Client <code>PC-023</code>, Unternehmens-LAN, ein verwaltetes Unternehmensnetz. Der Mitarbeiter benötigt zusätzlich interne Webseiten und Microsoft 365. Namen und Adressen sind frei erfunden.</p>
+<p><strong>Ziel:</strong> Abgrenzen, ob tatsächlich die <strong>Netzwerkverbindung</strong>, die <strong>Internetverbindung</strong> oder nur <strong>ein bestimmter Dienst</strong> gestört ist. Die richtige Fehlerursache mit möglichst wenig Änderungen nachweisen und beheben.</p>
+<p><strong>Leitsatz:</strong> „Internet funktioniert nicht“ ist eine Problembeschreibung, noch <strong>keine Diagnose</strong>. Nicht als Erstes Firewall abschalten, DNS-Server tauschen oder den Netzwerkadapter zurücksetzen.</p>
+<h2 id="2-was-ist-der-unterschied-zwischen-netzwerk-internet-und-einer-anwendung">2. Was ist der Unterschied zwischen Netzwerk, Internet und einer Anwendung?</h2>
+<p>Ein <strong>Netzwerk</strong> verbindet Geräte zum Austausch von Daten. Ein <strong>LAN (Local Area Network)</strong> ist ein lokales Netzwerk, zum Beispiel im Büro. Das <strong>Internet</strong> verbindet viele einzelne Netze über Router miteinander. Ein Rechner kann eine völlig funktionierende Verbindung zum Unternehmens-LAN haben und dennoch keine externen Websites erreichen.</p>
+<p>Andererseits kann das Internet funktionieren, während eine interne Firmenanwendung wegen fehlendem <strong>VPN (Virtual Private Network)</strong> oder wegen Berechtigungen nicht erreichbar ist.</p>
+<h3 id="vereinfachtes-modell">Vereinfachtes Modell</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Client
+   │  1. Netzwerkadapter, Kabel oder WLAN
+   ▼
+Lokales Netz (Switch / Access Point)
+   │  2. IP-Adresse und Subnetz
+   ▼
+Router / Standardgateway
+   │  3. Route und Firewall-/VPN-Regeln
+   ├──────────────► Interne Server und Dienste
+   ▼
+Internet / externer Zielserver
+
+DNS-Dienst: übersetzt Namen wie 'intranet.firma.example' in IP-Adressen.
+Er ist eine eigene Dienstfunktion, nicht automatisch ein Router-Hop.
+</code></pre></div><p><strong>Die Verbindungskette kann an mehreren Stellen scheitern.</strong> Wir prüfen deshalb schrittweise von der nächstliegenden Komponente bis zu der tatsächlich betroffenen Anwendung.</p>
+<h3 id="begriffe-fuer-einsteiger">Begriffe für Einsteiger</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Einfache Erklärung</th>
+<th>Warum wichtig?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NIC (Network Interface Card)</strong></td>
+<td>Netzwerkschnittstelle, etwa Ethernet- oder WLAN-Adapter.</td>
+<td>Ohne funktionsfähige Schnittstelle kein Netzwerkverkehr.</td>
+</tr>
+<tr>
+<td><strong>Ethernet / LAN</strong></td>
+<td>Kabelgebundene lokale Netzwerkverbindung.</td>
+<td>Kabel, Switchport oder Adapter können ausfallen.</td>
+</tr>
+<tr>
+<td><strong>WLAN (Wireless Local Area Network)</strong></td>
+<td>Drahtloser Netzzugang über einen Access Point.</td>
+<td>Eine Funkverbindung kann trotz fehlendem Internet bestehen.</td>
+</tr>
+<tr>
+<td><strong>IP-Adresse (Internet Protocol)</strong></td>
+<td>Logische Adresse eines Geräts innerhalb eines IP-Netzes.</td>
+<td>Erforderlich für die Zustellung der Pakete.</td>
+</tr>
+<tr>
+<td><strong>Subnetz / Präfix</strong></td>
+<td>Legt fest, welche Adressen aus Sicht des Clients zum lokalen Netz gehören.</td>
+<td>Fehler können lokale oder entfernte Ziele unzugänglich machen.</td>
+</tr>
+<tr>
+<td><strong>DHCP (Dynamic Host Configuration Protocol)</strong></td>
+<td>Verteilt häufig automatisch IP-Adresse, Subnetz, Gateway und DNS-Server.</td>
+<td>Fehlerhafte Vergabe kann den IP-Zugriff verhindern.</td>
+</tr>
+<tr>
+<td><strong>APIPA (Automatic Private IP Addressing)</strong></td>
+<td>Windows-Fallback für IPv4-Link-Local-Adressen aus <code>169.254.0.0/16</code>.</td>
+<td>Bei erwartetem DHCP-Bezug ein wichtiger Hinweis auf ein Adressierungsproblem.</td>
+</tr>
+<tr>
+<td><strong>Gateway (Standardgateway)</strong></td>
+<td>Router, an den der Client Verkehr für Ziele außerhalb des lokalen Netzes weitergibt.</td>
+<td>Ohne passenden Weg bleiben entfernte Netze unerreichbar.</td>
+</tr>
+<tr>
+<td><strong>Routing</strong></td>
+<td>Auswahl des Wegs, über den Pakete zum Ziel übertragen werden.</td>
+<td>Falsche Routen können den Datenverkehr ins falsche Netz schicken.</td>
+</tr>
+<tr>
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt Namen in IP-Adressen.</td>
+<td>Namensfehler erscheinen Benutzern oft wie Internetausfall.</td>
+</tr>
+<tr>
+<td><strong>TCP (Transmission Control Protocol)</strong></td>
+<td>Verbindungsorientiertes Transportprotokoll.</td>
+<td>Ein TCP-Porttest prüft die Verbindung zu einem bestimmten Dienst.</td>
+</tr>
+<tr>
+<td><strong>Port</strong></td>
+<td>Logische Nummer eines Netzwerkdienstes, z. B. <code>443</code> für HTTPS.</td>
+<td>Ein Server kann erreichbar sein, während ein bestimmter Dienst blockiert ist.</td>
+</tr>
+<tr>
+<td><strong>HTTPS (Hypertext Transfer Protocol Secure)</strong></td>
+<td>Üblicherweise verschlüsselte Kommunikation mit Webseiten über TLS.</td>
+<td>Ein Port-443-Test ist ein Teil der HTTPS-Diagnose, kein vollständiger Webtest.</td>
+</tr>
+<tr>
+<td><strong>ICMP (Internet Control Message Protocol)</strong></td>
+<td>Netzwerkprotokoll für Diagnose- und Steuerinformationen; <code>ping</code> verwendet es.</td>
+<td>ICMP kann gefiltert sein, obwohl der Dienst funktioniert.</td>
+</tr>
+<tr>
+<td><strong>Firewall</strong></td>
+<td>Kontrolliert Netzwerkverkehr anhand von Regeln.</td>
+<td>Kann zulässige oder unerwünschte Verbindungen blockieren.</td>
+</tr>
+<tr>
+<td><strong>Proxy</strong></td>
+<td>Vermittlungsserver für bestimmte Anwendungszugriffe, etwa HTTP/HTTPS.</td>
+<td>Eine falsche Proxykonfiguration kann den Browser blockieren.</td>
+</tr>
+<tr>
+<td><strong>VPN (Virtual Private Network)</strong></td>
+<td>Geschützter Tunnel zu einem anderen Netz, oft zur Firma.</td>
+<td>Beeinflusst erreichbare Ziele, DNS und Routing.</td>
+</tr>
+<tr>
+<td><strong>VLAN (Virtual Local Area Network)</strong></td>
+<td>Logisches Teilnetz auf Switch-Ebene.</td>
+<td>Falsche VLAN-Zuordnung kann DHCP und die Erreichbarkeit beeinflussen.</td>
+</tr>
+<tr>
+<td><strong>NCSI (Network Connectivity Status Indicator)</strong></td>
+<td>Windows-Funktion zur Bewertung der Internetverbindung.</td>
+<td>Windows kann „Kein Internet“ anzeigen, obwohl ausgewählte Ziele erreichbar sind.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client" rel="noopener noreferrer" target="_blank">Microsoft: DNS-Clientdiagnose</a> · <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance" rel="noopener noreferrer" target="_blank">Microsoft: DHCP-Fehlersuche</a> · <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-ncsi-guidance" rel="noopener noreferrer" target="_blank">Microsoft: NCSI-Fehlersuche</a></p>
+<h2 id="3-was-fragt-der-first-level-zuerst">3. Was fragt der First Level zuerst?</h2>
+<p>Bevor irgendein Befehl gestartet wird, werden <strong>Auswirkungen und Reichweite</strong> geklärt.</p>
+<ol>
+<li><strong>Seit wann?</strong> Plötzlich, nach Update/Umzug oder nur gelegentlich?</li>
+<li><strong>Was ist betroffen?</strong> Alle Websites, nur eine Firmenanwendung, nur Microsoft 365?</li>
+<li><strong>Wer ist betroffen?</strong> Ein PC, ein Raum, eine Abteilung, der gesamte Standort?</li>
+<li><strong>Welche Verbindung?</strong> Ethernet, WLAN, Homeoffice-VPN oder Hotspot?</li>
+<li><strong>Wie lautet die Meldung?</strong> „Keine Verbindung“, „DNS_PROBE_FINISHED…“, „Zeitüberschreitung“ usw.</li>
+<li><strong>Welche Änderungen gab es?</strong> Dockingstation, neues Kabel, VPN-Client, Proxy, Update, Netzwerkwartung?</li>
+<li><strong>Ist der Remotezugriff betroffen?</strong> Über welche Verbindung führen wir die Diagnose aus?</li>
+</ol>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Benutzerbeobachtung</th>
+<th>Möglicher Bereich</th>
+<th>Nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows meldet „Nicht verbunden“</td>
+<td>Adapter / Kabel / WLAN</td>
+<td>Link-Status und Verbindung untersuchen</td>
+</tr>
+<tr>
+<td>Windows meldet „Kein Internet“</td>
+<td>NCSI, DNS, Gateway, Proxy, Internetzugang</td>
+<td>Unabhängige Tests gegen konkrete Ziele durchführen</td>
+</tr>
+<tr>
+<td>IP-Adresse <code>169.254.x.x</code> bei erwartetem DHCP</td>
+<td>DHCP-/VLAN-/Verbindungspfad</td>
+<td>Adressbezug und Adapterkonfiguration überprüfen</td>
+</tr>
+<tr>
+<td>Interne Dienste funktionieren, externe Websites nicht</td>
+<td>Internet-Uplink, Proxy, Filter-/Routingregeln</td>
+<td>Externes HTTPS-Ziel und Proxy prüfen</td>
+</tr>
+<tr>
+<td>Eine Anwendung scheitert, andere funktionieren</td>
+<td>Anwendung, Dienst, Port, Zielsystem</td>
+<td>Konkreten Zielport prüfen</td>
+</tr>
+<tr>
+<td>Nur Hostnamen scheitern, direkte IP-Verbindung funktioniert</td>
+<td>DNS möglicherweise betroffen</td>
+<td>DNS-Server und Auflösung untersuchen</td>
+</tr>
+<tr>
+<td>Mehrere Nutzer gleichermaßen betroffen</td>
+<td>Gemeinsame Infrastruktur</td>
+<td>Netzwerkteam mit Zeitpunkt und Reichweite informieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Ein Fehler in der Browseranzeige kann aus einem Proxy-, Zertifikats- oder Anwendungsproblem entstehen. Auch ein funktionierendes Ping beweist nicht, dass ein HTTPS-Dienst korrekt arbeitet.</p>
+<h2 id="4-von-wo-darf-und-kann-der-support-diagnostizieren">4. Von wo darf und kann der Support diagnostizieren?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriff</th>
+<th>Konkretes Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client ist noch über LAN erreichbar</td>
+<td>Freigegebenes RDP (<em>Remote Desktop Protocol</em>) oder PowerShell-Remoting</td>
+<td>Mit eigenem berechtigten Konto lesende Diagnosen ausführen.</td>
+</tr>
+<tr>
+<td>Client hat Internet, aber interne Dienste sind gestört</td>
+<td>Teams/Schnellhilfe oder Remote-Management, wenn verfügbar</td>
+<td>Gemeinsame Sicht auf Meldungen; VPN/DNS/interne Zieladresse prüfen.</td>
+</tr>
+<tr>
+<td>Kein Netz und kein Remotezugang</td>
+<td>Telefon, lokale Prüfung, vor Ort</td>
+<td>Mitarbeiter führt sichere lesende Abfragen aus; ggf. Kabel/Switchport prüfen.</td>
+</tr>
+<tr>
+<td>Viele Geräte oder ein Standort betroffen</td>
+<td>Netzwerkmanagement durch zuständiges Team</td>
+<td>Switch, VLAN, Gateway, DHCP, DNS, Firewall, WAN-Uplink untersuchen.</td>
+</tr>
+<tr>
+<td>Gerät läuft über VPN</td>
+<td>Freigegebener VPN-/Clientzugang</td>
+<td>Aktiven Tunnel und Routen untersuchen, bevor dessen Konfiguration verändert wird.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Praxisregel:</strong> Wenn du über genau die Netzwerkverbindung auf dem Client arbeitest, die du zurücksetzt, bricht möglicherweise deine Supportsitzung ab. Änderungen am Adapter, an Routen oder VPN-Tunneln benötigen einen Rückweg und gegebenenfalls lokale Unterstützung.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb010_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-010 – Technischer Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb010_diagnosebaum.svg"/></a></div><figcaption>RB-010 – Technischer Diagnose-Entscheidungsbaum</figcaption></figure>
+<p><strong>Textalternative:</strong> 1) Adapter verbunden? 2) IP-/DHCP-Konfiguration plausibel? 3) Gateway bzw. Route zum Ziel vorhanden? 4) DNS-Auflösung für das Ziel korrekt? 5) Konkreter TCP-Port/Dienst erreichbar? 6) Gezielte Maßnahme, erneut testen und dokumentieren. Jeder Fehlschlag führt in den passenden Diagnosezweig. Bei Standortausfällen können Infrastrukturprüfungen parallel stattfinden.</p>
+<h2 id="6-erste-lesende-diagnose-adapter-und-ip-konfiguration">6. Erste lesende Diagnose: Adapter und IP-Konfiguration</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-11-Client, in PowerShell. Die folgenden Befehle <strong>verändern keine Einstellungen</strong>.</p>
+<h3 id="a-status-der-netzwerkadapter">A – Status der Netzwerkadapter</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt aktive, deaktivierte und getrennte Netzwerkadapter an.</span>
+<span class="c"># Die Pipeline | leitet das Ergebnis an Select-Object weiter.</span>
+<span class="c"># Select-Object beschränkt die sichtbaren Spalten.</span>
+<span class="nb">Get-NetAdapter</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Status</span><span class="p">,</span> <span class="n">InterfaceDescription</span><span class="p">,</span> <span class="n">LinkSpeed</span>
+</code></pre></div><p><strong>Interpretation:</strong> <code>Up</code> weist auf eine vorhandene Verbindung auf Schnittstellenebene hin, nicht auf funktionierendes Internet. <code>Disconnected</code> kann z. B. auf ein entferntes Kabel hindeuten. Ein abgeschalteter Adapter kann administrativ oder hardwareseitig bedingt sein. <code>LinkSpeed</code> ist <strong>nicht</strong> die tatsächlich gemessene Internetgeschwindigkeit.</p>
+<h3 id="b-ip--dns--und-gatewaydaten">B – IP-, DNS- und Gatewaydaten</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die wichtigsten IP-Konfigurationsdaten aktiver Adapter.</span>
+<span class="nb">Get-NetIPConfiguration</span>
+
+<span class="c"># Zeigt zusätzliche Informationen, darunter DHCP- und DNS-Angaben.</span>
+<span class="c"># ipconfig.exe ist ein Windows-Konsolenprogramm und kein PowerShell-Cmdlet.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">all</span>
+
+<span class="c"># Zeigt alle Schnittstellen mit zusätzlichen Eigenschaften,</span>
+<span class="c"># darunter auch virtuelle und derzeit nicht verbundene Adapter.</span>
+<span class="nb">Get-NetIPConfiguration</span> <span class="n">-All</span> <span class="n">-Detailed</span>
+</code></pre></div><p><strong>Interpretation:</strong> Zur jeweiligen Schnittstelle gehören IP-Adresse, Präfix/Subnetz, Standardgateway und DNS-Server. Bei mehreren Schnittstellen (WLAN, LAN, VPN, Hyper-V) muss klar sein, <strong>welche Schnittstelle den Verkehr zum fraglichen Ziel tatsächlich sendet</strong>.</p>
+<h3 id="beispielausgabe-fiktiv">Beispielausgabe (fiktiv)</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Ethernet-Adapter:
+  IPv4-Adresse        192.168.50.25
+  Subnetzmaske        255.255.255.0
+  Standardgateway     192.168.50.1
+  DNS-Server          192.168.50.99
+  DHCP aktiviert      Nein
+</code></pre></div><p>Hier sieht die IPv4-Adresse plausibel aus. Ob <code>192.168.50.99</code> der <em>richtige</em> DNS-Server ist, erfahren wir erst durch Vergleich mit der dokumentierten Sollkonfiguration. <strong>Ein vorhandener DNS-Servereintrag beweist noch nicht, dass dieser DNS-Server erreichbar ist.</strong></p>
+<h3 id="c-was-bedeutet-169254xx-genau">C – Was bedeutet <code>169.254.x.x</code> genau?</h3>
+<p>Wenn Windows mit aktivierter automatischer IPv4-Adressierung (DHCP) keinen gültigen DHCP-Lease erhält, kann es automatisch eine Link-Local-Adresse aus <code>169.254.0.0/16</code> vergeben (<em>APIPA</em>). Damit ist eingeschränkte Kommunikation auf dem lokalen Segment möglich; ein normaler gerouteter Unternehmenszugriff ist darüber typischerweise nicht hergestellt.</p>
+<p><strong>Nicht jeder DHCP-Fehler führt zwingend sofort zu APIPA</strong>, und eine solche Adresse allein beweist nicht, welcher Teil des DHCP-Pfades defekt ist. Auch Kabel, VLAN, Switchport, DHCP-Relay, DHCP-Server oder Clientkonfiguration kommen infrage.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/troubleshoot/troubleshoot-dhcp-issue" rel="noopener noreferrer" target="_blank">Microsoft – DHCP-Fehlerdiagnose</a></p>
+<h2 id="7-gateway-und-routing-pruefen">7. Gateway und Routing prüfen</h2>
+<p>Ein <strong>Standardgateway</strong> ist der nächste Router, an den ein Client Pakete für nicht lokal bekannte Ziele weitergibt. Eine <strong>Route</strong> beschreibt, welchen nächsten Weg Windows zu einer Zieladresse verwendet.</p>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client, PowerShell.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die IPv4-Routingtabelle in einem Windows-Konsolenformat.</span>
+<span class="n">route</span> <span class="n">print</span> <span class="p">-</span><span class="n">4</span>
+
+<span class="c"># Ruft alle bekannten IPv4-Standardrouten ab.</span>
+<span class="c"># 0.0.0.0/0 bezeichnet die IPv4-Standardroute.</span>
+<span class="nb">Get-NetRoute</span> <span class="n">-AddressFamily</span> <span class="n">IPv4</span> <span class="n">-DestinationPrefix</span> <span class="s1">'0.0.0.0/0'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">DestinationPrefix</span><span class="p">,</span> <span class="n">NextHop</span><span class="p">,</span> <span class="n">InterfaceAlias</span><span class="p">,</span> <span class="n">RouteMetric</span>
+
+<span class="c"># Prüft per ICMP die Erreichbarkeit des beispielhaften Gateways.</span>
+<span class="c"># Die tatsächliche Gateway-IP stammt aus der vorherigen Konfigurationsprüfung.</span>
+<span class="n">ping</span> <span class="n">192</span><span class="p">.</span><span class="n">168</span><span class="p">.</span><span class="n">50</span><span class="p">.</span><span class="n">1</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ist keine zum Ziel passende Route vorhanden, muss die Konfiguration geprüft werden. Mehrere Standardrouten können bei LAN/WLAN/VPN auftreten und sind nicht automatisch falsch. Bei <code>ping</code> gilt: <strong>Keine ICMP-Antwort bedeutet nicht immer Unerreichbarkeit</strong>, weil Geräte oder Firewalls ICMP blockieren können. Deshalb sind eine plausible Routingtabelle und konkrete Diensttests zusätzlich wichtig.</p>
+<h3 id="erweiterte-zielpfadpruefung">Erweiterte Zielpfadprüfung</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die von Windows gewählte Route in einer Diagnoseansicht.</span>
+<span class="c"># Der Zielname ist ein Beispiel für einen externen HTTPS-Dienst.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'www.microsoft.com'</span> <span class="n">-DiagnoseRouting</span> <span class="n">-InformationLevel</span> <span class="n">Detailed</span>
+
+<span class="c"># Tracert zeigt sichtbare IPv4-Routerstationen auf dem Weg zum Ziel.</span>
+<span class="c"># Einzelne Hops können auf ICMP nicht antworten und als * erscheinen.</span>
+<span class="n">tracert</span> <span class="p">-</span><span class="n">4</span> <span class="n">www</span><span class="p">.</span><span class="n">microsoft</span><span class="p">.</span><span class="n">com</span>
+</code></pre></div><p><strong>Wichtig:</strong> Routing- und Traceroute-Ergebnisse hängen von Firewall-/Netzwerkrichtlinien ab. Ein <code>*</code> an einem Hop ist allein noch kein Fehlerbeweis.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netroute" rel="noopener noreferrer" target="_blank">Microsoft – Get-NetRoute</a> · <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection" rel="noopener noreferrer" target="_blank">Microsoft – Test-NetConnection</a></p>
+<h2 id="8-dns-namensaufloesung-untersuchen">8. DNS-Namensauflösung untersuchen</h2>
+<p><strong>DNS (Domain Name System)</strong> übersetzt Namen in IP-Adressen. Ein Benutzer denkt oft „kein Internet“, wenn eine Anwendung nur die benötigte Serveradresse nicht auflösen kann.</p>
+<p><strong>Ausführungsort:</strong> Betroffener Client.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Fragt die Adresse einer bekannten öffentlichen Website per DNS ab.</span>
+<span class="nb">Resolve-DnsName</span> <span class="n">-Name</span> <span class="s1">'www.microsoft.com'</span>
+
+<span class="c"># Befragt einen konkret angegebenen internen DNS-Server.</span>
+<span class="c"># Die Adresse 192.168.50.10 ist ein fiktiver Unternehmens-DNS-Server.</span>
+<span class="nb">Resolve-DnsName</span> <span class="n">-Name</span> <span class="s1">'intranet.firma.example'</span> <span class="n">-Server</span> <span class="s1">'192.168.50.10'</span>
+
+<span class="c"># Zeigt DNS-Server-Zuweisungen der Netzwerkschnittstellen.</span>
+<span class="nb">Get-DnsClientServerAddress</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">InterfaceAlias</span><span class="p">,</span> <span class="n">AddressFamily</span><span class="p">,</span> <span class="n">ServerAddresses</span>
+</code></pre></div><p><strong>Interpretation:</strong> Wenn die Auflösung über den eingetragenen DNS-Server scheitert, über den bekannten internen Server aber funktioniert, weist das auf eine falsche oder unerreichbare DNS-Konfiguration hin. Wenn beide scheitern, müssen DNS-Dienst, Netzwerkpfad und der korrekte Name geprüft werden. Ein Fehler nur für einen bestimmten Namen kann auch ein fehlender DNS-Datensatz sein.</p>
+<p><strong>Sicherheits- und Praxisregel:</strong> Den DNS-Server eines <strong>Domänen-Clients</strong> nicht blind auf <code>8.8.8.8</code> oder einen anderen öffentlichen Resolver ändern. Diese können interne Active-Directory-Namen und Dienststandorte möglicherweise nicht auflösen.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client" rel="noopener noreferrer" target="_blank">Microsoft – DNS-Clientproblembehandlung</a> · <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname" rel="noopener noreferrer" target="_blank">Microsoft – Resolve-DnsName</a></p>
+<h2 id="9-konkretes-ziel-und-tcp-port-pruefen">9. Konkretes Ziel und TCP-Port prüfen</h2>
+<p>Ein erfolgreich aufgelöster Name garantiert keinen funktionierenden Dienst. Die <strong>TCP-Verbindung</strong> zum benötigten Port muss separat geprüft werden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft DNS und den TCP-Verbindungsaufbau zu HTTPS-Port 443.</span>
+<span class="c"># Das Ziel ist eine öffentliche Microsoft-Website.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'www.microsoft.com'</span> <span class="n">-Port</span> <span class="n">443</span>
+
+<span class="c"># Prüft einen internen HTTPS-Dienst per IP-Adresse.</span>
+<span class="c"># Die Beispieladresse muss im realen Ticket ersetzt werden.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'192.168.50.20'</span> <span class="n">-Port</span> <span class="n">443</span>
+</code></pre></div><p><strong>Beispielbefunde:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ergebnis</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TcpTestSucceeded : True</code></td>
+<td>TCP-Verbindungsaufbau auf dem geprüften Port funktioniert. Die Website oder Anmeldung kann trotzdem fehlerhaft sein.</td>
+</tr>
+<tr>
+<td><code>TcpTestSucceeded : False</code></td>
+<td>TCP-Verbindungsaufbau scheitert. Ursachen: Netzwerkpfad, Firewall, Proxyarchitektur, Zielport nicht offen, Dienst nicht aktiv oder Zielausfall.</td>
+</tr>
+<tr>
+<td>Name löst nicht auf</td>
+<td>Zuerst DNS-/Name-Konfiguration prüfen, bevor ein Porttest mit Namen sinnvoll interpretiert werden kann.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Ein HTTPS-Proxy kann dafür sorgen, dass der Browser funktioniert, obwohl ein direkter TCP-Test zum Ziel nicht dem vorgesehenen Pfad entspricht. DNS und Porttests dürfen daher nicht isoliert interpretiert werden.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection" rel="noopener noreferrer" target="_blank">Microsoft – Test-NetConnection</a></p>
+<h2 id="10-proxy-vpn-firewall-und-die-windows-meldung-kein-internet">10. Proxy, VPN, Firewall und die Windows-Meldung „Kein Internet“</h2>
+<h3 id="a-proxy">A – Proxy</h3>
+<p>Ein <strong>Proxyserver</strong> vermittelt bestimmte Anfragen zu externen Ressourcen. Wird er durch Gruppenrichtlinien (GPO), eine automatische Konfigurationsdatei (PAC) oder manuell eingerichtet, kann ein falscher Proxy den Browserzugriff blockieren.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt die WinHTTP-Proxykonfiguration an.</span>
+<span class="c"># Achtung: Sie muss NICHT mit allen Browser-/Benutzerproxywerten übereinstimmen.</span>
+<span class="n">netsh</span> <span class="n">winhttp</span> <span class="n">show</span> <span class="n">proxy</span>
+</code></pre></div><p><strong>Anschließend:</strong> Proxy-/PAC-Konfiguration des tatsächlich betroffenen Browsers oder Windows-Benutzerkontos prüfen. Keine Proxy-Einstellung ohne dokumentierte Sollkonfiguration überschreiben.</p>
+<h3 id="b-vpn-und-routing">B – VPN und Routing</h3>
+<p>Ein VPN kann neue Netzwerkschnittstellen, DNS-Server und Routen hinzufügen. Ein fehlerhafter Tunnel oder unpassendes <em>Split Tunneling</em> (nur bestimmte Ziele durch das VPN) kann dazu führen, dass Internet oder Firmenressourcen nicht erreichbar sind.</p>
+<p><strong>Prüfung:</strong> VPN verbunden? Welche IP/Gateway-/DNS-Konfiguration gilt? Welche Route gewinnt für das konkrete Ziel? Ist eine Firmenressource nur mit VPN erreichbar? Bei eingeschaltetem VPN keine eigenmächtigen Routenänderungen durchführen.</p>
+<h3 id="c-firewall">C – Firewall</h3>
+<p>Eine Firewall lässt Verkehr anhand von Regeln zu oder blockiert ihn. Das gilt sowohl am Client als auch auf Servern, Routern, Unternehmens-Firewalls oder in Cloudumgebungen. <strong>Firewall nicht als Diagnosetrick komplett deaktivieren.</strong> Stattdessen eine konkrete Verbindung und die zugehörige Regel/Protokollierung prüfen.</p>
+<h3 id="d-ncsi-und-kein-internet">D – NCSI und „Kein Internet“</h3>
+<p>Der <strong>Network Connectivity Status Indicator (NCSI)</strong> ermittelt in Windows den angezeigten Netzwerkstatus über eigene Prüfungen. Wenn diese beispielsweise an Proxy oder Firewall scheitern, kann „Kein Internet“ erscheinen, obwohl einzelne Ziele erreichbar sind. Umgekehrt garantiert eine positive Anzeige nicht, dass jede Firmenanwendung funktioniert.</p>
+<p><strong>Praxistest:</strong> Eine tatsächliche benötigte Website beziehungsweise einen internen Dienst testen und NCSI nur als zusätzliche Information behandeln. Die NCSI-Prüfungen nicht einfach abschalten.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-ncsi-guidance" rel="noopener noreferrer" target="_blank">Microsoft – NCSI-Fehlersuche</a></p>
+<h2 id="11-interpretation-typischer-diagnosebefunde">11. Interpretation typischer Diagnosebefunde</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Was er stützt</th>
+<th>Was er nicht beweist</th>
+<th>Nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adapter <code>Disconnected</code></td>
+<td>Kein aktiver Link auf dem Adapter</td>
+<td>Nicht automatisch Treiberdefekt</td>
+<td>Kabel/Port/WLAN/Adapterstatus kontrollieren</td>
+</tr>
+<tr>
+<td><code>169.254.x.x</code> bei erwarteter DHCP-Konfiguration</td>
+<td>DHCP-Vorgang erfolglos oder keine nutzbare IPv4-Zuweisung</td>
+<td>Nicht zwingend DHCP-Server defekt</td>
+<td>Adapter, VLAN, DHCP-Client, Relay/Server prüfen</td>
+</tr>
+<tr>
+<td>IP und Gateway plausibel</td>
+<td>Grundkonfiguration vorhanden</td>
+<td>Nicht automatisch korrekt geroutete Pakete</td>
+<td>Route und konkrete Ziele prüfen</td>
+</tr>
+<tr>
+<td>Gateway-Ping ohne Antwort</td>
+<td>ICMP zum Gateway nicht erfolgreich</td>
+<td>Nicht automatisch Gateway ausgefallen</td>
+<td>Router-/ARP-/Dienstzugriff und Regeln prüfen</td>
+</tr>
+<tr>
+<td>IP-Ziel per TCP erreichbar, Hostname nicht auflösbar</td>
+<td>DNS-/Namensproblem möglich</td>
+<td>Nicht automatisch fehlerhafte DNS-Server-Software</td>
+<td>Eingetragenen Resolver, Zonen und Route prüfen</td>
+</tr>
+<tr>
+<td>DNS erfolgreich, Port 443 nicht erreichbar</td>
+<td>Transportweg/Dienst betroffen</td>
+<td>Nicht automatisch Firewalldefekt</td>
+<td>Zieldienst, Firewall, Proxy, Route prüfen</td>
+</tr>
+<tr>
+<td>Nur mit VPN gestört</td>
+<td>VPN-Routing/DNS/Policy beteiligt</td>
+<td>Nicht automatisch VPN-Software defekt</td>
+<td>Tunnel, Routen, DNS-Suffix/Policy prüfen</td>
+</tr>
+<tr>
+<td>Mehrere Arbeitsplätze betroffen</td>
+<td>Gemeinsame Infrastruktur wahrscheinlich</td>
+<td>Nicht automatisch WAN-Ausfall</td>
+<td>Incident-Scope und Netzwerkteam informieren</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="12-veraenderungen-nur-nach-konkretem-befund">12. Veränderungen nur nach konkretem Befund</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Bereich</th>
+<th>Zulässige Maßnahme nach Freigabe</th>
+<th>Risiko / Rückfallplan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAN-Kabel/Port defekt</td>
+<td>Kabel/Port entsprechend Betriebsverfahren tauschen</td>
+<td>Switch-Port-/VLAN-Zuordnung berücksichtigen</td>
+</tr>
+<tr>
+<td>WLAN deaktiviert</td>
+<td>Korrektes WLAN-Profil beziehungsweise Adapter aktivieren</td>
+<td>Fernwartung über WLAN kann abbrechen</td>
+</tr>
+<tr>
+<td>DHCP-Lease veraltet/inkonsistent</td>
+<td>Kontrollierte DHCP-Erneuerung</td>
+<td>Kann IP, Route, DNS und Remotesitzung ändern</td>
+</tr>
+<tr>
+<td>DNS falsch eingetragen</td>
+<td>Sollkonfiguration wiederherstellen (GPO/MDM/DHCP/manuell, je nach Betrieb)</td>
+<td>Domänenzugriff durch falsche Resolverauswahl gefährdet</td>
+</tr>
+<tr>
+<td>VPN-Route fehlerhaft</td>
+<td>Dokumentierte VPN-/Routingkonfiguration korrigieren</td>
+<td>Zugriff auf Firmenressourcen oder Remotezugang kann wegfallen</td>
+</tr>
+<tr>
+<td>Zielport durch Regel blockiert</td>
+<td>Zuständige L2-Stelle passt konkrete Regel an</td>
+<td>Keine pauschale Firewall-Abschaltung</td>
+</tr>
+<tr>
+<td>Zentraler DHCP-/DNS-/Gateway-Ausfall</td>
+<td>Infrastrukturteam behebt zentral</td>
+<td>Betroffene Benutzer/Standorte und Wartungsbedarf beachten</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="beispiel-eines-veraendernden-befehls-ausdruecklich-nicht-als-erster-diagnoseschritt">Beispiel eines verändernden Befehls – ausdrücklich <strong>nicht</strong> als erster Diagnoseschritt</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># VORSICHT: Erneuert die DHCP-Adresszuweisung auf dem angegebenen Adapter.</span>
+<span class="c"># Nur verwenden, wenn das Interface und die Folgen bekannt sind.</span>
+<span class="c"># Während einer Remotesitzung kann die Verbindung dabei abbrechen.</span>
+<span class="c"># Der Adaptername ist ein Beispiel; das tatsächliche Interface vorher prüfen.</span>
+<span class="n">ipconfig</span> <span class="p">/</span><span class="n">renew</span> <span class="s2">"Ethernet"</span>
+</code></pre></div><p><strong>Achtung:</strong> Falls der Adapter manuell/statisch konfiguriert ist, lässt sich der Fehler nicht einfach durch eine DHCP-Erneuerung beheben. Ein vollständiger Netzwerkreset oder das Zurücksetzen von TCP/IP ist als Standardmaßnahme ungeeignet, weil Konfigurationen und Remotezugriffe betroffen sein können.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-problems-dhcp-client" rel="noopener noreferrer" target="_blank">Microsoft – DHCP-Clientproblembehandlung</a></p>
+<h2 id="13-1st--und-2nd-level-abgrenzung">13. 1st- und 2nd-Level-Abgrenzung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>First Level (L1)</th>
+<th>Second Level (L2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ticket, Zeitpunkt, Auswirkungen aufnehmen</td>
+<td>Umfangreiche, standortweite Störungen korrelieren</td>
+</tr>
+<tr>
+<td>Adapterstatus, IP, Gateway und DNS auslesen</td>
+<td>Switch/VLAN, DHCP-Relay, Server und Firewalls analysieren</td>
+</tr>
+<tr>
+<td>Betroffene Anwendung und bekannte Ziele testen</td>
+<td>Paketmitschnitt, Routingtabellen und Policy untersuchen</td>
+</tr>
+<tr>
+<td>Freigegebene Standardmaßnahmen durchführen</td>
+<td>Komplexe VPN-/DNS-/Routingkonfiguration anpassen</td>
+</tr>
+<tr>
+<td>Ergebnisse dokumentieren und gezielt eskalieren</td>
+<td>Dauerhafte Ursache, Prävention und Monitoring prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Abgrenzung nach Organisation:</strong> Zuständigkeiten hängen von Berechtigungen und Betriebsvereinbarungen ab. Eine umfangreiche Änderung am produktiven Gateway gehört nicht allein wegen des Titels „L2“ zur frei verfügbaren Supportkompetenz.</p>
+<h2 id="14-fiktiver-musterfall-und-professioneller-ticketkommentar">14. Fiktiver Musterfall und professioneller Ticketkommentar</h2>
+<h3 id="fiktive-untersuchung">Fiktive Untersuchung</h3>
+<ul>
+<li>Client <code>PC-023</code> ist per Ethernet verbunden, <code>192.168.50.25/24</code>, Gateway <code>192.168.50.1</code>.</li>
+<li>Der eingetragene DNS-Server ist <code>192.168.50.99</code>; dokumentierter Soll-DNS ist <code>192.168.50.10</code>.</li>
+<li>Ein freigegebener interner HTTPS-Dienst <code>192.168.50.20:443</code> lässt sich per TCP erreichen.</li>
+<li><code>Resolve-DnsName intranet.firma.example</code> schlägt über die Standardkonfiguration fehl, mit <code>-Server 192.168.50.10</code> funktioniert es.</li>
+<li>Nach autorisierter Korrektur der DNS-Zuweisung kann der Client die benötigten Namen auflösen und die Anwendung nutzen.</li>
+</ul>
+<p><strong>Das ist ein konstruiertes Lehrbeispiel, keine tatsächlich durchgeführte Störungsbehebung.</strong></p>
+<h3 id="muster-ticketkommentar">Muster-Ticketkommentar</h3>
+<blockquote>
+<p><strong>INC-010 – DNS-Auflösung am Arbeitsplatz gestört</strong><br/>
+<strong>Fehlerbild:</strong> Benutzer konnte mehrere Unternehmenswebseiten nicht über Hostnamen öffnen.<br/>
+<strong>Diagnose:</strong> Netzadapter aktiv; gültige IP und Gateway. Interner HTTPS-Dienst per IP/Port erreichbar. DNS-Namensauflösung über konfigurierten Resolver fehlgeschlagen. Vergleichstest mit dokumentiertem DNS-Server erfolgreich.<br/>
+<strong>Ursache:</strong> Am Client war ein nicht vorgesehener DNS-Server eingetragen.<br/>
+<strong>Maßnahme:</strong> DNS-Konfiguration gemäß Freigabe und Standard wiederhergestellt.<br/>
+<strong>Ergebnis:</strong> Namensauflösung und Zugriff auf die benötigte Anwendung erfolgreich getestet.<br/>
+<strong>Status:</strong> Gelöst.</p>
+</blockquote>
+<h2 id="15-lernkontrolle-und-wissenstransfer">15. Lernkontrolle und Wissenstransfer</h2>
+<p><strong>Wissenskarten (später für Anki):</strong> Was macht DHCP? Was bedeutet <code>169.254.0.0/16</code>? Wofür steht DNS? Was prüft <code>Test-NetConnection -Port 443</code>?</p>
+<p><strong>Verständniskarten:</strong> Warum kann der PC ein lokales NAS erreichen, aber nicht das Internet? Warum beweist ein fehlgeschlagener Ping keinen Totalausfall? Warum darf ein Unternehmensclient nicht blind auf einen öffentlichen DNS-Server umgestellt werden?</p>
+<p><strong>Diagnosekarten:</strong></p>
+<ol>
+<li>Ein Client hat <code>169.254.22.18</code> und soll seine Adresse über DHCP beziehen. Welche drei Komponenten prüfst du zuerst und warum?</li>
+<li>Die IP-Adresse eines internen Webservers ist erreichbar, sein Name wird nicht aufgelöst. Welche Hypothese testest du und wie?</li>
+<li>Nach dem VPN-Aufbau funktioniert das Firmennetz, aber keine externe Website mehr. Welche Routen und DNS-Einstellungen willst du vergleichen?</li>
+</ol>
+<p><strong>Praxis ohne zusätzliche VM:</strong> Auf einem vorhandenen Windows-11-Rechner lassen sich <code>Get-NetAdapter</code>, <code>Get-NetIPConfiguration</code>, <code>route print -4</code>, <code>Resolve-DnsName</code>, <code>Test-NetConnection</code> und die Windows-Netzwerkstatusanzeige zunächst <strong>nur lesend</strong> untersuchen. So sind viele Grundlagen auch auf einem Laptop mit 16 GB RAM trainierbar. Fiktive Musterwerte dürfen dabei nicht als echte Tests ausgegeben werden.</p>
+<h3 id="quellen-und-technischer-stand">Quellen und technischer Stand</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Quelle</th>
+<th>Wofür genutzt?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client" rel="noopener noreferrer" target="_blank">Microsoft Learn – DNS-Clientproblembehandlung</a></td>
+<td>IP-/DNS-Konfiguration, DNS-Tests</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues" rel="noopener noreferrer" target="_blank">Microsoft Learn – DNS-Clientnamensauflösung</a></td>
+<td>DNS-Zeitüberschreitungen und praktische Fehlerbilder</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance" rel="noopener noreferrer" target="_blank">Microsoft Learn – DHCP-Leitfaden</a></td>
+<td>DHCP, Relay, VLAN, Server-/Clientanalyse</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-problems-dhcp-client" rel="noopener noreferrer" target="_blank">Microsoft Learn – DHCP-Clientfehler</a></td>
+<td>DHCP-Clientdienst, Logs, Renewal</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-ncsi-guidance" rel="noopener noreferrer" target="_blank">Microsoft Learn – NCSI-Fehlersuche</a></td>
+<td>Bedeutung der Windows-Meldung „Kein Internet“</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-NetIPConfiguration</a></td>
+<td>IP-Konfiguration über PowerShell</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netroute" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-NetRoute</a></td>
+<td>Routingtabelle</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname" rel="noopener noreferrer" target="_blank">Microsoft Learn – Resolve-DnsName</a></td>
+<td>DNS-Abfragen</td>
+</tr>
+<tr>
+<td><a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection" rel="noopener noreferrer" target="_blank">Microsoft Learn – Test-NetConnection</a></td>
+<td>TCP-, ICMP- und Routingtests</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Quellenrecherche: 08.11.2026. Die Befehle sind für freigegebene Windows-Umgebungen dokumentiert. Praktische Prüfung mit echten Messergebnissen folgt gesondert.</em></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-010_Lernartikel.md">RB-010_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-009/index.html">← RB-009</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
