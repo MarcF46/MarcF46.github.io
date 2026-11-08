@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-005 Zugriff auf Datei oder Ordner verweigert | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-005: Zugriff auf Datei oder Ordner verweigert. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">SMB · NTFS · Berechtigungen · Praxis-Runbook</p><h1>RB-005: Zugriff auf Datei oder Ordner verweigert</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a><a href="grundlagen.html">Grundlagen</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</a></li><li><a href="#2-geeigneten-diagnoseweg-waehlen">2. Geeigneten Diagnoseweg wählen</a></li><li><a href="#3-erste-pruefungen-l1">3. Erste Prüfungen (L1)</a></li><li><a href="#4-freigabeberechtigungen-kontrollieren-l2">4. Freigabeberechtigungen kontrollieren (L2)</a></li><li><a href="#5-ntfs-berechtigungen-kontrollieren-l2">5. NTFS-Berechtigungen kontrollieren (L2)</a></li><li><a href="#6-neue-ad-gruppenmitgliedschaft-l1l2">6. Neue AD-Gruppenmitgliedschaft? (L1/L2)</a></li><li><a href="#7-entscheidung-gezielte-massnahme">7. Entscheidung → gezielte Maßnahme</a></li><li><a href="#8-erfolgskontrolle-und-ticketabschluss">8. Erfolgskontrolle und Ticketabschluss</a></li><li><a href="#9-quellen">9. Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte L1/L2-Arbeitsanweisung · <strong>Version:</strong> 1.1 · <strong>Stand:</strong> 08.11.2026<br/>
+<strong>Status:</strong> Recherchiert, nicht praktisch validiert. <strong>Kein Berechtigungswechsel ohne dokumentierte Freigabe!</strong></p>
+<h2 id="1-ticket-aufnehmen-l1">1. Ticket aufnehmen (L1)</h2>
+<ul>
+<li>[ ] Exakte Fehlermeldung und UNC-Pfad <code>\\FS01\Projekte\Einkauf</code> dokumentieren.</li>
+<li>[ ] Betroffene Operation klären: <strong>Ordner öffnen / Datei lesen / schreiben / löschen</strong>?</li>
+<li>[ ] Wer ist betroffen? Einzelner Benutzer, Gruppe oder mehrere Standorte?</li>
+<li>[ ] Anmeldekonto, Computername, Beginn, Änderungen (Gruppe, Team, VPN) notieren.</li>
+<li>[ ] Fachlich erlaubte Soll-Berechtigung bei der zuständigen Stelle klären.</li>
+</ul>
+<h2 id="2-geeigneten-diagnoseweg-waehlen">2. Geeigneten Diagnoseweg wählen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ort</th>
+<th>Geeignete Vorgehensweise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Betroffener Client</strong></td>
+<td>Anwender via Bildschirmfreigabe anleiten; <code>whoami</code> und Netzwerkverbindung <strong>im Benutzerkontext</strong> prüfen.</td>
+</tr>
+<tr>
+<td><strong>AD-Administrationsplatz</strong></td>
+<td>AD-Gruppen mit RSAT/PowerShell lesend abfragen.</td>
+</tr>
+<tr>
+<td><strong>Fileserver FS01</strong></td>
+<td>Share-ACL mit <code>Get-SmbShareAccess</code> und lokale NTFS-ACL mit <code>Get-Acl</code> / <code>icacls</code> prüfen.</td>
+</tr>
+<tr>
+<td><strong>Kein Zugang</strong></td>
+<td>Vor-Ort- oder zuständigen Infrastruktur-Support einschalten.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-erste-pruefungen-l1">3. Erste Prüfungen (L1)</h2>
+<p><strong>Ausführungsort:</strong> betroffener Windows-Client.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft die TCP-Verbindung zu SMB auf dem Fileserver.</span>
+<span class="c"># True zeigt nur einen erreichbaren Port, noch keine Berechtigung.</span>
+<span class="nb">Test-NetConnection</span> <span class="n">-ComputerName</span> <span class="s1">'FS01'</span> <span class="n">-Port</span> <span class="n">445</span>
+
+<span class="c"># Zeigt den Benutzer der aktuellen Sitzung.</span>
+<span class="n">whoami</span>
+
+<span class="c"># Zeigt Gruppen, die im aktuellen Token enthalten sind.</span>
+<span class="c"># UNBEDINGT im Kontext des betroffenen Mitarbeiters ausführen.</span>
+<span class="n">whoami</span> <span class="p">/</span><span class="n">groups</span>
+
+<span class="c"># Zeigt aktive/gespeicherte SMB-Netzlaufwerkszuordnungen.</span>
+<span class="nb">Get-SmbMapping</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">LocalPath</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">Status</span>
+</code></pre></div><p><strong>Entscheidung:</strong> TCP 445 <strong>nicht</strong> erreichbar → Netzwerk/DNS/VPN/Firewall/Server prüfen. Port erreichbar → Anmeldung, Freigabe und NTFS weiter untersuchen.</p>
+<h2 id="4-freigabeberechtigungen-kontrollieren-l2">4. Freigabeberechtigungen kontrollieren (L2)</h2>
+<p><strong>Ausführungsort:</strong> <strong>FS01</strong>, angemeldeter und berechtigter Administrator.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Prüft, welcher lokale Ordner hinter der Freigabe steht.</span>
+<span class="nb">Get-SmbShare</span> <span class="n">-Name</span> <span class="s1">'Projekte'</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Path</span>
+
+<span class="c"># Zeigt Berechtigungsregeln der SMB-Freigabe an.</span>
+<span class="nb">Get-SmbShareAccess</span> <span class="n">-Name</span> <span class="s1">'Projekte'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">AccountName</span><span class="p">,</span> <span class="n">AccessControlType</span><span class="p">,</span> <span class="n">AccessRight</span>
+</code></pre></div><p>Bei fehlender Berechtigung: <strong>nicht automatisch erhöhen</strong>. Soll-Berechtigung und Genehmigung klären.</p>
+<h2 id="5-ntfs-berechtigungen-kontrollieren-l2">5. NTFS-Berechtigungen kontrollieren (L2)</h2>
+<p><strong>Ausführungsort:</strong> <strong>FS01</strong>; Pfad ist ein lokaler Serverpfad.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Pfad auf dem Fileserver, nicht der UNC-Pfad am Client.</span>
+<span class="nv">$ordner</span> <span class="p">=</span> <span class="s1">'D:\Freigaben\Projekte\Einkauf'</span>
+
+<span class="c"># NTFS-Sicherheitsinformationen des Ordners lesen.</span>
+<span class="nv">$acl</span> <span class="p">=</span> <span class="nb">Get-Acl</span> <span class="n">-LiteralPath</span> <span class="nv">$ordner</span>
+
+<span class="c"># Erlaubte, verweigerte und geerbte Regeln zeigen.</span>
+<span class="nv">$acl</span><span class="p">.</span><span class="n">Access</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">IdentityReference</span><span class="p">,</span> <span class="n">FileSystemRights</span><span class="p">,</span> <span class="n">AccessControlType</span><span class="p">,</span> <span class="n">IsInherited</span>
+
+<span class="c"># Alternative reine Leseanzeige mit Windows-Kommandozeile.</span>
+<span class="n">icacls</span> <span class="s1">'D:\Freigaben\Projekte\Einkauf'</span>
+</code></pre></div><p>Share <strong>und</strong> NTFS müssen die benötigte Operation erlauben. Weitere Richtlinien sind möglich. Bei komplexen Rechten in der GUI <strong>Eigenschaften → Sicherheit → Erweitert → Effektiver Zugriff</strong> untersuchen.</p>
+<h2 id="6-neue-ad-gruppenmitgliedschaft-l1l2">6. Neue AD-Gruppenmitgliedschaft? (L1/L2)</h2>
+<p><strong>Ausführungsort:</strong> AD-Administrationsplatz mit ActiveDirectory-Modul.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest im AD eingetragene Gruppen des Benutzers.</span>
+<span class="nb">Get-ADPrincipalGroupMembership</span> <span class="n">-Identity</span> <span class="s1">'a.meyer'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">-ExpandProperty</span> <span class="n">Name</span> <span class="p">|</span>
+    <span class="nb">Sort-Object</span>
+</code></pre></div><p><strong>Abgleich:</strong> <code>Get-ADPrincipalGroupMembership</code> zeigt AD-Zugehörigkeiten; <code>whoami /groups</code> zeigt Gruppen im <strong>aktuellen Sitzungstoken</strong>. Fehlt dort die neue Gruppe, nach Freigabe vollständige Windows-Ab-/Anmeldung veranlassen, Sitzung/SMB-Verbindung erneuern und den ursprünglich gesperrten Zugriff erneut testen. <strong>Nicht:</strong> <code>gpupdate /force</code> als Ersatz für neue Benutzeranmeldung behandeln.</p>
+<h2 id="7-entscheidung-gezielte-massnahme">7. Entscheidung → gezielte Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Port 445 nicht erreichbar</td>
+<td>Netzwerk/Firewall/VPN/DNS/SMB-Server prüfen; bei Bedarf Infrastruktur eskalieren.</td>
+</tr>
+<tr>
+<td>Share- oder NTFS-Recht fehlt</td>
+<td>Berechtigung gemäß genehmigtem Rollenmodell gezielt zuweisen lassen.</td>
+</tr>
+<tr>
+<td>Neue Gruppe noch nicht im Token</td>
+<td>Neu anmelden und erneut testen; Sicherheitsrichtlinie beachten.</td>
+</tr>
+<tr>
+<td>Explizites <code>Deny</code>/Vererbung unklar</td>
+<td>L2/Sicherheitsverantwortliche einbeziehen, <strong>nicht blind entfernen</strong>.</td>
+</tr>
+<tr>
+<td>Unterordner wird nicht angezeigt</td>
+<td>ABE (berechtigungsabhängige Auflistung), NTFS-Regeln und Geltungsbereich prüfen.</td>
+</tr>
+<tr>
+<td>Datei trotz passender ACL nicht lesbar</td>
+<td>Eventuelle EFS-Verschlüsselung und zusätzliche Richtlinien untersuchen.</td>
+</tr>
+<tr>
+<td>Nur Laufwerksbuchstabe fehlt, UNC funktioniert</td>
+<td>GPO-Laufwerkszuordnung / Benutzerkontext prüfen, nicht pauschal Rechte erhöhen.</td>
+</tr>
+<tr>
+<td>Lesen funktioniert, Schreiben nicht</td>
+<td>Schreibrecht, Dateisperre und Anwendungs-/Dateizustand getrennt prüfen.</td>
+</tr>
+<tr>
+<td>Problem seit Windows-Upgrade / Gastzugriff blockiert</td>
+<td>SMB-Sicherheitsanforderungen prüfen, <strong>Gastzugriff und SMB1 nicht pauschal aktivieren</strong>.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Verbotene Schnelllösungen ohne Freigabe:</strong> <code>Jeder: Vollzugriff</code>, rekursives <code>icacls /reset</code>, Besitzübernahme, Umgehung einer Deny-Regel, Abschalten von SMB-Schutzmechanismen.</p>
+<h2 id="8-erfolgskontrolle-und-ticketabschluss">8. Erfolgskontrolle und Ticketabschluss</h2>
+<ul>
+<li>[ ] Mit dem <strong>betroffenen Konto</strong> und demselben UNC-Pfad testen.</li>
+<li>[ ] Genau die freigegebene Aktion (<strong>Lesen</strong> oder <strong>Ändern</strong>) funktioniert.</li>
+<li>[ ] Keine zusätzliche unzulässige Berechtigung erteilt.</li>
+<li>[ ] Ursache, Prüfungen, Änderungen, Genehmigung und Ergebnis dokumentieren.</li>
+<li>[ ] Falls ungeklärt: an L2 mit Befunden eskalieren.</li>
+</ul>
+<p><strong>Kurzkommentar (fiktiv):</strong> „Benutzerkonto vorhanden, SMB-Verbindung zu FS01 erfolgreich. Berechtigungen auf Share- und NTFS-Ebene kontrolliert. AD-Gruppenzugehörigkeit vorhanden, aber im laufenden Benutzer-Token noch nicht enthalten. Nach abgestimmter vollständiger Neuanmeldung Zugriff auf <code>\\FS01\Projekte\Einkauf</code> mit freigegebenem Leserecht erfolgreich. Keine ACL-Erweiterung vorgenommen.“</p>
+<h2 id="9-quellen">9. Quellen</h2>
+<ul>
+<li><a href="https://learn.microsoft.com/de-de/iis/web-hosting/configuring-servers-in-the-windows-web-platform/configuring-share-and-ntfs-permissions" rel="noopener noreferrer" target="_blank">Microsoft – Freigabe- und NTFS-Berechtigungen</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/access-denied-access-smb-file-share" rel="noopener noreferrer" target="_blank">Microsoft – SMB Zugriff verweigert</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/smbshare/get-smbshareaccess" rel="noopener noreferrer" target="_blank">Microsoft – Get-SmbShareAccess</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft – Get-Acl</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/whoami" rel="noopener noreferrer" target="_blank">Microsoft – whoami</a></li>
+</ul>
+<p><strong>Ausführliche Hintergründe, Grafiken und Lernfragen:</strong> <a href="index.html"><code>RB-005_Lernartikel.md</code></a></p>
+<p><strong>Einsteiger-Ergänzung (Deny, Vererbung, ABE, GPO und zwei Schranken):</strong> <a href="grundlagen.html"><code>RB-005_Grundlagen_Freigabe-und-NTFS.md</code></a></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-005_Praxis-Runbook.md">RB-005_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-004/index.html">← RB-004</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-006/index.html">RB-006 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-007 Windows-PC oder Laptop ungewöhnlich langsam | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-007: Windows-PC oder Laptop ungewöhnlich langsam. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Performance · Lernartikel</p><h1>RB-007: Windows-PC oder Laptop ungewöhnlich langsam</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-was-meldet-der-benutzer">1. Ausgangssituation – Was meldet der Benutzer?</a></li><li><a href="#2-grundlagen-was-kann-einen-pc-langsam-machen">2. Grundlagen – Was kann einen PC langsam machen?</a></li><li><a href="#3-erste-eingrenzung-welche-art-von-langsamkeit">3. Erste Eingrenzung: Welche Art von Langsamkeit?</a></li><li><a href="#4-wie-erhaelt-der-support-zugriff-berechtigungen-und-ablauf">4. Wie erhält der Support Zugriff? (Berechtigungen und Ablauf)</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-erste-diagnose-mit-windows-bordmitteln-l1">6. Erste Diagnose mit Windows-Bordmitteln (L1)</a></li><li><a href="#7-cpu-diagnose-mit-powershell-richtige-interpretation">7. CPU-Diagnose mit PowerShell – richtige Interpretation</a></li><li><a href="#8-ram-diagnose-physischer-und-verfuegbarer-speicher">8. RAM-Diagnose – physischer und verfügbarer Speicher</a></li><li><a href="#9-datentraegerdiagnose-platz-aktivitaet-und-zustand">9. Datenträgerdiagnose – Platz, Aktivität und Zustand</a></li><li><a href="#10-ereignisanzeige-treiber--und-systemfehler-nicht-uebersehen">10. Ereignisanzeige – Treiber- und Systemfehler nicht übersehen</a></li><li><a href="#11-autostart-hintergrundaufgaben-und-energieeinstellungen">11. Autostart, Hintergrundaufgaben und Energieeinstellungen</a></li><li><a href="#12-wenn-der-pc-nur-zeitweise-langsam-ist-zeitmessungen-l2">12. Wenn der PC nur zeitweise langsam ist – Zeitmessungen (L2)</a></li><li><a href="#13-massnahmen-nach-befund-was-ist-sinnvoll-was-riskant">13. Maßnahmen nach Befund – was ist sinnvoll, was riskant?</a></li><li><a href="#14-erfolgskontrolle-ticketabschluss-und-eskalation">14. Erfolgskontrolle, Ticketabschluss und Eskalation</a></li><li><a href="#15-lernkontrolle-validierung-und-quellen">15. Lernkontrolle, Validierung und Quellen</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-007 · <strong>Support-Level:</strong> 1st / 2nd Level · <strong>System:</strong> Windows 11, PowerShell, Task-Manager, Leistungsüberwachung<br/>
+<strong>Stand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierungsstatus:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert. Alle Fehlerbeispiele und Messergebnisse sind <strong>fiktiv</strong>. Es wird keine praktische Systemvalidierung behauptet.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb007_henne_ei_performance.png" rel="noopener noreferrer" target="_blank"><img alt="RB-007: Ein langsamer Windows-PC – der Henne-Ei-Diagnoseweg" decoding="async" loading="lazy" src="assets/rb007_henne_ei_performance.png"/></a></div><figcaption>RB-007: Ein langsamer Windows-PC – der Henne-Ei-Diagnoseweg</figcaption></figure>
+<p><em>Infografik: Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Didaktisches Modell, keine Aufnahme eines realen Supportfalls.</em></p>
+<h2 id="1-ausgangssituation-was-meldet-der-benutzer">1. Ausgangssituation – Was meldet der Benutzer?</h2>
+<p><strong>Fiktives Ticket INC-007:</strong></p>
+<blockquote>
+<p>„Mein Laptop ist seit gestern extrem langsam. Teams und der Browser brauchen ewig, und manchmal reagiert gar nichts mehr. Mein Kollege hat das Problem nicht.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Windows-11-Laptop <code>PC-023</code>, Unternehmensbenutzer, Anwendungen wie Teams, Browser und Microsoft 365. Der Name <code>PC-023</code> ist frei erfunden.</p>
+<p><strong>Ziel:</strong> Die Verzögerung reproduzieren, den betroffenen Systembereich eingrenzen, geeignete Messdaten erfassen, die wahrscheinliche Ursache überprüfen und anschließend die Leistung unter vergleichbaren Bedingungen erneut testen.</p>
+<p><strong>Grundregel:</strong> „PC langsam“ ist zunächst <strong>ein Symptom</strong>, keine Ursache. Ein Neustart oder die Deinstallation einer Anwendung kann das Symptom verdecken, ohne das Problem nachhaltig zu beheben.</p>
+<h2 id="2-grundlagen-was-kann-einen-pc-langsam-machen">2. Grundlagen – Was kann einen PC langsam machen?</h2>
+<p>Ein Windows-PC verarbeitet Aufgaben über verschiedene Ressourcen. Fehlt einer Ressource vorübergehend Leistung, entsteht ein <strong>Engpass</strong> (<em>Bottleneck</em>: ein Teil des Systems begrenzt den gesamten Ablauf).</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Anfängerfreundliche Erklärung</th>
+<th>Typisches Zeichen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU (Central Processing Unit)</strong></td>
+<td>Prozessor: verarbeitet Rechenaufgaben.</td>
+<td>Ein Prozess beansprucht über längere Zeit viel Rechenleistung; Reaktionen verzögern sich.</td>
+</tr>
+<tr>
+<td><strong>RAM (Random Access Memory)</strong></td>
+<td>Arbeitsspeicher: hält gerade benötigte Daten schnell bereit.</td>
+<td>Wenig verfügbarer Speicher; häufiges Nachladen, Anwendungen reagieren verzögert.</td>
+</tr>
+<tr>
+<td><strong>SSD (Solid State Drive)</strong></td>
+<td>Schneller Datenträger ohne bewegliche Teile.</td>
+<td>Bei hoher Auslastung, langen Antwortzeiten oder Problemen können Dateioperationen stocken.</td>
+</tr>
+<tr>
+<td><strong>HDD (Hard Disk Drive)</strong></td>
+<td>Magnetische Festplatte mit mechanischen Teilen.</td>
+<td>Besonders bei vielen kleinen Zugriffen können lange Wartezeiten entstehen.</td>
+</tr>
+<tr>
+<td><strong>Datenträger-E/A (Ein-/Ausgabe)</strong></td>
+<td>Lesen und Schreiben von Daten auf SSD oder HDD.</td>
+<td>Dateiöffnen, Programmstart und Speichern sind langsam.</td>
+</tr>
+<tr>
+<td><strong>Auslagerungsdatei (Pagefile)</strong></td>
+<td>Windows kann Speicherseiten bei Bedarf auf Datenträger auslagern.</td>
+<td>Bei starkem Speicherdruck möglicherweise zusätzliche langsame Laufwerkszugriffe.</td>
+</tr>
+<tr>
+<td><strong>Autostart</strong></td>
+<td>Anwendungen, die bei Anmeldung oder Systemstart automatisch beginnen.</td>
+<td>Langsames Hochfahren oder Anmelden, viele Programme starten zugleich.</td>
+</tr>
+<tr>
+<td><strong>Dienst (Service)</strong></td>
+<td>Hintergrundkomponente von Windows oder installierter Software.</td>
+<td>Kann CPU, RAM, Netzwerk oder Datenträger verwenden, ohne sichtbar zu sein.</td>
+</tr>
+<tr>
+<td><strong>Treiber</strong></td>
+<td>Software, die Hardware mit Windows verbindet.</td>
+<td>Fehler können Wartezeiten, hohe Unterbrechungslast oder instabiles Verhalten auslösen.</td>
+</tr>
+<tr>
+<td><strong>Drosselung (Throttling)</strong></td>
+<td>Prozessor oder Grafikeinheit senkt Leistung, z. B. wegen Hitze oder Energiesparvorgaben.</td>
+<td>Gerät wird unter längerer Last langsamer, Lüfter auffällig, Frequenz niedriger.</td>
+</tr>
+<tr>
+<td><strong>Latenz</strong></td>
+<td>Verzögerung zwischen Anfrage und Antwort.</td>
+<td>Vor allem Netzlaufwerke, Webanwendungen oder Remotedesktop reagieren träge.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> 80 % RAM-Nutzung oder kurzzeitig 100 % CPU sind <strong>für sich allein kein Fehlerbeweis</strong>. Entscheidend sind Dauer, Benutzerwirkung, Vergleich mit Normalzustand und zusätzliche Messwerte. Der Dateicache verwendet absichtlich Arbeitsspeicher, um Zugriffe zu beschleunigen.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/performance-optimization/tips-to-improve-pc-performance-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Tipps zur Verbesserung der PC-Leistung</a></p>
+<h2 id="3-erste-eingrenzung-welche-art-von-langsamkeit">3. Erste Eingrenzung: Welche Art von Langsamkeit?</h2>
+<p>Die erste Frage lautet nicht „Was löschen wir?“, sondern <strong>„Was ist genau langsam?“</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Denkbare Ursachen</th>
+<th>Erster Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gesamter PC seit Start langsam</td>
+<td>CPU, RAM, Datenträger, Autostart, Treiber</td>
+<td>Task-Manager → Prozesse und Leistung</td>
+</tr>
+<tr>
+<td>Nur ein Programm langsam</td>
+<td>App, Add-In, Nutzerprofil, Backend</td>
+<td>Andere Anwendungen vergleichen; Ereignis-/App-Logs</td>
+</tr>
+<tr>
+<td>Vor allem nach Windows-Anmeldung langsam</td>
+<td>Autostart, Anmeldeskripte, Richtlinien, Synchronisierung</td>
+<td>Task-Manager → Autostart-Apps, Zeitverlauf</td>
+</tr>
+<tr>
+<td>Nur Netzlaufwerke / Microsoft-365-Dienste langsam</td>
+<td>WLAN, LAN, VPN, DNS, Server, Proxy</td>
+<td>Lokale Programme mit Netzwerk-Anwendungen vergleichen</td>
+</tr>
+<tr>
+<td>Nach Update deutlich langsamer</td>
+<td>Updatevorgang, Treiber, Nacharbeiten, Softwareänderung</td>
+<td>Zeitpunkt dokumentieren, Zuverlässigkeitsverlauf</td>
+</tr>
+<tr>
+<td>Laptop im Akkubetrieb langsamer</td>
+<td>Energiemodus, Batteriestand, Temperatur</td>
+<td>Netzteil-/Akkuzustand und Energieeinstellungen prüfen</td>
+</tr>
+<tr>
+<td>Langsamkeit nur unter Dauerlast</td>
+<td>Kühlung, Temperatur, Ressourcenengpass</td>
+<td>Lastverlauf und Hardwarezustand prüfen</td>
+</tr>
+<tr>
+<td>Mehrere PCs gleichzeitig betroffen</td>
+<td>Gemeinsamer Dienst, Netzwerk, Update- oder Sicherheitssoftware</td>
+<td>Betroffenheit sammeln und zentral eskalieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtige Rückfragen:</strong> Seit wann? Dauerhaft oder gelegentlich? Welche Aktion ist langsam? Wie lange dauert sie normalerweise und aktuell? Ein oder mehrere Benutzer/Geräte? Änderungen seit gestern? Akkubetrieb? Wird das Gerät heiß? Daten bereits gesichert?</p>
+<h2 id="4-wie-erhaelt-der-support-zugriff-berechtigungen-und-ablauf">4. Wie erhält der Support Zugriff? (Berechtigungen und Ablauf)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Zugriffsweg</th>
+<th>Konkretes Vorgehen und Grenze</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Benutzer ist angemeldet und der PC reagiert</td>
+<td>Bildschirmfreigabe (z. B. Teams, Schnellhilfe)</td>
+<td>Benutzer öffnet den Task-Manager, Support beobachtet; gemeinsame Ursachenanalyse ohne eigene Anmeldung.</td>
+</tr>
+<tr>
+<td>Client ist über das Unternehmensnetz erreichbar</td>
+<td>Autorisierte Fernwartung oder RDP (<em>Remote Desktop Protocol</em>)</td>
+<td>Mit eigenem berechtigtem Konto diagnostizieren; RDP ersetzt nicht unbedingt die gemeinsame Benutzersitzung.</td>
+</tr>
+<tr>
+<td>Kein grafischer Zugriff nötig, WinRM freigegeben</td>
+<td>PowerShell-Remoting über WinRM (<em>Windows Remote Management</em>)</td>
+<td>Lesende Diagnosebefehle remote ausführen, z. B. Prozess-/Speicherinformationen.</td>
+</tr>
+<tr>
+<td>PC reagiert gar nicht oder ist offline</td>
+<td>Telefonisch / vor Ort</td>
+<td>Netzteil, Statusanzeigen, Gerätestart und gegebenenfalls Hardware überprüfen.</td>
+</tr>
+<tr>
+<td>Mehrere PCs betroffen</td>
+<td>Verwaltungssystem / zentrale IT</td>
+<td>Update-, Sicherheitssoftware- und Netzwerkmuster vergleichen; Incident ggf. eskalieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Vor dem Eingriff:</strong> Kennwörter nicht anfordern; Anwender über mögliche Unterbrechungen informieren; bei Dateioperationen und Neustarts zunächst ungespeicherte Arbeit sichern; Sicherheitssoftware, Unternehmensdienste und Autostarts nicht eigenmächtig deaktivieren.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb007_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-007: Entscheidungsbaum der Windows-Performance-Diagnose" decoding="async" loading="lazy" src="assets/rb007_diagnosebaum.svg"/></a></div><figcaption>RB-007: Entscheidungsbaum der Windows-Performance-Diagnose</figcaption></figure>
+<p><strong>Textalternative:</strong> 1. Problem und Ausmaß erfassen → 2. einen PC oder viele betroffene Geräte unterscheiden → 3. am betroffenen System CPU, RAM, Datenträger und Netzwerk während des Problems vergleichen → 4. je nach Auffälligkeit Prozess, Speicherbedarf, Laufwerk oder Netzwerkpfad untersuchen → 5. gezielte Maßnahme → 6. Vergleichstest und Dokumentation.</p>
+<p>Der Baum ist ein <strong>Leitfaden</strong> und keine automatische Fehlerdiagnose. Mehrere Engpässe können gleichzeitig auftreten.</p>
+<h2 id="6-erste-diagnose-mit-windows-bordmitteln-l1">6. Erste Diagnose mit Windows-Bordmitteln (L1)</h2>
+<h3 id="a-task-manager-starten">A – Task-Manager starten</h3>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-PC in einer erlaubten Sitzung.<br/>
+<strong>Starten:</strong> <code>Strg + Umschalt + Esc</code> oder <code>taskmgr.exe</code>.</p>
+<p>Untersuchen:</p>
+<ol>
+<li><strong>Prozesse:</strong> Nach <strong>CPU</strong>, <strong>Arbeitsspeicher</strong>, <strong>Datenträger</strong> sortieren. Welcher Prozess ist unter Last auffällig?</li>
+<li><strong>Leistung:</strong> Gesamtauslastung, Prozessorgeschwindigkeit, Speichernutzung, Laufwerksaktivität und Netzwerkauslastung betrachten.</li>
+<li><strong>Autostart-Apps:</strong> Prüfen, welche Programme beim Anmelden automatisch starten. Zunächst nur dokumentieren.</li>
+<li><strong>Details:</strong> Bei Bedarf einen Prozess anhand <strong>PID</strong> (<em>Process Identifier</em>, eindeutige Prozessnummer während seiner Laufzeit) zuordnen.</li>
+</ol>
+<p><strong>Achtung:</strong> Eine Prozessbezeichnung allein belegt noch nicht, ob der Prozess schädlich, unnötig oder fehlerhaft ist. Updates, Virenschutz, Datensicherung und Synchronisierung können vorübergehend legitim viel Leistung benötigen.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/performance-optimization/tips-to-improve-pc-performance-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – PC-Leistung und Task-Manager</a></p>
+<h3 id="b-ressourcenmonitor">B – Ressourcenmonitor</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Öffnet die grafische Ressourcenüberwachung von Windows.</span>
+<span class="c"># Hier können CPU, Arbeitsspeicher, Datenträger und Netzwerk</span>
+<span class="c"># mit detaillierteren Prozessbezügen untersucht werden.</span>
+<span class="n">resmon</span><span class="p">.</span><span class="n">exe</span>
+</code></pre></div><p>Der <strong>Ressourcenmonitor</strong> hilft unter anderem dabei, Prozesse mit intensiven Datenträgerzugriffen zu erkennen. Eine <strong>100-%-Aktivitätsanzeige</strong> bedeutet nicht zwangsläufig, dass die maximale Übertragungsrate erreicht wird: Viele kleine oder langsame Operationen können den Datenträger lange beschäftigen.</p>
+<h3 id="c-zuverlaessigkeitsverlauf">C – Zuverlässigkeitsverlauf</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Startet den Windows-Zuverlässigkeitsmonitor.</span>
+<span class="c"># /rel wählt die Ansicht mit chronologischen Fehlern</span>
+<span class="c"># und Stabilitätsereignissen aus.</span>
+<span class="n">perfmon</span><span class="p">.</span><span class="n">exe</span> <span class="p">/</span><span class="n">rel</span>
+</code></pre></div><p>Damit können Abstürze, Fehler und bestimmte Änderungen in zeitlichem Zusammenhang mit dem Beginn der Langsamkeit erkannt werden. Ein zeitlicher Zusammenhang beweist allein noch keine Ursache.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/perfmon" rel="noopener noreferrer" target="_blank">Microsoft Learn – perfmon-Befehlsoptionen</a></p>
+<h2 id="7-cpu-diagnose-mit-powershell-richtige-interpretation">7. CPU-Diagnose mit PowerShell – richtige Interpretation</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client, PowerShell im zulässigen Benutzer- oder Administrationskontext.<br/>
+<strong>Art:</strong> Lesende Diagnose; es werden keine Prozesse beendet.</p>
+<h3 id="a-prozesse-mit-hoher-bisheriger-cpu-zeit-anzeigen">A – Prozesse mit hoher bisheriger CPU-Zeit anzeigen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Ruft die aktuell laufenden Prozesse ab.</span>
+<span class="nb">Get-Process</span> <span class="p">|</span>
+
+    <span class="c"># Sortiert nach CPU-Gesamtzeit absteigend.</span>
+    <span class="c"># WICHTIG: CPU ist hier die aufsummierte Prozessorzeit</span>
+    <span class="c"># in SEKUNDEN – nicht die momentane CPU-Auslastung in %.</span>
+    <span class="nb">Sort-Object</span> <span class="n">-Property</span> <span class="n">CPU</span> <span class="n">-Descending</span> <span class="p">|</span>
+
+    <span class="c"># Gibt zehn Prozesse mit Prozessname, PID und CPU-Zeit aus.</span>
+    <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">10</span> <span class="n">ProcessName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">CPU</span>
+</code></pre></div><p><strong>Interpretation:</strong> Ein seit Tagen laufendes Programm kann viel CPU-Gesamtzeit gesammelt haben, obwohl es <strong>jetzt gerade</strong> fast keine CPU nutzt. Dieser Befehl ist eine Orientierung über die bisherige Laufzeit, kein Beweis für die aktuelle Last.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-Process</a></p>
+<h3 id="b-momentaufnahme-der-cpu-gesamtauslastung">B – Momentaufnahme der CPU-Gesamtauslastung</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Fragt die Windows-CIM-Daten der Prozessoren ab.</span>
+<span class="c"># CIM bedeutet Common Information Model.</span>
+<span class="nb">Get-CimInstance</span> <span class="n">-ClassName</span> <span class="n">Win32_Processor</span> <span class="p">|</span>
+
+    <span class="c"># Zeigt Namen und ungefähre aktuelle Auslastung.</span>
+    <span class="c"># LoadPercentage ist ein Momentwert und kann schwanken.</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">LoadPercentage</span>
+</code></pre></div><p>Bei mehreren CPU-Objekten können mehrere Zeilen erscheinen. Für belastbare Ergebnisse prüfen wir zusätzlich den Task-Manager <strong>während des Problems</strong> oder zeichnen eine Zeitreihe auf.</p>
+<p><strong>Fehlerhypothese:</strong> Wenn eine Hintergrundanwendung während des Symptoms dauerhaft hohe Last erzeugt, ihre Funktion nicht benötigt wird und die Last nach einer freigegebenen Änderung verschwindet, spricht das für eine verursachende Rolle. Hohe Last allein genügt dafür noch nicht.</p>
+<h2 id="8-ram-diagnose-physischer-und-verfuegbarer-speicher">8. RAM-Diagnose – physischer und verfügbarer Speicher</h2>
+<h3 id="a-arbeitsspeicherbedarf-nach-prozess">A – Arbeitsspeicherbedarf nach Prozess</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Ruft alle laufenden Prozesse ab.</span>
+<span class="nb">Get-Process</span> <span class="p">|</span>
+
+    <span class="c"># Sortiert nach physisch belegtem Arbeitsbereich (Working Set).</span>
+    <span class="nb">Sort-Object</span> <span class="n">-Property</span> <span class="n">WorkingSet64</span> <span class="n">-Descending</span> <span class="p">|</span>
+
+    <span class="c"># Zeigt die zehn Prozesse mit dem größten Working Set.</span>
+    <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">10</span> <span class="n">ProcessName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span>
+        <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">'WorkingSet_MiB'</span><span class="p">;</span> <span class="n">Expression</span><span class="p">={</span>
+            <span class="c"># Wandelt die Byte-Angabe in MiB um und rundet.</span>
+            <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">WorkingSet64</span> <span class="p">/</span> <span class="n">1MB</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+        <span class="p">}}</span>
+</code></pre></div><p><strong>Working Set:</strong> Menge an physischen Speicherseiten, die der Prozess derzeit zugeordnet hält. Dieser Wert ist <strong>nicht identisch</strong> mit exklusiv belegtem RAM; manche Seiten werden gemeinsam verwendet.</p>
+<h3 id="b-insgesamt-und-verfuegbar">B – Insgesamt und verfügbar</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest Windows-Betriebssystemdaten über CIM aus.</span>
+<span class="nv">$os</span> <span class="p">=</span> <span class="nb">Get-CimInstance</span> <span class="n">-ClassName</span> <span class="n">Win32_OperatingSystem</span>
+
+<span class="c"># Erstellt eine Ausgabe mit Gesamt-RAM und freiem/verfügbarem RAM.</span>
+<span class="c"># Die ursprünglichen CIM-Eigenschaften haben die Einheit KiB.</span>
+<span class="c"># Division durch 1MB (= 1.048.576) ergibt näherungsweise GiB.</span>
+<span class="no">[PSCustomObject]</span><span class="p">@{</span>
+    <span class="n">RAM_gesamt_GiB</span>  <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$os</span><span class="p">.</span><span class="n">TotalVisibleMemorySize</span> <span class="p">/</span> <span class="n">1MB</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+    <span class="n">RAM_verfuegbar_GiB</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$os</span><span class="p">.</span><span class="n">FreePhysicalMemory</span> <span class="p">/</span> <span class="n">1MB</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p><strong>Interpretation:</strong> Wenig verfügbarer Speicher <strong>zusammen mit</strong> zähen Reaktionen und verstärkter Auslagerung ist ein Indiz für Speicherdruck. Eine hohe RAM-Auslastung ohne spürbare Probleme ist nicht automatisch reparaturbedürftig.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32_OperatingSystem</a></p>
+<h2 id="9-datentraegerdiagnose-platz-aktivitaet-und-zustand">9. Datenträgerdiagnose – Platz, Aktivität und Zustand</h2>
+<h3 id="a-freier-speicherplatz-auf-laufwerk-c">A – Freier Speicherplatz auf Laufwerk C:</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest die Eigenschaften des Volumes mit Laufwerkbuchstaben C.</span>
+<span class="nb">Get-Volume</span> <span class="n">-DriveLetter</span> <span class="n">C</span> <span class="p">|</span>
+
+    <span class="c"># Berechnet Gesamtgröße und verbleibenden Platz in GiB.</span>
+    <span class="nb">Select-Object</span> <span class="n">DriveLetter</span><span class="p">,</span> <span class="n">FileSystem</span><span class="p">,</span>
+        <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">'Gesamt_GiB'</span><span class="p">;</span> <span class="n">Expression</span><span class="p">={</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Size</span> <span class="p">/</span> <span class="n">1GB</span><span class="p">,</span> <span class="n">1</span><span class="p">)}},</span>
+        <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">'Frei_GiB'</span><span class="p">;</span> <span class="n">Expression</span><span class="p">={</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">SizeRemaining</span> <span class="p">/</span> <span class="n">1GB</span><span class="p">,</span> <span class="n">1</span><span class="p">)}}</span>
+</code></pre></div><p><strong>Interpretation:</strong> Zu wenig Platz kann Updates, Auslagerung und temporäre Dateien beeinträchtigen. Ein voller Datenträger ist aber nicht die einzige mögliche Ursache für hohe Laufwerksauslastung. Nicht pauschal Benutzerdateien oder Systemverzeichnisse löschen.</p>
+<h3 id="b-gemeldeten-laufwerkszustand-abfragen">B – Gemeldeten Laufwerkszustand abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Fragt von Windows erkannte physische Datenträger ab.</span>
+<span class="nb">Get-PhysicalDisk</span> <span class="p">|</span>
+
+    <span class="c"># Zeigt Bezeichnung, Medientyp und gemeldeten Zustand.</span>
+    <span class="nb">Select-Object</span> <span class="n">FriendlyName</span><span class="p">,</span> <span class="n">MediaType</span><span class="p">,</span> <span class="n">HealthStatus</span><span class="p">,</span> <span class="n">OperationalStatus</span>
+</code></pre></div><p><strong>Grenze:</strong> <code>HealthStatus = Healthy</code> ist kein vollständiger Hardwaretest und schließt einen bevorstehenden Defekt nicht sicher aus. Je nach Treiber, Controller, RAID oder virtueller Maschine sind Angaben unvollständig oder anders zu interpretieren.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-PhysicalDisk</a></p>
+<h3 id="c-datentraegerauslastung-genauer-pruefen">C – Datenträgerauslastung genauer prüfen</h3>
+<p><strong>Task-Manager → Leistung → Datenträger</strong>: Aktivitätszeit und Datenraten beobachten.<br/>
+<strong>Ressourcenmonitor → Datenträger</strong>: Verursachende Prozesse und Antwortzeiten prüfen.<br/>
+<strong>L2:</strong> Bei wiederkehrenden Engpässen gezielte Messungen mit Windows Performance Recorder (WPR) und Windows Performance Analyzer (WPA) durchführen.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/recording-for-resource-based-analysis" rel="noopener noreferrer" target="_blank">Microsoft Learn – Ressourcenbasierte Leistungsaufzeichnungen</a></p>
+<h2 id="10-ereignisanzeige-treiber--und-systemfehler-nicht-uebersehen">10. Ereignisanzeige – Treiber- und Systemfehler nicht übersehen</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Client; für bestimmte Protokolle sind administrative Leserechte erforderlich.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Legt fest, welche Systemereignisse untersucht werden.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="c"># Das Systemprotokoll enthält Meldungen zu Windows und Treibern.</span>
+    <span class="n">LogName</span> <span class="p">=</span> <span class="s1">'System'</span>
+
+    <span class="c"># Level 2 = Fehler; Level 3 = Warnung.</span>
+    <span class="n">Level</span> <span class="p">=</span> <span class="n">2</span><span class="p">,</span> <span class="n">3</span>
+
+    <span class="c"># Nur Ereignisse aus den vergangenen 48 Stunden.</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">48</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Liest höchstens 30 aktuelle Treffer und zeigt die Basisdaten.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">30</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span> <span class="n">ProviderName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">LevelDisplayName</span><span class="p">,</span> <span class="n">Message</span>
+</code></pre></div><p><strong>Interpretation:</strong> Überprüfen, ob die Ereignisse zeitlich mit der Störung zusammenfallen. Einzelne Warnungen können völlig unabhängig sein. Speichercontroller- oder Datenträgerfehler, wenn vorhanden, sind wichtige Hinweise auf mögliche Hardware-/Treiberprobleme.</p>
+<p>Weitere grafische Prüfung: <code>eventvwr.msc</code> → <strong>Windows-Protokolle → System</strong>. Bei nur einer langsamen Anwendung auch <strong>Windows-Protokolle → Anwendung</strong> und die zugehörigen Produktprotokolle prüfen.</p>
+<h2 id="11-autostart-hintergrundaufgaben-und-energieeinstellungen">11. Autostart, Hintergrundaufgaben und Energieeinstellungen</h2>
+<h3 id="a-autostart-pruefen">A – Autostart prüfen</h3>
+<p><strong>Task-Manager → Autostart-Apps:</strong> Eintrag, Status, Hersteller, Startauswirkung dokumentieren. Einen möglicherweise unnötigen Autostarteintrag <strong>nur nach Prüfung und Freigabe</strong> deaktivieren; Sicherheitsagenten, VPN, Backup-Software und Verwaltungswerkzeuge sind nicht beliebig austauschbare „Tuning-Programme“.</p>
+<p><strong>L2-Werkzeug:</strong> <strong>Autoruns</strong> aus Microsoft Sysinternals zeigt deutlich mehr Autostartpositionen als der Task-Manager, einschließlich Diensten, geplanten Aufgaben und Registry-Einträgen. Es eignet sich zuerst zur <strong>Analyse</strong>; Änderungen erfordern Abstimmung.</p>
+<h3 id="b-prozesszusammenhaenge-verstehen">B – Prozesszusammenhänge verstehen</h3>
+<p><strong>Process Explorer</strong> (Microsoft Sysinternals) zeigt Prozesshierarchien, Handles und geladene Module. Das hilft, den Besitzer eines Prozesses oder seine Abhängigkeiten zu untersuchen.</p>
+<p><strong>Quellen:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/configure-startup-applications-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Startanwendungen konfigurieren</a> · <a href="https://learn.microsoft.com/de-de/sysinternals/downloads/autoruns" rel="noopener noreferrer" target="_blank">Microsoft Learn – Autoruns</a> · <a href="https://learn.microsoft.com/de-de/sysinternals/downloads/process-explorer" rel="noopener noreferrer" target="_blank">Microsoft Learn – Process Explorer</a></p>
+<h3 id="c-hardware-energie-und-temperatur">C – Hardware, Energie und Temperatur</h3>
+<p>Bei Laptopproblemen prüfen wir Netzteil, Energiemodus, Akkubetrieb, Lüfterverhalten, Temperatur und Herstellerdiagnose. Hitze oder aggressive Energiesparvorgaben können die CPU-Leistung begrenzen. <strong>Nicht</strong> pauschal „Höchstleistung“ erzwingen: Mehr Wärme, Stromverbrauch und weniger Laufzeit können die Folge sein.</p>
+<h2 id="12-wenn-der-pc-nur-zeitweise-langsam-ist-zeitmessungen-l2">12. Wenn der PC nur zeitweise langsam ist – Zeitmessungen (L2)</h2>
+<p>Ein einzelner Task-Manager-Screenshot kann den Fehler verpassen. Microsoft beschreibt für solche Fälle <strong>Leistungsmonitor (perfmon)</strong> und Messungen über einen längeren Zeitraum. Bei komplexen Situationen können <strong>WPR/WPA</strong> CPU-, Datenträger-, Netzwerk- und andere Leistungsaktivitäten genauer erfassen.</p>
+<p><strong>Vorgehen:</strong> Problem reproduzieren → Start- und Endzeit festhalten → passende Zähler/Traces aufzeichnen → Ereignisse mit dem Symptom korrelieren → sensible Trace-Dateien geschützt speichern → Ergebnisse beurteilen.</p>
+<p><strong>Wichtig:</strong> Leistungsaufzeichnungen können Prozessnamen, Dateipfade und weitere betriebliche Informationen enthalten. Nur nach Freigabe sammeln und intern sicher aufbewahren.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/support-tools/troubleshoot-issues-performance-monitor" rel="noopener noreferrer" target="_blank">Microsoft Learn – Leistungsmonitor zur Problembehandlung</a> · <a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/introduction-to-wpr" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows Performance Recorder</a></p>
+<h2 id="13-massnahmen-nach-befund-was-ist-sinnvoll-was-riskant">13. Maßnahmen nach Befund – was ist sinnvoll, was riskant?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ermittelte Auffälligkeit</th>
+<th>Gezielte Maßnahme</th>
+<th>Wichtige Einschränkung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nicht benötigtes Programm verursacht dauerhafte Last</td>
+<td>Zweck und Verantwortliche klären; nach Freigabe Autostart oder geplante Aufgabe anpassen</td>
+<td>Nicht blind Dienste/Prozesse stoppen</td>
+</tr>
+<tr>
+<td>RAM reicht bei üblichen Arbeitsaufgaben nicht aus</td>
+<td>Prozess-/Browserlast reduzieren oder Hardwarebedarf begründen</td>
+<td>Mehr RAM nur nach tatsächlichem Engpass empfehlen</td>
+</tr>
+<tr>
+<td>Datenträger fast voll</td>
+<td>Nach Freigabe nicht benötigte Dateien/temporäre Inhalte über vorgesehene Werkzeuge bereinigen</td>
+<td>Keine Benutzer- oder Systemdaten wahllos löschen</td>
+</tr>
+<tr>
+<td>Datenträgerauffälligkeiten oder wiederkehrende Fehler</td>
+<td>Datensicherung und Hardwarediagnose priorisieren, Hardwareteam eskalieren</td>
+<td>„Healthy“ schließt Defekte nicht sicher aus</td>
+</tr>
+<tr>
+<td>Update, Treiber oder Anwendung korreliert mit Beginn</td>
+<td>Versionsstand, bekannte Probleme, Herstellerempfehlungen prüfen</td>
+<td>Kein pauschales Rollback ohne Risikoprüfung</td>
+</tr>
+<tr>
+<td>Gerät wird unter Dauerlast heiß</td>
+<td>Kühlung, Lüfter, Netzteil und Energiemodus überprüfen</td>
+<td>Kein unkontrolliertes Leistungs-/Temperaturlimit entfernen</td>
+</tr>
+<tr>
+<td>Nur Unternehmensanwendungen träge</td>
+<td>Lokale App gegen Web/Netzwerk/Server testen</td>
+<td>Keine unnötige Windows-Neuinstallation</td>
+</tr>
+<tr>
+<td>Mehrere Geräte gleichzeitig langsam</td>
+<td>Gemeinsame Ursache im Management/Netzwerk prüfen</td>
+<td>Zentral als Störung einstufen und eskalieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine Standardlösung:</strong> Registry-„Cleaner“, pauschales Löschen von Prefetch, beliebiges Beenden von Diensten, Abschalten von Defender/EDR (<em>Endpoint Detection and Response</em>: Endpoint-Sicherheitsüberwachung), pauschales Deaktivieren von Updates oder Reparaturbefehle ohne Befund.</p>
+<h2 id="14-erfolgskontrolle-ticketabschluss-und-eskalation">14. Erfolgskontrolle, Ticketabschluss und Eskalation</h2>
+<h3 id="wiederholbarer-funktionstest">Wiederholbarer Funktionstest</h3>
+<ol>
+<li>Dieselbe Benutzeraktion wie zu Beginn ausführen (z. B. Teams öffnen und zwei Dateien laden).</li>
+<li>Bedingungen möglichst vergleichbar halten (gleicher Netztyp, Akku/Netzteil, ähnliche Hintergrundlast).</li>
+<li>Zeit und beobachtete CPU-/RAM-/Datenträgerwerte <strong>vor und nach</strong> der Maßnahme vergleichen.</li>
+<li>Prüfen, ob zentrale Anwendungen, Sicherheitsschutz und Synchronisierung weiterhin funktionieren.</li>
+<li>Erkenntnisse und Restunsicherheiten dokumentieren.</li>
+</ol>
+<h3 id="wann-ist-l2-noetig">Wann ist L2 nötig?</h3>
+<ul>
+<li>Wiederkehrende Störungen ohne eindeutigen Verursacher</li>
+<li>Auffällige Treiber-/Datenträgerereignisse oder drohender Defekt</li>
+<li>Zentral verwaltete Dienste, Update-Richtlinien oder Sicherheitssoftware betroffen</li>
+<li>Notwendigkeit von WPR/WPA-Traces, Herstellerdiagnose oder Infrastrukturänderungen</li>
+<li>Mehrere Geräte/Benutzer betroffen</li>
+</ul>
+<h3 id="fiktiver-muster-ticketkommentar">Fiktiver Muster-Ticketkommentar</h3>
+<blockquote>
+<p><strong>INC-007 – Laptop seit Anmeldung deutlich langsam</strong><br/>
+<strong>Fehlerbild:</strong> Nach der Windows-Anmeldung reagierten mehrere Anwendungen für einige Minuten verzögert.<br/>
+<strong>Diagnose:</strong> Task-Manager und Ressourcenmonitor während der Verzögerung geprüft. Ein genehmigter Synchronisierungsauftrag verursachte zeitgleich hohe CPU- und Datenträgeraktivität. Weitere Systemfehler waren im untersuchten Zeitraum nicht auffällig.<br/>
+<strong>Ursache:</strong> Zeitgleich ausgeführter Hintergrundauftrag mit hohem Ressourcenbedarf.<br/>
+<strong>Maßnahme:</strong> Nach Freigabe Startzeit des Auftrags auf ein geeignetes Zeitfenster geändert; Schutz- und Sicherungsfunktion blieb bestehen.<br/>
+<strong>Erfolgskontrolle:</strong> Gleiche Benutzeraktionen bei einer erneuten Anmeldung geprüft; Verzögerung nicht erneut beobachtet.<br/>
+<strong>Status:</strong> Gelöst.<br/>
+<em>Das gesamte Beispiel ist konstruiert; Messungen wurden nicht tatsächlich durchgeführt.</em></p>
+</blockquote>
+<h2 id="15-lernkontrolle-validierung-und-quellen">15. Lernkontrolle, Validierung und Quellen</h2>
+<h3 id="verstaendnis--und-diagnosefragen">Verständnis- und Diagnosefragen</h3>
+<ol>
+<li>Warum beweist der PowerShell-Wert <code>CPU</code> eines Prozesses nicht seine aktuelle CPU-Auslastung?</li>
+<li>Was unterscheidet RAM-Auslastung von verfügbarem Arbeitsspeicher?</li>
+<li>Warum kann eine Datenträgeranzeige von 100 % nicht automatisch mit einer maximalen Datenrate gleichgesetzt werden?</li>
+<li>Was sagt <code>HealthStatus = Healthy</code> aus – und was nicht?</li>
+<li>Warum kann ein zeitlich passender Ereignisprotokolleintrag trotzdem eine falsche Spur sein?</li>
+<li>Wie unterscheidest du einen langsamen PC von einer langsamen Netzwerkanwendung?</li>
+<li>Warum darfst du einen Unternehmens-Sicherheitsagenten nicht ohne Freigabe deaktivieren?</li>
+</ol>
+<h3 id="eigenstaendige-diagnoseaufgabe">Eigenständige Diagnoseaufgabe</h3>
+<blockquote>
+<p>Ein Windows-11-Laptop ist täglich zwischen 08:45 und 09:10 Uhr langsam. Ab 09:15 Uhr läuft er normal. Die CPU erreicht teilweise 90 %, gleichzeitig ist die Datenträgeraktivität hoch. Zwei Kollegen mit demselben Laptopmodell sind nicht betroffen. Formuliere <strong>drei mögliche Ursachen</strong>, <strong>zwei geeignete Messungen</strong> und <strong>eine Prüfung, die du bewusst nicht als Erstes ausführst</strong>.</p>
+</blockquote>
+<h3 id="technische-referenzen">Technische Referenzen</h3>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/performance-optimization/tips-to-improve-pc-performance-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Tipps zur PC-Leistung in Windows</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/configure-startup-applications-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Startanwendungen in Windows</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-Process</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32_OperatingSystem</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-PhysicalDisk</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/perfmon" rel="noopener noreferrer" target="_blank">Microsoft Learn – perfmon</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/support-tools/troubleshoot-issues-performance-monitor" rel="noopener noreferrer" target="_blank">Microsoft Learn – Performance Monitor und Leistungsmessung</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/introduction-to-wpr" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows Performance Recorder</a></li>
+<li><a href="https://learn.microsoft.com/de-de/sysinternals/downloads/process-explorer" rel="noopener noreferrer" target="_blank">Microsoft Learn – Process Explorer</a></li>
+<li><a href="https://learn.microsoft.com/de-de/sysinternals/downloads/autoruns" rel="noopener noreferrer" target="_blank">Microsoft Learn – Autoruns</a></li>
+</ul>
+<p><strong>Validierungsstatus:</strong> Fachlich recherchiert, noch nicht durch eigene Benchmarks oder Tests am realen Windows-System nachgewiesen. Bei praktischen Tests werden Umgebung, Vorher-/Nachher-Werte und Abweichungen nachgetragen.</p>
+<p><strong>Praxis-Runbook:</strong> <a href="runbook.html">RB-007 – Kompakte Diagnosecheckliste</a></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-007_Lernartikel.md">RB-007_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-006/index.html">← RB-006</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-008/index.html">RB-008 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

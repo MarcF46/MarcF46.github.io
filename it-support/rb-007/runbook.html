@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-007 Windows-PC oder Laptop ungewöhnlich langsam | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-007: Windows-PC oder Laptop ungewöhnlich langsam. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">Windows · Performance · Praxis-Runbook</p><h1>RB-007: Windows-PC oder Laptop ungewöhnlich langsam</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-erfassen-l1">1. Ticket erfassen (L1)</a></li><li><a href="#2-engpass-waehrend-des-problems-lokalisieren-l1">2. Engpass während des Problems lokalisieren (L1)</a></li><li><a href="#3-lesende-diagnosebefehle">3. Lesende Diagnosebefehle</a></li><li><a href="#4-ereignisse-pruefen-l1l2">4. Ereignisse prüfen (L1/L2)</a></li><li><a href="#5-befund-gezielte-massnahme">5. Befund → gezielte Maßnahme</a></li><li><a href="#6-erfolgskontrolle">6. Erfolgskontrolle</a></li><li><a href="#7-wann-l2-hinzuziehen">7. Wann L2 hinzuziehen?</a></li><li><a href="#8-muster-ticketabschluss-fiktiv">8. Muster-Ticketabschluss (fiktiv)</a></li><li><a href="#9-technische-quellen">9. Technische Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Zweck:</strong> Kompakte, wiederverwendbare Diagnosecheckliste für den 1st-/2nd-Level-Support<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 08.11.2026 · <strong>Status:</strong> Recherchiert, nicht praktisch validiert<br/>
+<strong>Geltungsbereich:</strong> Windows-11-Clients. Vorgehensweise an Unternehmensrichtlinien und Geräteverwaltung anpassen.</p>
+<h2 id="1-ticket-erfassen-l1">1. Ticket erfassen (L1)</h2>
+<ul>
+<li>[ ] <strong>Symptom:</strong> Ganzer PC oder nur eine Anwendung? Starten, Öffnen, Speichern, Netzwerk?</li>
+<li>[ ] <strong>Zeitpunkt:</strong> Seit wann; permanent oder nur zu bestimmten Uhrzeiten?</li>
+<li>[ ] <strong>Ausmaß:</strong> Ein Gerät oder mehrere? Derselbe Benutzer auch auf anderen Geräten betroffen?</li>
+<li>[ ] <strong>Änderung:</strong> Updates, neue Programme, Treiber, geänderte Energieeinstellungen?</li>
+<li>[ ] <strong>Umgebung:</strong> Netzteil/Akku, WLAN/LAN, Gerät heiß, freie Laufwerkskapazität?</li>
+<li>[ ] <strong>Messbares Beispiel:</strong> Welche Aktion dauert wie lange? Messung möglichst reproduzierbar dokumentieren.</li>
+<li>[ ] <strong>Zugang:</strong> Benutzergeführte Bildschirmfreigabe, freigegebene Fernwartung, RDP, WinRM oder vor Ort?</li>
+</ul>
+<h2 id="2-engpass-waehrend-des-problems-lokalisieren-l1">2. Engpass während des Problems lokalisieren (L1)</h2>
+<p><strong>Auf dem betroffenen Client:</strong> <code>Strg + Umschalt + Esc</code> → Task-Manager → <strong>Prozesse</strong> und <strong>Leistung</strong>.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Auffälligkeit</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU während des Symptoms langfristig hoch</td>
+<td>Nach momentaner CPU sortieren; Prozess, Hersteller, Aufgabe und zeitlichen Zusammenhang prüfen.</td>
+</tr>
+<tr>
+<td>Wenig verfügbarer RAM + Verzögerungen</td>
+<td>Speicherbedarf nach Prozessen; Auslagerungsaktivität und tatsächliche Arbeitslast vergleichen.</td>
+</tr>
+<tr>
+<td>Datenträger lange hoch ausgelastet</td>
+<td><code>resmon.exe</code> → Datenträger: aktive Prozesse, Zugriffe und Antwortzeiten.</td>
+</tr>
+<tr>
+<td>Lokal alles schnell, nur Web/Netzlaufwerke langsam</td>
+<td>Netzwerk/VPN, DNS, Zielserver, Proxy prüfen; gegebenenfalls zu Netzwerk-/App-Runbook wechseln.</td>
+</tr>
+<tr>
+<td>Nur nach Anmeldung langsam</td>
+<td>Autostart-Apps, geplante Aufgaben, Unternehmensagenten/Updates prüfen.</td>
+</tr>
+<tr>
+<td>Hänger/Absturz nach Update</td>
+<td><code>perfmon.exe /rel</code>, Ereignisanzeige und Änderungszeitpunkt abgleichen.</td>
+</tr>
+<tr>
+<td>Überhitzung/Hardwarewarnung</td>
+<td>Hardwarezustand und Datensicherung priorisieren; bei Defektverdacht eskalieren.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Abkürzungen:</strong> CPU = Central Processing Unit (Prozessor); RAM = Random Access Memory (Arbeitsspeicher); SSD/HDD = Datenträgertypen; VPN = Virtual Private Network (geschützte Netzwerkverbindung); WinRM = Windows Remote Management; RDP = Remote Desktop Protocol.</p>
+<h2 id="3-lesende-diagnosebefehle">3. Lesende Diagnosebefehle</h2>
+<p><strong>Auf dem betroffenen Client</strong> in PowerShell ausführen (sofern Unternehmensrichtlinien dies erlauben):</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Öffnet den Ressourcenmonitor (grafische Windows-Oberfläche).</span>
+<span class="n">resmon</span><span class="p">.</span><span class="n">exe</span>
+
+<span class="c"># Öffnet den Zuverlässigkeitsverlauf zur Prüfung früherer Fehler.</span>
+<span class="n">perfmon</span><span class="p">.</span><span class="n">exe</span> <span class="p">/</span><span class="n">rel</span>
+
+<span class="c"># Listet die zehn Prozesse mit der höchsten GESAMTEN CPU-Zeit.</span>
+<span class="c"># ACHTUNG: CPU bedeutet hier Sekunden über die Laufzeit,</span>
+<span class="c"># NICHT aktuelle CPU-Prozent!</span>
+<span class="nb">Get-Process</span> <span class="p">|</span> <span class="nb">Sort-Object</span> <span class="n">CPU</span> <span class="n">-Descending</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">-First</span> <span class="n">10</span> <span class="n">ProcessName</span><span class="p">,</span> <span class="n">Id</span><span class="p">,</span> <span class="n">CPU</span>
+
+<span class="c"># Liest RAM-Werte über CIM (Common Information Model).</span>
+<span class="nv">$os</span> <span class="p">=</span> <span class="nb">Get-CimInstance</span> <span class="n">-ClassName</span> <span class="n">Win32_OperatingSystem</span>
+
+<span class="c"># Zeigt Gesamt-RAM und verfügbaren RAM in GiB an.</span>
+<span class="c"># Rohwerte sind in KiB angegeben; daher durch 1MB teilen.</span>
+<span class="no">[PSCustomObject]</span><span class="p">@{</span>
+    <span class="n">Gesamt_GiB</span>    <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$os</span><span class="p">.</span><span class="n">TotalVisibleMemorySize</span> <span class="p">/</span> <span class="n">1MB</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+    <span class="n">Verfuegbar_GiB</span> <span class="p">=</span> <span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$os</span><span class="p">.</span><span class="n">FreePhysicalMemory</span> <span class="p">/</span> <span class="n">1MB</span><span class="p">,</span> <span class="n">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Zeigt Gesamtkapazität und freien Platz auf Laufwerk C:.</span>
+<span class="nb">Get-Volume</span> <span class="n">-DriveLetter</span> <span class="n">C</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">DriveLetter</span><span class="p">,</span>
+        <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">'Frei_GiB'</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">SizeRemaining</span> <span class="p">/</span> <span class="n">1GB</span><span class="p">,</span><span class="n">1</span><span class="p">)}},</span>
+        <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">'Gesamt_GiB'</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[math]</span><span class="p">::</span><span class="n">Round</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Size</span> <span class="p">/</span> <span class="n">1GB</span><span class="p">,</span><span class="n">1</span><span class="p">)}}</span>
+
+<span class="c"># Zeigt den von Windows gemeldeten Datenträgerzustand.</span>
+<span class="c"># 'Healthy' garantiert keinen defektfreien Datenträger.</span>
+<span class="nb">Get-PhysicalDisk</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">FriendlyName</span><span class="p">,</span><span class="n">MediaType</span><span class="p">,</span><span class="n">HealthStatus</span>
+</code></pre></div><p><strong>Achtung zur Interpretation:</strong> <code>Get-Process ... CPU</code> ist keine aktuelle Prozentmessung. Für aktuelle CPU-Auslastung während der Störung im Task-Manager nach <strong>CPU</strong> sortieren. Auch ein „Healthy“-Laufwerk kann einen bislang unentdeckten Fehler haben.</p>
+<h2 id="4-ereignisse-pruefen-l1l2">4. Ereignisse prüfen (L1/L2)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Filter: Windows-Systemprotokoll, Warnungen/Fehler,</span>
+<span class="c"># Ereignisse der letzten 48 Stunden.</span>
+<span class="nv">$filter</span> <span class="p">=</span> <span class="p">@{</span>
+    <span class="n">LogName</span>   <span class="p">=</span> <span class="s1">'System'</span>
+    <span class="n">Level</span>     <span class="p">=</span> <span class="n">2</span><span class="p">,</span> <span class="n">3</span>
+    <span class="n">StartTime</span> <span class="p">=</span> <span class="p">(</span><span class="nb">Get-Date</span><span class="p">).</span><span class="n">AddHours</span><span class="p">(-</span><span class="n">48</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c"># Liest bis zu 30 passende Ereignisse zur zeitlichen Korrelation.</span>
+<span class="nb">Get-WinEvent</span> <span class="n">-FilterHashtable</span> <span class="nv">$filter</span> <span class="n">-MaxEvents</span> <span class="n">30</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">TimeCreated</span><span class="p">,</span><span class="n">ProviderName</span><span class="p">,</span><span class="n">Id</span><span class="p">,</span><span class="n">Message</span>
+</code></pre></div><ul>
+<li>[ ] Zeitpunkt mit dem tatsächlichen Leistungseinbruch abgleichen.</li>
+<li>[ ] Hersteller-/Treiber-/Datenträgermeldungen nicht ohne Prüfung als Ursache behaupten.</li>
+<li>[ ] Bei nur einer langsamen Anwendung zusätzlich das <strong>Anwendungsprotokoll</strong> prüfen.</li>
+</ul>
+<h2 id="5-befund-gezielte-massnahme">5. Befund → gezielte Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nachgewiesene Last durch nicht benötigten Autostart</td>
+<td>Verantwortung klären, nach Freigabe Startverhalten ändern; erneut messen.</td>
+</tr>
+<tr>
+<td>Relevanter RAM-Engpass</td>
+<td>Arbeitsspeicherbedarf reduzieren oder Aufrüstbedarf fachlich begründen.</td>
+</tr>
+<tr>
+<td>Kaum freier Speicherplatz</td>
+<td>Freigegebene Bereinigung mit Windows-Bordmitteln; Daten schützen.</td>
+</tr>
+<tr>
+<td>Problem seit bestimmtem Update</td>
+<td>Versionen und Herstellerhinweise prüfen; Rollback nur nach Freigabe/Risikobewertung.</td>
+</tr>
+<tr>
+<td>Laufwerksfehler, unklare Hardware</td>
+<td>Datensicherung und Hardwareteam priorisieren; nicht mit „Cleanup“ überdecken.</td>
+</tr>
+<tr>
+<td>CPU/Disk normal, nur Netz-Anwendungen langsam</td>
+<td>Zielsystem/Netzwerk statt lokale Hardware untersuchen.</td>
+</tr>
+<tr>
+<td>Mehrere Clients betroffen</td>
+<td>Zentralen Vorfall aufnehmen und L2 / IT-Betrieb einschalten.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht pauschal:</strong> Prozesse zwangsweise beenden, Defender/EDR/VPN/Backup-Agenten abschalten, Registry-„Cleaner“ einsetzen, Auslagerungsdatei deaktivieren oder beliebige Systemdateien löschen.</p>
+<h2 id="6-erfolgskontrolle">6. Erfolgskontrolle</h2>
+<ul>
+<li>[ ] Gleiche zuvor langsame Benutzeraktion wiederholt.</li>
+<li>[ ] Zeiten und Ressourcenwerte <strong>vorher/nachher</strong> unter vergleichbaren Bedingungen erfasst.</li>
+<li>[ ] Notwendige Sicherheit-, Synchronisations- und Verwaltungsfunktionen arbeiten weiterhin.</li>
+<li>[ ] Kein erneuter Leistungseinbruch im beobachteten Zeitfenster.</li>
+<li>[ ] Ursache, Maßnahmen, Ergebnis und verbliebene Unsicherheit im Ticket dokumentiert.</li>
+</ul>
+<h2 id="7-wann-l2-hinzuziehen">7. Wann L2 hinzuziehen?</h2>
+<p>Unklare wiederkehrende Engpässe, Hardware-/Treiberfehler, Sicherheitsagenten, zentrale Richtlinien, mehrere Geräte oder notwendige Langzeitmessungen via <strong>WPR (Windows Performance Recorder)</strong> / <strong>WPA (Windows Performance Analyzer)</strong>.</p>
+<h2 id="8-muster-ticketabschluss-fiktiv">8. Muster-Ticketabschluss (fiktiv)</h2>
+<blockquote>
+<p><strong>INC-007:</strong> Langsame Reaktion nach Windows-Anmeldung an <code>PC-023</code>. In Task-Manager und Ressourcenmonitor zeitgleiche erhöhte CPU- und Datenträgerlast durch einen freigegebenen Hintergrundauftrag festgestellt. Nach Rücksprache Ausführungszeitpunkt organisatorisch angepasst. Dieselbe Benutzeraktion beim Folgetest ohne Verzögerung ausgeführt. Keine Sicherheitsdienste abgeschaltet. <strong>Status: gelöst.</strong><br/>
+<em>Fiktives Beispiel; keine reale Messung oder Änderung behauptet.</em></p>
+</blockquote>
+<h2 id="9-technische-quellen">9. Technische Quellen</h2>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/performance-optimization/tips-to-improve-pc-performance-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support: Tipps zur PC-Leistung</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/configure-startup-applications-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support: Autostart-Apps</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process?view=powershell-5.1" rel="noopener noreferrer" target="_blank">Microsoft Learn: Get-Process</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-operatingsystem" rel="noopener noreferrer" target="_blank">Microsoft Learn: Win32_OperatingSystem</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn: Get-PhysicalDisk</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/support-tools/troubleshoot-issues-performance-monitor" rel="noopener noreferrer" target="_blank">Microsoft Learn: Performance Monitor</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/introduction-to-wpr" rel="noopener noreferrer" target="_blank">Microsoft Learn: WPR</a></li>
+</ul>
+<p><strong>Ausführlicher Lernartikel:</strong> <a href="index.html">RB-007 – Windows-Performance verstehen und diagnostizieren</a></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-007_Praxis-Runbook.md">RB-007_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-006/index.html">← RB-006</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-008/index.html">RB-008 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

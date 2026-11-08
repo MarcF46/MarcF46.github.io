@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-005 Zugriff auf Datei oder Ordner verweigert | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-005: Zugriff auf Datei oder Ordner verweigert. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top">
+<header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">SMB · NTFS · Berechtigungen · Grundlagenkapitel</p><h1>RB-005: Zugriff auf Datei oder Ordner verweigert</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a><a href="grundlagen.html" aria-current="page">Grundlagen</a></nav></section>
+    <section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-grundprinzip-was-unterscheidet-eine-freigabe-von-ntfs">1. Das Grundprinzip – was unterscheidet eine Freigabe von NTFS?</a></li><li><a href="#2-zusaetzliche-verweigerungsregeln-was-bedeutet-deny">2. Zusätzliche Verweigerungsregeln: Was bedeutet „Deny“?</a></li><li><a href="#3-vererbung-warum-darf-ich-den-hauptordner-aber-nicht-den-unterordner-oeffnen">3. Vererbung: Warum darf ich den Hauptordner, aber nicht den Unterordner öffnen?</a></li><li><a href="#4-weitere-sicherheitsmechanismen-wenn-freigabe-und-ntfs-scheinbar-stimmen">4. Weitere Sicherheitsmechanismen – wenn Freigabe und NTFS scheinbar stimmen</a></li><li><a href="#5-wo-spielt-die-gruppenrichtlinie-gpo-hinein">5. Wo spielt die Gruppenrichtlinie (GPO) hinein?</a></li><li><a href="#6-welcher-fehler-gehoert-zu-welchem-diagnosezweig">6. Welcher Fehler gehört zu welchem Diagnosezweig?</a></li><li><a href="#7-was-kommt-in-den-ticketkommentar">7. Was kommt in den Ticketkommentar?</a></li><li><a href="#8-quellenstand-und-lernfragen">8. Quellenstand und Lernfragen</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>Ergänzung zu RB-005 – Zugriff auf Datei oder Ordner verweigert</strong><br/>
+<strong>Stand:</strong> 08.11.2026 · <strong>Version:</strong> 1.1 · <strong>Zielgruppe:</strong> Einsteiger im 1st-/2nd-Level-Support<br/>
+<strong>Status:</strong> Anhand von Microsoft Learn recherchiertes Lernmaterial; die genannten Beispiele sind fiktiv und nicht praktisch validiert.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb005_zwei_schranken_henne_ei.png" rel="noopener noreferrer" target="_blank"><img alt="Das Zwei-Schranken-Prinzip – Freigabe und NTFS im Henne-Ei-Stil" decoding="async" loading="lazy" src="assets/rb005_zwei_schranken_henne_ei.png"/></a></div><figcaption>Das Zwei-Schranken-Prinzip – Freigabe und NTFS im Henne-Ei-Stil</figcaption></figure>
+<p><em>Bildunterschrift: Freigabe- und NTFS-Berechtigungen bilden zwei Kontrollen für den SMB-Netzwerkzugriff. Die Darstellung vereinfacht die tatsächliche Rechteprüfung. Die Netzlaufwerkszuordnung über GPO erteilt keine Dateiberechtigung. Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</em></p>
+<h2 id="1-das-grundprinzip-was-unterscheidet-eine-freigabe-von-ntfs">1. Das Grundprinzip – was unterscheidet eine Freigabe von NTFS?</h2>
+<p>Stell dir einen Dateiserver <code>FS01</code> vor. Dort befindet sich lokal der Ordner <code>D:\Freigaben\Projekte</code>. Er ist über das Netzwerk als <code>\\FS01\Projekte</code> erreichbar.</p>
+<ul>
+<li><strong>Netzwerkfreigabe</strong>: Der Server bietet einen Ordner im Netzwerk unter einem Freigabenamen an. Über die <strong>Freigabeberechtigungen</strong> wird geregelt, was ein Benutzer über <em>diesen Netzwerkzugang</em> grundsätzlich tun darf.</li>
+<li><strong>NTFS-Berechtigungen (New Technology File System)</strong>: Sie regeln den Zugriff auf Dateien und Ordner <strong>im Dateisystem</strong>. Sie gelten auch bei lokalem Zugriff auf den Server und bestimmen unter anderem Lesen, Schreiben, Ändern und Löschen.</li>
+<li><strong>SMB (Server Message Block)</strong>: Das Windows-Netzwerkprotokoll, mit dem ein Client auf eine Dateifreigabe zugreift.</li>
+</ul>
+<p>Ein Benutzer, der über SMB auf eine Datei zugreift, benötigt die passenden Rechte <strong>auf beiden Ebenen</strong>. Bei Zugriff <em>lokal auf den Serverpfad</em> greifen die Freigabeberechtigungen für diesen Zugriffsweg nicht; die NTFS-Rechte bleiben relevant.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Freigabe erlaubt</th>
+<th>NTFS erlaubt</th>
+<th>Vereinfachtes Ergebnis bei SMB-Zugriff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lesen</td>
+<td>Lesen</td>
+<td>Datei lesen</td>
+</tr>
+<tr>
+<td>Lesen</td>
+<td>Ändern</td>
+<td>Nur lesen</td>
+</tr>
+<tr>
+<td>Ändern</td>
+<td>Lesen</td>
+<td>Nur lesen</td>
+</tr>
+<tr>
+<td>Ändern</td>
+<td>Ändern</td>
+<td>Lesen und ändern</td>
+</tr>
+<tr>
+<td>Vollzugriff</td>
+<td>Keine passende Erlaubnis auf NTFS</td>
+<td>Zugriff wird verweigert</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merksatz:</strong> <em>Beim Netzwerkzugriff gilt die restriktivere (<strong>strengere oder stärker einschränkende</strong>) Berechtigung.</em> Die Freigabe kann also nicht mehr Rechte bereitstellen, als NTFS für die gewünschte Operation zulässt – und umgekehrt.</p>
+<p><strong>Achtung:</strong> Die Tabelle ist ein <strong>vereinfachtes Denkmodell</strong>. Explizite Verweigerungen, geerbte Regeln und weitere Sicherheitsmechanismen können das Ergebnis zusätzlich beeinflussen. „Vollzugriff“ ist keine notwendige oder angemessene Standardberechtigung für normale Mitarbeiter.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/iis/web-hosting/configuring-servers-in-the-windows-web-platform/configuring-share-and-ntfs-permissions" rel="noopener noreferrer" target="_blank">Microsoft Learn – Zusammenspiel von Freigabe- und NTFS-Berechtigungen</a>.</p>
+<h2 id="2-zusaetzliche-verweigerungsregeln-was-bedeutet-deny">2. Zusätzliche Verweigerungsregeln: Was bedeutet „Deny“?</h2>
+<p>Windows-Dateiberechtigungen werden in einer <strong>ACL (Access Control List = Zugriffskontrollliste)</strong> gespeichert. Jede einzelne Regel darin heißt <strong>ACE (Access Control Entry = Berechtigungseintrag)</strong>. Für die Zugriffsentscheidung wird besonders die <strong>DACL (Discretionary Access Control List = Liste erlaubender und verweigernder Zugriffsregeln)</strong> berücksichtigt.</p>
+<p>Es gibt zwei grundsätzliche Regelarten:</p>
+<ul>
+<li><strong>Allow (Zulassen):</strong> Die Regel erlaubt einer Person oder Gruppe eine oder mehrere Operationen, etwa <code>Lesen</code>.</li>
+<li><strong>Deny (Verweigern):</strong> Die Regel verbietet einer Person oder Gruppe bestimmte Operationen ausdrücklich, etwa <code>Schreiben</code>.</li>
+</ul>
+<p><strong>Praxisbeispiel:</strong> Die AD-Gruppe <code>GG_Buchhaltung</code> darf die Datei <code>Planung.xlsx</code> lesen. Mitarbeiter <code>FIRMA\max</code> ist Mitglied dieser Gruppe, hat aber zusätzlich einen <strong>expliziten Deny-Eintrag für Lesen</strong> auf genau dieser Datei. Trotz Gruppenmitgliedschaft kann Max die Datei dann in einer üblichen, korrekt geordneten Windows-ACL nicht lesen.</p>
+<h3 id="nicht-erlaubt-und-ausdruecklich-verboten-sind-verschieden">„Nicht erlaubt“ und „ausdrücklich verboten“ sind verschieden</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Bedeutung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keine passende erlaubende Regel</td>
+<td>Windows gewährt das benötigte Recht nicht. Es ist keine eigene Deny-Regel nötig.</td>
+</tr>
+<tr>
+<td>Eine Regel verweigert Lesen ausdrücklich</td>
+<td>Ein passender Deny-Eintrag kann die Leseoperation auch dann blockieren, wenn andere Gruppen sie erlauben.</td>
+</tr>
+<tr>
+<td>Eine Regel verweigert nur Löschen</td>
+<td>Lesen kann weiterhin möglich sein, sofern die erforderlichen Leserechte erlaubt sind.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Technische Präzisierung:</strong> Bei einer <strong>kanonisch geordneten</strong> Windows-DACL werden explizite Verweigerungen vor expliziten Erlaubnissen verarbeitet; danach folgen geerbte Einträge. Die konkrete Entscheidung hängt von den angeforderten Rechten, dem Zugriffstoken und der tatsächlichen Reihenfolge der passenden Regeln ab. Deshalb ist „Deny schlägt immer alles“ als pauschale Aussage zu grob.</p>
+<p><strong>Warum nicht bei Problemen einfach einen Deny-Eintrag löschen?</strong> Er könnte bewusst zum Schutz sensibler Daten gesetzt worden sein. Änderungen erfordern eine fachliche Freigabe und gehören bei unklaren Zusammenhängen in den Second-Level-Support.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/windows/win32/secauthz/dacls-and-aces" rel="noopener noreferrer" target="_blank">Microsoft Learn – DACLs und ACEs</a>, <a href="https://learn.microsoft.com/en-us/windows/win32/secauthz/order-of-aces-in-a-dacl" rel="noopener noreferrer" target="_blank">Reihenfolge der Regeln</a>, <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/icacls" rel="noopener noreferrer" target="_blank">icacls</a>.</p>
+<h2 id="3-vererbung-warum-darf-ich-den-hauptordner-aber-nicht-den-unterordner-oeffnen">3. Vererbung: Warum darf ich den Hauptordner, aber nicht den Unterordner öffnen?</h2>
+<p><strong>Vererbung</strong> bedeutet: Ein Ordner kann dafür vorgesehene Berechtigungen von seinem übergeordneten Ordner an Unterordner und Dateien weitergeben.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">D:\Freigaben\Projekte                 (Hauptordner)
+  ├── Einkauf                         (Unterordner)
+  │    └── Bestellungen.xlsx          (Datei)
+  └── Buchhaltung                     (Unterordner)
+       └── Gehaltsplanung.xlsx        (Datei)
+</code></pre></div><p><strong>Beispiel:</strong> <code>Projekte</code> erlaubt der Gruppe <code>GG_Projekte</code> das Lesen, und die Regel wird an <code>Einkauf</code> vererbt. Dort kann der Zugriff daher ebenfalls erlaubt sein. Für <code>Buchhaltung</code> kann die Vererbung allerdings gezielt unterbrochen oder durch eigene Regeln ergänzt werden – beispielsweise damit nur zuständige Personen Gehaltsdaten lesen dürfen.</p>
+<p>Bei der Prüfung ist zu unterscheiden:</p>
+<ul>
+<li><strong>Geerbte Berechtigung:</strong> Kommt aus einem übergeordneten Ordner.</li>
+<li><strong>Explizite Berechtigung:</strong> Wurde direkt auf dem untersuchten Ordner oder der Datei gesetzt.</li>
+<li><strong>Vererbung deaktiviert:</strong> Neue Berechtigungen des übergeordneten Ordners werden für diese DACL nicht mehr automatisch in der gewöhnlichen Form übernommen.</li>
+</ul>
+<p><strong>Wichtig:</strong> Nicht jede Berechtigung für einen Ordner muss auch für alle Unterordner und Dateien gelten: Dafür existieren unterschiedliche Vererbungs- und Geltungsoptionen. Änderungen an der Vererbung können ganze Ordnerbäume beeinflussen; niemals ohne Freigabe rekursiv zurücksetzen.</p>
+<p><strong>Lesende Diagnose am Dateiserver:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Der Pfad befindet sich lokal auf dem Dateiserver FS01.</span>
+<span class="nv">$pfad</span> <span class="p">=</span> <span class="s1">'D:\Freigaben\Projekte\Buchhaltung'</span>
+
+<span class="c"># Liest die NTFS-Sicherheitsinformationen des untersuchten Ordners.</span>
+<span class="nv">$acl</span> <span class="p">=</span> <span class="nb">Get-Acl</span> <span class="n">-LiteralPath</span> <span class="nv">$pfad</span>
+
+<span class="c"># Prüft, ob die Vererbung für die DACL geschützt/deaktiviert wurde.</span>
+<span class="nv">$acl</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">Owner</span><span class="p">,</span> <span class="n">AreAccessRulesProtected</span>
+
+<span class="c"># Zeigt jede Regel, ihre Art und ihre Herkunft an.</span>
+<span class="c"># IsInherited = True bedeutet: diese Regel wurde geerbt.</span>
+<span class="nv">$acl</span><span class="p">.</span><span class="n">Access</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">IdentityReference</span><span class="p">,</span> <span class="n">FileSystemRights</span><span class="p">,</span> <span class="n">AccessControlType</span><span class="p">,</span> <span class="n">IsInherited</span>
+</code></pre></div><p><code>AreAccessRulesProtected = True</code> weist darauf hin, dass die DACL vor Vererbung geschützt ist; <code>False</code> bedeutet, dass Vererbung nicht in dieser Weise abgeschaltet ist. Ein einzelnes angezeigtes Recht beweist noch nicht den effektiven Zugriff des Benutzers.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/windows/win32/secauthz/ace-inheritance-rules" rel="noopener noreferrer" target="_blank">Microsoft Learn – ACE-Inheritance Rules</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-acl" rel="noopener noreferrer" target="_blank">Get-Acl</a>, <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/icacls" rel="noopener noreferrer" target="_blank">icacls</a>.</p>
+<h2 id="4-weitere-sicherheitsmechanismen-wenn-freigabe-und-ntfs-scheinbar-stimmen">4. Weitere Sicherheitsmechanismen – wenn Freigabe und NTFS scheinbar stimmen</h2>
+<p>Nicht jede Zugriffsverweigerung entsteht ausschließlich durch die beiden Berechtigungstabellen.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Mechanismus</th>
+<th>Einfach erklärt</th>
+<th>Typisches Symptom / erster Prüfansatz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AD-Gruppen und Zugriffstoken</strong></td>
+<td>Windows prüft die Gruppenkennungen, die in der aktuellen Anmeldung enthalten sind.</td>
+<td>Neu zugewiesene Gruppe steht schon in AD, aber noch nicht im Benutzer-Token; nach freigegebenem Ab-/Anmelden erneut prüfen.</td>
+</tr>
+<tr>
+<td><strong>ABE (Access-Based Enumeration = berechtigungsabhängige Auflistung)</strong></td>
+<td>Ein Dateiserver kann Ordner und Dateien <strong>aus der Anzeige ausblenden</strong>, wenn dem Benutzer passende Rechte fehlen.</td>
+<td>Unterordner erscheint gar nicht in der Liste. ABE gibt keine zusätzlichen Berechtigungen.</td>
+</tr>
+<tr>
+<td><strong>EFS (Encrypting File System = verschlüsselndes Dateisystem)</strong></td>
+<td>Einzelne Dateien können kryptografisch an berechtigte Benutzer/Zertifikate gebunden sein.</td>
+<td>NTFS-Lesen scheint erlaubt, Datei lässt sich dennoch nicht entschlüsseln/öffnen.</td>
+</tr>
+<tr>
+<td><strong>Zentrale Zugriffsrichtlinien (Dynamic Access Control)</strong></td>
+<td>Windows Server kann zusätzliche Regeln anhand von Benutzer-, Geräte- und Dateieigenschaften anwenden.</td>
+<td>Richtlinie für vertrauliche Dokumente verweigert den Zugriff trotz vermeintlich passender ACL.</td>
+</tr>
+<tr>
+<td><strong>SMB-Sicherheitsrichtlinien</strong></td>
+<td>Client und Server müssen sichere Protokoll- und Anmeldeverfahren unterstützen.</td>
+<td>Freigabe ist trotz richtiger NTFS-Rechte nicht erreichbar; z. B. wird unsicherer Gastzugriff blockiert.</td>
+</tr>
+<tr>
+<td><strong>Defender „Überwachter Ordnerzugriff“</strong></td>
+<td>Kann nicht vertrauenswürdige Programme am <strong>Ändern</strong> geschützter Dateien hindern.</td>
+<td>Ein Programm kann in einem geschützten Ordner nicht speichern, andere Programme eventuell schon.</td>
+</tr>
+<tr>
+<td><strong>Dateisperre oder Schreibschutz</strong></td>
+<td>Datei ist durch ein anderes Programm belegt oder als schreibgeschützt gekennzeichnet.</td>
+<td>Öffnen zum Lesen geht, Speichern oder Überschreiben nicht. Das ist nicht automatisch ein NTFS-ACL-Fehler.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="abe-ist-nicht-gleich-zugriffsberechtigung">ABE ist nicht gleich Zugriffsberechtigung</h3>
+<p>Wenn auf einem Server <strong>Access-Based Enumeration (ABE)</strong> aktiviert ist, sieht ein Benutzer womöglich nur die Unterordner, für die er passende Berechtigungen besitzt. Das ist in der Oberfläche übersichtlicher, ersetzt aber <strong>keine</strong> NTFS- oder Share-Berechtigungen. Ist ABE ausgeschaltet, kann ein Ordner sichtbar sein, obwohl man ihn nicht öffnen darf.</p>
+<p><strong>Lesende Prüfung am Fileserver:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Liest Freigabename und Einstellung für die Ordnerauflistung aus.</span>
+<span class="c"># FolderEnumerationMode zeigt zum Beispiel AccessBased oder Unrestricted.</span>
+<span class="nb">Get-SmbShare</span> <span class="n">-Name</span> <span class="s1">'Projekte'</span> <span class="p">|</span>
+    <span class="nb">Select-Object</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">FolderEnumerationMode</span>
+</code></pre></div><p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/high-cpu-usage-issue-smb-server" rel="noopener noreferrer" target="_blank">Microsoft Learn – ABE prüfen</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/backup-and-storage/access-denied-error-appears-permissions-are-correct" rel="noopener noreferrer" target="_blank">EFS trotz NTFS-Zugriff</a>, <a href="https://learn.microsoft.com/en-us/windows-server/identity/solution-guides/dynamic-access-control-overview" rel="noopener noreferrer" target="_blank">Dynamic Access Control</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/access-denied-access-smb-file-share" rel="noopener noreferrer" target="_blank">SMB Zugriff verweigert</a>, <a href="https://learn.microsoft.com/de-de/defender-endpoint/controlled-folder-access-overview" rel="noopener noreferrer" target="_blank">Defender: Überwachter Ordnerzugriff</a>.</p>
+<h2 id="5-wo-spielt-die-gruppenrichtlinie-gpo-hinein">5. Wo spielt die Gruppenrichtlinie (GPO) hinein?</h2>
+<p><strong>GPO</strong> steht für <strong>Group Policy Object</strong>, auf Deutsch <strong>Gruppenrichtlinienobjekt</strong>. Eine GPO kann beispielsweise dafür sorgen, dass der Windows-Explorer ein Netzlaufwerk automatisch verbindet.</p>
+<p><strong>Beispiel aus einem Übungslab:</strong></p>
+<ol>
+<li>Auf dem Server wurde <code>D:\Freigaben\Projekte</code> als <code>\\FS01\Projekte</code> freigegeben.</li>
+<li>Eine Berechtigungsgruppe wurde für die benötigten Freigabe- und NTFS-Rechte vorgesehen.</li>
+<li>Eine GPO richtet für die passenden Benutzer eine <strong>Laufwerkszuordnung</strong> ein: <code>P:</code> → <code>\\FS01\Projekte</code>.</li>
+<li>Nach der Anwendung kann im Explorer das Laufwerk <code>P:</code> erscheinen. <strong>Das Laufwerkssymbol ist aber noch kein Nachweis, dass der Benutzer jede Datei öffnen darf.</strong> Der Zugriff wird weiter anhand der tatsächlichen Rechte geprüft.</li>
+</ol>
+<p><strong>GUI-Pfad im Gruppenrichtlinienverwaltungs-Editor:</strong> <strong>Benutzerkonfiguration → Einstellungen → Windows-Einstellungen → Laufwerkszuordnungen</strong> (<em>User Configuration → Preferences → Windows Settings → Drive Maps</em>).</p>
+<p><strong>Begriffe unterscheiden:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Funktion</th>
+<th>Erzeugt was?</th>
+<th>Vergibt automatisch Dateirechte?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows-Ordnerfreigabe</td>
+<td>SMB-Freigabe mit Netzwerkpfad</td>
+<td>Nein – die Rechte müssen passend konfiguriert werden.</td>
+</tr>
+<tr>
+<td>GPO-Laufwerkszuordnung</td>
+<td>Netzlaufwerksbuchstaben wie <code>P:</code> beim Benutzer</td>
+<td><strong>Nein.</strong></td>
+</tr>
+<tr>
+<td>AD-Sicherheitsgruppe</td>
+<td>Gruppe zur Zuordnung von Benutzern/Rechten</td>
+<td>Noch nicht – sie muss in passenden Berechtigungsregeln verwendet werden.</td>
+</tr>
+<tr>
+<td>NTFS- und Freigabeberechtigungen</td>
+<td>Konkrete Zugriffsregeln am Server</td>
+<td><strong>Ja</strong>, im Rahmen der jeweils gesetzten Regeln.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die GPO kann zwar auch andere Einstellungen verwalten, etwa in gesonderten Konfigurationen Netzwerkfreigaben. <strong>Die Laufwerkszuordnung selbst</strong> ist jedoch kein Freigabe- oder NTFS-Berechtigungseintrag.</p>
+<p><strong>Fehlerdiagnose:</strong> Ist <code>P:</code> nicht sichtbar, teste gegebenenfalls den UNC-Pfad <code>\\FS01\Projekte</code> direkt. Wenn dieser funktioniert, liegt das Problem möglicherweise allein an der Laufwerkszuordnung. Wenn der Pfad erreichbar ist, aber der Unterordner „Zugriff verweigert“ meldet, sind andere Prüfungen notwendig.</p>
+<p><strong>Lesende Befehle auf dem Client im Benutzerkontext:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"><span class="c"># Zeigt dem Benutzer aktuell zugeordnete SMB-Laufwerke an.</span>
+<span class="nb">Get-SmbMapping</span> <span class="p">|</span> <span class="nb">Select-Object</span> <span class="n">LocalPath</span><span class="p">,</span> <span class="n">RemotePath</span><span class="p">,</span> <span class="n">Status</span>
+
+<span class="c"># Zeigt einen Überblick über angewendete Gruppenrichtlinien an.</span>
+<span class="c"># gpresult ist ein Windows-Kommandozeilenprogramm.</span>
+<span class="n">gpresult</span> <span class="p">/</span><span class="nb">r</span>
+</code></pre></div><p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-preferences" rel="noopener noreferrer" target="_blank">Microsoft Learn – Group Policy Preferences und Drive Maps</a>, <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/group-policy/scenario-guide-gpo-to-map-network-drive-doesn-t-apply-as-expected" rel="noopener noreferrer" target="_blank">Microsoft Learn – Fehlersuche bei GPO-Netzlaufwerken</a>.</p>
+<h2 id="6-welcher-fehler-gehoert-zu-welchem-diagnosezweig">6. Welcher Fehler gehört zu welchem Diagnosezweig?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Zuerst prüfen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Das Netzlaufwerk <code>P:</code> fehlt im Explorer.</td>
+<td>GPO-Laufwerkszuordnung, Benutzerkontext, Netzwerkverbindung; UNC-Pfad direkt testen.</td>
+</tr>
+<tr>
+<td><code>\\FS01\Projekte</code> kann nicht erreicht werden.</td>
+<td>DNS, SMB-Port 445, VPN, Routing, Firewall und SMB-Sicherheitsrichtlinien.</td>
+</tr>
+<tr>
+<td>Freigabe ist erreichbar, aber Unterordner meldet „Zugriff verweigert“.</td>
+<td>Freigaberechte, NTFS-Rechte, Deny, Vererbung, Gruppen und Token.</td>
+</tr>
+<tr>
+<td>Nur ein bestimmter Unterordner fehlt in der Ansicht.</td>
+<td>NTFS-Gültigkeitsbereich, ABE und mögliche Vererbung prüfen.</td>
+</tr>
+<tr>
+<td>Datei kann gelesen, aber nicht gespeichert werden.</td>
+<td>Gewünschtes Schreibrecht, Dateisperre, Schreibschutz und ggf. Sicherheitsfunktionen.</td>
+</tr>
+<tr>
+<td>ACL erlaubt Lesen, Datei lässt sich dennoch nicht öffnen.</td>
+<td>Identitätskontext, Verschlüsselung (EFS) und weitere Richtlinien untersuchen.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="7-was-kommt-in-den-ticketkommentar">7. Was kommt in den Ticketkommentar?</h2>
+<p><strong>Fiktives Beispiel:</strong> „Netzlaufwerk P: auf PC-023 fehlt. Direkter UNC-Zugriff auf <code>\\FS01\Projekte</code> mit dem betroffenen Konto erfolgreich. Freigabe- und NTFS-Rechte des für den Benutzer bestimmten Ordners unverändert und ausreichend. Gruppenrichtlinienzuordnung überprüft; Laufwerkszuordnung gemäß Unternehmensvorgaben wiederhergestellt. Zugriff auf freigegebene Dateien durch Benutzer bestätigt. Keine Berechtigungserweiterung vorgenommen.“</p>
+<p>Wenn stattdessen eine NTFS-Verweigerung vorliegt, müssen <strong>die konkrete Regel, der betroffene Pfad, die benötigte Operation und die genehmigte Maßnahme</strong> dokumentiert werden. Ein oberflächliches „Freigabe repariert“ würde nicht reichen.</p>
+<h2 id="8-quellenstand-und-lernfragen">8. Quellenstand und Lernfragen</h2>
+<p>Alle oben aufgeführten verlinkten Microsoft-Learn-Seiten dienen der technischen Einordnung. <strong>Recherchierte Inhalte sind keine eigene Praxisvalidierung.</strong> Die Abbildungen zeigen ein Modell, keine automatisch ausgelesene Produktionsumgebung.</p>
+<p><strong>Drei Selbsttests:</strong></p>
+<ol>
+<li>Ein Benutzer sieht <code>P:</code>, kann aber keine Datei öffnen. Beweist das, dass die GPO falsch ist? Warum (nicht)?</li>
+<li>Eine Freigabe erlaubt „Ändern“, NTFS aber nur „Lesen“. Darf ein Benutzer eine bestehende Datei verändern?</li>
+<li>Warum kann ein ausdrücklich verweigertes Recht eine anderweitige Gruppenfreigabe ausschließen?</li>
+</ol>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-005_Grundlagen_Freigabe-und-NTFS.md">RB-005_Grundlagen_Freigabe-und-NTFS.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-004/index.html">← RB-004</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-006/index.html">RB-006 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
