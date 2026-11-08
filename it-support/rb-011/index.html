@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RB-011 VPN-Verbindung schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall RB-011: VPN-Verbindung schlägt fehl. Dokumentiertes Vorgehen, Grundlagen und Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261102-3"><link rel="stylesheet" href="../../assets/support.css?v=20261108"><script src="../../assets/support.js?v=20261108" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Themen</a><a href="../../it-support-troubleshooting-50-tickets.html">IT-Support</a><a href="../../index.html#method">Lernweg</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">VPN · Windows · Netzwerk · Lernartikel</p><h1>RB-011: VPN-Verbindung schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-08">08.11.2026</time> · Quelle: hochgeladenes Dokumentationspaket</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ausgangssituation-und-supportticket">1. Ausgangssituation und Supportticket</a></li><li><a href="#2-technische-grundlagen-was-ist-vpn">2. Technische Grundlagen: Was ist VPN?</a></li><li><a href="#3-drei-fehlerbilder-unterscheiden--bevor-wir-irgendetwas-veraendern">3. Drei Fehlerbilder unterscheiden – bevor wir irgendetwas verändern</a></li><li><a href="#4-zugriffswege-wie-kann-ein-supporttechniker-den-fehler-untersuchen">4. Zugriffswege: Wie kann ein Supporttechniker den Fehler untersuchen?</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-l1-diagnose-internet-und-vpn-profil-kontrollieren">6. L1-Diagnose: Internet und VPN-Profil kontrollieren</a></li><li><a href="#7-fehler-beim-aufbau-fehlercode-statt-vermutung">7. Fehler beim Aufbau: Fehlercode statt Vermutung</a></li><li><a href="#8-ereignisprotokolle-wo-steht-der-tatsaechliche-vpn-fehler">8. Ereignisprotokolle: Wo steht der tatsächliche VPN-Fehler?</a></li><li><a href="#9-der-tunnel-steht--aber-das-firmennetz-ist-unerreichbar">9. Der Tunnel steht – aber das Firmennetz ist unerreichbar</a></li><li><a href="#10-weitere-fehlerquellen-und-fortgeschrittenenwissen">10. Weitere Fehlerquellen und Fortgeschrittenenwissen</a></li><li><a href="#11-fehlerbehebung-nur-mit-befund-und-berechtigung">11. Fehlerbehebung: Nur mit Befund und Berechtigung</a></li><li><a href="#12-erfolgskontrolle">12. Erfolgskontrolle</a></li><li><a href="#13-muster-ticketkommentar--ausdruecklich-fiktiv">13. Muster-Ticketkommentar – ausdrücklich fiktiv</a></li><li><a href="#14-lernkontrolle-und-transfertraining">14. Lernkontrolle und Transfertraining</a></li><li><a href="#15-fachliche-quellen-und-versionshinweise">15. Fachliche Quellen und Versionshinweise</a></li></ol></nav><div class="support-markdown">
+<blockquote>
+<p><strong>50 Tickets – 50 typische Supportfälle</strong><br/>
+<strong>Ticket:</strong> INC-011 · <strong>Support-Level:</strong> 1st / 2nd Level · <strong>Systeme:</strong> Windows 11, Unternehmens-VPN, DNS, Routing, Firewall, Active Directory / Microsoft Entra ID<br/>
+<strong>Dokumentationsstand:</strong> 08.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Validierungsstatus:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert; <strong>nicht praktisch validiert</strong>. Alle Beispielsysteme, IP-Adressen und Ticketverläufe sind fiktiv.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb011_henne_ei_vpn.png" rel="noopener noreferrer" target="_blank"><img alt="RB-011 – VPN-Verbindung schlägt fehl: Henne-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb011_henne_ei_vpn.png"/></a></div><figcaption>RB-011 – VPN-Verbindung schlägt fehl: Henne-Ei-Infografik</figcaption></figure>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Didaktisch vereinfachte Darstellung: Die genannten Beispiele und Fehlercodes hängen von der eingesetzten VPN-Technologie ab. Nicht jedes VPN nutzt dieselben Ports, Tunneltypen oder Windows-Befehle.</em></p>
+<h2 id="1-ausgangssituation-und-supportticket">1. Ausgangssituation und Supportticket</h2>
+<p><strong>Fiktives Ticket INC-011</strong></p>
+<blockquote>
+<p>„Seit heute Morgen komme ich im Homeoffice nicht mehr ins Firmennetz. Das Internet funktioniert und Teams geht auch, aber sobald ich die VPN-Verbindung starte, kommt eine Fehlermeldung.“</p>
+</blockquote>
+<p><strong>Beispielumgebung:</strong> Windows 11 Pro, Notebook <code>NB-023</code>, integrierter Windows-VPN-Client mit IKEv2, VPN-Gateway <code>vpn.firma.example</code>, interne Anwendung <code>intranet.firma.example</code>. Die Domäne <code>firma.example</code>, Computernamen und IP-Adressen dienen nur als Platzhalter.</p>
+<p><strong>Ziel:</strong> Herausfinden, <strong>in welcher Phase</strong> die Störung auftritt: vor dem Aufbau des Tunnels, bei der Authentifizierung, bei der Tunnelverhandlung oder <strong>erst nach erfolgreichem Aufbau</strong> beim Zugriff auf Unternehmensressourcen.</p>
+<p><strong>Leitsatz:</strong> „VPN geht nicht“ beschreibt noch nicht, <strong>welche</strong> Verbindung oder Funktion ausgefallen ist.</p>
+<h2 id="2-technische-grundlagen-was-ist-vpn">2. Technische Grundlagen: Was ist VPN?</h2>
+<p><strong>VPN (Virtual Private Network)</strong> ist eine geschützte Verbindung zwischen einem Gerät und einem entfernten Netzwerk über ein anderes Netz, häufig das Internet. Viele VPN-Lösungen verschlüsseln den übertragenen Verkehr zwischen den jeweiligen Tunnelendpunkten. Der VPN-Tunnel ist kein Ersatz für die Berechtigungen auf den Zielsystemen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Notebook im Homeoffice
+   │
+   ├── Heimnetz / WLAN / Router
+   │
+   ▼
+Öffentliches Internet
+   │
+   ▼
+VPN-Gateway der Firma  ← überprüft Tunnelaufbau und ggf. Benutzer/Gerät
+   │
+   ├── internes Routing / Firewall / Sicherheitsrichtlinien
+   │
+   ▼
+Firmennetz (Dateiserver, Intranet, Anwendungen)
+
+DNS-Namensauflösung findet als separate Funktion statt.
+Ein VPN-Tunnel garantiert noch nicht, dass jede interne Anwendung erreichbar ist.</code></pre></div>
+<h3 id="wichtige-begriffe-fuer-anfaenger">Wichtige Begriffe für Anfänger</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Begriff</th>
+<th>Einfache Erklärung</th>
+<th>Bedeutung im Ticket</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN (Virtual Private Network)</strong></td>
+<td>Geschützter Verbindungspfad in ein entferntes Netz.</td>
+<td>Stellt häufig den Zugang zum Firmennetz bereit.</td>
+</tr>
+<tr class="even">
+<td><strong>VPN-Client</strong></td>
+<td>Software auf dem Laptop, die den Tunnel aufbaut.</td>
+<td>Kann Windows-integriert oder ein gesondertes Programm sein.</td>
+</tr>
+<tr class="odd">
+<td><strong>VPN-Gateway</strong></td>
+<td>Gegenstelle, die VPN-Verbindungen annimmt.</td>
+<td>Kann wegen Erreichbarkeit, Richtlinien oder Authentifizierung blockieren.</td>
+</tr>
+<tr class="even">
+<td><strong>Tunnel</strong></td>
+<td>Virtueller Transportpfad für Netzwerkverkehr.</td>
+<td>Sein Aufbau ist nur eine Diagnoseebene.</td>
+</tr>
+<tr class="odd">
+<td><strong>IKEv2 (Internet Key Exchange, Version 2)</strong></td>
+<td>Verfahren zum Aushandeln und Absichern von IPsec-Verbindungen.</td>
+<td>Verwendet häufig UDP 500 und 4500.</td>
+</tr>
+<tr class="even">
+<td><strong>IPsec (Internet Protocol Security)</strong></td>
+<td>Protokollfamilie zum Schutz von IP-Kommunikation.</td>
+<td>Häufige Basis für Unternehmens-VPN.</td>
+</tr>
+<tr class="odd">
+<td><strong>SSTP (Secure Socket Tunneling Protocol)</strong></td>
+<td>Microsoft-VPN-Verfahren über TLS, gewöhnlich TCP 443.</td>
+<td>Andere Port- und Fehlerbilder als IKEv2.</td>
+</tr>
+<tr class="even">
+<td><strong>UDP (User Datagram Protocol)</strong></td>
+<td>Verbindungsloses Transportprotokoll.</td>
+<td>Ein reiner TCP-Porttest beweist keine UDP-Erreichbarkeit.</td>
+</tr>
+<tr class="odd">
+<td><strong>TCP (Transmission Control Protocol)</strong></td>
+<td>Verbindungsorientiertes Transportprotokoll.</td>
+<td>Für konkrete Diensttests, z. B. HTTPS über TCP 443.</td>
+</tr>
+<tr class="even">
+<td><strong>DNS (Domain Name System)</strong></td>
+<td>Übersetzt Namen in IP-Adressen.</td>
+<td>Interne Namen benötigen oft firmenspezifische DNS-Regeln.</td>
+</tr>
+<tr class="odd">
+<td><strong>NRPT (Name Resolution Policy Table)</strong></td>
+<td>Windows-Richtlinien für die Namensauflösung bestimmter Namensräume.</td>
+<td>Kann interne DNS-Anfragen gezielt lenken.</td>
+</tr>
+<tr class="even">
+<td><strong>Routing / Route</strong></td>
+<td>Legt fest, über welche Netzwerkschnittstelle Daten zum Ziel gelangen.</td>
+<td>Eine fehlende Firmenroute kann Zugriffe verhindern.</td>
+</tr>
+<tr class="odd">
+<td><strong>Split Tunneling</strong></td>
+<td>Nur ausgewählte Ziele laufen durch den VPN-Tunnel.</td>
+<td>Andere Daten gehen weiter direkt über das Heimnetz.</td>
+</tr>
+<tr class="even">
+<td><strong>Full Tunnel / Force Tunneling</strong></td>
+<td>Nach Konfiguration wird ein größerer bzw. der gesamte relevante Verkehr über VPN geleitet.</td>
+<td>Eine falsche Standardroute kann auch Internetzugriffe beeinflussen.</td>
+</tr>
+<tr class="odd">
+<td><strong>MFA (Multi-Factor Authentication)</strong></td>
+<td>Zusätzliche Bestätigung, etwa über einen zweiten Faktor.</td>
+<td>Eine fehlende/abgelehnte Freigabe kann den Aufbau verhindern.</td>
+</tr>
+<tr class="even">
+<td><strong>NPS (Network Policy Server)</strong></td>
+<td>Microsoft-RADIUS-Server zur Netzwerkzugriffsprüfung.</td>
+<td>Kann Authentifizierung oder Zugriffsrichtlinien beurteilen.</td>
+</tr>
+<tr class="odd">
+<td><strong>RADIUS (Remote Authentication Dial-In User Service)</strong></td>
+<td>Protokoll zur zentralen Authentifizierung, Autorisierung und Abrechnung.</td>
+<td>Wird von vielen VPN-Lösungen verwendet.</td>
+</tr>
+<tr class="even">
+<td><strong>RasClient</strong></td>
+<td>Windows-Komponente für Remotezugriffs-Verbindungen.</td>
+<td>Schreibt teilweise VPN-Fehler in Ereignisprotokolle.</td>
+</tr>
+<tr class="odd">
+<td><strong>FQDN (Fully Qualified Domain Name)</strong></td>
+<td>Vollständiger DNS-Name, z. B. <code>vpn.firma.example</code>.</td>
+<td>VPN-Gateway muss korrekt adressiert sein.</td>
+</tr>
+<tr class="even">
+<td><strong>NAT (Network Address Translation)</strong></td>
+<td>Übersetzung von IP-Adressen, häufig am Router.</td>
+<td>Kann bei falsch konfigurierten Geräten VPN-Verkehr behindern.</td>
+</tr>
+<tr class="odd">
+<td><strong>Always On VPN</strong></td>
+<td>Microsoft-Technik für verwaltete automatische VPN-Verbindungen.</td>
+<td>Kann Benutzer- und Gerätetunnel unterscheiden.</td>
+</tr>
+<tr class="even">
+<td><strong>Device Tunnel / User Tunnel</strong></td>
+<td>Gerätetunnel vor Anmeldung bzw. Benutzertunnel im Benutzerkontext.</td>
+<td>Bei Homeoffice-Anmeldeproblemen aus RB-001 relevant.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Ein anderer VPN-Client, etwa ein produktabhängiger SSL-VPN-Client, kann eigene Protokolle, Oberflächen und Logdateien nutzen. Die PowerShell-Funktion <code>Get-VpnConnection</code> beschreibt in erster Linie <strong>Windows-integrierte VPN-Profile</strong>, nicht automatisch jedes Fremdprodukt.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/vpnclient/" rel="noopener noreferrer" target="_blank">VPN-Client-Cmdlets</a> · <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/configure-vpn-protocols" rel="noopener noreferrer" target="_blank">Microsoft: VPN-Protokolle</a> · <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/vpn/vpn-device-tunnel-config" rel="noopener noreferrer" target="_blank">Gerätetunnel</a></p>
+<h2 id="3-drei-fehlerbilder-unterscheiden--bevor-wir-irgendetwas-veraendern">3. Drei Fehlerbilder unterscheiden – bevor wir irgendetwas verändern</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Benutzerbeobachtung</th>
+<th>Technischer Zustand</th>
+<th>Mögliche Ursachen</th>
+<th>Erste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A. VPN verbindet überhaupt nicht</strong></td>
+<td>Tunnel nicht aufgebaut</td>
+<td>Internet, Gateway, Clientprofil, Firewall, Zertifikat, MFA, Richtlinie</td>
+<td>Fehlercode, Zeitpunkt, Tunneltyp und Internetzugang erfassen</td>
+</tr>
+<tr class="even">
+<td><strong>B. VPN meldet „verbunden“, aber Firmennetz geht nicht</strong></td>
+<td>Tunnel steht, Zielnetz unerreichbar</td>
+<td>Falsche Route, fehlende DNS-Regel, Firewall, Zugriffsrichtlinie, IPv4/IPv6-Konfiguration</td>
+<td>VPN-IP, Routing, interne DNS-Auflösung, konkreten Zielport prüfen</td>
+</tr>
+<tr class="odd">
+<td><strong>C. Nur eine Firmenanwendung funktioniert nicht</strong></td>
+<td>VPN und mindestens einige Firmenressourcen erreichbar</td>
+<td>Zieldienst, Port, lokale/Server-Firewall, Applikationsberechtigung, Proxy</td>
+<td>Funktionierende und gestörte Dienste direkt vergleichen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merksatz:</strong> <strong>Tunnel aufgebaut ≠ Firmenressourcen erreichbar.</strong> Eine weitere Authentifizierung an einer Anwendung kann trotz funktionierendem VPN scheitern.</p>
+<h2 id="4-zugriffswege-wie-kann-ein-supporttechniker-den-fehler-untersuchen">4. Zugriffswege: Wie kann ein Supporttechniker den Fehler untersuchen?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Möglicher Zugriffsweg</th>
+<th>Vorgehen und Einschränkung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Homeoffice, Internet geht, Firmen-VPN nicht</td>
+<td>Telefon/Teams/Schnellhilfe über bestehendes Internet</td>
+<td>Fehlermeldung und lesende Clientbefehle gemeinsam prüfen; keine unkontrollierte Änderung am Tunnel.</td>
+</tr>
+<tr class="even">
+<td>Windows-Client mit lokalem VPN-Profil</td>
+<td>Lokale PowerShell am Benutzergerät</td>
+<td><code>Get-VpnConnection</code>, IP-/Routen- und Ereignisanzeige prüfen.</td>
+</tr>
+<tr class="odd">
+<td>Firmeneigener VPN-Client eines anderen Herstellers</td>
+<td>Herstelleroberfläche und freigegebenes Diagnosepaket</td>
+<td>Fehlermeldungen und Logs mit Herstellerdokumentation abgleichen; Windows-Cmdlet zeigt das Produkt ggf. nicht.</td>
+</tr>
+<tr class="even">
+<td>Kein geeigneter Remotezugriff</td>
+<td>Telefonische Anleitung, ggf. Vor-Ort-Support</td>
+<td>Benutzer führt nur ungefährliche lesende Tests aus; Geräte- und Profiländerungen nach Freigabe.</td>
+</tr>
+<tr class="odd">
+<td>Viele Benutzer betroffen</td>
+<td>VPN-Gateway-, Netzwerk- und IAM-Team</td>
+<td>Zentralen Dienstzustand, Lizenz/Kapazität, Zertifikate, Authentifizierung, Firewall und Routing prüfen.</td>
+</tr>
+<tr class="even">
+<td>VPN steht, aber nur ein interner Server nicht</td>
+<td>VPN-/Netzwerkdiagnose und zuständiges Fachteam</td>
+<td>Route, DNS und Zielport kontrollieren, danach Zielanwendung untersuchen.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig für Remote-Support:</strong> Falls deine Fernwartung selbst über den problematischen VPN-Tunnel läuft, kann dessen Neustart oder die Änderung einer Route deine eigene Verbindung trennen.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure support-diagram-figure"><div class="support-image-viewport"><a href="assets/rb011_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-011 – VPN-Diagnose und Fehlerzweige" decoding="async" loading="lazy" src="assets/rb011_diagnosebaum.svg"/></a></div><figcaption>RB-011 – VPN-Diagnose und Fehlerzweige</figcaption></figure>
+<p><strong>Textalternative:</strong> (1) Funktioniert das Internet ohne VPN? Nein → lokales Netzwerk prüfen (RB-009/RB-010). Ja → (2) VPN-Profil und exakte Meldung prüfen. (3) Tunnel verbunden? Nein → Server, Transport, Authentifizierung, Zertifikat oder Richtlinie eingrenzen. Ja → (4) interne IP und Route prüfen. (5) interne Namensauflösung und Zielport vergleichen. (6) gezielt korrigieren, erneut testen und dokumentieren. Ein einzelnes erfolgreiches Testergebnis beweist nicht, dass alle übrigen Stufen funktionieren.</p>
+<h2 id="6-l1-diagnose-internet-und-vpn-profil-kontrollieren">6. L1-Diagnose: Internet und VPN-Profil kontrollieren</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-11-Client, lokale PowerShell. <strong>Alle folgenden Befehle sind lesend.</strong></p>
+<h3 id="61-grundverbindung-ohne-vpn-pruefen">6.1 Grundverbindung ohne VPN prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt aktive Netzwerkadapter und ihre Verbindungseigenschaften.
+Get-NetAdapter |
+    Select-Object Name, Status, LinkSpeed
+
+# Zeigt lokale IP-Adressen, DNS-Server und Standardgateway.
+Get-NetIPConfiguration
+
+# Prüft eine konkrete TCP-Verbindung zu einem externen HTTPS-Ziel.
+# Achtung: Der Test ersetzt keinen vollständigen Web- oder Browserzugriff.
+Test-NetConnection -ComputerName 'www.microsoft.com' -Port 443</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn bereits normales Internet nicht funktioniert, wird zuerst die Basisverbindung nach RB-010 untersucht. Ein erfolgreicher TCP-Test beweist nicht, dass sich die konkrete VPN-Verbindung erfolgreich aufbauen lässt.</p>
+<h3 id="62-windows-vpn-profile-abfragen">6.2 Windows-VPN-Profile abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt VPN-Profile für den aktuell angemeldeten Benutzer.
+# Der Befehl gilt für Windows-integrierte VPN-Verbindungen.
+Get-VpnConnection |
+    Select-Object Name, ServerAddress, TunnelType, ConnectionStatus, SplitTunneling
+
+# Zeigt computerweit angelegte VPN-Profile (falls vorhanden).
+# Dafür kann ein berechtigter Administrationskontext sinnvoll sein.
+Get-VpnConnection -AllUserConnection |
+    Select-Object Name, ServerAddress, TunnelType, ConnectionStatus, SplitTunneling</code></pre></div>
+<p><strong>Parameter und Ausgabe erklärt:</strong></p>
+<ul>
+<li><code>Name</code>: Anzeigename des VPN-Profils.</li>
+<li><code>ServerAddress</code>: konfigurierte VPN-Gegenstelle. Namen und Adressen niemals unbedacht öffentlich dokumentieren.</li>
+<li><code>TunnelType</code>: Tunneltechnik (z. B. IKEv2 oder SSTP).</li>
+<li><code>ConnectionStatus</code>: Status der Windows-VPN-Verbindung; das bedeutet noch nichts über den Zugriff auf konkrete Unternehmensdienste.</li>
+<li><code>SplitTunneling</code>: Hinweis, ob eine geteilte Tunnelkonfiguration verwendet wird. Die tatsächlich wirksamen Routen sind gesondert zu prüfen.</li>
+<li><code>-AllUserConnection</code>: Abfrage aus der globalen, geräteweiten VPN-Profilablage, <strong>keine Aufforderung, alle Benutzer anzumelden</strong>.</li>
+</ul>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/vpnclient/get-vpnconnection" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-VpnConnection</a></p>
+<h3 id="63-vpn-gateway-per-dns-aufloesen">6.3 VPN-Gateway per DNS auflösen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Übersetzt den Namen der VPN-Gegenstelle in eine IP-Adresse.
+# Den Beispielnamen durch die tatsächlich freigegebene Gegenstelle ersetzen.
+Resolve-DnsName -Name 'vpn.firma.example'</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn die DNS-Auflösung fehlschlägt, prüfen wir den tatsächlichen Profilnamen, lokale DNS-Konfiguration und Namensauflösung. Erfolgreiche DNS-Auflösung heißt <strong>nicht</strong>, dass der VPN-Server erreichbar ist.</p>
+<h2 id="7-fehler-beim-aufbau-fehlercode-statt-vermutung">7. Fehler beim Aufbau: Fehlercode statt Vermutung</h2>
+<p>Windows kann bei integrierten VPN-Verbindungen bestimmte Fehlercodes liefern. Die genauen Ursachen hängen vom VPN-Typ und der Serverumgebung ab.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Beispielcode</th>
+<th>Typischer Diagnosehinweis</th>
+<th>Was untersuchen?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>691</strong></td>
+<td>Zugangsdaten nicht akzeptiert oder Authentifizierungsverfahren nicht zugelassen</td>
+<td>Benutzerkonto, Richtlinie, gewählte Authentifizierung; nicht blind mehrfach versuchen (Kontosperre möglich)</td>
+</tr>
+<tr class="even">
+<td><strong>800</strong></td>
+<td>Tunnel konnte nicht aufgebaut werden</td>
+<td>Serveradresse, Netzpfad, Tunneltyp, Aushandlung</td>
+</tr>
+<tr class="odd">
+<td><strong>809</strong></td>
+<td>Gegenstelle antwortet nicht bzw. Verbindung durch Netzkomponenten behindert</td>
+<td>Firewall, NAT, Routing, passende <strong>UDP</strong>-Ports bei IKEv2</td>
+</tr>
+<tr class="even">
+<td><strong>812</strong></td>
+<td>Verbindung durch serverseitige Richtlinien-/Authentifizierungsbedingungen verweigert</td>
+<td>NPS-/RAS-Richtlinien, Authentifizierungsmethode</td>
+</tr>
+<tr class="odd">
+<td><strong>13801</strong></td>
+<td>IKE-Authentifizierungsdaten nicht akzeptabel</td>
+<td>Zertifikat, Vertrauenskette und Identitätsprüfung</td>
+</tr>
+<tr class="even">
+<td><strong>13806</strong></td>
+<td>Kein geeignetes Computerzertifikat gefunden</td>
+<td>Zertifikatsspeicher, Gültigkeit und Verwendungszweck</td>
+</tr>
+<tr class="odd">
+<td><strong>720</strong></td>
+<td>Mögliches Problem mit Protokoll-/WAN-Miniport-Bindung oder Adresszuteilung</td>
+<td>Clientbindung, VPN-Server-IP-Adresspool / DHCP, Ereignisprotokolle</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Diese Tabelle dient als Orientierung, nicht als automatische Ursache-zu-Code-Zuordnung. Bei einem Drittanbieter-VPN können völlig andere Codes gelten. Microsoft dokumentiert diese Fehler in der <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-remote-access-vpn-and-aovpn-guidance" rel="noopener noreferrer" target="_blank">VPN-/AOVPN-Fehlersuche</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/error-codes-for-dial-up-vpn-connection" rel="noopener noreferrer" target="_blank">VPN-Fehlercodeliste</a> und beim <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-error-720-when-establishing-a-vpn-connection" rel="noopener noreferrer" target="_blank">Fehler 720</a>.</p>
+<h3 id="71-haeufiger-fehler-bei-der-portdiagnose">7.1 Häufiger Fehler bei der Portdiagnose</h3>
+<p>Bei <strong>IKEv2/IPsec</strong> sind <strong>UDP 500 und UDP 4500</strong> typisch. Der folgende Test ist dafür <strong>nicht geeignet</strong>:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Dieser Test prüft TCP 500, NICHT UDP 500!
+# Deshalb kann sein Ergebnis IKEv2 nicht zuverlässig beurteilen.
+Test-NetConnection -ComputerName 'vpn.firma.example' -Port 500</code></pre></div>
+<p>Die Ausgabe <code>TcpTestSucceeded</code> bewertet <strong>TCP</strong>. Sie beweist nicht, dass das für IKEv2 benötigte <strong>UDP</strong> durch Netzwerk und Firewall zugelassen ist. Ob UDP-Pakete ankommen, sollte anhand freigegebener Firewall-/Gateway-Logs, Herstellerdiagnose oder geeigneter administrativer Netzwerkmessung untersucht werden. Für SSTP ist dagegen TCP 443 eine typische Transportgrundlage – ein erfolgreicher TCP-443-Test beweist aber auch dort noch keine erfolgreiche VPN-Authentifizierung.</p>
+<p><strong>Quellen:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-always-on-vpn" rel="noopener noreferrer" target="_blank">Microsoft: Always On VPN – Fehler 809</a> · <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/configure-vpn-protocols" rel="noopener noreferrer" target="_blank">VPN-Protokolle</a></p>
+<h2 id="8-ereignisprotokolle-wo-steht-der-tatsaechliche-vpn-fehler">8. Ereignisprotokolle: Wo steht der tatsächliche VPN-Fehler?</h2>
+<p><strong>Ausführungsort:</strong> Betroffener Windows-Client; für den Security-/weitergehenden Zugriff gegebenenfalls erhöhte Berechtigungen. Ein integrierter Windows-RAS-VPN-Client kann beispielsweise unter <strong>Windows-Protokolle → Anwendung</strong> einen <code>RasClient</code>-Eintrag mit der <strong>Ereignis-ID 20227</strong> hinterlassen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Definiert ein Filterobjekt für das Windows-Anwendungsprotokoll.
+$filter = @{
+    # Nur das Protokoll 'Application' auswerten.
+    LogName   = 'Application'
+
+    # Beispiel-Ereignis für fehlgeschlagene RAS/VPN-Verbindungen.
+    Id        = 20227
+
+    # Betrachtungszeitraum: letzte 24 Stunden.
+    StartTime = (Get-Date).AddHours(-24)
+}
+
+# Liest die passenden lokalen Ereignisse.
+# Falls nichts auftaucht, kann ein anderer Logkanal/Herstellerclient relevant sein.
+Get-WinEvent -FilterHashtable $filter -ErrorAction SilentlyContinue |
+    Select-Object -First 15 TimeCreated, ProviderName, Id, Message</code></pre></div>
+<p><strong>Interpretation:</strong> Den Fehlercode mit genauer Uhrzeit und dem betreffenden VPN-Profil abgleichen. <strong>Nicht</strong> jedes VPN-Problem erzeugt Ereignis 20227. Bei einem produktabhängigen VPN sind dessen eigene Diagnoseprotokolle maßgeblich. Microsoft nennt <code>RasClient</code>/20227 beispielsweise im Zusammenhang mit <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-error-720-when-establishing-a-vpn-connection" rel="noopener noreferrer" target="_blank">Fehler 720</a>.</p>
+<h2 id="9-der-tunnel-steht--aber-das-firmennetz-ist-unerreichbar">9. Der Tunnel steht – aber das Firmennetz ist unerreichbar</h2>
+<p>Jetzt wechselt die Diagnose von der <strong>Verbindungsherstellung</strong> zur <strong>Erreichbarkeit interner Ressourcen</strong>.</p>
+<h3 id="91-ip-konfiguration-und-vpn-adapter">9.1 IP-Konfiguration und VPN-Adapter</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt lokale und virtuelle Netzwerkschnittstellen an.
+Get-NetAdapter |
+    Select-Object Name, Status, InterfaceDescription
+
+# Zeigt die IP-Konfiguration nach VPN-Aufbau an.
+Get-NetIPConfiguration
+
+# Zeigt die vollständige IPv4-/IPv6-Konfiguration.
+# ipconfig.exe ist ein Windows-Programm, kein PowerShell-Cmdlet.
+ipconfig /all</code></pre></div>
+<p><strong>Interpretation:</strong> Ein VPN-Adapter kann eine virtuelle Schnittstelle oder eine andere vom Hersteller verwaltete Darstellung besitzen. Nicht jedes VPN vergibt eine eigene sichtbar private Adresse; deshalb nur anhand der <strong>Sollkonfiguration</strong> beurteilen.</p>
+<h3 id="92-routingtabelle-pruefen">9.2 Routingtabelle prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Zeigt die IPv4-Routen und ihren nächsten Hop (NextHop).
+# DestinationPrefix beschreibt das Zielnetz; InterfaceAlias das Interface.
+Get-NetRoute -AddressFamily IPv4 |
+    Select-Object DestinationPrefix, NextHop, InterfaceAlias, RouteMetric |
+    Sort-Object DestinationPrefix
+
+# Zeigt alle Standardrouten (Ziele, für die keine spezifischere Route greift).
+Get-NetRoute -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' |
+    Select-Object DestinationPrefix, NextHop, InterfaceAlias, RouteMetric</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn <code>10.40.0.0/16</code> zum Firmennetz gehört, muss ein <strong>geeigneter Weg</strong> zu diesem Netz existieren. Bei Split Tunneling kann das eine spezifische VPN-Route sein, bei Full Tunnel die Standardroute über VPN. Windows berücksichtigt u. a. Präfixlänge und Metriken – <strong>allein eine kleinere Metrik beweist nicht, dass eine weniger spezifische Route gewinnt</strong>. Auch die IPv6-Tabelle kann relevant sein.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netroute" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-NetRoute</a></p>
+<h3 id="93-firmen-dns-und-nrpt-ueberpruefen">9.3 Firmen-DNS und NRPT überprüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Löst den internen Anwendungsnamen über die aktuelle Namensauflösung auf.
+Resolve-DnsName -Name 'intranet.firma.example'
+
+# Zeigt DNS-Server, geordnet nach Schnittstelle, an.
+Get-DnsClientServerAddress |
+    Select-Object InterfaceAlias, AddressFamily, ServerAddresses
+
+# Zeigt die effektiven Regeln der Name Resolution Policy Table (NRPT).
+# Gibt möglicherweise keine Einträge zurück, wenn keine NRPT konfiguriert ist.
+Get-DnsClientNrptPolicy -Effective</code></pre></div>
+<p><strong>Interpretation:</strong> Ein interner Name kann fehlschlagen, obwohl öffentliche Webseiten funktionieren. Ursache kann eine fehlende DNS-Suffix-/NRPT-Regel oder ein nicht erreichbarer Firmen-DNS-Server sein. Die bloße Existenz eines NRPT-Eintrags beweist noch keine erfolgreiche Auflösung. <code>nslookup</code> und direkte Serverabfragen können für den Vergleich nützlich sein, bilden aber nicht zwingend alle Windows-Namensauflösungsrichtlinien der Anwendung ab.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/dnsclient/get-dnsclientnrptpolicy?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-DnsClientNrptPolicy</a></p>
+<h3 id="94-konkreten-internen-dienst-pruefen">9.4 Konkreten internen Dienst prüfen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Prüft TCP 443 zu einem freigegebenen internen Webdienst.
+# Ein erfolgreicher Porttest beweist keine erfolgreiche Browser-Anmeldung.
+Test-NetConnection -ComputerName 'intranet.firma.example' -Port 443</code></pre></div>
+<p><strong>Interpretation:</strong> Wenn der Name aufgelöst wird, aber TCP 443 nicht funktioniert, prüfen wir Route, Firewall, Zielserver, Dienst und gegebenenfalls Proxy. Ein erfolgreicher Porttest heißt lediglich, dass die TCP-Verbindung funktioniert – <strong>nicht</strong>, dass die Webanwendung fachlich nutzbar ist.</p>
+<h2 id="10-weitere-fehlerquellen-und-fortgeschrittenenwissen">10. Weitere Fehlerquellen und Fortgeschrittenenwissen</h2>
+<h3 id="101-benutzerkonto-mfa-zertifikate-nps">10.1 Benutzerkonto, MFA, Zertifikate, NPS</h3>
+<ul>
+<li><strong>Benutzerzugang:</strong> Abgelaufenes oder gesperrtes Konto, veraltete Zugangsdaten oder falsche Authentifizierungsmethode.</li>
+<li><strong>MFA (Multi-Factor Authentication):</strong> Zusätzliche Freigabe wurde nicht angeboten, abgebrochen oder durch Richtlinie verweigert.</li>
+<li><strong>Zertifikat:</strong> Nicht vorhanden, abgelaufen, falscher Verwendungszweck, unpassender Name oder fehlerhafte Vertrauenskette.</li>
+<li><strong>NPS (Network Policy Server):</strong> Zugriffsbedingung, Gruppenrichtlinie oder Authentifizierungsart passt nicht zum Verbindungsversuch.</li>
+</ul>
+<p>Bei vielen gleichzeitigen Fehlern und Fehler 812 oder 13801 ist eine <strong>serverseitige</strong> Untersuchung durch das berechtigte VPN-/Identitätsteam häufig sinnvoll. Zertifikatsprüfungen niemals „zur Probe“ abschalten.</p>
+<h3 id="102-split-tunneling-und-full-tunnel">10.2 Split Tunneling und Full Tunnel</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Variante</th>
+<th>Was wird über VPN geleitet?</th>
+<th>Typisches Fehlerbild</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Split Tunneling</strong></td>
+<td>Nur vorgegebene Zielnetze/Namen/Verkehre laut Konfiguration</td>
+<td>VPN verbunden, aber Route zu einem internen Subnetz fehlt</td>
+</tr>
+<tr class="even">
+<td><strong>Full/Force Tunnel</strong></td>
+<td>Umfangreicher Verkehr oder Standardroute via VPN</td>
+<td>Externe Dienste langsam oder unerreichbar, wenn Firmengateway/Proxy/Routing gestört</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine pauschale Änderung der Split-Tunnel-Einstellung!</strong> Das beeinflusst die Unternehmens-Sicherheitsarchitektur und kann Auswirkungen auf Datenverkehr und Datenschutz haben.</p>
+<h3 id="103-always-on-vpn-geraete--und-benutzertunnel">10.3 Always On VPN: Geräte- und Benutzertunnel</h3>
+<p>Ein <strong>Device Tunnel</strong> kann bei geeigneter Konfiguration schon <strong>vor der Benutzeranmeldung</strong> bestehen. Ein <strong>User Tunnel</strong> steht im Kontext des angemeldeten Benutzers. Diese Unterscheidung erklärt das bereits in RB-001 behandelte Homeoffice-Anmeldeproblem: Der Benutzer braucht unter Umständen vor dem Windows-Login eine Verbindung zum Domänencontroller.</p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/vpn/vpn-device-tunnel-config" rel="noopener noreferrer" target="_blank">Microsoft Learn – VPN-Gerätetunnel</a></p>
+<h2 id="11-fehlerbehebung-nur-mit-befund-und-berechtigung">11. Fehlerbehebung: Nur mit Befund und Berechtigung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr class="header">
+<th>Nachgewiesener/ausreichend eingegrenzter Befund</th>
+<th>Geeignete Maßnahme</th>
+<th>Risiko/Freigabe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normale Internetverbindung fehlt</td>
+<td>Lokale Netzwerkstörung nach RB-009/010 behandeln</td>
+<td>Änderung am aktiven Adapter kann Supportverbindung trennen</td>
+</tr>
+<tr class="even">
+<td>VPN-Profil zeigt falsche Serveradresse</td>
+<td>Mit freigegebener Sollkonfiguration abgleichen und autorisiert korrigieren</td>
+<td>Keine Serveradressen erraten</td>
+</tr>
+<tr class="odd">
+<td>Benutzerkonto oder MFA blockiert</td>
+<td>Kontostatus/Anmeldeprotokolle prüfen und vorgesehenen Identitätsprozess anwenden</td>
+<td>Identitätsprüfung und Ticketfreigaben beachten</td>
+</tr>
+<tr class="even">
+<td>Zertifikat fehlerhaft</td>
+<td>Zuständiges Team prüft Zertifikatskette, Gültigkeit, Bereitstellung</td>
+<td>Keine Zertifikatsprüfung abschalten</td>
+</tr>
+<tr class="odd">
+<td>Fehler 809 / Tunneltransport blockiert</td>
+<td>Firewall-, Routing- und Gateway-Logs durch Netzwerkteam prüfen</td>
+<td>Keine pauschalen Firewall-Freigaben</td>
+</tr>
+<tr class="even">
+<td>Tunnel aktiv, Firmenroute fehlt</td>
+<td>Soll-Routen mit tatsächlichen Routen vergleichen, zentral korrigieren</td>
+<td>Keine unkontrollierten Split-Tunnel-Änderungen</td>
+</tr>
+<tr class="odd">
+<td>Nur interne Namen scheitern</td>
+<td>DNS-/NRPT-Konfiguration und Firmen-DNS prüfen</td>
+<td>Keine öffentlichen DNS-Server blind als Ersatz eintragen</td>
+</tr>
+<tr class="even">
+<td>Nur ein Dienst unzugänglich</td>
+<td>Zielport, Dienst, Proxy, Berechtigung und Server-Firewall gezielt prüfen</td>
+<td>Kein VPN-Komplettreset erforderlich</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ein Neuinstallieren des VPN-Clients, Löschen des Profils oder Zurücksetzen des gesamten Netzwerkstacks ist <strong>keine Standard-Erstmaßnahme</strong>. Vor Änderungen müssen relevante Diagnosedaten gesichert und eine Rückfallmöglichkeit vorhanden sein.</p>
+<h2 id="12-erfolgskontrolle">12. Erfolgskontrolle</h2>
+<ul class="task-list">
+<li><label><input type="checkbox"/>VPN-Verbindung kann mit vorgesehenem Profil/Verfahren aufgebaut werden.</label></li>
+<li><label><input type="checkbox"/>Tunnelzustand und vom Unternehmen vorgesehene Netzwerkkonfiguration stimmen überein.</label></li>
+<li><label><input type="checkbox"/>Eine repräsentative interne IP/Route ist erreichbar, sofern dafür ein freigegebener Test vorliegt.</label></li>
+<li><label><input type="checkbox"/>Interner Name wird korrekt aufgelöst.</label></li>
+<li><label><input type="checkbox"/>Benötigte Anwendung funktioniert tatsächlich für den Benutzer.</label></li>
+<li><label><input type="checkbox"/>Gewünschter externer Internetverkehr funktioniert entsprechend Split-/Full-Tunnel-Richtlinie.</label></li>
+<li><label><input type="checkbox"/>Fehlerbild, Ursache, Freigabe, Maßnahme und Ergebnisse sind dokumentiert.</label></li>
+</ul>
+<h2 id="13-muster-ticketkommentar--ausdruecklich-fiktiv">13. Muster-Ticketkommentar – ausdrücklich fiktiv</h2>
+<p><strong>INC-011 – VPN verbindet sich, interne Anwendung nicht erreichbar</strong></p>
+<p><strong>Fehlerbild:</strong> Mitarbeiter im Homeoffice konnte <code>intranet.firma.example</code> nach VPN-Verbindungsaufbau nicht öffnen. Normale Internetdienste funktionierten.</p>
+<p><strong>Diagnose:</strong> VPN-Client meldete „Connected“. DNS-Abfrage der internen Anwendung war erfolgreich; der TCP-Zugriff auf Port 443 scheiterte. Die Routingtabelle zeigte keine freigegebene Route zum betroffenen internen Subnetz. Ein weiterer, korrekt konfigurierter Client konnte die Anwendung erreichen.</p>
+<p><strong>Ursache:</strong> Fehlende Route zum internen Zielnetz im betroffenen VPN-Profil (fiktive Beispielursache).</p>
+<p><strong>Maßnahme:</strong> Die zuständige IT-Stelle stellte das freigegebene Profil mit korrekten Routen bereit. Keine Sicherheitsrichtlinien wurden deaktiviert.</p>
+<p><strong>Ergebnis:</strong> VPN-Verbindung erneut aufgebaut, Route kontrolliert, DNS und HTTPS-Dienst geprüft. Mitarbeiter bestätigte den erfolgreichen Zugriff auf die Anwendung.</p>
+<p><strong>Status:</strong> Gelöst – <strong>nur Muster; keine tatsächlich durchgeführte Supportmaßnahme</strong>.</p>
+<h2 id="14-lernkontrolle-und-transfertraining">14. Lernkontrolle und Transfertraining</h2>
+<p><strong>Wissensfragen</strong></p>
+<ol type="1">
+<li>Wofür stehen VPN, IKEv2, NPS und NRPT?</li>
+<li>Welchen Unterschied gibt es zwischen Split und Full Tunnel?</li>
+<li>Welche Eigenschaften liefert <code>Get-VpnConnection</code> und welche VPN-Clients kann es übersehen?</li>
+</ol>
+<p><strong>Verständnisfragen</strong></p>
+<ol start="4" type="1">
+<li>Warum beweist ein erfolgreicher VPN-Tunnel keinen Zugriff auf den Dateiserver?</li>
+<li>Warum lässt sich UDP 4500 nicht zuverlässig mit <code>Test-NetConnection -Port 4500</code> prüfen?</li>
+<li>Warum kann ein öffentlicher DNS-Server die internen Namensprobleme einer AD-Umgebung verschlimmern?</li>
+</ol>
+<p><strong>Diagnosetraining – ohne Lösungsvorgabe</strong></p>
+<blockquote>
+<p>Ein Notebook meldet „VPN verbunden“. <code>intranet.firma.example</code> löst zu <code>10.40.5.20</code> auf. Ein TCP-Test auf Port 443 schlägt fehl. Ein anderes Firmenziel über den Tunnel funktioniert. Welche <strong>drei</strong> konkurrierenden Hypothesen prüfst du zuerst und welche konkreten Tests unterscheiden sie?</p>
+</blockquote>
+<p><strong>Anki-Kandidaten (Vorbereitung):</strong> <code>VPN ≠ Zielerreichbarkeit</code>, <code>Get-VpnConnection</code>, <code>RasClient 20227</code>, <code>IKEv2 UDP 500/4500 ≠ TCP</code>, <code>NRPT</code>, <code>Split Tunneling</code>, <code>Fehler 809</code>, <code>Device Tunnel</code>. Karten erst nach Prüfung der fachlichen Formulierungen endgültig in Anki übernehmen.</p>
+<h2 id="15-fachliche-quellen-und-versionshinweise">15. Fachliche Quellen und Versionshinweise</h2>
+<ol type="1">
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-remote-access-vpn-and-aovpn-guidance" rel="noopener noreferrer" target="_blank">Microsoft Learn – Anleitung zur Problembehandlung bei Remotezugriff (VPN/AOVPN)</a> – typische Fehlercodes, Transport, Zertifikate und Richtlinien.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-always-on-vpn" rel="noopener noreferrer" target="_blank">Microsoft Learn – Always On VPN: Problembehandlung</a> – Client-/Serverdiagnose, 809, 812, 13801, 13806.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/vpnclient/get-vpnconnection" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-VpnConnection</a> – Windows-VPN-Profile, <code>-AllUserConnection</code>, Status und Tunneltyp.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netroute" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-NetRoute</a> – Routingtabelle, Zielpräfixe und Next Hop.</li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/dnsclient/get-dnsclientnrptpolicy?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-DnsClientNrptPolicy</a> – effektive Namensauflösungsrichtlinien.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/error-codes-for-dial-up-vpn-connection" rel="noopener noreferrer" target="_blank">Microsoft Learn – Fehlercodes für DFÜ-/VPN-Verbindungen</a> – Hintergrund zu 691, 800 und anderen Codes.</li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-error-720-when-establishing-a-vpn-connection" rel="noopener noreferrer" target="_blank">Microsoft Learn – Fehler 720 und RasClient-Ereignis 20227</a> – Ereignisanalyse und mögliche Adress-/Miniportprobleme.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/vpn/vpn-device-tunnel-config" rel="noopener noreferrer" target="_blank">Microsoft Learn – VPN-Gerätetunnel konfigurieren</a> – Device Tunnel und User Tunnel.</li>
+<li><a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-access/configure-vpn-protocols" rel="noopener noreferrer" target="_blank">Microsoft Learn – VPN-Protokolle konfigurieren</a> – IKEv2, SSTP und RRAS.</li>
+</ol>
+<p><strong>Quellenprüfung:</strong> 08.11.2026. Die Anleitung beschreibt einen beispielhaften Windows-/Microsoft-VPN-Kontext. <strong>Herstellerspezifische VPN-Produkte</strong> können andere Diagnosewerkzeuge erfordern. Alle Beispiele sind theoretisch und wurden nicht an einer produktiven Unternehmensumgebung getestet.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-011_Lernartikel.md">RB-011_Lernartikel.md</a></div><p class="support-related-cases"><strong>Verwandte Supportfälle:</strong> <a href="../rb-009/index.html">RB-009: verwandter Supportfall</a> · <a href="../rb-010/index.html">RB-010: verwandter Supportfall</a></p><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-010/index.html">← RB-010</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-012/index.html">RB-012 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
