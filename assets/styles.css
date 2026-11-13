@@ -1306,3 +1306,21 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--brand); outlin
 @media (max-width: 420px) {
   .lab-intro-article h3 { overflow-wrap: anywhere; }
 }
+
+/* OPNsense Update 2 vom 13.11.2026: additive Chronologie und Diagramme. */
+#opnsense-update-20261113 { scroll-margin-top: 6rem; }
+.lab-update-jump-links {
+  display: flex; flex-wrap: wrap; gap: .45rem 1rem;
+  margin: -.35rem 0 1.35rem; font-size: .9rem; line-height: 1.6;
+}
+.lab-update-jump-links a { text-decoration-thickness: 1px; text-underline-offset: .2em; }
+.lab-progress-update2 { background: #f5f9fe; }
+.lab-update-diagram { max-width: 100%; box-sizing: border-box; }
+.lab-update-diagram-viewport { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+.lab-update-diagram-viewport a { display: block; }
+.lab-update-diagram-viewport img { display: block; width: 100%; height: auto; max-width: none; background: #fff; }
+.lab-update-diagram figcaption a { display: inline-block; }
+@media (max-width: 760px) {
+  .lab-update-diagram-viewport img { width: 1000px; min-width: 1000px; }
+  .lab-update-jump-links { gap: .45rem .8rem; }
+}

@@ -50,7 +50,12 @@
           <span class="project-state active-state">Praktische Umsetzung · Fortschritt dokumentiert</span>
         </div>
         <h2>OPNsense-Firewall-Lab: Netzwerkschutz für mittelständische Unternehmen</h2>
-        <p class="project-date">Projektankündigung: <time datetime="2026-10-20">20.10.2026</time> · Fortschrittsbericht: <time datetime="2026-11-02">02.11.2026</time></p>
+        <p class="project-date">Projektvorstellung: <time datetime="2026-10-20">20.10.2026</time> · Letztes Update: <time datetime="2026-11-13">13.11.2026</time> · Aktueller Fortschrittsbericht: <strong>Update 2</strong></p>
+        <nav class="lab-update-jump-links" aria-label="Chronologie des OPNsense-Firewall-Labs">
+          <a href="#opnsense">Projektvorstellung · 20.10.2026</a>
+          <a href="#opnsense-update-20261102">Update 1 · 02.11.2026</a>
+          <a href="#opnsense-update-20261113" aria-current="location">Update 2 · 13.11.2026</a>
+        </nav>
 
         <p class="article-lead">
           <strong>Eine Firewall verstehen, selbst aufbauen und typische Netzwerkstörungen
@@ -206,7 +211,7 @@
         </p>
 
         <p class="article-availability">
-          <strong>Aktueller Stand:</strong> Seit der Ankündigung am 20.10.2026 ist eine erste Hyper-V-/OPNsense-Testumgebung in Betrieb und in Teilbereichen geprüft. Der Fortschrittsbericht oben dokumentiert die nachgewiesenen Ergebnisse. Nachbauanleitung, weitere Testfälle und Lernkarten werden schrittweise ergänzt.
+          <strong>Aktueller Stand:</strong> Seit der Ankündigung am 20.10.2026 ist eine erste Hyper-V-/OPNsense-Testumgebung in Betrieb und in Teilbereichen geprüft. Die chronologischen Fortschrittsberichte unten dokumentieren die jeweils nachgewiesenen Ergebnisse. Nachbauanleitung, weitere Testfälle und Lernkarten werden schrittweise ergänzt.
         </p>
 
         <h3>Warum ich dieses Lab entwickle</h3>
@@ -611,7 +616,7 @@
 
         <!-- Chronologie: Fortschrittsberichte erst nach Projektvorstellung und Quellen. -->
         <section class="lab-progress-report" id="opnsense-update-20261102" aria-labelledby="opnsense-progress-title">
-          <span class="lab-progress-kicker">Praxisbericht · 02.11.2026</span>
+          <span class="lab-progress-kicker">Update 1 · Praxisbericht · 02.11.2026</span>
           <h3 id="opnsense-progress-title">Von der Ankündigung zur getesteten Laborinfrastruktur</h3>
           <p>Seit der Projektankündigung vom 20.10.2026 ist aus dem geplanten Aufbau eine erste praktisch eingerichtete OPNsense-Infrastruktur unter Hyper-V geworden. Dazu gehören ein administrativer Zugang und Netzwerk- und Diensttests mit einem Debian-Client. Die folgenden Ergebnisse stammen aus den dokumentierten Arbeiten vom 01.11.2026. Um den Entwicklungsstand nachvollziehbar zu halten, sind erfolgreich geprüfte Teilfunktionen und noch offene Aufgaben getrennt aufgeführt.</p>
 
@@ -654,6 +659,75 @@
             </table>
           </div>
           <p class="lab-progress-footnote"><strong>Prüfgrenze:</strong> Drei unbeantwortete Ping-Anfragen an <code>192.168.20.1</code> belegen noch keine vollständige Isolation des SERVERS-Netzes: Die getestete Zieladresse gehört zu OPNsense und nicht zu einem eigenständigen Server. Ein aussagekräftiger Nachweis erfordert getrennte Endgeräte und gezielte Positiv- und Negativtests.</p>
+        </section>
+
+        <!-- Update 2 ist ergänzend: Projektvorstellung und Update 1 bleiben als historische Stände erhalten. -->
+        <section class="lab-progress-report lab-progress-update2" id="opnsense-update-20261113" aria-labelledby="opnsense-update2-title">
+          <span class="lab-progress-kicker">Update 2 · Praxisbericht · <time datetime="2026-11-13">13.11.2026</time></span>
+          <h3 id="opnsense-update2-title">Netzwerksegmentierung, Serverinfrastruktur und Firewall-Diagnose</h3>
+          <p>Aus dem ursprünglichen Firewall-Einstieg ist eine Laborumgebung mit getrennten Management-, Benutzer- und Servernetzen geworden. Ich habe nicht nur Dienste erreichbar gemacht, sondern auch geprüft, <strong>welche Verbindungen bei fehlender Freigabe tatsächlich scheitern</strong>. Die folgenden Angaben beschreiben den am 13.11.2026 dokumentierten Laborzustand – keine produktive Unternehmensinfrastruktur.</p>
+
+          <h4>Laborarchitektur: getrennte Netze unter Hyper-V</h4>
+          <p>Der Windows-11-Host (<code>192.168.120.10</code>) dient als Administrations- und SSH-Startpunkt. OPNsense-FW01 verbindet das Managementnetz <code>192.168.120.0/24</code> (LAN <code>192.168.120.254</code>), USERS <code>192.168.10.0/24</code> (OPT1 <code>192.168.10.1</code>) und SERVERS <code>192.168.20.0/24</code> (OPT2 <code>192.168.20.1</code>). Die WAN-Schnittstelle ist über den Hyper-V-Default-Switch mit DHCP und dessen NAT-Transit verbunden. Die Switches segmentieren auf Layer 2; das Routing und die Firewall-Regeln werden durch OPNsense verarbeitet.</p>
+          <p>Im USERS-Netz betreibe ich <strong>LINUX-CL01</strong> mit Debian 13 und der per DHCP reservierten Adresse <code>192.168.10.137</code>. Im getrennten SERVERS-Netz läuft <strong>LINUX-SRV01</strong> mit Debian 13 und der statischen Adresse <code>192.168.20.10</code>. SSH vom Windows-Managementnetz zu beiden Debian-Systemen wurde über die konfigurierten Hostrouten und die Firewall erfolgreich verwendet. Die dauerhafte Funktion der Windows-Routen nach einem Host-Neustart wurde noch nicht gesondert geprüft.</p>
+          <figure class="architecture-figure lab-update-diagram">
+            <div class="lab-update-diagram-viewport" role="region" tabindex="0" aria-label="Verifizierte Hyper-V-Topologie auf kleinen Bildschirmen horizontal verschieben">
+              <a href="assets/diagrams/opnsense-update2-topologie-20261113.svg" target="_blank" rel="noopener noreferrer" aria-label="Topologie in voller Größe öffnen"><img src="assets/diagrams/opnsense-update2-topologie-20261113.svg" alt="Aktuelle Topologie: Windows 11 über internen Management-Switch zur OPNsense-LAN-Schnittstelle, Debian-Client über privaten USERS-Switch zu OPT1, Debian-Server über privaten SERVERS-Switch zu OPT2; WAN über Hyper-V-Default-Switch zum Internet." width="1600" height="850" loading="lazy" decoding="async"></a>
+            </div>
+            <figcaption>Verifizierte Netzzuordnung zum 13.11.2026. Die Pfeile beschreiben die topologische Verbindung, keine unbeschränkte Kommunikationsfreigabe. <a href="assets/diagrams/opnsense-update2-topologie-20261113.svg" target="_blank" rel="noopener noreferrer">Grafik vergrößern ↗</a><span class="visualization-credit">Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Schematische Darstellung, kein Screenshot.</span></figcaption>
+          </figure>
+
+          <h4>Infrastrukturversorgung: DNS, NTP und Debian-Updates</h4>
+          <p>Für Client und Server habe ich die Namensauflösung über die jeweilige OPNsense-Schnittstelle auf <strong>TCP/UDP 53</strong> sowie die Zeitversorgung über <strong>UDP 123</strong> eingerichtet und überprüft. Der Debian-Server verwendet dafür <code>192.168.20.1</code>; seine Zeitsynchronisierung war nach dem Neustart wieder als aktiv und synchronisiert bestätigt. Ein gezielter <strong>HTTPS-Ausgang auf TCP 443</strong> ermöglichte den Zugriff auf offizielle Debian-13-Paketquellen. Nach Prüfung des Paketplans wurden 17 Pakete aktualisiert und ein zusätzliches Kernelpaket installiert. Nach kontrolliertem Neustart zeigte <code>uname -r</code> den aktiven Kernel <code>6.12.116+deb13-amd64</code>; SSH und DNS waren weiterhin funktionsfähig.</p>
+          <p>Die ausgehenden HTTPS-Regeln verwenden als Ziel <code>!RFC1918_Networks</code>. Dieser Ausdruck schließt die drei privaten IPv4-Bereiche nach RFC 1918 aus, ist aber <strong>kein vollständiger Filter ausschließlich global routbarer Adressen</strong>. Welche NAT-Stufen auf OPNsense im Detail greifen, wird erst bei der späteren Paketflussanalyse untersucht.</p>
+
+          <h4>Firewall-Regelwerk: aktiv versus temporär getestet</h4>
+          <p>Die Regeln sind <strong>zustandsorientiert</strong> angelegt: Erlaubte neue Verbindungen können einen State erhalten, sodass passende Antwortpakete normalerweise ohne zusätzliche symmetrische Freigabe zurückkommen. Eingangsregeln für neue Verbindungen stehen am jeweiligen Quellinterface (<code>OPT1USERS</code> beziehungsweise <code>OPT2SERVERS</code>), mit dynamischen Quellports (<code>any</code>) und gezielten Zielports. Die konkrete State Table ist noch nicht praktisch untersucht worden.</p>
+          <p>Zum Tagesende waren in USERS die ICMP-Echo-Anfrage des Clients <em>nur an sein eigenes Gateway</em>, DNS TCP/UDP 53, NTP UDP 123 und HTTPS TCP 443 für den Client aktiv. In SERVERS waren für <code>192.168.20.10</code> DNS, NTP und HTTPS aktiv. Die zwischenzeitlichen Testfreigaben <strong>USERS → SERVERS: ICMP und SSH TCP 22</strong> sowie <strong>SERVERS → externe Ziele: HTTP TCP 80</strong> wurden nach den Tests wieder deaktiviert. Der Managementbereich besitzt gesonderte, noch weiter zu auditierende Regeln; die restriktive Beschreibung der beiden OPT-Zonen gilt nicht pauschal für das gesamte Lab.</p>
+          <figure class="architecture-figure lab-update-diagram">
+            <div class="lab-update-diagram-viewport" role="region" tabindex="0" aria-label="Regelmatrix mit aktiven und deaktivierten Kommunikationspfaden horizontal verschieben">
+              <a href="assets/diagrams/opnsense-update2-regelstatus-20261113.svg" target="_blank" rel="noopener noreferrer" aria-label="Aktuelle Kommunikationsmatrix in voller Größe öffnen"><img src="assets/diagrams/opnsense-update2-regelstatus-20261113.svg" alt="Farbcodierte Kommunikationsmatrix mit dauerhaft aktiven Regeln für Gateway-Ping, DNS TCP/UDP 53, NTP UDP 123 und HTTPS TCP 443; ausgegraut und als deaktiviert bezeichnet: SSH TCP 22, ICMP USERS zu SERVERS und HTTP TCP 80 vom Server nach außen." width="1600" height="1070" loading="lazy" decoding="async"></a>
+            </div>
+            <figcaption>Aktueller Regelstand nach den Rücknahmen. Pfeilfarbe kennzeichnet das Protokoll, eine graue gestrichelte Verbindung eine <strong>deaktivierte</strong> Testregel. ICMP hat keinen TCP-/UDP-Port. <a href="assets/diagrams/opnsense-update2-regelstatus-20261113.svg" target="_blank" rel="noopener noreferrer">Kommunikationsmatrix vergrößern ↗</a><span class="visualization-credit">Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Aus den dokumentierten Regeln abgeleitet, kein Firewall-Export.</span></figcaption>
+          </figure>
+
+          <h4>Default Deny nachgewiesen: block → pass → block</h4>
+          <p>Besonders aufschlussreich war ein kontrollierter Dreischritttest von <strong>LINUX-SRV01 nach außen auf TCP 80</strong>. Zuerst lief ein zeitbegrenzter TCP-Verbindungstest ohne passende Erlaubnis in einen Timeout; dazu passten Blockeinträge am Interface <code>OPT2SERVERS</code>. Anschließend aktivierte ich eine genau begrenzte HTTP-Testregel: Der TCP-Verbindungsaufbau gelang mit Rückgabecode <code>0</code>. Nach dem erneuten Deaktivieren und Anwenden der Regel scheiterte derselbe Test wieder mit <code>124</code>, begleitet von passenden <code>block</code>-Einträgen in der Live View.</p>
+          <figure class="architecture-figure lab-update-diagram">
+            <div class="lab-update-diagram-viewport" role="region" tabindex="0" aria-label="Dreistufigen Default-Deny-Test horizontal verschieben">
+              <a href="assets/diagrams/opnsense-update2-default-deny-20261113.svg" target="_blank" rel="noopener noreferrer" aria-label="Default-Deny-Test in voller Größe öffnen"><img src="assets/diagrams/opnsense-update2-default-deny-20261113.svg" alt="Drei Schritte des HTTP-Tests vom Debian-Server ins Internet: ohne Regel blockiert (Timeout 124), mit temporärer TCP-80-Regel Verbindung erfolgreich (Code 0), nach Deaktivierung wieder blockiert (Timeout 124 und Firewall-Log)." width="1600" height="650" loading="lazy" decoding="async"></a>
+            </div>
+            <figcaption>Drei Zustände derselben gezielten Freigabe; die Werte sind dokumentierte Testergebnisse, <strong>keine synthetischen Logzeilen</strong>. <a href="assets/diagrams/opnsense-update2-default-deny-20261113.svg" target="_blank" rel="noopener noreferrer">Testübersicht vergrößern ↗</a><span class="visualization-credit">Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Redaktionelle Zusammenfassung der Testergebnisse.</span></figcaption>
+          </figure>
+          <p>Ergänzend gelang vom Debian-Client der TCP-Verbindungsaufbau zum Server auf <code>192.168.20.10:22</code> bei vorübergehend aktiver SSH-Regel. Ein Test auf <code>192.168.20.10:80</code> blieb dagegen blockiert und war in der Live View nachvollziehbar. <strong>Eine SSH-Freigabe bedeutet somit keine allgemeine Freigabe zwischen den Segmenten.</strong> Der SSH-Test bestätigt hier den TCP-Verbindungsaufbau, nicht automatisch eine erfolgreiche SSH-Anmeldung. Die temporäre SSH-Regel wurde anschließend deaktiviert.</p>
+          <p>Bei diesen Positiv- und Negativtests prüfe ich sowohl, ob gewünschte Verbindungen funktionieren, als auch, ob unerwünschte Verbindungen tatsächlich ausbleiben. Ein Exit-Code <code>124</code> allein würde die Firewall nicht als Ursache beweisen: Erst die Übereinstimmung von Zeitpunkt, Quell-/Zieladresse, Port und <code>block</code>-Log macht die Diagnose belastbarer. Besonders nach Regeländerungen ist diese wiederholte Gegenprobe wichtig, damit keine unbeabsichtigte Freigabe bestehen bleibt.</p>
+
+          <h4>Erkenntnisse aus der Fehlerdiagnose</h4>
+          <div class="lab-progress-columns">
+            <section class="lab-progress-panel" aria-labelledby="opn-u2-diagnose">
+              <h4 id="opn-u2-diagnose">Netzwerk- und Logverständnis</h4>
+              <ul>
+                <li><strong>Quell- vs. Zielport:</strong> Clients wählen normalerweise dynamische Quellports; die Dienstregel begrenzt hier den Zielport, etwa TCP 443.</li>
+                <li><strong>TCP vs. ICMP:</strong> Ein Test über <code>/dev/tcp/…/80</code> prüft einen TCP-Verbindungsaufbau. Ein <code>ping</code> sendet ICMP-Echo-Anfragen ohne TCP-/UDP-Ports.</li>
+                <li><strong>Live View:</strong> <code>pass</code> und <code>block</code> zeigen Regelentscheidungen. Die Einträge müssen mit dem Testverkehr korreliert werden.</li>
+                <li><strong>Uhrzeiten:</strong> Die dokumentierten Live-View-Einträge waren in UTC; am 13.11.2026 lag die lokale CET-Zeit eine Stunde voraus.</li>
+              </ul>
+            </section>
+            <section class="lab-progress-panel lab-progress-panel-open" aria-labelledby="opn-u2-change">
+              <h4 id="opn-u2-change">Änderungen kontrollieren</h4>
+              <ul>
+                <li><strong>Save und Apply:</strong> Speichern allein genügt nicht; nach dem Anwenden wird die Regelwirkung erneut getestet.</li>
+                <li><strong>Default Deny:</strong> Ohne passende Erlaubnis werden neue Verbindungen gesperrt; ausgenommen sind etwa andere ausdrücklich geltende Regeln und vorhandene States.</li>
+                <li><strong>Rücknahme:</strong> Temporäre Testregeln werden nach ihrer Prüfung deaktiviert und die Sperrwirkung anschließend erneut validiert.</li>
+                <li><strong>Belegqualität:</strong> Dokumentierte Terminalausgaben, echte Firewall-Logs und erklärende Illustrationen bleiben klar voneinander getrennt.</li>
+              </ul>
+            </section>
+          </div>
+
+          <h4>Stand und nächste Schritte</h4>
+          <p>Die beiden Debian-Systeme sind in getrennten Subnetzen erreichbar und für weitere Übungen vorbereitet. DNS, NTP, HTTPS-Paketversorgung und ausgewählte Firewall-Entscheidungen sind praktisch geprüft. <strong>Noch nicht nachgewiesen</strong> ist der Export und die sichere Ablage eines OPNsense-Konfigurationsbackups; dieser Schritt wird zuerst kontrolliert beziehungsweise nachgeholt.</p>
+          <p>Anschließend möchte ich die <strong>State Table</strong> während aktiver Verbindungen untersuchen, NAT und den tatsächlichen Paketfluss nachvollziehen, Packet Capture gezielt zur Fehlersuche einsetzen sowie Regelreihenfolge und komplexere Segmentierungsfälle üben. VLANs, Monitoring und eine erweiterte Sicherheitsarchitektur folgen als spätere Ausbaustufen. Das Lab ist ein Lern- und Diagnoseaufbau und keine bereits produktionsreif gehärtete KMU-Firewall.</p>
+          <p class="lab-progress-footnote"><strong>Dokumentationsstand:</strong> 13.11.2026. Maßgeblich sind die beim Tagesabschluss festgehaltenen Terminaltests und OPNsense-Screenshots. Grafiken sind technische Visualisierungen; keine zusätzlichen Messdaten.</p>
         </section>
       </article>
     </section>
