@@ -333,6 +333,15 @@ Get-Service -Name DHCPServer
 <li><strong>Transfer:</strong> Neuer WLAN-Client sieht SSID, bekommt aber keine Lease. Welche Ebene noch offen? → Richtige Authentisierung/Rolle, VLAN, NAC und DHCP-Pfad.</li>
 </ol>
 
+<h2 id="15-abschluss-erfolgskriterien-und-quellen">15. Abschluss, Erfolgskriterien und Quellen</h2>
+<p>Ein Ticket gilt <strong>nicht</strong> aufgrund einer einzelnen <code>ipconfig /renew</code>-Erfolgsmeldung als abschließend validiert. Prüfe unter Originalbedingungen:</p>
+<ol>
+<li>Gewünschter Adapter bekommt <strong>nachweislich</strong> gültige IPv4-Adresse aus richtigem Scope sowie passende Maske, Gateway, DNS und Leasezeiten.</li>
+<li>Mehrere betroffene Clients, derselbe Port, WLAN-Bereich oder dasselbe VLAN funktionieren wieder – soweit betroffen.</li>
+<li>Verwendeter DHCP-Server/Relay und Ursache sind durch Log, Capture oder kontrollierte Gegenprobe ausreichend belegt.</li>
+<li>Anmeldung, fachlich benötigte Anwendung und Zugriff auf interne Dienste funktionieren mit vorgesehenen Rechten.</li>
+<li>Änderung, Genehmigung, Risiken, Rollback und Anwenderbestätigung im Ticket dokumentiert; bei ungeklärtem Befund korrekt eskalieren.</li>
+</ol>
 <p><strong>Drei-Satz-Ticketkommentar (fiktiv):</strong></p>
 <blockquote>
 <p><strong>Problem:</strong> „Vierzehn Clients in VLAN 120 erhielten keine DHCPv4-Adresse; die Clients sendeten Discover, die entsprechende Anfrage erreichte den Server nicht.“<br/>
