@@ -304,8 +304,6 @@ Test-ComputerSecureChannel -Verbose
 
 ## 8. Spezialfall Homeoffice: Das „Henne-Ei-Problem“ bei VPN
 
-![Das Henne-Ei-Problem: Windows-Anmeldung benötigt Firmennetz, VPN benötigt Anmeldung](assets/vpn_henne_ei.png)
-
 Bei einem **benutzerbasierten VPN** wird die Unternehmensverbindung möglicherweise erst nach erfolgreicher Windows-Anmeldung aufgebaut. Die Anmeldung kann aber eine **Online-Verbindung zum Domänencontroller** benötigen – etwa wenn die aktuellen Domänen-Anmeldedaten noch nicht auf dem Laptop zwischengespeichert sind.
 
 **Pre-Logon-VPN** (VPN vor der Anmeldung), etwa ein eingerichteter gerätebasierter Tunnel, kann diese Abhängigkeit auflösen. Solche Funktionen sind jedoch nicht mit jedem VPN-Client oder jeder Firmenkonfiguration verfügbar.
