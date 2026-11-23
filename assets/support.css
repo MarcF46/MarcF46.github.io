@@ -81,3 +81,23 @@
 @media (max-width: 760px) {
   .code-shell { padding: .9rem 1rem; font-size: .86rem; }
 }
+
+/* RB-001: Neue SVG-Diagnosegrafiken auf kleinen Bildschirmen lesbar halten. */
+@media (max-width: 760px) {
+  .support-diagram-figure .support-image-viewport {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .support-diagram-figure .support-image-viewport img {
+    width: 1000px;
+    min-width: 1000px;
+    max-width: none;
+    height: auto;
+  }
+  .support-diagram-figure figcaption::after {
+    content: " Auf kleinen Bildschirmen: Grafik seitlich verschieben oder antippen, um sie groß zu öffnen.";
+    display: block;
+    margin-top: .35rem;
+    font-style: italic;
+  }
+}
