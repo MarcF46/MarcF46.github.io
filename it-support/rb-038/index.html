@@ -294,12 +294,6 @@ Get-NetTCPConnection -LocalPort 443 -State Listen -ErrorAction SilentlyContinue
 <p><strong>Retest:</strong> Ursprünglicher Benutzer aus VLAN 20, konkrete SMB-Freigabe und die berechtigte Aktion (z. B. Lesen) prüfen; keine Freigabe für ganze Netze oder unspezifizierte Ports einrichten.</p>
 <h2 id="15-wissensabruf-selbst-erklarung-und-transfer">15. Wissensabruf, Selbst-Erklärung und Transfer</h2>
 
-<ol>
-<li>Was zeigt <code>TcpTestSucceeded: True</code>? → Erfolgreicher TCP-Verbindungsaufbau auf dem getesteten Port.</li>
-<li>Beweist fehlender Ping einen Serverausfall? → Nein; ICMP kann gefiltert sein.</li>
-<li>Welche vier Ebenen unterscheiden wir zuerst? → Name, Pfad, Zielsystem, Dienst.</li>
-<li>Was zeigt <code>tracert -d</code>? → Antwortende Zwischenhops ohne Reverse-DNS-Abfrage.</li>
-</ol>
 <p><strong>Verständnisfragen:</strong></p>
 <ol start="5">
 <li>Warum ist ein TCP-443-Erfolg kein Beweis für eine funktionierende HTTPS-App? Begründe mit TLS, HTTP und Authentifizierung.</li>
