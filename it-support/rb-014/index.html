@@ -456,49 +456,6 @@ $zuweisungen | Select-Object ResourceDisplayName, AppRoleId, PrincipalDisplayNam
 <strong>Maßnahme:</strong> Berechtigte Administration ordnet den Benutzer nach Freigabe der vorgesehenen App-Gruppe zu; erforderliche App-Rolle geprüft.<br/>
 <strong>Ergebnis:</strong> Neue Anmeldung mit betroffener Benutzeridentität erfolgreich; genehmigte Lesefunktion getestet.<br/>
 <strong>Status:</strong> Gelöst (fiktives Beispiel, <strong>nicht praktisch durchgeführt</strong>).</p>
-<h3 id="anki-karten--beispiele">Anki-Karten – Beispiele</h3>
-<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
-<thead>
-<tr class="header">
-<th>Kartentyp</th>
-<th>Vorderseite</th>
-<th>Rückseite</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Wissen</td>
-<td>Wofür steht SSO?</td>
-<td>Single Sign-On; einmalige Anmeldung für mehrere Anwendungen.</td>
-</tr>
-<tr class="even">
-<td>Wissen</td>
-<td>Was bedeutet AADSTS50105?</td>
-<td>Für eine zuweisungspflichtige Anwendung fehlt eine gültige App-Zuweisung.</td>
-</tr>
-<tr class="odd">
-<td>Verständnis</td>
-<td>Warum reicht eine erfolgreiche Anmeldung nicht zum Bearbeiten von Kundendaten?</td>
-<td>Authentifizierung bestätigt die Identität; Autorisierung bestimmt Funktionen/Rechte.</td>
-</tr>
-<tr class="even">
-<td>Verständnis</td>
-<td>Warum ist „Standardzugriff“ nicht automatisch „SalesEditor“?</td>
-<td>Standardzugriff erfüllt ggf. die Zuweisungspflicht, liefert aber keine benannte App-Rolle.</td>
-</tr>
-<tr class="odd">
-<td>Diagnose</td>
-<td>CRM-Login funktioniert, „Kunden bearbeiten“ fehlt. Was prüfst du zuerst?</td>
-<td>Soll-Rolle/Freigabe, tatsächliche App-Rolle, anwendungsinterne Berechtigungen, Lizenz.</td>
-</tr>
-<tr class="even">
-<td>Diagnose</td>
-<td>Benutzer ist nur über verschachtelte Gruppe in App-Zuweisungsgruppe. Was ist verdächtig?</td>
-<td>Entra-Enterprise-App-Gruppenzuweisung berücksichtigt hier keine verschachtelten Mitgliedschaften.</td>
-</tr>
-</tbody>
-</table></div>
-<p><strong>Diagnoseübung ohne Lösungsvorgabe:</strong> Ein Benutzer hat laut AD-Gruppe Zugriff auf das CRM. Das CRM zeigt jedoch „Nicht berechtigt“. Sein Kollege mit derselben Stelle kann es verwenden. Was wären deine <strong>drei ersten Prüfungen</strong>, und mit welchem Ergebnis würdest du welche Hypothese ausschließen? Versuche die Reihenfolge <strong>ohne</strong> direkt auf eine neue Gruppenzuweisung zu springen.</p>
 <h2 id="15-quellen-bearbeitungs--und-validierungsstatus">15. Quellen, Bearbeitungs- und Validierungsstatus</h2>
 <p><strong>Technische Herstellerdokumentation (Stand der Recherche: 08.11.2026):</strong></p>
 <ol type="1">
