@@ -393,49 +393,6 @@ Get-Printer | Select-Object Name, DriverName, PortName</code></pre></div>
 <li><strong>Erfolgskontrolle:</strong> Drucker erscheint für die Mitarbeiterin; Windows-Testseite und Dokumentdruck erfolgreich.</li>
 <li><strong>Status:</strong> Gelöst (fiktives Übungsbeispiel).</li>
 </ul>
-<h3 id="active-recall-und-anki--drei-kartenarten">Active Recall und Anki – drei Kartenarten</h3>
-<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
-<thead>
-<tr class="header">
-<th>Kartentyp</th>
-<th>Frage</th>
-<th>Kurze Antwort</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Wissen</td>
-<td>Wofür steht UNC?</td>
-<td>Universal Naming Convention – z. B. <code>\\PRINT01\Buero</code>.</td>
-</tr>
-<tr class="even">
-<td>Wissen</td>
-<td>Wofür steht RPC?</td>
-<td>Remote Procedure Call – entfernte Funktionsaufrufe.</td>
-</tr>
-<tr class="odd">
-<td>Verständnis</td>
-<td>Wieso erscheint ein Netzwerkdrucker möglicherweise nicht, obwohl seine Freigabe erreichbar ist?</td>
-<td>Druckersuche und automatische GPO-Zuweisung sind getrennte Funktionen.</td>
-</tr>
-<tr class="even">
-<td>Verständnis</td>
-<td>Warum reicht TCP 445 als Druckserver-Test nicht?</td>
-<td>Windows 11 verwendet standardmäßig RPC über TCP; Port 135 und weitere Ports können nötig sein.</td>
-</tr>
-<tr class="odd">
-<td>Diagnose</td>
-<td>Drucker fehlt nur bei einem Benutzer; UNC funktioniert. Erste Hypothese?</td>
-<td>Benutzerbezogene GPO, Filter oder Zuordnung fehlt.</td>
-</tr>
-<tr class="even">
-<td>Diagnose</td>
-<td>Druckerverbindung fordert Adminrechte beim Treiberbezug. Ist das zwingend ein Fehler?</td>
-<td>Nein – Point-and-Print-Sicherheitsvorgabe kann das verlangen.</td>
-</tr>
-</tbody>
-</table></div>
-<p><strong>Transferübung:</strong> Drucker <code>\\PRINT01\Buero</code> ist auf PC-A sichtbar, bei Benutzer B nicht. <code>Resolve-DnsName</code> gelingt und Port 135 ist erreichbar, aber das Hinzufügen scheitert mit einer Treiber-Aufforderung. Erkläre, warum die bisherigen Tests <strong>weder</strong> die Treiberfreigabe noch die RPC-Druckkommunikation vollständig belegen. Leite den nächsten sicheren Prüfschritt ab.</p>
 <h2 id="15-quellen-transparenz-und-validierung">15. Quellen, Transparenz und Validierung</h2>
 <p><strong>Microsoft-Dokumentation (Abruf/Recherche: 08.11.2026):</strong></p>
 <ol type="1">
