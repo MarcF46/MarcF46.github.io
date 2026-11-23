@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="420" viewBox="0 0 1120 420" role="img" aria-labelledby="title desc">
+<title id="title">Homeoffice: VPN vor oder nach der Windows-Anmeldung</title><desc id="desc">Ein Benutzer-VPN startet möglicherweise erst nach der Windows-Anmeldung, während die Online-Domänenanmeldung schon vorher einen Domänencontroller benötigt. Eine passende Pre-Logon-VPN-Konfiguration kann die Verbindung vorher herstellen.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9fcff"/><stop offset="1" stop-color="#eaf5ff"/></linearGradient><style>text{font-family:Arial,sans-serif;fill:#173654}.h{font-size:29px;font-weight:700}.t{font-size:21px;font-weight:700}.s{font-size:18px}.sub{font-size:17px;fill:#527087}</style><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#2779bc"/></marker></defs>
+<rect x="1" y="1" width="1118" height="418" rx="22" fill="url(#g)" stroke="#bad6eb"/>
+<text x="35" y="52" class="h">Homeoffice: Warum die Anmeldung manchmal scheitert</text>
+<text x="35" y="82" class="sub">Entscheidend ist, wann die VPN-Verbindung zum Firmennetz verfügbar ist.</text>
+<rect x="30" y="115" width="510" height="245" rx="17" fill="#fff4f0" stroke="#e1b8a9" stroke-width="2"/>
+<text x="285" y="150" class="t" text-anchor="middle">VPN erst nach der Anmeldung</text>
+<rect x="57" y="176" width="188" height="63" rx="12" fill="#fff" stroke="#c8a79e"/><text x="151" y="203" class="s" text-anchor="middle">Windows-Anmeldung</text><text x="151" y="224" class="sub" text-anchor="middle">braucht ggf. den DC</text>
+<rect x="312" y="176" width="195" height="63" rx="12" fill="#fff" stroke="#c8a79e"/><text x="410" y="203" class="s" text-anchor="middle">Benutzer-VPN</text><text x="410" y="224" class="sub" text-anchor="middle">startet erst danach</text>
+<path d="M248 207H306" stroke="#db6c61" stroke-width="4" stroke-dasharray="7 6"/><text x="285" y="281" class="t" text-anchor="middle" fill="#a44234">Mögliche Blockade</text><text x="285" y="312" class="sub" text-anchor="middle">Anmeldung und VPN hängen zeitlich</text><text x="285" y="333" class="sub" text-anchor="middle">voneinander ab.</text>
+<rect x="575" y="115" width="510" height="245" rx="17" fill="#f1fbf4" stroke="#add4ba" stroke-width="2"/>
+<text x="830" y="150" class="t" text-anchor="middle">VPN vor der Anmeldung</text>
+<rect x="600" y="176" width="202" height="63" rx="12" fill="#fff" stroke="#9ac9aa"/><text x="700" y="204" class="s" text-anchor="middle">Pre-Logon-VPN</text><text x="700" y="226" class="sub" text-anchor="middle">verbindet zuerst</text>
+<rect x="862" y="176" width="194" height="63" rx="12" fill="#fff" stroke="#9ac9aa"/><text x="959" y="204" class="s" text-anchor="middle">Windows-Anmeldung</text><text x="959" y="226" class="sub" text-anchor="middle">DC erreichbar</text>
+<path d="M803 207H852" stroke="#2779bc" stroke-width="4" marker-end="url(#a)"/><text x="830" y="281" class="t" text-anchor="middle">Möglicher Lösungsweg</text><text x="830" y="312" class="sub" text-anchor="middle">Nur wenn Client und Firmenkonfiguration</text><text x="830" y="333" class="sub" text-anchor="middle">diese Funktion unterstützen.</text>
+<text x="560" y="393" class="sub" text-anchor="middle">Auch eine zwischengespeicherte Domänenanmeldung kann offline möglich sein – je nach Gerät und Kontostatus.</text>
+</svg>
