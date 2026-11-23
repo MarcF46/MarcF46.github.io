@@ -1,0 +1,269 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 41: AD-Gruppenmitgliedschaft greift nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 41: AD-Gruppenmitgliedschaft greift nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 41: AD-Gruppenmitgliedschaft greift nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-abgrenzung-und-lernziele">1. Störungsbild, Abgrenzung und Lernziele</a></li><li><a href="#2-der-gesamte-wirkpfad-vom-ad-konto-bis-zur-datei">2. Der gesamte Wirkpfad: Vom AD-Konto bis zur Datei</a></li><li><a href="#3-ad-gruppen-richtig-verstehen-sicherheitsgruppe-scope-verschachtelung">3. AD-Gruppen richtig verstehen: Sicherheitsgruppe, Scope, Verschachtelung</a></li><li><a href="#4-ticketannahme-welcher-zugriff-wird-wirklich-verweigert">4. Ticketannahme: Welcher Zugriff wird wirklich verweigert?</a></li><li><a href="#5-sicherheits-und-datenschutzgate">5. Sicherheits- und Datenschutzgate</a></li><li><a href="#6-identitat-und-direkte-mitgliedschaft-im-ad-nachweisen">6. Identität und direkte Mitgliedschaft im AD nachweisen</a></li><li><a href="#7-verschachtelung-und-autorisierungsrelevante-gruppen">7. Verschachtelung und autorisierungsrelevante Gruppen</a></li><li><a href="#8-aktuellen-sicherheitskontext-auf-dem-betroffenen-pc-lesen">8. Aktuellen Sicherheitskontext auf dem betroffenen PC lesen</a></li><li><a href="#9-kerberos-tickets-und-sitzung-richtig-einordnen">9. Kerberos-Tickets und Sitzung richtig einordnen</a></li><li><a href="#10-ressourcenberechtigung-auf-dem-zielserver-prufen">10. Ressourcenberechtigung auf dem Zielserver prüfen</a></li><li><a href="#11-standortunterschiede-domanencontroller-und-replikation">11. Standortunterschiede, Domänencontroller und Replikation</a></li><li><a href="#12-gezielte-massnahmen-sichere-neuanmeldung-und-retest">12. Gezielte Maßnahmen, sichere Neuanmeldung und Retest</a></li><li><a href="#13-fiktiver-praxisfall-a-neuer-gruppenstatus-alter-logon-token">13. Fiktiver Praxisfall A – Neuer Gruppenstatus, alter Logon-Token</a></li><li><a href="#14-fiktiver-praxisfall-b-token-korrekt-ntfs-recht-fehlt">14. Fiktiver Praxisfall B – Token korrekt, NTFS-Recht fehlt</a></li><li><a href="#15-active-recall-diagnosekarten-und-transfer">15. Active Recall, Diagnosekarten und Transfer</a></li><li><a href="#herstellerquellen-recherchebelege-microsoft-learn">Herstellerquellen / Recherchebelege (Microsoft Learn)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Bereich:</strong> Active Directory Domain Services, Windows 11, Windows Server, AD-Sicherheitsgruppen, Kerberos, SMB/NTFS<br/>
+<strong>Support-Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Anhand offizieller Microsoft-Quellen recherchiert, <strong>noch nicht praktisch validiert</strong>. Namen, Konten, Messwerte und Fallgeschichten sind <strong>fiktiv</strong>. Keine produktiven Berechtigungen wurden verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb041_henne_ei_ad_gruppenmitgliedschaft.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-041 – AD-Gruppenmitgliedschaft, aktuelle Anmeldung und Ressourcenzugriff" decoding="async" loading="lazy" src="assets/rb041_henne_ei_ad_gruppenmitgliedschaft.webp"/></a></div><figcaption>RB-041 – AD-Gruppenmitgliedschaft, aktuelle Anmeldung und Ressourcenzugriff</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> Die <strong>Verzeichnis-Mitgliedschaft</strong>, der <strong>Sicherheitskontext einer laufenden Sitzung</strong> und die <strong>effektive Berechtigung am Zielserver</strong> sind drei verschiedene Dinge. Erst prüfen, wo die Kette unterbrochen ist – dann korrigieren.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-abgrenzung-und-lernziele">1. Störungsbild, Abgrenzung und Lernziele</h2>
+<p><strong>Typische Meldungen:</strong></p>
+<ul>
+<li>„Ich wurde gestern der Projektgruppe hinzugefügt, erhalte aber weiterhin ,Zugriff verweigert‘.“</li>
+<li>„Beim Kollegen funktioniert das Laufwerk, obwohl beide in derselben AD-Gruppe sind.“</li>
+<li>„Die neue Gruppenmitgliedschaft ist in AD sichtbar, aber <code>whoami /groups</code> zeigt sie noch nicht.“</li>
+<li>„Über den Standort A klappt der Zugriff; von Standort B nicht.“</li>
+</ul>
+<p><strong>Lernziel:</strong> Sicher entscheiden, ob das Problem an <strong>(A) Identität/AD-Mitgliedschaft, (B) Verschachtelung/Gruppentyp/-scope, (C) Anmeldung/Token/Tickets, (D) Ressource/ACL oder (E) Replikation/Standort</strong> liegt.</p>
+<p><strong>L1:</strong> Störungsumfang, Kontoname, Fehlermeldung, Zielressource, Zeitpunkt und Vergleichsnutzer erfassen; keine Rechte ändern. <strong>L2:</strong> AD, aktuelle Anmeldung, Kerberos und Ressourcen-ACLs mit lesenden Befunden korrelieren. <strong>AD-/File-Server-/Security-Owner:</strong> Genehmigte Mitgliedschafts-, ACL- und Replikationskorrekturen durchführen. [Q1–Q7]</p>
+<p><strong>Abgrenzung:</strong> RB-040 behandelt <em>GPO-Verarbeitung</em>. Hier geht es um AD-Sicherheitsgruppen als Basis für Zugriffsrechte; eine GPO kann Gruppen nutzen, ist aber nicht dieselbe Ursache. RB-005 behandelt allgemeine „Zugriff verweigert“-Fälle; RB-017 Netzwerkfreigaben. RB-041 vertieft den Zusammenhang mit aktuellen Sicherheitstoken.</p>
+<h2 id="2-der-gesamte-wirkpfad-vom-ad-konto-bis-zur-datei">2. Der gesamte Wirkpfad: Vom AD-Konto bis zur Datei</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Betroffenes Benutzerkonto (richtige Domäne/Identität?)
+        ↓
+AD-Sicherheitsgruppe (direkt oder über Gruppenverschachtelung?)
+        ↓
+Gruppenscope / Gruppentyp / ggf. standortabhängiger DC-Stand
+        ↓
+Anmeldung: lokaler Zugriffstoken und/oder Kerberos-Tickets
+        ↓
+Ressourcenkontext auf dem Zielserver
+        ↓
+SMB-Freigaberecht + NTFS-DACL + eventuelle Deny-Regel
+        ↓
+Konkrete Operation: Lesen, Ändern, Erstellen oder Löschen erlaubt?
+</code></pre></div>
+<ul>
+<li><strong>AD-Mitgliedschaft:</strong> Was im Verzeichnis aktuell als Gruppenbeziehung vorhanden ist.</li>
+<li><strong>Zugriffstoken:</strong> Sicherheitsidentität und Gruppeninformationen einer bestimmten <strong>Logon-Sitzung</strong> auf dem Client. Eine bereits laufende Sitzung übernimmt Änderungen nicht automatisch.</li>
+<li><strong>Kerberos:</strong> TGT und Service-Tickets ermöglichen Authentifizierung und transportieren unter anderem Autorisierungsdaten; ihr Inhalt kann während der Ticketlebensdauer veraltet sein.</li>
+<li><strong>Autorisierung:</strong> Erst auf der Zielressource entscheidet eine Zugriffsprüfung anhand des dort gültigen Kontextes und der Zugriffskontrolllisten (ACLs).</li>
+</ul>
+<p><strong>Merksatz:</strong> „In AD Mitglied“ ≠ „in der aktuellen Sitzung wirksam“ ≠ „am Ziel berechtigt“. [Q1–Q5]</p>
+<h2 id="3-ad-gruppen-richtig-verstehen-sicherheitsgruppe-scope-verschachtelung">3. AD-Gruppen richtig verstehen: Sicherheitsgruppe, Scope, Verschachtelung</h2>
+<p><strong>Sicherheitsgruppen</strong> können in ACLs verwendet werden. <strong>Verteilergruppen (Distribution)</strong> sind nicht allgemein für Windows-ACL-Autorisierung gedacht. Prüfe den Gruppentyp statt nur eines Namens. [Q1]</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gruppenscope</th>
+<th>Typische Verwendung</th>
+<th>Diagnosefalle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Global</strong></td>
+<td>Benutzer/Rollen innerhalb einer Domäne bündeln</td>
+<td>Mitgliedschaftsregeln und Quell-Domäne beachten</td>
+</tr>
+<tr>
+<td><strong>Domain Local</strong></td>
+<td>Rechte an Ressourcen einer Zieldomäne zuweisen</td>
+<td>Gruppen des Ressourcenservers können im lokalen Clienttoken fehlen und dennoch am Server wirken</td>
+</tr>
+<tr>
+<td><strong>Universal</strong></td>
+<td>Domänenübergreifende Rollen innerhalb der Gesamtstruktur</td>
+<td>Replikation und Global Catalog berücksichtigen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>AGDLP</strong>, als Berechtigungsdesign im klassischen AD: <strong>Accounts → Global Groups → Domain Local Groups → Permissions</strong>. Nicht jede reale Umgebung folgt exakt dieser Konvention, aber sie liefert einen guten Suchpfad. Bei mehreren Domänen wird teils <strong>AGUDLP</strong> genutzt. Gruppenscopes, Verschachtelungsregeln und tatsächliche Domänengrenzen müssen anhand der Umgebung geprüft werden. [Q1]</p>
+<p><strong>Achtung:</strong> Die direkte <code>memberOf</code>-Eigenschaft eines Benutzerkontos deckt nicht jede indirekte/verschachtelte oder implizite Mitgliedschaft ab. Auch <code>Get-ADGroupMember -Recursive</code> liefert aufgelöste Mitglieder, nicht automatisch die vollständige Verschachtelungskette mit allen Zwischengruppen. [Q6]</p>
+<h2 id="4-ticketannahme-welcher-zugriff-wird-wirklich-verweigert">4. Ticketannahme: Welcher Zugriff wird wirklich verweigert?</h2>
+<p>Dokumentiere <strong>exakt</strong>:</p>
+<ol>
+<li><strong>Benutzer:</strong> Domäne, <code>sAMAccountName</code>/UPN, Anmeldung lokal/RDP/VDI/VPN, betroffener Account (nicht bloß Anzeigename).</li>
+<li><strong>Ziel:</strong> UNC-Pfad <code>\\filesrv01.corp.example\Projekte\TeamA</code>, Dateipfad oder Anwendung, Ressourcenserver und erforderliche Aktion (Lesen/Schreiben/Ändern).</li>
+<li><strong>Zeitpunkt:</strong> Wann wurde die Gruppe geändert? Seit wann besteht die Sitzung? Seit wann tritt der Fehler auf?</li>
+<li><strong>Fehlermeldung:</strong> Wortlaut, Fehlercode, Ereigniszeit, Screenshot ohne sensitive Inhalte.</li>
+<li><strong>Vergleich:</strong> Betrifft es einen Benutzer, alle neuen Mitglieder oder einen ganzen Standort? Andere Ressource? Anderer Client?</li>
+<li><strong>Betroffene Art:</strong> GPO-Einstellung, SMB/NTFS, RDP oder Anwendung? Die Autorisierung kann jeweils anders erfolgen.</li>
+</ol>
+<p>Nicht nur „Gruppenrecht fehlt“ ins Ticket schreiben. Ein <em>nicht erreichbarer Server</em> ist ein anderes Fehlerbild als <em>Access denied</em>; Netzwerk/DNS/Portprobleme zunächst getrennt nach RB-034/RB-038/RB-039 behandeln.</p>
+<h2 id="5-sicherheits-und-datenschutzgate">5. Sicherheits- und Datenschutzgate</h2>
+<p><strong>Zunächst lesend arbeiten.</strong> Keine Gruppenmitgliedschaft, ACL, Freigabe, GPO, DC-Replikation oder Kerberos-Konfiguration auf Verdacht ändern. Insbesondere <strong>keinen</strong> Benutzer prophylaktisch in „Administratoren“, „Domänen-Admins“ oder eine breitere Sammelgruppe aufnehmen.</p>
+<p>Vor einem Eingriff: <strong>Fach-Owner/Anforderung</strong>, Security- und Change-Freigabe, betroffene Ressourcen, geringstes nötiges Recht (<em>Least Privilege</em>), Testperson, Rücknahmeplan und Nachweis definieren.</p>
+<ul>
+<li><code>whoami /groups</code>, <code>klist</code>, <code>Get-ADGroupMember</code>, <code>Get-SmbShareAccess</code> sind lesende Diagnosen.</li>
+<li><code>klist purge</code> <strong>löscht Tickets</strong>, ist keine reine Lesediagnose und kann Anmeldungen/Zugriffe unterbrechen; nicht als routinemäßiger erster Schritt.</li>
+<li>Neuanmeldung beendet laufende Arbeiten/Verbindungen. Bei Remote- oder VPN-Nutzung Rückweg, Dateien, MFA und Anmeldemöglichkeiten <strong>vorher</strong> prüfen.</li>
+<li>Gruppenausgaben und ACLs enthalten personenbezogene beziehungsweise sicherheitsrelevante Informationen. Minimal dokumentieren; <strong>keine Kennwörter oder Kerberos-Ticketgeheimnisse</strong> in Tickets kopieren. [Q2, Q3]</li>
+</ul>
+<h2 id="6-identitat-und-direkte-mitgliedschaft-im-ad-nachweisen">6. Identität und direkte Mitgliedschaft im AD nachweisen</h2>
+<p>Auf einem <strong>berechtigten Admin-System mit RSAT/ActiveDirectory-Modul</strong> oder DC, ausschließlich lesend:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Import-Module ActiveDirectory
+
+# Beispielkonto und Zielgruppe – an Labor-/Unternehmensumgebung anpassen:
+$User  = 'max.mustermann'
+$Group = 'DL_Projekte_TeamA_Modify'
+
+Get-ADUser -Identity $User -Properties Enabled, UserPrincipalName, DistinguishedName |
+  Select-Object SamAccountName, Enabled, UserPrincipalName, DistinguishedName
+
+Get-ADGroup -Identity $Group -Properties GroupCategory, GroupScope, DistinguishedName |
+  Select-Object Name, GroupCategory, GroupScope, DistinguishedName
+
+# Direkte Mitglieder des Gruppenobjekts, ohne rekursive Auflösung:
+Get-ADGroupMember -Identity $Group |
+  Select-Object Name, SamAccountName, ObjectClass
+</code></pre></div>
+<p><strong>Interpretation:</strong> Richtiger Benutzer und richtige Gruppe? <code>GroupCategory = Security</code>? Richtige Domäne? Ist ein Mitglied <strong>eine andere Gruppe</strong> statt eines Nutzers? Ist die Änderung auf dem befragten DC sichtbar?</p>
+<p><strong>Vorsicht:</strong> <code>-Identity</code> kann in einer komplexen Gesamtstruktur eine falsche Annahme über den Ziel-Namenskontext erzeugen. Bei Bedarf explizit den korrekten <code>-Server dc01.corp.example</code> und eindeutige DN/SID verwenden. [Q1, Q6]</p>
+<h2 id="7-verschachtelung-und-autorisierungsrelevante-gruppen">7. Verschachtelung und autorisierungsrelevante Gruppen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Rekursiv aufgelöste Blattmitglieder: hilfreicher Hinweis, kein Pfadbeweis.
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Recursive |
+  Where-Object { $_.ObjectClass -eq 'user' } |
+  Select-Object SamAccountName, DistinguishedName
+
+# AD-basierte Berechnung autorisierungsrelevanter Gruppen für das Konto.
+# Benötigt AD-Modul, berechtigte Verbindung und erreichbaren Global Catalog.
+Get-ADAccountAuthorizationGroup -Identity 'max.mustermann' |
+  Select-Object Name, GroupScope, GroupCategory, SID
+</code></pre></div>
+<p><strong>Wichtig:</strong> <code>Get-ADAccountAuthorizationGroup</code> ermittelt einen <strong>AD-basierten</strong> Gruppensatz. Der ist <strong>nicht gleichbedeutend</strong> mit dem aktuellen Token einer bereits laufenden Windows-Sitzung und kann den Ressourcenkontext einer anderen Domäne nicht vollständig abbilden. Prüfe lokale und domänenlokale Ressourcen-Gruppen am Zielserver bei Bedarf gesondert. [Q4, Q6]</p>
+<p>Bei Verschachtelung eine <strong>Kette</strong> ausdrücklich aufschreiben, z. B. <code>max.mustermann → GG_Projekt_TeamA → DL_Projekte_TeamA_Modify → Freigabe/NTFS</code>. Ein direktes und ein verschachteltes Mitglied müssen anhand der richtigen Gruppentypen/Scopes interpretiert werden. <strong>Nie</strong> nur anhand ähnlich klingender Gruppennamen entscheiden.</p>
+<h2 id="8-aktuellen-sicherheitskontext-auf-dem-betroffenen-pc-lesen">8. Aktuellen Sicherheitskontext auf dem betroffenen PC lesen</h2>
+<p>Auf dem <strong>betroffenen Windows-Client in der tatsächlichen Sitzung des Benutzers</strong>:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">whoami
+whoami /user
+whoami /groups
+whoami /all
+</code></pre></div>
+<p><code>whoami /groups</code> zeigt Gruppen-SIDs und Attribute des <strong>aktuellen lokalen Anmeldetokens</strong>, nicht den neuesten AD-Stand aller Domänen. Gruppen können z. B. als deaktiviert oder „Deny-only“ markiert sein. Ein positives Ergebnis auf einem separaten Admin-PC sagt nichts über die Sitzung des Anwenders. [Q3]</p>
+<p><strong>Auswertungsbeispiel:</strong> In AD ist eine neue globale Gruppe vorhanden, <code>whoami /groups</code> zeigt sie nicht und der Benutzer hat sich seit dem Gruppenwechsel nicht neu angemeldet. <strong>Hypothese:</strong> veralteter Logon-Token. <strong>Noch nicht bewiesen:</strong> Welche Tickets/Sessions die Zielressource benutzt und ob die Gruppe überhaupt an der ACL beteiligt ist. Bei VPN-/Offlineanmeldung kann die lokale Sitzung besonders lange alt bleiben. [Q2]</p>
+<p><strong>Hinweis zur Abweichung:</strong> <code>whoami /groups</code> muss nicht jede <strong>domänenlokale Gruppe der Ressourcendomäne</strong> auf dem Client ausweisen. Fehlende Anzeige allein beweist dann nicht fehlende Serverberechtigung. [Q5]</p>
+<h2 id="9-kerberos-tickets-und-sitzung-richtig-einordnen">9. Kerberos-Tickets und Sitzung richtig einordnen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Im aktuell betroffenen Benutzerkontext:
+klist
+klist tgt
+
+# Optional: Lokale Sitzung und Kerberos-Zielbezug dokumentieren:
+whoami /user
+</code></pre></div>
+<p><strong>TGT</strong> = Ticket Granting Ticket; <strong>Service-Ticket</strong> = Ticket für einen bestimmten Dienst, etwa <code>cifs/filesrv01.corp.example</code>. <code>klist</code> zeigt Tickets der aktiven Sitzung (Name, Zeitraum, SPN, Tickettyp). <strong>Es druckt nicht die vollständigen Gruppenlisten des Tickets aus.</strong> Ein altes TGT kann nach Änderungen weiterhin veraltete Gruppeninformationen liefern; bestehende SMB-Sitzungen können zusätzlich weiterbestehen. [Q2, Q7]</p>
+<p><strong>Keine Schnelllösung:</strong> <code>klist purge</code> ist nicht gleichbedeutend mit einer kompletten Neuanmeldung und aktualisiert nicht automatisch den bestehenden lokalen Windows-Zugriffstoken. Ticketpurge nur nach vorheriger Klärung von Seiteneffekten und Berechtigung; der kontrollierte Ab-/Anmeldeversuch ist oft aussagekräftiger, wenn die Domäne zuverlässig erreichbar ist.</p>
+<h2 id="10-ressourcenberechtigung-auf-dem-zielserver-prufen">10. Ressourcenberechtigung auf dem Zielserver prüfen</h2>
+<p>Für SMB-Freigaben zwei Ebenen <strong>getrennt</strong> prüfen: <strong>Freigabe-ACL</strong> und <strong>NTFS-DACL</strong>. Am tatsächlichen <strong>Dateiserver</strong> mit ausreichenden Leserechten:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Beispiel: Share-ACL am Server; benötigt passende SMB-Adminrechte.
+Get-SmbShareAccess -Name 'Projekte' |
+  Select-Object Name, AccountName, AccessControlType, AccessRight
+
+# Beispiel: NTFS-ACL des tatsächlichen Zielordners am Server.
+Get-Acl -Path 'D:\Shares\Projekte\TeamA' |
+  Select-Object -ExpandProperty Access |
+  Select-Object IdentityReference, FileSystemRights, AccessControlType, IsInherited
+</code></pre></div>
+<p><strong>Befundfragen:</strong> Welche Gruppe ist konkret berechtigt? Gibt es explizite/übergeordnete <strong>Deny</strong>-Einträge? Welche Rechte gelten für die benötigte Operation? Ist „Lesen“ erlaubt, aber das Erstellen/Ändern einer Datei verboten? Passt die Zielgruppe zu den verschachtelten Gruppen?</p>
+<p><strong>Effektive Rechte</strong> hängen zusätzlich vom tatsächlichen Token, Ressourcendomäne, lokalen Gruppen, Vererbung und Kontext ab. Ein aus der Ferne berechneter „Effektiver Zugriff“ kann bei anderen Domänen unvollständig sein; Microsoft empfiehlt die Auswertung <strong>relativ zum Ressourcenserver</strong>. Ein echter Zugriffsversuch mit dem genehmigten Testkonto liefert einen zusätzlichen Nachweis. [Q5, Q8]</p>
+<h2 id="11-standortunterschiede-domanencontroller-und-replikation">11. Standortunterschiede, Domänencontroller und Replikation</h2>
+<p>Wenn sich derselbe Benutzer je nach DC/Standort unterschiedlich verhält oder neu angelegte Gruppen an verschiedenen Stellen verschieden angezeigt werden:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Zwei explizite DCs getrennt befragen, keine Konfigurationsänderung:
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Server 'dc01.corp.example'
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Server 'dc02.corp.example'
+
+# L2/AD-Owner: Replikationsstatus abfragen (nur lesend):
+repadmin /showrepl dc01.corp.example
+repadmin /showrepl dc02.corp.example
+</code></pre></div>
+<p>Auch <strong>Zeit, DNS, VPN/Netzpfad</strong>, Erreichbarkeit eines DC/KDC, Gruppenmitgliedschaft über Trusts und Global Catalog können relevant sein. Unstimmige DC-Befunde sind ein Hinweis auf Replikation/Kontext – kein Freibrief für manuelles Erzwingen oder Wiederherstellen einer AD-Replikation. [Q2, Q9]</p>
+<p><strong>Sonderfall:</strong> Prüfe, ob die Ressource per Kerberos oder NTLM angesprochen wird und ob eine alte Netzwerk-Sitzung weiterläuft. Die Aktualisierung der lokal gemeldeten Gruppe und der Zugriff auf eine entfernte Ressource können zeitlich auseinanderfallen.</p>
+<h2 id="12-gezielte-massnahmen-sichere-neuanmeldung-und-retest">12. Gezielte Maßnahmen, sichere Neuanmeldung und Retest</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Belegter Befund</th>
+<th>Vertretbare Maßnahme nach Freigabe</th>
+<th>Nachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zielkonto in falscher/fehlender Gruppe</td>
+<td>Beantragte Mitgliedschaft in <strong>genau</strong> der vorgesehenen Sicherheitsgruppe durch Owner korrigieren</td>
+<td>AD-Gruppe/rekursive Kette auf passendem DC nachweisen</td>
+</tr>
+<tr>
+<td>AD korrekt, lokaler Token alt</td>
+<td>Daten sichern, Domänenverbindung prüfen, <strong>kontrolliert ab- und anmelden</strong></td>
+<td><code>whoami /groups</code> im neuen Kontext; echter Ressourcentest</td>
+</tr>
+<tr>
+<td>TGT oder Ressourcensitzung alt</td>
+<td>Sitzungs-/Ticketkontext ermitteln; ggf. genehmigte Neuverbindung/Neuanmeldung</td>
+<td>Neuer Ticketzeitpunkt und Ressourcenberechtigung prüfen</td>
+</tr>
+<tr>
+<td>AD-Gruppe + Sitzung korrekt, ACL falsch</td>
+<td>Freigabe-/NTFS-DACL durch Ressourcen-Owner <strong>minimal</strong> korrigieren</td>
+<td>Lesen/Schreiben wie beauftragt; unerlaubter Zugriff bleibt gesperrt</td>
+</tr>
+<tr>
+<td>Site-/DC-abhängig</td>
+<td>Replikations-/KDC-Fehler durch AD-Team behandeln</td>
+<td>DC-Befunde konsistent, Retest an ursprünglichem Standort</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Warnung:</strong> Nicht mit neuen Domänen-Administratorrechten, Registry-Hacks, <code>gpupdate /force</code>, SMB-Sitzungstrennung oder pauschalen ACL-Freigaben „abkürzen“. Alle Änderungen brauchen vorherige Sicherung des Ausgangszustands und eine mögliche Rücknahme.</p>
+<p><strong>Retest:</strong> Originalnutzer, Originalclient, Original-UNC-Pfad, erforderliche Operation. Danach mindestens ein <strong>Negativtest</strong>: Ein nicht berechtigter Testbenutzer darf die Ressource weiterhin nicht öffnen. Nachweis mit Zeitpunkt, erwartetem und tatsächlichem Ergebnis protokollieren.</p>
+<h2 id="13-fiktiver-praxisfall-a-neuer-gruppenstatus-alter-logon-token">13. Fiktiver Praxisfall A – Neuer Gruppenstatus, alter Logon-Token</h2>
+<p><strong>Ausgangslage (fiktiv):</strong> Mitarbeiter <code>max.mustermann</code> bekommt um 10:15 Uhr Zugriff auf <code>\\filesrv01\Projekte</code>. In AD ist seine Mitgliedschaft über <code>GG_TeamA</code> und <code>DL_Projekte_TeamA_Modify</code> nachweisbar. Windows ist aber seit 07:45 Uhr angemeldet, der Fehler lautet <code>Zugriff verweigert</code>.</p>
+<p><strong>Diagnosebeobachtungen:</strong></p>
+<ol>
+<li><code>Get-ADAccountAuthorizationGroup</code> zeigt erwartete Rolle in AD-basierter Berechnung.</li>
+<li><code>whoami /groups</code> in der noch laufenden Sitzung zeigt die neue <strong>globale</strong> Rolle nicht; <code>klist tgt</code> stammt aus der Zeit vor der Änderung.</li>
+<li>Share-/NTFS-ACL am Zielserver sind für <code>DL_Projekte_TeamA_Modify</code> passend gesetzt.</li>
+</ol>
+<p><strong>Hypothese:</strong> Die Sitzung beziehungsweise ihr Kerberos-Kontext ist veraltet. Nach Prüfung offener Arbeiten und zuverlässiger Domänenverbindung erfolgt <strong>mit Zustimmung</strong> eine vollständige Abmeldung und neue Anmeldung. Anschließend sind die erwarteten Tokeninformationen da, der Originalzugriff funktioniert, ein unberechtigtes Vergleichskonto bleibt ausgeschlossen.</p>
+<p><strong>Lernpunkt:</strong> AD war nicht falsch; ein ACL-Umbau oder breit angelegte Gruppenänderung hätte zusätzliche Risiken geschaffen. Die konkreten Messergebnisse sind <strong>nur Übungsdaten</strong>, kein Praxisnachweis.</p>
+<h2 id="14-fiktiver-praxisfall-b-token-korrekt-ntfs-recht-fehlt">14. Fiktiver Praxisfall B – Token korrekt, NTFS-Recht fehlt</h2>
+<p><strong>Ausgangslage (fiktiv):</strong> Die Nutzerin <code>lena.beispiel</code> ist seit Tagen korrekt in <code>GG_ProjektB</code>, hat sich neu angemeldet und kann das SMB-Share öffnen, aber in <code>\\filesrv02\ProjektB\Vertraege</code> keine neue Datei speichern.</p>
+<p><strong>Diagnosebeobachtungen:</strong></p>
+<ol>
+<li>AD-Verschachtelung und Benutzerkontext passen; Servicezugriff ist möglich.</li>
+<li>Share-ACL erlaubt Zugriff, die NTFS-DACL des Unterordners gewährt der betreffenden Ressourcenrolle nur <strong>Lesen</strong>, nicht <strong>Ändern</strong>.</li>
+<li>Ein vergleichbarer Ordner mit korrektem Änderungsrecht funktioniert. Der Dateiserver-Owner bestätigt die gewünschte Berechtigung.</li>
+</ol>
+<p><strong>Maßnahme:</strong> Der zuständige Owner korrigiert nach Freigabe <strong>nur</strong> die Berechtigung des autorisierten Zielordners. Test: Lesefunktion unverändert, Erstellen/Speichern mit dem berechtigten Konto erfolgreich, unberechtigte Testperson weiterhin abgewiesen.</p>
+<p><strong>Lernpunkt:</strong> „Mitglied und angemeldet“ beweist kein Recht auf <strong>jede</strong> Dateisystemoperation. Auch dies ist ein <strong>fiktives Szenario</strong>.</p>
+<h2 id="15-active-recall-diagnosekarten-und-transfer">15. Active Recall, Diagnosekarten und Transfer</h2>
+<p><strong>Wissenskarten (ohne Nachschlagen beantworten):</strong></p>
+<ol>
+<li>Was unterscheidet AD-Mitgliedschaft, lokalen Zugriffstoken und Ressourcen-ACL? — <strong>Verzeichnisstatus, laufende Sitzung, effektive Autorisierung</strong>.</li>
+<li>Wie lautet der Kern von AGDLP? — <strong>Accounts → Global → Domain Local → Permissions</strong>.</li>
+<li>Welcher Befehl zeigt Gruppen im aktuellen Windows-Token? — <strong><code>whoami /groups</code></strong>.</li>
+<li>Welcher Befehl zeigt Kerberos-Tickets? — <strong><code>klist</code></strong>.</li>
+<li>Welche zwei ACL-Ebenen sind bei SMB+NTFS getrennt zu prüfen? — <strong>Freigabe und NTFS</strong>.</li>
+</ol>
+<p><strong>Verständniskarten:</strong></p>
+<ol start="6">
+<li>Warum ersetzt <code>gpupdate /force</code> keine Neuanmeldung für einen alten Token? — <strong>GPO-Aktualisierung ist nicht gleich Aufbau einer neuen Logon-Sitzung</strong>.</li>
+<li>Warum beweist fehlende Domain-Local-Gruppe in <code>whoami</code> keinen fehlenden Zugriff? — <strong>Der Ressourcenserver kann eigene domänenlokale Gruppen einbeziehen</strong>.</li>
+<li>Warum reicht ein erfolgreiches <code>Get-ADAccountAuthorizationGroup</code> allein nicht? — <strong>Berechneter AD-Gruppensatz ≠ aktueller Clienttoken ≠ Ressourcenserver-Kontext</strong>.</li>
+</ol>
+<p><strong>Diagnose-/Transferkarten:</strong></p>
+<ol start="9">
+<li>AD richtig, <code>whoami /groups</code> alt, Anmeldung vor Änderung: Was zunächst? — <strong>Anmelde-/Ticketkontext, Domänenverbindung, sichere Neuanmeldung planen</strong>.</li>
+<li>AD und Token richtig, nur Schreibzugriff fehlt: Wohin? — <strong>Freigabe- und NTFS-Rechte für Operation prüfen</strong>.</li>
+<li>Nur ein Standort betroffen, DC-Ergebnisse abweichend: Was prüfen? — <strong>DC-Kontext, Replikation, KDC/Netzweg</strong>.</li>
+<li>Ein Anwender fordert „Gib mir kurz Adminrechte“: Was tun? — <strong>Nicht pauschal erhöhen; Rechtebedarf und Owner-Freigabe klären</strong>.</li>
+</ol>
+<p><strong>Praxisvalidierung:</strong> Im autorisierten AD-Testlabor eine globale Rolle und eine domänenlokale Ressourcenrolle anlegen, Zugriff auf ein Testshare nachvollziehen, Gruppenmitgliedschaft <strong>während einer bestehenden Sitzung</strong> ändern, AD-Befund und <code>whoami</code> gegenüberstellen und nur kontrolliert neu anmelden. <strong>Keine AD-Laborumgebung vorhanden?</strong> Alternativ fiktive Befundausgaben diagnostizieren und Handlungsplan ohne echten Eingriff erstellen.</p>
+<p><strong>Zeitversetzte Prüfung:</strong> Nach etwa <strong>7 und 21 Tagen</strong> ohne Unterlagen zwei neue Fehlerszenarien lösen; gemessen werden Diagnosehypothese, Zahl unnötiger Änderungen, Nachweisqualität und korrekte Rechtebegrenzung.</p>
+<hr/>
+<h2 id="herstellerquellen-recherchebelege-microsoft-learn">Herstellerquellen / Recherchebelege (Microsoft Learn)</h2>
+<ul>
+<li><strong>[Q1]</strong> Active Directory-Sicherheitsgruppen und Gruppenscopes: <a href="https://learn.microsoft.com/de-de/windows-server/identity/ad-ds/manage/understand-security-groups" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/identity/ad-ds/manage/understand-security-groups</a></li>
+<li><strong>[Q2]</strong> Gruppenänderungen bei Offline-/VPN-Anmeldung, lokale Token und Kerberos: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/group-policy/group-membership-changes-not-updating-over-some-vpn-connections" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-client/group-policy/group-membership-changes-not-updating-over-some-vpn-connections</a></li>
+<li><strong>[Q3]</strong> <code>whoami</code> und <code>/groups</code>: <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/whoami" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/whoami</a></li>
+<li><strong>[Q4]</strong> <code>Get-ADAccountAuthorizationGroup</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adaccountauthorizationgroup?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/activedirectory/get-adaccountauthorizationgroup?view=windowsserver2025-ps</a></li>
+<li><strong>[Q5]</strong> Effektiven Zugriff auf entfernte Ressourcen bewerten: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/access-checks-windows-apis-return-incorrect-results" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/access-checks-windows-apis-return-incorrect-results</a></li>
+<li><strong>[Q6]</strong> <code>Get-ADGroupMember -Recursive</code> und AD-Gruppenprüfung: <a href="https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-adgroupmember?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/powershell/module/activedirectory/get-adgroupmember?view=windowsserver2025-ps</a></li>
+<li><strong>[Q7]</strong> <code>klist</code> – Kerberos-Tickets anzeigen und Purge-Risiko: <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/klist" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/klist</a></li>
+<li><strong>[Q8]</strong> <code>Get-SmbShareAccess</code>: <a href="https://learn.microsoft.com/de-de/powershell/module/smbshare/get-smbshareaccess" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/powershell/module/smbshare/get-smbshareaccess</a></li>
+<li><strong>[Q9]</strong> AD-Replikationsfehler diagnostizieren: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/active-directory/diagnose-replication-failures" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/active-directory/diagnose-replication-failures</a></li>
+</ul>
+<p><strong>Quellenstatus:</strong> Die Links dokumentieren Produkteigenschaften und Diagnosewerkzeuge; die konkrete Reihenfolge und fiktiven Beispiele wurden als L2-Lernablauf zusammengestellt. Ein praktischer Funktionstest oder vollständiger Abgleich mit einer konkreten Unternehmensumgebung ist <strong>nicht erfolgt</strong>.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-041_Lernartikel.md">RB-041_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-040/index.html">← Ticket 40</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-042/index.html">Ticket 42 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

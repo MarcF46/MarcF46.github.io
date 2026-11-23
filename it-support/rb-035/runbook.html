@@ -1,0 +1,140 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 35: Client erhält keine DHCP-Adresse | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 35: Client erhält keine DHCP-Adresse. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 35: Client erhält keine DHCP-Adresse</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingang-und-eingrenzung">1. Eingang und Eingrenzung</a></li><li><a href="#2-erster-befund-lesend">2. Erster Befund – lesend</a></li><li><a href="#3-kontrollierter-vergleich">3. Kontrollierter Vergleich</a></li><li><a href="#4-sicherheitsgate-vor-jedem-aktiven-test">4. Sicherheitsgate vor jedem aktiven Test</a></li><li><a href="#5-dora-messung-l2-autorisierte-umgebung">5. DORA-Messung (L2, autorisierte Umgebung)</a></li><li><a href="#6-windows-server-dhcp-prufen-nur-berechtigtes-l2-rsat">6. Windows-Server-DHCP prüfen (nur berechtigtes L2/RSAT)</a></li><li><a href="#7-diagnosematrix-direkt-nutzbar">7. Diagnosematrix – direkt nutzbar</a></li><li><a href="#8-gezielte-korrektur-erst-nach-bestatigter-ursache">8. Gezielte Korrektur – erst nach bestätigter Ursache</a></li><li><a href="#9-erfolgskontrolle-und-eskalationspaket">9. Erfolgskontrolle und Eskalationspaket</a></li><li><a href="#10-drei-satz-ticketkommentar-fiktiver-musterfall">10. Drei-Satz-Ticketkommentar – fiktiver Musterfall</a></li></ol></nav><div class="support-markdown">
+<p><strong>Support-Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Ziel:</strong> Fehlerdomäne nachweisen, zuständigen Owner einschalten, gültigen DHCP-Lease bestätigen.<br/>
+<strong>Status:</strong> Recherchiertes Runbook, <strong>noch nicht praktisch validiert</strong>. Alle Werte und Fälle sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb035_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-035 – technische DHCP-Diagnosegrafik" decoding="async" loading="lazy" src="assets/rb035_diagnosebaum.svg"/></a></div><figcaption>RB-035 – technische DHCP-Diagnosegrafik</figcaption></figure>
+<h2 id="1-eingang-und-eingrenzung">1. Eingang und Eingrenzung</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffenen Host, Benutzer, Adapter, Uhrzeit, Standort, SSID/Port und genaue Meldung aufnehmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur ein Client, mehrere Clients eines VLANs oder mehrere Standorte betroffen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ethernet/WLAN, VPN, Dock, NAC/802.1X und kürzliche Änderungen notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist die Sitzung <strong>remote</strong>? Bei fehlendem alternativen Zugang keine störenden Befehle ausführen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>IP/Mask/Gateway/DNS/Lease aus <code>ipconfig /all</code> festhalten; keine sensitiven vollständigen Protokolle öffentlich teilen.</li>
+</ul>
+<h2 id="2-erster-befund-lesend">2. Erster Befund – lesend</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">ipconfig /all
+Get-NetAdapter | Format-Table Name,Status,LinkSpeed -AutoSize
+Get-NetIPInterface -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,InterfaceIndex,ConnectionState,Dhcp
+Get-NetIPAddress -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,IPAddress,PrefixOrigin
+Get-Service Dhcp
+</code></pre></div>
+<p><strong>Abzweige:</strong></p>
+<ul>
+<li><strong>Link down:</strong> Kabel/WLAN/Adapter/Dock und Port prüfen.</li>
+<li><strong>DHCP deaktiviert:</strong> Sollkonfiguration/Policy klären, nicht blind ändern.</li>
+<li><strong>APIPA 169.254/16:</strong> Fehlende gültige DHCPv4-Zuweisung möglich; Ursachen über DHCP/Link prüfen, Detail RB-036.</li>
+<li><strong>Lease sichtbar:</strong> <code>DHCP-Server</code>, Gültigkeit, Gateway und DNS kontrollieren; womöglich anderes Problem als die DHCP-Vergabe.</li>
+</ul>
+<h2 id="3-kontrollierter-vergleich">3. Kontrollierter Vergleich</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vergleichsclient <strong>am selben autorisierten VLAN/Port</strong> testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gleiches Gerät nach Freigabe an einem geeigneten Vergleichsport testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>WLAN-Bereich oder Switchportprofil mit dokumentiertem Soll vergleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client im Server-VLAN/anderen Segment prüfen, wenn verfügbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ergebnis als kleine Matrix „Gerät x Port/VLAN x IP-Lease“ dokumentieren.</li>
+</ul>
+<p><strong>Interpretation:</strong> „Nur ein Gerät“ spricht für Client/Anschluss, „nur ein VLAN“ für Relay/Scope/Netzfilter, „viele Standorte“ für zentrale Infrastruktur – keine dieser Aussagen beweist allein die Ursache.</p>
+<h2 id="4-sicherheitsgate-vor-jedem-aktiven-test">4. Sicherheitsgate vor jedem aktiven Test</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Produktivsystem, Fernzugriff, Wartungsfenster, Nutzerkommunikation und Rollback geprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein <code>ipconfig /release</code> ohne bestätigten lokalen oder alternativen Rückweg.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine DHCP-Scope-/Relay-/Switch-/NAC-/Firewall-Änderung ohne Owner-Freigabe.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Für Paketmitschnitt: Genehmigung, Datensparsamkeit und geeignete Erfassungsorte klären.</li>
+</ul>
+<h2 id="5-dora-messung-l2-autorisierte-umgebung">5. DORA-Messung (L2, autorisierte Umgebung)</h2>
+<p>DHCPv4-Standard-Neuvergabe: <strong>Discover → Offer → Request → ACK</strong> (UDP 67/68). Bei aktiven Leases kann ein <code>renew</code> zunächst nur eine Unicast-Verlängerung auslösen.</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn nötig: Mitschnitt Client plus Server/Relay zeitlich synchronisieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Filter z. B. <code>dhcp</code> oder <code>udp.port == 67 || udp.port == 68</code>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client sendet <strong>keine</strong> DHCP-Anfrage? Interface, Clientdienst und Capturesetup prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client sendet Discover, <strong>Server sieht nichts</strong>? VLAN/Relay/DHCP-Snooping/ACL.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Server sieht Discover, <strong>kein Offer</strong>? Scope, Dienst, Autorisierung, Policy, Leasevorrat.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Server sendet Offer, <strong>Client sieht es nicht</strong>? Rückweg/Relay/Netzfilter.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Request → NAK/kein ACK? Konfigurationskonflikt, Serverpolicy, Logs und Rückweg prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>ACK beim Client, Adresse nicht übernommen? Clientlogs/Adresskonflikt prüfen.</li>
+</ul>
+<h2 id="6-windows-server-dhcp-prufen-nur-berechtigtes-l2-rsat">6. Windows-Server-DHCP prüfen (nur berechtigtes L2/RSAT)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Beispiel: Hostnamen und IPs sind fiktiv.
+Get-DhcpServerInDC
+Get-DhcpServerv4Binding -ComputerName dhcp01.corp.example
+Get-DhcpServerv4Scope -ComputerName dhcp01.corp.example
+Get-DhcpServerv4ScopeStatistics -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+Get-DhcpServerv4Lease -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+Get-DhcpServerv4OptionValue -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+</code></pre></div>
+<p>Prüfe <strong>Scope aktiv/frei</strong>, Serverdienst, AD-Autorisierung falls nötig, Filters/Reservierungen, <code>BAD_ADDRESS</code>, Failover und Serverlogs. Serverweite Dienstprüfung nur direkt am Server/autorisiert remote.</p>
+<h2 id="7-diagnosematrix-direkt-nutzbar">7. Diagnosematrix – direkt nutzbar</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Gezielte Prüfung</th>
+<th>Verantwortlich</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur einzelner Client</td>
+<td>Adapter-DHCP, Link, Treiber, MAC/Port</td>
+<td>L1/L2</td>
+</tr>
+<tr>
+<td>Nur bestimmter Port/SSID</td>
+<td>VLAN/NAC/Portprofil</td>
+<td>Netzwerkteam</td>
+</tr>
+<tr>
+<td>Alle Geräte in einem VLAN</td>
+<td>Relay/IP-Helper, Scope, Firewall</td>
+<td>Netzwerk-/Serverteam</td>
+</tr>
+<tr>
+<td>Scope erschöpft</td>
+<td>Statistik, Exclusion/Leasekonflikte</td>
+<td>DHCP-Owner</td>
+</tr>
+<tr>
+<td>DHCP-Server nicht autorisiert</td>
+<td>AD-Autorisierungsstatus, Ereignis 1046</td>
+<td>AD-/Serverteam</td>
+</tr>
+<tr>
+<td>ACK vorhanden, aber kein Lease</td>
+<td>Clientlog, IP-Konflikt, Richtlinie</td>
+<td>L2</td>
+</tr>
+<tr>
+<td>Lease korrekt, kein Namens-/Dienstzugriff</td>
+<td>DNS/Gateway/Port, RB-034/038/039</td>
+<td>Zuständiges Fachteam</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="8-gezielte-korrektur-erst-nach-bestatigter-ursache">8. Gezielte Korrektur – erst nach bestätigter Ursache</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dokumentierten Sollzustand und passenden Change genehmigt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client-Konfiguration bzw. Adapterfehler <strong>nur</strong> entsprechend Diagnose korrigiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ggf. VLAN/Relay/Scope/DHCP-Autorisierung durch passenden Owner korrigiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine ungeprüfte statische Ersatzadresse, keine globale Deaktivierung von DHCP-Snooping, keine unbegründete Scope-Aufweitung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vorher-/Nachher-Befunde und Rückweg festgehalten.</li>
+</ul>
+<h2 id="9-erfolgskontrolle-und-eskalationspaket">9. Erfolgskontrolle und Eskalationspaket</h2>
+<p><strong>Abschluss nur nach Test unter Originalbedingungen:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client besitzt gültige IPv4 aus dem erwarteten Netz, passende Maske, Gateway, DNS und Leasezeit.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>ipconfig /all</code> nennt den erwarteten DHCP-Server; falls relevant DORA/ACK im Mitschnitt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursprüngliche Business-Anwendung, Name und Dienst tatsächlich erreichbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mehrere betroffene Clients/Ports/VLANs nach gleicher Methode gegengeprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache, Change-ID, Freigabe, Retest und Anwenderbestätigung im Ticket.</li>
+</ul>
+<p><strong>Bei Eskalation:</strong> Client/MAC (intern geschützt), Interface-/VLAN-Zuordnung, Befehlsauszüge, AD-/DHCP-Logs, Capture-Befunde, Uhrzeiten, Auswirkung, betroffene Scopes und erfolgte Tests übergeben.</p>
+<h2 id="10-drei-satz-ticketkommentar-fiktiver-musterfall">10. Drei-Satz-Ticketkommentar – fiktiver Musterfall</h2>
+<blockquote>
+<p><strong>Sachverhalt:</strong> „In VLAN 120 erhielten mehrere Windows-Clients keine DHCPv4-Adresse; die Anfragen wurden am Client gesendet, aber nicht am DHCP-Server beobachtet.“<br/>
+<strong>Prüfung/Maßnahme:</strong> „Der Netzwerkvergleich ergab einen fehlenden DHCP-Relay-Eintrag; das Netzwerkteam stellte die dokumentierte Konfiguration nach Freigabe wieder her.“<br/>
+<strong>Erfolg:</strong> „Die Clients erhielten anschließend Leases aus dem richtigen Scope; Gateway, DNS und der ursprüngliche Anwendungszugriff wurden geprüft und bestätigt.“</p>
+</blockquote>
+<p><strong>Offizielle Quellen:</strong> siehe [Q1–Q11] im <code>RB-035_Lernartikel.md</code>. <strong>Fiktive Musterfälle, reale Validierung noch offen.</strong></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-035_Praxis-Runbook.md">RB-035_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-034/index.html">← Ticket 34</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-036/index.html">Ticket 36 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

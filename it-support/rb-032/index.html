@@ -1,0 +1,379 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 32: Outlook-Kalender oder Terminproblem | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 32: Outlook-Kalender oder Terminproblem. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 32: Outlook-Kalender oder Terminproblem</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportfall-lernziele-und-abgrenzung">1. Supportfall, Lernziele und Abgrenzung</a></li><li><a href="#2-grundlagen-welche-objekte-spielen-zusammen">2. Grundlagen: Welche Objekte spielen zusammen?</a></li><li><a href="#3-diagnose-und-abhangigkeitsmodell">3. Diagnose- und Abhängigkeitsmodell</a></li><li><a href="#4-fehlerbilder-und-diskriminierende-tests">4. Fehlerbilder und diskriminierende Tests</a></li><li><a href="#5-zehn-fragen-bei-der-ticketaufnahme">5. Zehn Fragen bei der Ticketaufnahme</a></li><li><a href="#6-sicherheits-datenschutz-und-freigabe-gate">6. Sicherheits-, Datenschutz- und Freigabe-Gate</a></li><li><a href="#7-l1-schnelltest-derselbe-termin-zwei-clients">7. L1-Schnelltest – derselbe Termin, zwei Clients</a></li><li><a href="#8-pfad-a-owa-korrekt-desktop-neues-outlook-oder-mobilgerat-falsch">8. Pfad A – OWA korrekt, Desktop/Neues Outlook oder Mobilgerät falsch</a></li><li><a href="#9-pfad-b-termin-bei-organisator-oder-teilnehmer-in-owa-fehlt">9. Pfad B – Termin bei Organisator oder Teilnehmer in OWA fehlt</a></li><li><a href="#10-pfad-c-freigegebener-kalender-rechte-oder-stellvertretung">10. Pfad C – Freigegebener Kalender, Rechte oder Stellvertretung</a></li><li><a href="#11-pfad-d-uhrzeit-sommerzeit-terminserie-oder-raumbuchung">11. Pfad D – Uhrzeit, Sommerzeit, Terminserie oder Raumbuchung</a></li><li><a href="#12-lesende-exchange-online-powershell-diagnose-l2">12. Lesende Exchange-Online-PowerShell-Diagnose (L2)</a></li><li><a href="#13-diagnosematrix-befund-hypothese-massnahme">13. Diagnosematrix – Befund, Hypothese, Maßnahme</a></li><li><a href="#14-zwei-fiktive-storungsfalle-zuerst-eigene-hypothesen-bilden">14. Zwei fiktive Störungsfälle – zuerst eigene Hypothesen bilden</a></li><li><a href="#15-validierung-active-recall-transfer-und-kompetenznachweis">15. Validierung, Active Recall, Transfer und Kompetenznachweis</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-gepruft-am-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (geprüft am 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Microsoft 365 / Exchange Online / Outlook im Web, neues und klassisches Outlook<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Offizielle Microsoft-Quellen recherchiert; <strong>praktische Validierung noch ausstehend</strong>. Alle Fallbeispiele, Namen und E-Mail-Adressen sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb032_henne_ei_kalender.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-und-Ei-Infografik zu Kalender- und Terminproblemen" decoding="async" loading="lazy" src="assets/rb032_henne_ei_kalender.webp"/></a></div><figcaption>Henne-und-Ei-Infografik zu Kalender- und Terminproblemen</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „Termin fehlt“ ist eine Beobachtung, keine Ursache. <strong>Kalenderzuordnung, Einladungs-/Änderungsverlauf, Exchange-Postfach, Freigaberecht, Synchronisierung und Zeitzone</strong> sind gesondert zu prüfen. Nicht auf Verdacht löschen, neu erstellen oder Kalenderrechte erweitern.</p>
+</blockquote>
+<hr/>
+<h2 id="1-supportfall-lernziele-und-abgrenzung">1. Supportfall, Lernziele und Abgrenzung</h2>
+<p><strong>Typische Meldungen:</strong> „Mein Termin ist weg“, „Im Browser sehe ich ihn, auf dem PC nicht“, „Kollegen sehen den Teamkalender anders“, „Der Termin ist genau eine Stunde verschoben“, „Besprechungsupdates kommen nicht an“, „Serientermin doppelt“, „Der Raum lehnt die Buchung ab“.</p>
+<p><strong>Ziel:</strong> Das konkrete Objekt und die betroffene Aktion identifizieren, anhand eines sicheren A/B-Vergleichs den Fehlerpfad isolieren, nur nach nachgewiesenem Befund und Freigabe korrigieren und die erwartete Funktion beim ursprünglichen Benutzer kontrollieren.</p>
+<p><strong>L1:</strong> Störung aufnehmen, Kalender/Konto/Outlook-Version bestimmen, Ansicht und Zeitzone lesen, Termin in <strong>Outlook im Web (OWA)</strong> mit demselben Konto vergleichen und nicht-destruktive Tests durchführen. <strong>L2/Exchange:</strong> Berechtigungen und Stellvertretungen, Änderungsverlauf, Kalenderdiagnoseprotokolle sowie Ressourcenpostfächer auswerten. In Spezialfällen Microsoft-Support/Exchange-Expertise einbeziehen.</p>
+<p><strong>Abgrenzung:</strong> RB-006 (Mailzustellung), RB-019 (Outlook-Profil), RB-028 (Office-Programmstart), RB-031 (gemeinsames Postfach). Dieses Ticket konzentriert sich auf <strong>Kalenderelemente, Besprechungseinladungen, gemeinsame Kalender und Uhrzeiten</strong>. Ein Posteingangs-/Mailtransportproblem wird als möglicher Teilpfad dokumentiert, nicht vorschnell zur Kalenderursache erklärt.</p>
+<h2 id="2-grundlagen-welche-objekte-spielen-zusammen">2. Grundlagen: Welche Objekte spielen zusammen?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Technische Einordnung</th>
+<th>Typischer Irrtum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Termin / Appointment</strong></td>
+<td>Ein Kalenderelement, grundsätzlich ohne Einladung anderer Teilnehmer</td>
+<td>„Termin“ und „Besprechung“ werden gleichgesetzt</td>
+</tr>
+<tr>
+<td><strong>Besprechung / Meeting</strong></td>
+<td>Kalendereintrag mit Organisator, Teilnehmern und Einladungs-/Updateablauf</td>
+<td>Ein Teilnehmer könne jeden Parameter verbindlich ändern</td>
+</tr>
+<tr>
+<td><strong>Serientermin / Recurrence</strong></td>
+<td>Regel und einzelne Vorkommen/Ausnahmen</td>
+<td>Änderung einer Instanz wird mit Änderung der ganzen Serie verwechselt</td>
+</tr>
+<tr>
+<td><strong>Organisator</strong></td>
+<td>Verantwortliche Quelle für Einladungen und Updates</td>
+<td>Bearbeitung beim Teilnehmer sei automatisch eine Organisator-Änderung</td>
+</tr>
+<tr>
+<td><strong>Exchange-Online-Postfach</strong></td>
+<td>Server- und Kalenderdaten der betreffenden Identität</td>
+<td>Desktopanzeige sei stets deckungsgleich mit dem Postfach</td>
+</tr>
+<tr>
+<td><strong>Outlook im Web (OWA)</strong></td>
+<td>Browserclient für einen servernahen Vergleich</td>
+<td>OWA sei eine hundertprozentige Wahrheit über alle Teilnehmenden</td>
+</tr>
+<tr>
+<td><strong>Shared Calendar / Delegation</strong></td>
+<td>Freigegebener Kalender mit abgestufter Berechtigung</td>
+<td>Sichtbarkeit bedeute Bearbeitungs- oder Stellvertreterrecht</td>
+</tr>
+<tr>
+<td><strong>Zeitzone/DST</strong></td>
+<td>Anzeigen lokaler Zeiten aus einer UTC-basierten Zeitinformation</td>
+<td>Eine um eine Stunde andere Anzeige bedeute gelöschte/verschobene Daten</td>
+</tr>
+</tbody>
+</table></div>
+<p>Outlook speichert Anfangs- und Endzeiten in UTC und zeigt sie entsprechend den Zeitzoneneinstellungen an [Q4]. Das bedeutet <strong>nicht</strong>, dass jedes beobachtete Zeitproblem automatisch ein UTC-Fehler ist. Verschiedene Kalenderansichten, Zeitzonen und Sommerzeitwechsel müssen mit dem Organisator-Eintrag abgeglichen werden.</p>
+<h2 id="3-diagnose-und-abhangigkeitsmodell">3. Diagnose- und Abhängigkeitsmodell</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Wer meldet den Fehler? → Wer ist Organisator / Eigentümer?
+          ↓
+Welches Konto, welcher Tenant, welcher Kalender und welche Outlook-Variante?
+          ↓
+Existiert der fragliche Termin mit den erwarteten Angaben in Outlook im Web?
+          ├─ Ja:     Desktop/Mobil/Ansicht/Sync und freigegebene Kalender vergleichen
+          └─ Nein:   Kalenderobjekt, Einladung/Absage, Organisator, Änderungen untersuchen
+          ↓
+Sonderzweige: Freigaberechte/Delegation | Zeitzone/DST | Serie/Einzeltermin
+          ↓
+Befund + Freigabe → kleinste gezielte Maßnahme → Originalnutzer-Retest
+</code></pre></div>
+<p>Das ist eine <strong>Diagnoseabfolge</strong>, kein Anspruch, dass Exchange intern jede Besprechung exakt entlang dieser Linie verarbeitet. Shared Calendars verwenden je nach Freigabe- und Clientmodell unterschiedliche Synchronisierungsverfahren [Q1].</p>
+<h2 id="4-fehlerbilder-und-diskriminierende-tests">4. Fehlerbilder und diskriminierende Tests</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Mögliche Erklärungen</th>
+<th>Sicherster nächster Vergleich</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur <strong>ein</strong> Termin fehlt</td>
+<td>Anderer Kalender, Ausblendung/Ansicht, Absage, Änderung durch Organisator, lokaler Sync</td>
+<td>Genauen Termin in OWA, beim Organisator und beim Teilnehmer suchen</td>
+</tr>
+<tr>
+<td>Viele Termine nur <strong>im klassischen Outlook</strong> fehlen</td>
+<td>Ansicht, Cache/Synchronisierung, lokale Clientprobleme, bekanntes Shared-Calendar-Problem</td>
+<td>Mit identischem Konto und Datumsbereich in OWA vergleichen</td>
+</tr>
+<tr>
+<td>Alle Clients zeigen Termin falsch</td>
+<td>Ursprungsobjekt, Organisator-Update, Berechtigung, Serververlauf</td>
+<td>Organisator- und Teilnehmerkopie samt Uhrzeit gegenüberstellen; ggf. CDL</td>
+</tr>
+<tr>
+<td>Terminuhrzeit eine Stunde anders</td>
+<td>Zeitzone, Sommerzeit, Einladung aus anderem Zeitzonen-Kontext</td>
+<td>UTC/local-Zeit, Windows-/Outlook-Zeitzone, Datum der DST-Umstellung prüfen</td>
+</tr>
+<tr>
+<td>Gemeinsamer Kalender fehlt/veraltet</td>
+<td>Freigabe/Akzeptanz, Modellwechsel, Sync, Berechtigung</td>
+<td>Kalender im Web mit derselben Berechtigung öffnen; Eigentümer prüfen</td>
+</tr>
+<tr>
+<td>Besprechung wiederholt/doppelt</td>
+<td>Serie und Ausnahmen, mehrere eingeblendete Kalender, Sync, Client-Bug</td>
+<td>Termin-IDs/Organisator/Serieninstanz abgleichen, nicht sofort löschen</td>
+</tr>
+<tr>
+<td>Nur Raum antwortet abweichend</td>
+<td>Raum-/Ressourcenrichtlinie oder Konflikt</td>
+<td>Raum-Mailbox und <code>Get-CalendarProcessing</code> durch L2 untersuchen [Q15]</td>
+</tr>
+<tr>
+<td>Einladungen/Updates fehlen</td>
+<td>E-Mail-Regeln/Transport, Weiterleitung, Delegation, Einladung nie versandt</td>
+<td>Organisator, Gesendete Elemente, Posteingang, OWA abgleichen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Fachliche Grenze:</strong> Ein abweichendes OWA-/Desktop-Ergebnis lokalisiert den Fehlerpfad, identifiziert aber nicht automatisch den konkreten defekten Cache oder eine eindeutige Root Cause.</p>
+<h2 id="5-zehn-fragen-bei-der-ticketaufnahme">5. Zehn Fragen bei der Ticketaufnahme</h2>
+<ol>
+<li>Was ist <strong>genau</strong> falsch: fehlt, doppelt, verschoben, nicht editierbar, keine Einladung oder kein Meeting-Link?</li>
+<li><strong>Betroffene Person</strong> und ggf. <strong>Organisator</strong>: Wer hat den Termin erstellt?</li>
+<li>Welcher <strong>Kalender</strong> ist gemeint – eigener, geteilter, Gruppe, Raum, Internetkalender?</li>
+<li>Welches <strong>Konto/Tenant</strong> und welche <strong>Outlook-Variante</strong> (klassisch, neu, Web, mobil)?</li>
+<li>Welcher <strong>Termin</strong> (Betreff nur soweit datenschutzrechtlich nötig), Datum, Start-/Endzeit, Zeitzone?</li>
+<li>Ist es ein <strong>Einzeltermin</strong> oder eine <strong>Serieninstanz</strong>? Gibt es Ausnahmen?</li>
+<li>Tritt der Fehler <strong>seit wann</strong> auf; gab es ein Update, eine Delegation oder eine Terminänderung?</li>
+<li>Sind andere Teilnehmer oder Geräte mit <strong>demselben Termin</strong> ebenfalls betroffen?</li>
+<li>Erscheint der Termin <strong>in OWA</strong> mit demselben Konto im richtigen Kalender?</li>
+<li>Welche <strong>Geschäftsauswirkung</strong> besteht (wichtige Besprechung, Buchungsproblem), und gibt es einen autorisierten Ersatzweg?</li>
+</ol>
+<p><strong>Gute kommunikative Nachfrage:</strong> „Fehlt der Termin nur auf diesem Rechner oder sehen Sie ihn mit demselben Konto auch im Outlook-Browserkalender nicht?“</p>
+<h2 id="6-sicherheits-datenschutz-und-freigabe-gate">6. Sicherheits-, Datenschutz- und Freigabe-Gate</h2>
+<ul>
+<li>Termine können <strong>personenbezogene und besonders vertrauliche Inhalte</strong> enthalten; nur erforderliche Metadaten, möglichst keine vollständigen Einladungsinhalte in das Ticket aufnehmen.</li>
+<li>Keine Kalender, Serientermine oder Einladungen auf Verdacht löschen, verschieben oder neu versenden. Das kann zu echten Absagen, Verwirrung, Datenverlust oder neuen Benachrichtigungen führen.</li>
+<li>Keine Outlook-Profile, OST-Dateien, Freigaben, Delegationen oder Kalenderberechtigungen ungeprüft löschen/neu aufbauen.</li>
+<li>Eine Produktionsbesprechung nicht als Testobjekt verändern; <strong>kontrollierte Testtermine</strong> nur mit Einverständnis, klaren Testteilnehmern und eingeplantem Rückbau erstellen.</li>
+<li><code>Editor</code>, <code>Delegate</code> und Frei/Gebucht-Rechte sind nicht austauschbar. Änderungen nur mit Eigentümerfreigabe, dokumentiertem Sollzustand und passenden Exchange-Rechten [Q2, Q3].</li>
+<li>Die <strong>Calendar Diagnostic Logs</strong> können Betreff, Beteiligte und Zeitstempel enthalten: Zugriffsberechtigung, Vertraulichkeit, Speicherort und Aufbewahrung im Unternehmen beachten [Q5, Q6].</li>
+</ul>
+<p><strong>Stopp:</strong> Verdacht auf kompromittiertes Konto, organisationweiten Ausfall, rechtlich relevante Termindaten oder vertrauliche Executive-/HR-Kalender → L2/Security/Datenschutz nach Betriebsverfahren.</p>
+<h2 id="7-l1-schnelltest-derselbe-termin-zwei-clients">7. L1-Schnelltest – derselbe Termin, zwei Clients</h2>
+<ol>
+<li>Den gleichen Benutzer mit dem <strong>richtigen Geschäftskonto/Tenant</strong> bestimmen; keine Zugangsdaten erfragen.</li>
+<li>Datum, Kalenderauswahl, Anzeige-/Suchfilter, Zeitzone und ggf. mehrere übereinandergelegte Kalender notieren.</li>
+<li>Im betroffenen Client das Originalfehlerbild <strong>ohne Änderungen</strong> reproduzieren.</li>
+<li>Mit demselben Konto <strong>Outlook im Web</strong> öffnen und exakt denselben Kalender/Zeitraum/Termin prüfen.</li>
+<li>Bei gemeinsamem Kalender prüfen, ob der Eigentümer ihn tatsächlich freigegeben hat und ob der Benutzer die Einladung korrekt angenommen hat; Freigabeansicht in OWA vergleichen [Q2].</li>
+<li>Eine zweite Ansicht wählen (Tag/Woche/Liste, soweit verfügbar), um reine Darstellungsfehler abzugrenzen.</li>
+<li>Ergebnis tabellarisch festhalten:</li>
+</ol>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>OWA</th>
+<th>Desktop/Neu</th>
+<th>Schlussfolgerung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Termin vorhanden?</td>
+<td>ja/nein</td>
+<td>ja/nein</td>
+<td>Pfad Client/Ansicht vs. Organisator/Exchange</td>
+</tr>
+<tr>
+<td>Startzeit/Zone</td>
+<td>Uhrzeit + Zone</td>
+<td>Uhrzeit + Zone</td>
+<td>Bei Differenz Zeitzonenpfad</td>
+</tr>
+<tr>
+<td>Kalendername und Eigentümer</td>
+<td>notiert</td>
+<td>notiert</td>
+<td>Falscher Kalender ausgeschlossen?</td>
+</tr>
+<tr>
+<td>Sichtbarkeit mit Berechtigung</td>
+<td>ja/nein</td>
+<td>ja/nein</td>
+<td>Freigabe- vs. Clientpfad</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> OWA ist bei Microsoft 365 ein sehr hilfreicher Gegencheck, aber keine Garantie, dass Teilnehmerkopien, Ressourcen oder externe ICS-Kalender identisch sind.</p>
+<h2 id="8-pfad-a-owa-korrekt-desktop-neues-outlook-oder-mobilgerat-falsch">8. Pfad A – OWA korrekt, Desktop/Neues Outlook oder Mobilgerät falsch</h2>
+<p><strong>Wahrscheinlicher Fehlerbereich:</strong> Clientansicht, Synchronisierung, Kalenderüberlagerung, Profilbezug, unterstütztes Shared-Calendar-Modell oder Client-Version.</p>
+<ol>
+<li>Prüfen, ob exakt derselbe Kalender mit gleichem Konto und Zeitbereich geöffnet ist; Anzeigeoptionen und Filter dokumentieren.</li>
+<li>Outlook-Verbindungsstatus sowie ggf. Offline-Modus, Internet-/Proxy-Verfügbarkeit und Dienststatus prüfen.</li>
+<li>Neuen vs. klassischen Outlook-Client ausdrücklich unterscheiden; Funktionen und Menüs sind nicht immer identisch.</li>
+<li>Bei freigegebenen Kalendern Alter/Art der Freigabe, Annahme der Freigabeeinladung und Client-Synchronisierungsmodell prüfen [Q1]. Microsoft dokumentiert für klassische Outlook-Versionen auch bekannte Shared-Calendar-Probleme [Q12, Q16].</li>
+<li>Abmelden/Neustart des Clients nur nach Freigabe und Sicherung offener Arbeit; danach erneut vergleichen.</li>
+<li><strong>Nicht sofort</strong> Profil zurücksetzen, <code>.ost</code> löschen oder die Kalenderfreigabe entfernen. Solche Maßnahmen gehören in einen nachgewiesenen Clientpfad und erfordern Sicherheits- und Rückbaubewertung.</li>
+<li>Bleibt der Befund lokal, mit Version/Build, Clientprotokollen und Vergleichsbelegen an Endpoint-L2 eskalieren.</li>
+</ol>
+<h2 id="9-pfad-b-termin-bei-organisator-oder-teilnehmer-in-owa-fehlt">9. Pfad B – Termin bei Organisator oder Teilnehmer in OWA fehlt</h2>
+<ol>
+<li>Prüfen: Handelt es sich um eine neue Einladung, ein Update, eine Absage oder eine Terminserie?</li>
+<li>Organisator, Betreff/ID, Zeitpunkt und betroffene Teilnehmerkopie feststellen. Teilnehmeransicht und Organisatorkalender können voneinander abweichen.</li>
+<li>Gibt es eine <strong>Absage oder Aktualisierung</strong>? Relevante Nachrichten in den autorisierten Postfächern samt Zeitpunkt feststellen; keine privaten Inhalte extrahieren.</li>
+<li>Kontrollieren, ob die Besprechung im richtigen Kalender, verschoben oder als Serienausnahme existiert.</li>
+<li>Fehlende Teilnehmerkopie ≠ zwingend ein Fehler im Organisatorkalender. Die Übermittlung und Verarbeitung von Einladungen ggf. getrennt untersuchen.</li>
+<li>Bei unklarer Änderung/Entfernung <strong>L2-Kalenderdiagnoseprotokolle</strong> mit Meeting-ID beziehungsweise genauem Betreff und zulässigen Metadaten heranziehen [Q5, Q6, Q9].</li>
+<li>Bei bestätigtem Fehler nur vom berechtigten Organisator und nach Abstimmung einen neuen Termin/ein Update erzeugen; vorhandene Serien nicht unbeabsichtigt überschreiben.</li>
+</ol>
+<p><strong>Dokumentationsfrage:</strong> Wurde die Einladung <em>nicht zugestellt</em>, <em>nicht verarbeitet</em>, <em>die Kalenderansicht nicht aktualisiert</em> oder <em>das Objekt bewusst geändert</em>? Das sind unterschiedliche Ursachen.</p>
+<h2 id="10-pfad-c-freigegebener-kalender-rechte-oder-stellvertretung">10. Pfad C – Freigegebener Kalender, Rechte oder Stellvertretung</h2>
+<p>Ein freigegebener Kalender kann nur die Frei/Gebucht-Informationen, einzelne Details, alle Details oder Bearbeitungsmöglichkeiten offenlegen; eine <strong>Delegate</strong>-Beziehung beinhaltet gesondertes Terminmanagement [Q2].</p>
+<ul>
+<li>Eigentümer, betroffenen Benutzer, Kalender und geforderte Aufgabe präzise identifizieren.</li>
+<li><strong>Sichtbarkeit ≠ Änderungsrecht ≠ Delegation</strong>. Immer den benötigten Sollzustand klären.</li>
+<li>Kalender über OWA mit derselben Identität prüfen; bei Fehlern explizite Berechtigung und Teilmodell kontrollieren.</li>
+<li>Das neue Shared-Calendar-Modell synchronisiert serverseitig eine Empfängerkopie; ältere Varianten und via Gruppen/Default geöffnete Kalender können abweichend funktionieren [Q1].</li>
+<li>Exchange-Admin prüft die effektive Kalenderordnerberechtigung. Eine <code>Editor</code>-Rolle allein ersetzt keine vollständige Outlook-Delegationskonfiguration [Q3].</li>
+<li>Änderungen nicht ohne Eigentümerfreigabe durchführen; danach auch vertrauliche/private Elemente nur nach vorgesehenem Berechtigungsmodell beurteilen.</li>
+</ul>
+<h2 id="11-pfad-d-uhrzeit-sommerzeit-terminserie-oder-raumbuchung">11. Pfad D – Uhrzeit, Sommerzeit, Terminserie oder Raumbuchung</h2>
+<p><strong>Zeitzone:</strong> Outlook speichert Terminzeiten UTC-basiert und zeigt sie in der lokalen Zeitzone an [Q4]. Prüfe Windows-Zeitzone, Outlook-Kalenderzeitzone und den konkreten Veranstaltungszeitpunkt in der jeweiligen Zeitzone. Ein Sommerzeitwechsel kann scheinbar um eine Stunde abweichende Termine verursachen. Ein <code>WorkingHoursTimeZone</code>-Wert bezieht sich auf Arbeitszeiten; er beweist nicht allein die Zeitzone eines konkreten Termins [Q10].</p>
+<p><strong>Serie:</strong> Gegenüberstellen, ob die <strong>gesamte Besprechungsserie</strong> oder nur <strong>ein Vorkommen</strong> geändert wurde; Teilnehmer-/Organisatorvariante und Client-Build vergleichen. Microsoft dokumentiert bekannte Client- und Serienterminprobleme [Q12, Q14]. Keine Serie einfach neu erstellen, solange Teilnehmer bereits eingeladen sind.</p>
+<p><strong>Raum:</strong> Eine abgelehnte Ressourcenbuchung ist kein gewöhnlicher Synchronisierungsfehler. L2 kann <code>Get-CalendarProcessing</code> am autorisierten Raumpostfach lesen; Konflikte, Buchungsfenster und Policies prüfen, ohne automatisierte Regeln zu umgehen [Q15].</p>
+<h2 id="12-lesende-exchange-online-powershell-diagnose-l2">12. Lesende Exchange-Online-PowerShell-Diagnose (L2)</h2>
+<p><strong>Voraussetzung:</strong> autorisierte Exchange-Online-PowerShell-Sitzung, passende Rollen, genehmigter Ticketzweck; <strong>nur lesende Cmdlets</strong>. Beispiele nutzen fiktive Adressen. Der Ordnername <code>Calendar</code> ist nicht in allen Postfächern identisch lokalisiert.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Verbindung nur mit freigegebenem Adminkonto / Rolle
+Connect-ExchangeOnline
+
+# Kalenderordner des Postfachs ermitteln (lokalisierte Ordnernamen beachten)
+Get-EXOMailboxFolderStatistics -Identity 'lea@contoso.example' -FolderScope Calendar |
+    Select-Object Name, FolderPath, FolderType
+
+# Beispiel nur bei geprüftem tatsächlichem Kalenderordner-Namen "Calendar":
+Get-EXOMailboxFolderPermission -Identity 'lea@contoso.example:\Calendar' |
+    Select-Object User, AccessRights, SharingPermissionFlags
+
+# Terminzeitzonen-/Arbeitszeiten-Einstellungen: kein Nachweis für einzelne Terminzeiten
+Get-MailboxCalendarConfiguration -Identity 'lea@contoso.example' |
+    Format-List WorkingHoursTimeZone, WorkDays, WorkingHoursStartTime, WorkingHoursEndTime
+
+# Regionale Postfacheinstellungen ergänzend lesen
+Get-MailboxRegionalConfiguration -Identity 'lea@contoso.example' |
+    Format-List Language, TimeZone, DateFormat, TimeFormat
+
+# Nur nach autorisierter Eingrenzung eines konkreten Meetings;
+# enthält personenbezogene Kalendermetadaten, daher nicht unkontrolliert exportieren!
+Get-CalendarDiagnosticObjects -Identity 'lea@contoso.example' -Subject 'Projektstatus' -ExactMatch $true
+
+# Sitzung schließen
+Disconnect-ExchangeOnline -Confirm:$false
+</code></pre></div>
+<p><strong>Datenschutz:</strong> Kalenderdiagnoseprotokolle können personenbezogene Inhalte enthalten. Microsoft empfiehlt für komplexe Meeting-Verläufe die zusammenfassende CDL-Auswertung, nicht das ungeprüfte Verteilen der Rohdaten [Q5, Q6]. Keine exportierten Daten in ungeschützten Ticketanhängen ablegen. Parameter in Produktionsumgebungen anhand aktueller Modulhilfe bestätigen.</p>
+<h2 id="13-diagnosematrix-befund-hypothese-massnahme">13. Diagnosematrix – Befund, Hypothese, Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Befund</th>
+<th>Haupt-Hypothese / weitere Prüfung</th>
+<th>Niedrigstes sinnvolles Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OWA korrekt, Desktop falsch</td>
+<td>Ansicht, Filter, Cache/Sync, Shared-Calendar-Bug</td>
+<td>Ansicht/Version/Verbindung prüfen; lokalen Clientpfad an Endpoint-L2</td>
+</tr>
+<tr>
+<td>Termin fehlt in OWA und Desktop</td>
+<td>Kalenderobjekt/Einladung/Organisatorpfad</td>
+<td>Organisator- und Teilnehmerkopie, Änderung/Absage, ggf. CDL</td>
+</tr>
+<tr>
+<td>Nur Teamkalender nicht bearbeitbar</td>
+<td>Berechtigung oder Delegation</td>
+<td>Aktuelle ACL lesend prüfen; Sollrecht + Freigabe vor Änderung</td>
+</tr>
+<tr>
+<td>Genau eine Stunde verschoben</td>
+<td>Zeitzone, DST, Client-/Postfachregion</td>
+<td>UTC/Zeitpunkt/Anzeigekontext aller Beteiligten vergleichen</td>
+</tr>
+<tr>
+<td>Ein Vorkommen einer Serie abweichend</td>
+<td>Einzelinstanz statt Serienmaster, Clientproblem</td>
+<td>Organisator/Client-Version/Meeting-ID abgleichen</td>
+</tr>
+<tr>
+<td>Raum lehnt ab</td>
+<td>Konflikte/Ressourcenpolicy</td>
+<td>L2 prüft Raum-Postfach/<code>Get-CalendarProcessing</code></td>
+</tr>
+<tr>
+<td>Alle Kollegen betroffen</td>
+<td>Dienststörung, zentraler Rollout, Kalenderfehler</td>
+<td>Service Health/Change, Incident-Eskalation</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="14-zwei-fiktive-storungsfalle-zuerst-eigene-hypothesen-bilden">14. Zwei fiktive Störungsfälle – zuerst eigene Hypothesen bilden</h2>
+<h3 id="fall-a-besprechung-nur-auf-einem-laptop-verschwunden">Fall A – „Besprechung nur auf einem Laptop verschwunden“</h3>
+<p><strong>Meldung:</strong> „Der Wochenstarttermin fehlt in meinem klassischen Outlook. Kollegen sehen ihn.“ Der gleiche Benutzer sieht den Termin in Outlook im Web im richtigen Kalender; auf seinem Desktop ist in derselben Woche nichts sichtbar. Die letzte Änderung war ein Outlook-Update am Vortag.</p>
+<p><strong>Deine Aufgabe ohne Lösung:</strong> Formuliere zwei konkurrierende Hypothesen. Welcher risikoarme Test unterscheidet sie? Was wäre ein ungerechtfertigter Eingriff?</p>
+<p>&lt;details&gt;&lt;summary&gt;Auswertung erst nach eigener Diagnose öffnen&lt;/summary&gt;</p>
+<p><strong>Befundorientierte Hypothese:</strong> Clientansicht, Synchronisierung oder spezielles Shared-Calendar-Verhalten; kein ausreichender Beleg für fehlende Exchange-Berechtigung oder gelöschten Organisatortermin. <strong>Test:</strong> identische Kalenderauswahl/Ansicht/Konto, Clientbuild und Synchronisierungszustand vergleichen; ggf. mit anderem autorisierten Client. <strong>Nicht:</strong> Kalenderfreigabe entfernen, Profil/OST ungeprüft löschen. <strong>Abschluss:</strong> Termin erscheint im ursprünglichen Desktopclient wieder und Änderung bleibt nach Neustart sichtbar.</p>
+<p>&lt;/details&gt;</p>
+<h3 id="fall-b-termin-plotzlich-eine-stunde-fruher">Fall B – „Termin plötzlich eine Stunde früher“</h3>
+<p><strong>Meldung:</strong> Ein Termin mit externem Projektpartner erscheint beim Teilnehmer in Berlin nach einer Zeitumstellung eine Stunde früher als erwartet. Der Organisator sitzt in einer anderen Zeitzone; es handelt sich um eine wiederkehrende Besprechung mit mehreren Ausnahmen.</p>
+<p><strong>Deine Aufgabe ohne Lösung:</strong> Welche Uhrzeiten und Zeitzonen musst du erfassen? Welche Daten darfst du <strong>nicht</strong> allein aufgrund der Anzeige korrigieren?</p>
+<p>&lt;details&gt;&lt;summary&gt;Auswertung erst nach eigener Diagnose öffnen&lt;/summary&gt;</p>
+<p><strong>Mögliche Ursache:</strong> Unterschied zwischen lokalem Anzeigezeitpunkt, UTC, DST-Umstellungsdatum und einzelner Serieninstanz. <strong>Test:</strong> konkretes Vorkommen, Organisatorzeit, Teilnehmeranzeige, Zeitzone und DST im betroffenen Zeitraum vergleichen. Eine Serienänderung nur durch den berechtigten Organisator und nach Bestätigung, nicht durch Übersteuerung beim Teilnehmer. <strong>Abschluss:</strong> Originalteilnehmer und Organisator sehen die vereinbarte lokale Zeit, ohne ungewollte Änderung weiterer Vorkommen.</p>
+<p>&lt;/details&gt;</p>
+<h2 id="15-validierung-active-recall-transfer-und-kompetenznachweis">15. Validierung, Active Recall, Transfer und Kompetenznachweis</h2>
+<h3 id="erfolgskontrolle">Erfolgskontrolle</h3>
+<ul>
+<li>Derselbe Benutzer öffnet den <strong>korrekten Kalender</strong> und findet den <strong>richtigen Termin</strong> in OWA und im betroffenen Client oder es ist begründet dokumentiert, warum eine Ansicht abweicht.</li>
+<li>Terminserie, Zeitzone, Organisator, Datum und Teilnehmerstatus stimmen mit dem <strong>vereinbarten Sollzustand</strong> überein.</li>
+<li>Bei freigegebenen Kalendern ist nur die genehmigte <strong>Lesen-/Bearbeiten-/Delegationsstufe</strong> wirksam.</li>
+<li>Einladungen/Updates werden, falls relevant, bei autorisierten Testteilnehmern korrekt angezeigt; keine unbeabsichtigten Benachrichtigungen.</li>
+<li>Ursache, A/B-Test, Maßnahme, Freigabe, Retest und ggf. Eskalationsübergabe sind im Ticket protokolliert.</li>
+</ul>
+<h3 id="active-recall-ohne-unterlage-erklaren">Active Recall – ohne Unterlage erklären</h3>
+<ol>
+<li>Warum ist ein in Outlook fehlender Termin nicht zwingend gelöscht?</li>
+<li>Warum ist der <strong>OWA/Desktop-Vergleich</strong> so aussagekräftig, aber kein endgültiger Ursachenbeweis?</li>
+<li>Was unterscheidet <strong>Organisator</strong>, <strong>Teilnehmer</strong>, <strong>Termin</strong> und <strong>Besprechung</strong>?</li>
+<li>Wann ist ein <strong>freigegebener Kalender</strong> ein Rechteproblem, wann eher ein Synchronisierungsproblem?</li>
+<li>Warum muss bei Zeitverschiebungen das <strong>Datum der Sommerzeitumstellung</strong> berücksichtigt werden?</li>
+<li>Welche Risiken entstehen, wenn man einen Serientermin oder eine Stellvertretung voreilig entfernt?</li>
+<li>Wann sind <code>Get-EXOMailboxFolderPermission</code> und <code>Get-CalendarDiagnosticObjects</code> als L2-Werkzeuge sinnvoll?</li>
+</ol>
+<h3 id="lernkarten-drei-kategorien">Lernkarten – drei Kategorien</h3>
+<ul>
+<li><strong>Wissen:</strong> „Outlook-Start-/Endzeiten von Kalenderobjekten?“ → UTC gespeichert, lokal angezeigt.</li>
+<li><strong>Verständnis:</strong> „OWA zeigt Termin, Desktop nicht: Beweis für Rechtefehler?“ → Nein; spricht zunächst für Client/Ansicht/Sync.</li>
+<li><strong>Diagnose:</strong> „Nur einzelnes Serienvorkommen verschoben: erster Vergleich?“ → Organisator-/Teilnehmerkopie, Zeitzone und Instanz vs. Serie.</li>
+</ul>
+<p><strong>Praxistraining später:</strong> Fehler zunächst aus Meldung ohne Runbook bearbeiten, Hypothesen dokumentieren, in einer autorisierten Testumgebung nachstellen und mit Herstellerdokumentation abgleichen; Retest nach ungefähr 7 und 21 Tagen. Dieses Dokument ist <strong>Vorbereitung</strong>, kein Nachweis eines bereits ausgeführten Tests.</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-gepruft-am-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (geprüft am 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://support.microsoft.com/en-us/outlook/calendar-sharing-in-microsoft-365" rel="noopener noreferrer" target="_blank">Calendar sharing in Microsoft 365 – Synchronisierung und neues/älteres Modell</a></li>
+<li><strong>[Q2]</strong> <a href="https://support.microsoft.com/en-us/outlook/share-your-calendar-in-outlook-on-the-web" rel="noopener noreferrer" target="_blank">Share your calendar in Outlook on the web – Freigabestufen und Kalenderansicht</a></li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/de-de/exchange/collaboration-exo/shared-calendars/manage-calendar-permissions" rel="noopener noreferrer" target="_blank">Manage calendar permissions in Exchange Online – Kalenderberechtigungen und Delegationen</a></li>
+<li><strong>[Q4]</strong> <a href="https://support.microsoft.com/de-de/outlook/getstarted/manage-time-zone-settings-in-outlook" rel="noopener noreferrer" target="_blank">Manage time zone settings in Outlook – Zeitzonen/UTC</a></li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/calendars/cdl/get-calendar-diagnostic-logs" rel="noopener noreferrer" target="_blank">Get calendar diagnostic logs for Exchange Online mailboxes – CDL</a></li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/calendars/cdl/analyze-calendar-diagnostic-logs" rel="noopener noreferrer" target="_blank">Analyze Calendar diagnostic logs for Exchange Online mailboxes – Zeitstrahl</a></li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-exomailboxfolderpermission?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-EXOMailboxFolderPermission – Exchange Online PowerShell</a></li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-exomailboxfolderstatistics?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-EXOMailboxFolderStatistics – Kalenderordner finden</a></li>
+<li><strong>[Q9]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-calendardiagnosticobjects?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-CalendarDiagnosticObjects – Kalenderereignisse</a></li>
+<li><strong>[Q10]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-mailboxcalendarconfiguration?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-MailboxCalendarConfiguration – Arbeitszeiten/Zeitzone</a></li>
+<li><strong>[Q11]</strong> <a href="https://learn.microsoft.com/de-de/powershell/module/exchangepowershell/get-mailboxregionalconfiguration?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-MailboxRegionalConfiguration – Postfachregion/Zeitzone</a></li>
+<li><strong>[Q12]</strong> <a href="https://support.microsoft.com/en-us/support/known-issues/known-issues-with-classic-outlook-desktop-shared-calendar-improvements" rel="noopener noreferrer" target="_blank">Known issues with classic Outlook desktop shared calendar improvements</a></li>
+<li><strong>[Q13]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/outlook/calendaring/calendar-checking-tool-for-outlook" rel="noopener noreferrer" target="_blank">Calendar Checking Tool for Outlook (CalCheck)</a></li>
+<li><strong>[Q14]</strong> <a href="https://support.microsoft.com/en-us/outlook/calendar/change-an-appointment-meeting-or-event-in-outlook" rel="noopener noreferrer" target="_blank">Change an appointment, meeting or event in Outlook</a></li>
+<li><strong>[Q15]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-calendarprocessing?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-CalendarProcessing – Ressourcen-/Raumbuchung, Spezialpfad</a></li>
+<li><strong>[Q16]</strong> <a href="https://support.microsoft.com/de-de/support/known-issues/classic-outlook-crash-accept-shared-calendar-invite" rel="noopener noreferrer" target="_blank">Bekanntes Problem: klassisches Outlook stürzt beim Akzeptieren einer freigegebenen Kalender-Einladung ab</a></li>
+</ul>
+<p><strong>Quellenstatus und Grenzen:</strong> Die Quellen dokumentieren Produktfunktionen, typische Fehler und Diagnosewerkzeuge; sie beweisen keine Ursache in einer konkreten Umgebung. Benutzeroberflächen, Bugs und Rolloutstände können sich ändern. Der Forschungsstand bezieht sich auf den 22.11.2026, die beschriebenen Tests wurden nicht an produktiven Systemen ausgeführt. Microsoft-Tools und Cmdlets können je nach Mandant, Exchange-Online-Modul und Rolle abweichen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-032_Lernartikel.md">RB-032_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-031/index.html">← Ticket 31</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-033/index.html">Ticket 33 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,130 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 42: Windows-Benutzerprofil beschädigt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 42: Windows-Benutzerprofil beschädigt. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 42: Windows-Benutzerprofil beschädigt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsmeldung-und-anmeldephase-erfassen">1. Störungsmeldung und Anmeldephase erfassen</a></li><li><a href="#2-sofortmassnahme-daten-und-zugang-sichern">2. Sofortmaßnahme: Daten und Zugang sichern</a></li><li><a href="#3-konto-profilzustand-und-speicherplatz-lesen">3. Konto, Profilzustand und Speicherplatz lesen</a></li><li><a href="#4-profildienst-ereignisse-zeitgenau-auswerten">4. Profildienst-Ereignisse zeitgenau auswerten</a></li><li><a href="#5-profilelist-zielpfad-und-acl-nur-lesend-prufen">5. ProfileList, Zielpfad und ACL nur lesend prüfen</a></li><li><a href="#6-profiltyp-bestimmen-und-sonderpfade-isolieren">6. Profiltyp bestimmen und Sonderpfade isolieren</a></li><li><a href="#7-diagnoseentscheidung-und-hypothese-absichern">7. Diagnoseentscheidung und Hypothese absichern</a></li><li><a href="#8-genehmigte-korrektur-kleinste-geeignete-massnahme">8. Genehmigte Korrektur – kleinste geeignete Maßnahme</a></li><li><a href="#9-erfolgskontrolle-am-originalarbeitsplatz">9. Erfolgskontrolle am Originalarbeitsplatz</a></li><li><a href="#10-eskalation-abschluss-und-muster-ticketkommentar">10. Eskalation, Abschluss und Muster-Ticketkommentar</a></li></ol></nav><div class="support-markdown">
+<p><strong>Fachstatus:</strong> Recherchiert, <strong>noch nicht praktisch validiert</strong> · 22.11.2026 · Version 1.0<br/>
+<strong>Sicherheitspriorität:</strong> <strong>Temporäre Arbeit sichern; Originalprofil erhalten; keine Löschung oder Registry-Reparatur auf Verdacht.</strong></p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb042_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-042 – Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb042_diagnosebaum.svg"/></a></div><figcaption>RB-042 – Diagnose-Entscheidungsbaum</figcaption></figure>
+<h2 id="1-storungsmeldung-und-anmeldephase-erfassen">1. Störungsmeldung und Anmeldephase erfassen</h2>
+<ul>
+<li>Meldung im Original, Screenshot ohne persönliche Inhalte, <strong>genaue Uhrzeit</strong>, betroffener Benutzer/SID, Hostname und Standort erfassen.</li>
+<li>Anmeldung abgewiesen oder Anmeldung mit <strong>temporärem/leerem Profil</strong> erfolgreich? Ist ein anderer Benutzer am gleichen Rechner betroffen? Tritt es auf einem VDI-/RDS-Host auf?</li>
+<li>Welche Arbeiten wurden <strong>nach</strong> Eintritt der Fehlermeldung angelegt/geändert? Wurden bereits Neustarts oder „Profilreparaturen“ durchgeführt?</li>
+<li>Nur Desktop-/OneDrive-Inhalte fehlen? Dann Speicherort/Umleitung prüfen, nicht sofort Profilkorruption annehmen.</li>
+</ul>
+<h2 id="2-sofortmassnahme-daten-und-zugang-sichern">2. Sofortmaßnahme: Daten und Zugang sichern</h2>
+<ul>
+<li>Bei temporärem Profil <strong>vor Abmelden/Neustart</strong> die dort bearbeiteten Anwenderdateien auf genehmigten Speicher sichern; Rücklesetest durchführen.</li>
+<li>Originaldateien, Cloud-/Roaming-Daten, PST/EFS-/app-spezifische Informationen, vorhandenes Backup und ggf. BitLocker-Wiederherstellung klären.</li>
+<li>Vor Schreiboperation: Owner-/Datenschutz- und Change-Freigabe, Wartungsfenster, Rollback, funktionierender zweiter Admin-Zugang.</li>
+<li><strong>Nicht</strong>: Profilordner, <code>NTUSER.DAT</code>, <code>ProfileList</code>-/<code>.bak</code>-Schlüssel, FSLogix-VHD(X) oder Securitykomponenten löschen/ändern.</li>
+</ul>
+<h2 id="3-konto-profilzustand-und-speicherplatz-lesen">3. Konto, Profilzustand und Speicherplatz lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Am betroffenen Rechner; aktuelle Sitzung ist nicht zwingend der Zielbenutzer.
+whoami /user
+$env:USERPROFILE
+Get-CimInstance Win32_UserProfile |
+  Select-Object SID, LocalPath, Loaded, Special, Status, LastUseTime
+Get-Volume -DriveLetter C |
+  Select-Object DriveLetter, SizeRemaining, HealthStatus
+</code></pre></div>
+<p><strong>Auswerten:</strong> SID/Originalkonto korrekt? Tatsächliches TEMP-Profil? Genug Platz auf dem <strong>richtigen</strong> Profilvolume? Andere betroffene Nutzer auf demselben System?</p>
+<h2 id="4-profildienst-ereignisse-zeitgenau-auswerten">4. Profildienst-Ereignisse zeitgenau auswerten</h2>
+<p>GUI: Ereignisanzeige → Windows-Protokolle → <strong>Anwendung</strong> → Quelle <strong>User Profiles Service</strong>; anschließend dessen <strong>Operational</strong>-Protokoll unter Microsoft/Windows auswerten.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-WinEvent -FilterHashtable @{
+  LogName='Application'
+  ProviderName='Microsoft-Windows-User Profiles Service'
+  StartTime=(Get-Date).AddDays(-2)
+} | Select-Object TimeCreated, Id, LevelDisplayName, Message
+
+# Falls der Name des Betriebskanals unbekannt ist:
+Get-WinEvent -ListLog '*User Profile*' |
+  Select-Object LogName, IsEnabled
+</code></pre></div>
+<p><strong>Befund:</strong> Passende Zeit? 1500/1508/1509/1511/1515? Konkreter Pfad, Fehlercode, Zugriffs- oder Speicherproblem? Ereignis <strong>1530 isoliert</strong> nicht als eindeutigen Profildefekt deuten.</p>
+<h2 id="5-profilelist-zielpfad-und-acl-nur-lesend-prufen">5. ProfileList, Zielpfad und ACL <strong>nur lesend</strong> prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList' |
+  ForEach-Object {
+    $p = Get-ItemProperty -LiteralPath $_.PSPath
+    [pscustomobject]@{ SIDKey=$_.PSChildName; Path=$p.ProfileImagePath; State=$p.State }
+  } | Format-Table -AutoSize
+
+# Nur im konkreten, bestätigten Fehlerpfad (Beispiel):
+$OldProfile='C:\Users\testuser'
+Test-Path -LiteralPath $OldProfile
+Get-Acl -LiteralPath $OldProfile | Select-Object Owner, AccessToString
+</code></pre></div>
+<p><strong>Befund:</strong> Registry-SID passt zum Zielkonto? Korrektes Profilverzeichnis? ACL/Vererbung? Eventuell <code>.bak</code>-Eintrag dokumentieren, <strong>nicht</strong> automatisch manipulieren.</p>
+<h2 id="6-profiltyp-bestimmen-und-sonderpfade-isolieren">6. Profiltyp bestimmen und Sonderpfade isolieren</h2>
+<ul>
+<li><strong>Lokal:</strong> Profildienst, Hive, SSD/Volume, ACL, Originalpfad prüfen.</li>
+<li><strong>Roaming:</strong> Profilserver/-share, Benutzerrechte, DNS/SMB und Gruppeneinstellungen zusätzlich prüfen.</li>
+<li><strong>Ordnerumleitung/OneDrive:</strong> Originalspeicherort und Online-/Offline-Dateien nachweisen.</li>
+<li><strong>FSLogix/VDI:</strong> Attach-/Detach-Ereignisse, Speicherlimit, Containerlock und Netzwerkpfad prüfen; Hostvergleich aufbauen.</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># NUR wenn FSLogix wirklich aktiv ist; lesend:
+Get-ChildItem 'C:\ProgramData\FSLogix\Logs\Profile' -Filter 'Profile_*.log' |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 5 Name, LastWriteTime, Length
+</code></pre></div>
+<p><strong>Kein</strong> Container löschen, gewaltsam aushängen oder Storage-Richtlinien ohne VDI-/Storage-Owner ändern.</p>
+<h2 id="7-diagnoseentscheidung-und-hypothese-absichern">7. Diagnoseentscheidung und Hypothese absichern</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Verdacht</th>
+<th>Weiteres Vorgehen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur ein Konto betroffen</td>
+<td>Profilpfad, Hive, ACL, Temp</td>
+<td>Ereignisse, Originalordner und Konten vergleichen</td>
+</tr>
+<tr>
+<td>Mehrere Konten auf PC</td>
+<td>Disk/System/ProfSvc</td>
+<td>System-/Storage-Befunde vergleichen</td>
+</tr>
+<tr>
+<td>Mehrere VDI-Hosts/Nutzer</td>
+<td>FSLogix, Storage, Freigabe</td>
+<td>VDI-/Storage-Team, Log-/Netzvergleich</td>
+</tr>
+<tr>
+<td>TEMP, Originaldaten existieren</td>
+<td>Profilladung gescheitert</td>
+<td>TEMP-Arbeit sichern; Ursache aus Events prüfen</td>
+</tr>
+<tr>
+<td>Nur Datei „verschwunden“</td>
+<td>Umleitung/Sync</td>
+<td>Tatsächliche Dokumentenpfade bestätigen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine Schlussfolgerung allein aus Event-ID, TEMP-Ordner oder bloßem „anderer Benutzer geht“ ziehen.</strong></p>
+<h2 id="8-genehmigte-korrektur-kleinste-geeignete-massnahme">8. Genehmigte Korrektur – kleinste geeignete Maßnahme</h2>
+<ol>
+<li>Ursache mit <strong>mindestens zwei korrelierenden Befunden</strong> stützen (z. B. eindeutiges Zugriffsereignis + ACL-Vergleich).</li>
+<li>Owner/Backup/Freigabe/Rollback dokumentieren.</li>
+<li>Ursache gezielt korrigieren lassen (z. B. nachgewiesenes Speichervolumen, konkrete Pfad-/ACL-Störung oder FSLogix-Freigabe).</li>
+<li>Kontrollierte erneute Anmeldung <strong>nur nach TEMP-Datensicherung</strong> und unter Benutzerabstimmung.</li>
+<li>Falls Profil irreparabel: <strong>neues Profil mit sauberer Identitätszuordnung</strong>, sorgfältige Daten-/Appmigration nach Microsoft-Verfahren; altes Profil nach Retest zunächst erhalten.</li>
+</ol>
+<p><strong>Nicht durchführen:</strong> pauschale Registry-„.bak“-Fixes, ungezieltes <code>icacls /grant</code>, AV/EDR deaktivieren, <code>NTUSER.DAT</code> aus Fremdprofil kopieren, Windows-Reset.</p>
+<h2 id="9-erfolgskontrolle-am-originalarbeitsplatz">9. Erfolgskontrolle am Originalarbeitsplatz</h2>
+<ul>
+<li>Originalbenutzer, korrekter SID-/Profilpfad, <strong>keine TEMP-Meldung</strong>.</li>
+<li>Desktop, Dokumente, Cloud-/Roaming-Ordner und kritische Anwendungen verfügbar; Datenschutzrechte unverändert.</li>
+<li><strong>Kontrollierte Testdatei</strong> bleibt nach erlaubter Ab-/Anmeldung erhalten; bestehende Nutzerdaten durch Anwender bestätigt.</li>
+<li>User Profile Service protokolliert keinen neuen identischen Ladefehler zum Retest-Zeitpunkt.</li>
+<li>Backup und Rücknahmeplan bis Abschluss/Abnahme verfügbar halten, Altprofil nicht vorschnell löschen.</li>
+</ul>
+<h2 id="10-eskalation-abschluss-und-muster-ticketkommentar">10. Eskalation, Abschluss und Muster-Ticketkommentar</h2>
+<p><strong>Eskalation:</strong> Domain-/Security-/Storage-/VDI-Owner bei mehreren Nutzerfehlern, gesperrten FSLogix-Containern, beschädigtem Storage, Konflikten zwischen AD/Entra und Profilpfad, EFS/DPAPI, fehlendem Backup oder nicht reproduzierbaren Profilfehlern.</p>
+<p><strong>Ticketfelder:</strong> Datum, Uhrzeit, Gerät, Benutzerkennung (datensparsam), Art der Profilstörung, Backupstatus, genaue Ereignisse, Profilpfad/SID, geprüfte Hypothesen, freigegebene Maßnahme, Altprofilaufbewahrung, Retest und Benutzerbestätigung.</p>
+<blockquote>
+<p><strong>Fiktiver Ticketkommentar:</strong> „Bei Anmeldung des Kontos <code>CORP\a.mustermann</code> um 09:12 Uhr wurde ein temporäres Windows-Profil geladen. Arbeit aus der temporären Sitzung wurde vor der Abmeldung an einem freigegebenen Speicherort gesichert und zurückgelesen. Der ursprüngliche Profilordner war vorhanden; Profildienstereignisse und knapper freier Speicherplatz wurden dokumentiert. Nach abgestimmter Speicherbereinigung durch die zuständige Administration und kontrollierter Neuanmeldung wurde der ursprüngliche Benutzerprofilpfad wieder geladen. Dokumente und Anwendungen erfolgreich geprüft, Testdatei blieb über eine erneute Anmeldung bestehen. Kein Profilordner/Registry-Schlüssel gelöscht. Alle Angaben sind fiktiv; keine praktische Durchführung erfolgt.“</p>
+</blockquote>
+<p><strong>Quellen:</strong> Alle offiziellen Microsoft-Links und Anwendbarkeitsgrenzen stehen im <strong>Lernartikel, Abschnitt „Herstellerquellen“</strong>.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-042_Praxis-Runbook.md">RB-042_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-041/index.html">← Ticket 41</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-043/index.html">Ticket 43 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

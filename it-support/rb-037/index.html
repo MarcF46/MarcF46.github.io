@@ -1,0 +1,316 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 37: Netzwerkverbindung ungewöhnlich langsam | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 37: Netzwerkverbindung ungewöhnlich langsam. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 37: Netzwerkverbindung ungewöhnlich langsam</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsmeldung-ziel-und-zustandigkeit">1. Störungsmeldung, Ziel und Zuständigkeit</a></li><li><a href="#2-vier-grossen-die-man-nicht-verwechseln-darf">2. Vier Größen, die man nicht verwechseln darf</a></li><li><a href="#3-hypothesen-statt-schnellreparatur">3. Hypothesen statt Schnellreparatur</a></li><li><a href="#4-fehlerbild-messbar-machen-und-scope-festlegen">4. Fehlerbild messbar machen und Scope festlegen</a></li><li><a href="#5-messplan-baseline-vergleich-reproduzierbarkeit">5. Messplan: Baseline, Vergleich, Reproduzierbarkeit</a></li><li><a href="#6-lesende-windows-11-basisdiagnose">6. Lesende Windows-11-Basisdiagnose</a></li><li><a href="#7-latenz-und-verlust-tests-richtig-lesen">7. Latenz und Verlust: Tests richtig lesen</a></li><li><a href="#8-kontrollierte-durchsatzmessung-mit-iperf3-nur-freigegeben">8. Kontrollierte Durchsatzmessung mit iperf3 (nur freigegeben)</a></li><li><a href="#9-paketverlust-tcp-retransmits-und-ursachenketten">9. Paketverlust, TCP-Retransmits und Ursachenketten</a></li><li><a href="#10-smb-server-anwendungsengpasse-abgrenzen">10. SMB-/Server-/Anwendungsengpässe abgrenzen</a></li><li><a href="#11-entscheidungsmatrix-befund-hypothese-nachster-test">11. Entscheidungsmatrix – Befund, Hypothese, nächster Test</a></li><li><a href="#12-sicherheitsgate-abgestufte-losung-und-retest">12. Sicherheitsgate, abgestufte Lösung und Retest</a></li><li><a href="#13-zwei-fiktive-praxisfalle-keine-realen-messergebnisse">13. Zwei fiktive Praxisfälle (keine realen Messergebnisse)</a></li><li><a href="#14-active-recall-self-explanation-und-diagnosetransfer">14. Active Recall, Self-Explanation und Diagnosetransfer</a></li><li><a href="#15-quellen-grenzen-und-validierungsplan">15. Quellen, Grenzen und Validierungsplan</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Windows 11 / TCP/IP / Ethernet &amp; WLAN / Switching / WAN &amp; VPN / SMB<br/>
+<strong>Support-Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Auf Grundlage offizieller Microsoft- und ESnet-Dokumentation recherchiert, fachlich ausgearbeitet, <strong>nicht praktisch validiert</strong>. Alle Fälle, Hostnamen, IP-Adressen und Zahlenwerte in Beispielen sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb037_henne_ei_netzwerk_langsam.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-037 – Henne-und-Ei-Infografik zur langsamen Netzwerkverbindung" decoding="async" loading="lazy" src="assets/rb037_henne_ei_netzwerk_langsam.webp"/></a></div><figcaption>RB-037 – Henne-und-Ei-Infografik zur langsamen Netzwerkverbindung</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „Langsam“ ist ein subjektives Symptom, keine festgestellte Netzwerkursache. Erst den betroffenen Dienst und die Messgröße definieren, dann Client, Pfad, Zielsystem und Anwendung kontrolliert vergleichen.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsmeldung-ziel-und-zustandigkeit">1. Störungsmeldung, Ziel und Zuständigkeit</h2>
+<p><strong>Typische Meldungen:</strong> „Die Freigabe lädt heute ewig“, „Teams stockt nur über WLAN“, „Der Upload ins Firmen-VPN ist sehr langsam“, „Seit dem Arbeitsplatzwechsel dauern Datenbankabfragen zehn Sekunden“.</p>
+<p><strong>Ziel:</strong> Einen reproduzierbaren Leistungsabfall anhand von <strong>Durchsatz, Antwortzeit, Paketverlust, Jitter</strong> und <strong>Anwendungszeit</strong> eingrenzen. Die Korrektur erfolgt erst nach nachvollziehbarem Befund; die Anwendung muss anschließend unter vergleichbaren Bedingungen erneut getestet werden.</p>
+<ul>
+<li><strong>L1:</strong> Störungsumfang, Zeitpunkt, betroffene Dienste, Vergleichsgeräte und erste lesende Messwerte aufnehmen.</li>
+<li><strong>L2:</strong> Netzadapter-/Linkbefunde, RTT- und Verlustmessungen, kontrollierte Durchsatztests, Switch-/AP-/VPN-/WAN-Befunde und anwendungsspezifische Abhängigkeiten korrelieren.</li>
+<li><strong>Netzwerk-/Server-Owner:</strong> Konfigurationsänderungen, QoS, WLAN-Kanalplanung, Firewall, Switchport, Treiber/Firmware oder Servermaßnahmen nur nach Zuständigkeit und Freigabe.</li>
+</ul>
+<p><strong>Abgrenzung zu anderen Tickets:</strong> RB-034 behandelt DNS-Auflösung, RB-035/036 DHCP/APIPA, RB-038 Servererreichbarkeit und RB-039 Dienst-/Porterreichbarkeit. <strong>RB-037 setzt grundsätzlich vorhandene Konnektivität voraus und untersucht die Qualität der Verbindung beziehungsweise die wahrgenommene Leistung.</strong></p>
+<h2 id="2-vier-grossen-die-man-nicht-verwechseln-darf">2. Vier Größen, die man nicht verwechseln darf</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Einheit</th>
+<th>Aussage</th>
+<th>Was er <strong>nicht</strong> beweist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Durchsatz</strong></td>
+<td>Mbit/s oder MB/s</td>
+<td>Tatsächlich übertragene Daten pro Sekunde</td>
+<td>Dass die Anwendung sofort reagiert</td>
+</tr>
+<tr>
+<td><strong>RTT / Latenz</strong></td>
+<td>ms</td>
+<td>Zeit für Hin- und Rückweg eines Testpakets</td>
+<td>Dass ein bestimmter Serverprozess langsam ist</td>
+</tr>
+<tr>
+<td><strong>Paketverlust</strong></td>
+<td>%</td>
+<td>Anteil fehlender Antworten/Datagramme im gewählten Test</td>
+<td>Unmittelbar den Ort oder Grund des Verlusts</td>
+</tr>
+<tr>
+<td><strong>Jitter</strong></td>
+<td>ms</td>
+<td>Streuung der Verzögerung über die Zeit</td>
+<td>Allein die Sprach-/Videoqualität</td>
+</tr>
+<tr>
+<td><strong>Anwendungsreaktionszeit</strong></td>
+<td>ms/s</td>
+<td>Dauer eines vollständigen Nutzer- oder API-Vorgangs</td>
+<td>Dass ausschließlich das Netzwerk verantwortlich ist</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Umrechnung:</strong> 1 Gbit/s = 1.000 Mbit/s (Netzwerkrate); 1 Byte = 8 Bit. Eine angezeigte <strong>1-Gbit/s-Linkgeschwindigkeit</strong> ist die <em>ausgehandelte Anschlussrate</em>, nicht der automatisch erreichbare Dateidurchsatz. Protokolloverhead, Laufzeiten, Server-CPU, Datenträger und Anwendung können die Nutzdatenrate verringern. [Q1, Q2]</p>
+<p><strong>Beispiel (reine Rechenillustration):</strong> 100 Mbit/s entsprechen theoretisch 12,5 MB/s vor Overhead; reale Transferraten können niedriger ausfallen. Eine Speedtest-Webseite misst zudem einen anderen Pfad als eine interne SMB-Freigabe.</p>
+<h2 id="3-hypothesen-statt-schnellreparatur">3. Hypothesen statt Schnellreparatur</h2>
+<p>Vor jedem Eingriff mindestens drei konkurrierende Erklärungen notieren:</p>
+<ol>
+<li><strong>Client/Access:</strong> Der Laptop hat über Dock/Ethernet nur 100 Mbit/s ausgehandelt, WLAN-Signal ist schwach oder am Adapter steigen Discard-Zähler.</li>
+<li><strong>Netzpfad:</strong> Ein Uplink oder eine WAN-/VPN-Strecke ist ausgelastet; dort treten höhere RTT, Jitter oder Verlust auf.</li>
+<li><strong>Server/Anwendung:</strong> Der Pfad liefert ausreichenden Durchsatz, aber SMB, Antivirus/EDR, Datenbank oder Datenträger limitiert den Vorgang.</li>
+</ol>
+<p><strong>Trennende Prüfung:</strong> Gleicher Dienst von einem zweiten PC im gleichen Segment? Gleicher PC per LAN statt WLAN? Gleicher Client zu einem zweiten Ziel? Vergleich mit einem autorisierten internen iperf3-Server? Nur <strong>eine Variable pro Test</strong> ändern und Messergebnisse mit Uhrzeit festhalten.</p>
+<h2 id="4-fehlerbild-messbar-machen-und-scope-festlegen">4. Fehlerbild messbar machen und Scope festlegen</h2>
+<p><strong>Ticketaufnahme:</strong></p>
+<ul>
+<li>Seit wann, dauerhaft oder sporadisch, nur zu Stoßzeiten? Tritt es nach Update, Umzug, Dockwechsel, VPN-Verbindung oder WLAN-Wechsel auf?</li>
+<li>Welcher <strong>konkrete Dienst</strong> ist langsam (SMB-Kopie, Browseraufruf, RDP, Videokonferenz, SAP, interne API)?</li>
+<li>Upload, Download, interaktiver Login oder Wartezeit pro Aktion? Datenvolumen, Zahl kleiner Dateien, Nutzergruppe?</li>
+<li>Ein Gerät, ein Büro, eine SSID, ein VLAN, ein Standort oder alle Nutzer?</li>
+<li>Getrennte Baselines für <strong>LAN/WLAN</strong>, <strong>mit/ohne VPN</strong>, <strong>Ziel A/Ziel B</strong>; Betriebszeit und Testumgebung notieren.</li>
+<li>Verbindungsart und exakter Pfad: Client → Dock/Port/WLAN-AP → Switch → Router/Firewall → VPN/WAN → Zielserver/Cloud.</li>
+<li>Freigaben für zusätzliche Messlast, Zugang zu Vergleichssystemen und Wartungsfenster klären.</li>
+</ul>
+<p><strong>Gute Messnotiz:</strong> „22.11.2026 10:40, Testdatei <em>fiktiv</em> 1 GiB, Client A über Ethernet / VPN aus, 14 MB/s; Client B am selben Netz 93 MB/s; Datei, Zielserver und zeitlicher Testzeitraum vergleichbar.“ Nicht aus isolierten Werten vorschnell auf Fehler schließen.</p>
+<h2 id="5-messplan-baseline-vergleich-reproduzierbarkeit">5. Messplan: Baseline, Vergleich, Reproduzierbarkeit</h2>
+<p>Eine aussagekräftige Netzwerkdiagnose benötigt Vergleichswerte mit gleicher Methode und möglichst gleichen Bedingungen. Microsoft empfiehlt explizit <strong>Baselines</strong> für Durchsatz und Netzwerkpfade. [Q1]</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Vergleich</th>
+<th>Hält konstant</th>
+<th>Geändert</th>
+<th>Wofür hilfreich?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Betroffener PC ↔ Vergleichs-PC</td>
+<td>Zielserver / Netz / Zeit</td>
+<td>Client</td>
+<td>Client-/NIC-Problem eingrenzen</td>
+</tr>
+<tr>
+<td>LAN ↔ WLAN</td>
+<td>gleicher PC und Ziel</td>
+<td>Zugangspfad</td>
+<td>WLAN-/AP-/Funkfaktoren erkennen</td>
+</tr>
+<tr>
+<td>VPN aus ↔ VPN an</td>
+<td>gleicher PC und Dienst (sofern erreichbar)</td>
+<td>Tunnel/Pfad</td>
+<td>VPN-/WAN-Overhead und Routing unterscheiden</td>
+</tr>
+<tr>
+<td>Service A ↔ Service B</td>
+<td>gleicher Client / möglichst gleicher Pfad</td>
+<td>Ziel/Anwendung</td>
+<td>Einzeldienst-/Serverproblem erkennen</td>
+</tr>
+<tr>
+<td>TCP-Durchsatz ↔ Dateiübertragung</td>
+<td>gleiche Endpunkte</td>
+<td>Protokoll/Datenträger</td>
+<td>Netzkapazität von SMB/Storage abgrenzen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Eine öffentliche Internet-Speedtestseite, ein Testserver im LAN und ein SMB-Ziel hinter einer Firewall sind drei <strong>unterschiedliche Pfade</strong>. Ergebnisse dürfen nicht ohne Normalisierung gleichgesetzt werden.</p>
+<h2 id="6-lesende-windows-11-basisdiagnose">6. Lesende Windows-11-Basisdiagnose</h2>
+<p>Folgende Abfragen sind <strong>lesend</strong>; sie setzen keine IP-Adresse zurück und verändern keine Adaptereinstellungen. Administrative Leserechte können je nach Unternehmen nötig sein. [Q3, Q4]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Adapterstatus, ausgehandelte Rate und Fehlerzähler
+Get-NetAdapter |
+  Select-Object Name, InterfaceDescription, Status, LinkSpeed, MacAddress
+Get-NetAdapterStatistics -Name 'Ethernet' | Format-List *
+
+# IP/Interface/Routen und laufende Verbindungen
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4 |
+  Select-Object InterfaceAlias, DestinationPrefix, NextHop, RouteMetric
+Get-NetTCPConnection -State Established |
+  Select-Object -First 20 LocalAddress,LocalPort,RemoteAddress,RemotePort,State
+
+# WLAN-spezifischer Linkzustand (nur wenn verbunden)
+netsh wlan show interfaces
+</code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><code>LinkSpeed</code> = <strong>ausgehandelte</strong> Geschwindigkeit (z. B. 100 Mbit/s vs. erwartet 1 Gbit/s); niemals unmittelbar mit Nutzdatendurchsatz verwechseln.</li>
+<li>Bei <code>Get-NetAdapterStatistics</code> <strong>Delta</strong> zwischen zwei zeitnahen Messungen bilden; hohe absolute historische Zählerwerte ohne Zeitbezug sind kein aktueller Beweis. Microsoft nennt verworfene NIC-Pakete als einen Diagnosehinweis. [Q3]</li>
+<li>Bei WLAN sind <strong>Sende-/Empfangsrate</strong> Funkverbindungsraten, nicht erzielbarer TCP-Durchsatz; Signal, Airtime, Kanalbelegung, Störungen, Roaming und AP-Auslastung prüfen.</li>
+<li>Zunächst den <strong>aktiven</strong> Adapter und das <strong>effektiv genutzte</strong> Routing bestimmen, besonders bei VPN/virtuellen Adaptern.</li>
+<li>Keine Link-Speed-, Offload-, Duplex-, MTU- oder Energiespareinstellung „auf Verdacht“ ändern.</li>
+</ul>
+<h2 id="7-latenz-und-verlust-tests-richtig-lesen">7. Latenz und Verlust: Tests richtig lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Beispieladressen müssen durch ausdrücklich freigegebene Ziele ersetzt werden
+ping -n 30 192.0.2.1              # Beispiel: freigegebener Default-Gateway-Test
+ping -n 30 198.51.100.20         # Beispiel: freigegebener Zielhost
+tracert 198.51.100.20            # Routenhinweis, keine sichere Engpasslokalisierung
+pathping 198.51.100.20           # längerer, ICMP-basierter Verlustvergleich
+Test-NetConnection -ComputerName 198.51.100.20 -Port 445 -InformationLevel Detailed
+</code></pre></div>
+<p><code>192.0.2.0/24</code> und <code>198.51.100.0/24</code> sind <strong>Dokumentationsnetze</strong>; die Beispieladressen sind nicht als reale Messziele verwendbar. [Q4]</p>
+<p><strong>Vorsicht bei der Auswertung:</strong></p>
+<ul>
+<li><code>ping</code> misst ICMP-Antworten. <strong>Kein</strong> ICMP-Echo beweist nicht, dass TCP/SMB oder der Server ausgefallen ist; ICMP kann bewusst gefiltert/ratenbegrenzt werden.</li>
+<li>Ein Hop mit hoher <code>tracert</code>-/<code>pathping</code>-Verzögerung oder „Verlust“ <strong>nur an diesem Hop</strong> kann durch reduzierte ICMP-Antwortpriorität entstehen. Erst ein <strong>fortbestehender Effekt bis zum eigentlichen Ziel</strong>, unter vergleichbaren Bedingungen, ist relevanter – auch dann nicht automatisch ein Ortsbeweis.</li>
+<li>Ein erfolgreiches <code>Test-NetConnection ... -Port 445</code> belegt die TCP-Erreichbarkeit <strong>zu diesem Zeitpunkt</strong>, nicht hohe SMB-Performance. [Q4]</li>
+<li>Wiederholte Stichproben, Auslastungszeitpunkt und Protokollklasse dokumentieren. Ein Test ohne Anwendungsreproduktion ist bestenfalls ein Teilbefund.</li>
+</ul>
+<h2 id="8-kontrollierte-durchsatzmessung-mit-iperf3-nur-freigegeben">8. Kontrollierte Durchsatzmessung mit iperf3 (nur freigegeben)</h2>
+<p><strong>Warum iperf3?</strong> Ein isolierter TCP-Durchsatztest gegen einen kontrollierten Vergleichsserver lässt sich besser von Festplatten- und SMB-Protokollfaktoren trennen. Die Projektbeschreibung und Optionen stammen von ESnet. iperf3 ist <strong>zusätzliche Testsoftware</strong>, nicht standardmäßig Teil von Windows; Deployment und Firewalleintrag erfordern Berechtigung. [Q5]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Auf genehmigtem internen Testserver (Befehl nur nach Freigabe ausführen)
+iperf3 -s -p 5201
+
+# Auf autorisiertem Client (TESTSERVER = freigegebene Hostadresse)
+iperf3 -c TESTSERVER -p 5201 -t 10     # Client sendet an Server
+iperf3 -c TESTSERVER -p 5201 -t 10 -R  # umgekehrte Richtung
+</code></pre></div>
+<p><strong>Einsatzbedingungen:</strong> Tests erzeugen messbare Netzlast. Nicht ungefragt Produktions-WANs, Internetserver oder geschäftskritische Links sättigen. Bei Bedarf <strong>vorab</strong> Testfenster, Verkehrsgrenze, Ziel, Richtung und Dauer mit dem Owner abstimmen; Überwachungsdaten einbeziehen. Standard-TCP-Tests versuchen gewöhnlich verfügbaren Durchsatz auszunutzen; wer eine <strong>begrenzte Last</strong> braucht, muss dies bewusst konfigurieren und freigeben.</p>
+<p><strong>Auswertung:</strong> Vergleich Send/Receive, gleicher Testzeitpunkt, Endgeräte-CPU, Testserverkapazität, VPN-Zustand, NIC-Rate. <code>-R</code> prüft die Gegenrichtung; <code>-P</code> erzeugt zusätzliche parallele Streams und darf ein Ergebnis nicht künstlich als „repariert“ erscheinen lassen. iperf3 misst keinen vollständigen Office-/SMB-Nutzerprozess. [Q5]</p>
+<p><strong>Keine falsche Aussage:</strong> Ein normaler iperf3-Wert beweist nicht, dass ein bestimmter Server oder eine Anwendung korrekt arbeitet. Und ein schlechter iperf3-Wert beweist allein nicht, an welchem Hop die Ursache liegt.</p>
+<h2 id="9-paketverlust-tcp-retransmits-und-ursachenketten">9. Paketverlust, TCP-Retransmits und Ursachenketten</h2>
+<p>Microsoft unterscheidet lokalen Paketverlust (z. B. Ressourcenmangel, Filter, NIC) von Remoteverlusten und empfiehlt für Verdachtsfälle eine <strong>korrelierte Untersuchung</strong> von NIC-Countern und bei Bedarf Ablaufverfolgungen. [Q3]</p>
+<p><strong>Beispielhafte Fehlerkette:</strong> fehlerhafter Port/Kabel → Layer-2-Übertragungsfehler oder Drops → TCP-Wiederholungen und reduziertes Sendefenster → niedriger Durchsatz → langsamer SMB-Kopiervorgang. <strong>Das ist eine Hypothese</strong>, keine allgemeingültige Kausalkette.</p>
+<p>Bei Bedarf in L2/L3 zusätzlich prüfen: Switchport-Fehler- und Drop-Counter; Duplex-/Speed-Mismatch; QoS-Queue-Drops, WAN-Uplink, VPN-Encapsulation/MTU, Firewall-CPU, AP-Roaming, Funkkanalbelegung, NIC-Treiber und Ressourcenlast. Immer Vergleich <strong>vor/nach</strong> einer gezielten Maßnahme.</p>
+<p><strong>Paketanalyse ist nicht immer neutral:</strong> Zeitgleiche Paketaufzeichnung kann Durchsatzmessungen beeinflussen. Für maximale Netto-Durchsatzmessung empfiehlt Microsoft, auf aufwendiges Paket-Capture während des Tests zu verzichten; Capture und Lasttest deshalb nach Möglichkeit zeitlich trennen. [Q1]</p>
+<h2 id="10-smb-server-anwendungsengpasse-abgrenzen">10. SMB-/Server-/Anwendungsengpässe abgrenzen</h2>
+<p>Microsoft weist darauf hin, dass langsame SMB-Kopien neben Netzproblemen durch <strong>viele kleine Dateien, Datenträger-IO, Antivirus/EDR, CPU-Last, Cacheeffekte, SMB-Signierung/-Verschlüsselung</strong> oder serverseitige Limits entstehen können. Sicherheitsfeatures wie SMB-Signierung <strong>nicht</strong> zur Beschleunigung deaktivieren. [Q2]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Lesende SMB-Clientbefunde, falls eine Freigabe tatsächlich verwendet wird
+Get-SmbConnection |
+  Select-Object ServerName,ShareName,Dialect,NumOpens,Signed,Encrypted
+Get-SmbMultichannelConnection -ErrorAction SilentlyContinue |
+  Select-Object ServerName,ClientInterfaceIndex,ServerInterfaceIndex,Selected
+
+# Zeitgleiche Ressourcenbeobachtung (lesend)
+Get-Process | Sort-Object CPU -Descending |
+  Select-Object -First 12 ProcessName,Id,CPU
+</code></pre></div>
+<p><strong>Fallvergleich:</strong> Netztest schnell + SMB-Kopie langsam → SMB/Server/Storage als <strong>Arbeits-Hypothese</strong>, erst durch Server- und Anwendungsdaten erhärten. Ein großer zusammenhängender Dateitransfer ist nicht gleichzusetzen mit Tausenden kleinen Dateien; auch die Messmethode beeinflusst den Wert.</p>
+<p><strong>Datenschutz und Produktivsicherheit:</strong> Keine Kundendateien als Testdaten kopieren, keine Antivirus-/EDR-Filter abschalten, keine SMB-Signierung umgehen, keine größeren Produktionslasten ohne Freigabe.</p>
+<h2 id="11-entscheidungsmatrix-befund-hypothese-nachster-test">11. Entscheidungsmatrix – Befund, Hypothese, nächster Test</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Wahrscheinlichere Fehlerdomäne</th>
+<th>Nächster trennender Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur ein Client langsam; Vergleichsgerät am selben Netz normal</td>
+<td>Client/NIC/Dock/WLAN</td>
+<td>Originalgerät an freigegebenem Vergleichsport, Counter-Delta</td>
+</tr>
+<tr>
+<td>Nur WLAN betroffen; LAN zum selben Ziel gut</td>
+<td>Funk-/AP-Pfad</td>
+<td>Signal/AP/Kanal/Airtime, zweite SSID/Position</td>
+</tr>
+<tr>
+<td>Viele Clients eines Segments langsam</td>
+<td>Switch/Uplink/Firewall/QoS</td>
+<td>Port-/Uplink-Counter und Auslastung zur Störzeit</td>
+</tr>
+<tr>
+<td>Nur über VPN langsam</td>
+<td>Tunnel/WAN/MTU/Firewall/Internetpfad</td>
+<td>gleiches Ziel ohne/mit VPN, Route und Lastvergleich</td>
+</tr>
+<tr>
+<td>RTT/Verlust schlecht bis zum Ziel</td>
+<td>Netzwerkpfad oder Zielreaktion</td>
+<td>alternative Route/Ziel, Endpunktbefunde und Zähler korrelieren</td>
+</tr>
+<tr>
+<td>iperf3 normal, SMB langsam</td>
+<td>Server/Storage/SMB/EDR</td>
+<td>Server-CPU, Storage-I/O, SMB-Counter und Dateityp</td>
+</tr>
+<tr>
+<td>Nur eine App langsam, übrige Dienste normal</td>
+<td>App, Backend, DNS, API, DB</td>
+<td>End-to-End-Transaktionszeit, Serverlogs, DNS-Zeit</td>
+</tr>
+<tr>
+<td>Durchsatz nur in eine Richtung schwach</td>
+<td>asymmetrischer Pfad/Host/Policy</td>
+<td>iperf3-Hin- und Rückrichtung, NIC-/Interface-/Uplink-Zähler</td>
+</tr>
+</tbody>
+</table></div>
+<p>„Wahrscheinlichere Fehlerdomäne“ heißt <strong>noch nicht Ursache bewiesen</strong>. Vergleichsbedingungen, Zeitbezug und Gegenhypothesen im Ticket festhalten.</p>
+<h2 id="12-sicherheitsgate-abgestufte-losung-und-retest">12. Sicherheitsgate, abgestufte Lösung und Retest</h2>
+<p><strong>Vor Konfigurationsänderungen:</strong></p>
+<ol>
+<li>Störung reproduziert? Vergleich/Quelle/Ziel/Uhrzeit dokumentiert? Fehlermetrik definiert?</li>
+<li>Effektive Administrationsroute bekannt? Bei einzigem Fernzugang keine trennende Adaptermaßnahme ohne Rettungsweg.</li>
+<li>Verantwortlichen Owner, Freigabe, Wartungsfenster, Rückfallplan, Monitoring und Datenschutz geklärt?</li>
+<li>Zuerst <strong>kleinstmögliche</strong> ursachenbezogene Maßnahme (defektes zertifiziertes Kabel/Port, freigegebener AP-Kanalplan, Kapazitätsanpassung, Server-I/O-Behebung).</li>
+<li>Erneut mit <strong>gleicher Testmethode</strong> messen: Problemvorgang, Richtung, Lastzeitfenster, Vergleichsgerät und Baseline.</li>
+</ol>
+<p><strong>Nicht als Erstmaßnahme:</strong> NIC-/Netzwerktreiber neu installieren, MTU/Jumbo Frames ändern, Duplex hart festlegen, RSS/Offloads abschalten, QoS deaktivieren, VPN/EDR/Firewall ausschalten oder Internet-Speedtests massenhaft wiederholen.</p>
+<p><strong>Abnahme:</strong> Ursache durch Vorher-/Nachher-Befund plausibel belegt; Sollwert oder dokumentierte Baseline unter vergleichbaren Bedingungen erreicht; betroffene Anwendung funktioniert zuverlässig; Sicherheits- und Betriebsanforderungen weiterhin erfüllt.</p>
+<h2 id="13-zwei-fiktive-praxisfalle-keine-realen-messergebnisse">13. Zwei fiktive Praxisfälle (keine realen Messergebnisse)</h2>
+<h3 id="fall-a-dateiserver-langsam-bei-nur-einem-client">Fall A – „Dateiserver langsam“ bei nur einem Client</h3>
+<ul>
+<li><strong>Störungsmeldung:</strong> Nur Notebook A kopiert eine fiktive 1-GiB-Datei aus einem Share ungewöhnlich langsam.</li>
+<li><strong>Messhypothese 1:</strong> Netzwerkpfad oder Server ist überlastet.</li>
+<li><strong>Gegenbefund:</strong> Notebook B im selben VLAN kopiert dieselbe Art Testdatei am gleichen Server deutlich schneller; auf Notebook A wird eine unerwartete 100-Mbit/s-Linkrate angezeigt.</li>
+<li><strong>Folgerung:</strong> Client-/Port-/Dock-/Kabelpfad priorisieren, nicht sofort den Server beschuldigen. Mit freigegebenem Vergleichskabel und Port testen, NIC- und Switchcounter korrelieren.</li>
+<li><strong>Fiktiver Abschluss:</strong> Nach nachgewiesen fehlerhaftem Patchkabel und autorisiertem Austausch verhandelt der Anschluss die erwartete Rate; identischer Dateitest zeigt wieder Baselinebereich.</li>
+<li><strong>Transferfrage:</strong> Warum ist die 100-Mbit/s-Anzeige ein Hinweis auf einen Engpass, aber noch kein Nachweis für den Kabeldefekt?</li>
+</ul>
+<h3 id="fall-b-netzwerk-langsam-trotz-normalem-durchsatztest">Fall B – „Netzwerk langsam“ trotz normalem Durchsatztest</h3>
+<ul>
+<li><strong>Störungsmeldung:</strong> 12 Mitarbeitende beklagen, dass das Öffnen vieler kleiner Projektdateien vom SMB-Server zu lange dauert.</li>
+<li><strong>Gegenbefund:</strong> Kontrollierter iperf3-Test zwischen genehmigten Endpunkten erreicht die dokumentierte Baseline; RTT und Verlust unauffällig. CPU-/Storage-Monitoring am Dateiserver zeigt in der Störzeit hohe E/A-Wartezeiten.</li>
+<li><strong>Folgerung:</strong> Nicht mit einer NIC-Treibermodifikation reagieren. Server-/Storage-/SMB-Pfad prüfen, Dateistruktur und Antivirus/EDR-Betrieb mit zuständigen Teams betrachten.</li>
+<li><strong>Fiktiver Abschluss:</strong> Nach autorisierter Behebung des Storage-Engpasses sinkt die Anwendungszeit; ein wiederholter realitätsnaher Dateitest bestätigt die Wirkung.</li>
+<li><strong>Transferfrage:</strong> Welchen Teil der Diagnose kann iperf3 hier gut abgrenzen, welchen gerade nicht?</li>
+</ul>
+<h2 id="14-active-recall-self-explanation-und-diagnosetransfer">14. Active Recall, Self-Explanation und Diagnosetransfer</h2>
+<p><strong>Wissensfragen (ohne Nachschlagen beantworten):</strong></p>
+<ol>
+<li>Worin unterscheiden sich Bandbreite/LinkSpeed und gemessener Durchsatz?</li>
+<li>Warum belegt ein erfolgreicher TCP-Porttest keine gute Performance?</li>
+<li>Was misst RTT und warum ist eine einzelne Messung schwach?</li>
+<li>Was ist die Aufgabe von <code>Get-NetAdapterStatistics</code>?</li>
+<li>Warum sind 100 MB/s ≠ 100 Mbit/s?</li>
+</ol>
+<p><strong>Verständnis-/Diagnosefragen:</strong></p>
+<ol start="6">
+<li>Welchen A/B-Test würdest du wählen, wenn nur WLAN im Besprechungsraum langsam ist?</li>
+<li>Warum ist ICMP-Verlust an einem einzigen Traceroute-Hop nicht automatisch echter Forwarding-Verlust?</li>
+<li>Welche Beweisführung trennt einen SMB-/Storage-Engpass von einem langsamen Netzwerkpfad?</li>
+<li>Wie stellst du sicher, dass Messungen vor und nach einer Maßnahme vergleichbar bleiben?</li>
+<li>Ein VPN-User meldet hohe Latenz, nur zu Stoßzeiten. Nenne drei konkurrierende Hypothesen und je einen trennenden Test.</li>
+</ol>
+<p><strong>Self-Explanation:</strong> „Warum ist der Satz <em>‚Unser Netz ist langsam, also muss die Firewall schuld sein‘</em> keine belastbare Diagnose?“ Als kurze fachlich präzise Ticketnotiz formulieren.</p>
+<p><strong>Wiederholung:</strong> optional Anki-Karten nach eigenem Lernabschluss; nach etwa 7 und 21 Tagen neue, nicht identische Diagnosefälle bearbeiten. Keine praktische Lösung vor dem eigenen ersten Diagnoseversuch offenlegen, wenn dies das Lernziel ist.</p>
+<h2 id="15-quellen-grenzen-und-validierungsplan">15. Quellen, Grenzen und Validierungsplan</h2>
+<p><strong>Offizielle Quellen, am 22.11.2026 recherchiert:</strong></p>
+<ul>
+<li><strong>[Q1] Microsoft Learn – Handbuch zur Problembehandlung bei TCP/IP-Leistungsproblemen.</strong> Baselines, End-to-End-Durchsatz, TCP-Engpässe und Kosten der Paketaufzeichnung: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/overview-of-tcpip-performance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/overview-of-tcpip-performance</a></li>
+<li><strong>[Q2] Microsoft Learn – Langsame Dateiübertragungsgeschwindigkeit bei SMB.</strong> SMB, Storage, kleine Dateien, Sicherheitsfunktionen: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/slow-smb-file-transfer" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/slow-smb-file-transfer</a></li>
+<li><strong>[Q3] Microsoft Learn – Diagnostizieren von Paketverlusten.</strong> NIC-Drops, lokale/Remote-Verluste: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/diagnose-packet-loss" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/diagnose-packet-loss</a></li>
+<li><strong>[Q4] Microsoft Learn – Test-NetConnection / Get-NetAdapterStatistics.</strong> Windows-Diagnose-Cmdlets: <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps</a> und <a href="https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapterstatistics?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapterstatistics?view=windowsserver2025-ps</a></li>
+<li><strong>[Q5] ESnet – iperf3, Aufruf und Optionen.</strong> TCP-Durchsatz, Richtung, kontrollierte Tests: <a href="https://software.es.net/iperf/invoking.html" rel="noopener noreferrer" target="_blank">https://software.es.net/iperf/invoking.html</a></li>
+<li><strong>[Q6] Microsoft Learn – Netzwerkadapter-Tuning.</strong> NIC-Leistungsoptionen und Tradeoffs: <a href="https://learn.microsoft.com/de-de/windows-server/networking/technologies/network-subsystem/net-sub-performance-tuning-nics" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/networking/technologies/network-subsystem/net-sub-performance-tuning-nics</a></li>
+</ul>
+<p><strong>Beweisstatus:</strong> Alle Diagnosehinweise sind recherchiert oder als Hypothesen gekennzeichnet. <strong>Keine</strong> der dargestellten Reparaturen wurde am realen Problemgerät ausgeführt, keine Messwerte stammen aus einem tatsächlichen Versuch.</p>
+<p><strong>Vorgeschlagener Praxisversuch für später:</strong> Zwei autorisierte Testsysteme und ein kontrollierter Switch-/WLAN-Pfad; einmal Baseline messen, anschließend in einer <strong>isolierten</strong> Umgebung bewusst einen reproduzierbaren Flaschenhals konfigurieren, Befundaufnahme, Diagnose, ursachenbezogene Behebung und erneuten Test dokumentieren. Änderungen in einem produktiven Unternehmensnetz nicht nachstellen.</p>
+<p><strong>Bildnachweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-037_Lernartikel.md">RB-037_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-036/index.html">← Ticket 36</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-038/index.html">Ticket 38 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

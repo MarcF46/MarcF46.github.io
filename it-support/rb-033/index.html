@@ -1,0 +1,375 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 33: E-Mails werden blockiert oder als Spam eingestuft | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 33: E-Mails werden blockiert oder als Spam eingestuft. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 33: E-Mails werden blockiert oder als Spam eingestuft</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportfall-lernziele-und-zustandigkeiten">1. Supportfall, Lernziele und Zuständigkeiten</a></li><li><a href="#2-wie-eine-e-mail-zugestellt-oder-gefiltert-wird">2. Wie eine E-Mail zugestellt oder gefiltert wird</a></li><li><a href="#3-schlusselbegriffe-nicht-verwechseln">3. Schlüsselbegriffe – nicht verwechseln</a></li><li><a href="#4-intake-welches-ereignis-ist-tatsachlich-betroffen">4. Intake: Welches Ereignis ist tatsächlich betroffen?</a></li><li><a href="#5-die-wichtigste-weiche-hat-exchange-online-die-nachricht-gesehen">5. Die wichtigste Weiche: Hat Exchange Online die Nachricht gesehen?</a></li><li><a href="#6-pfad-a-nachricht-im-junk-ordner">6. Pfad A – Nachricht im Junk-Ordner</a></li><li><a href="#7-pfad-b-nachricht-in-quarantane">7. Pfad B – Nachricht in Quarantäne</a></li><li><a href="#8-pfad-c-ndr-smtp-ablehnung-oder-ausgehende-sperre">8. Pfad C – NDR, SMTP-Ablehnung oder ausgehende Sperre</a></li><li><a href="#9-pfad-d-authentifizierung-spf-dkim-dmarc">9. Pfad D – Authentifizierung / SPF, DKIM, DMARC</a></li><li><a href="#10-pfad-e-transportregeln-connectoren-postfachaktionen">10. Pfad E – Transportregeln, Connectoren, Postfachaktionen</a></li><li><a href="#11-lesende-powershell-diagnose-berechtigter-l2-kontext">11. Lesende PowerShell-Diagnose (berechtigter L2-Kontext)</a></li><li><a href="#12-entscheidungsmatrix-befund-nachste-sinnvolle-aktion">12. Entscheidungsmatrix: Befund → nächste sinnvolle Aktion</a></li><li><a href="#13-fiktiver-fall-a-rechnung-in-quarantane-statt-posteingang">13. Fiktiver Fall A – Rechnung in Quarantäne statt Posteingang</a></li><li><a href="#14-fiktiver-fall-b-kundenmail-wird-extern-mit-550-5-7-1-abgewiesen">14. Fiktiver Fall B – Kundenmail wird extern mit 550 5.7.1 abgewiesen</a></li><li><a href="#15-active-recall-self-explanation-und-transfer">15. Active Recall, Self-Explanation und Transfer</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Microsoft 365 / Exchange Online / Exchange Online Protection (EOP) / Microsoft Defender for Office 365<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Offizielle Microsoft-Quellen recherchiert; <strong>praktische Validierung noch ausstehend</strong>. Alle Beispiele und E-Mail-Adressen sind fiktiv; keine produktiven Sicherheitsrichtlinien verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb033_henne_ei_mailfilter.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-033 – Henne-und-Ei-Infografik zur sicheren E-Mail-Zustelldiagnose" decoding="async" loading="lazy" src="assets/rb033_henne_ei_mailfilter.webp"/></a></div><figcaption>RB-033 – Henne-und-Ei-Infografik zur sicheren E-Mail-Zustelldiagnose</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „E-Mail fehlt“ ist keine Diagnose. <strong>Mailtransport, SMTP-Antwort, Filterentscheidung, Quarantäne und Postfachanzeige</strong> sind verschiedene Stationen. Erst Nachricht und Entscheidung identifizieren; <strong>keine pauschalen Allowlists und keine ungeprüfte Phishing-/Malware-Freigabe</strong>.</p>
+</blockquote>
+<hr/>
+<h2 id="1-supportfall-lernziele-und-zustandigkeiten">1. Supportfall, Lernziele und Zuständigkeiten</h2>
+<p><strong>Typische Meldungen:</strong> „Die Kundenmail kommt nicht“, „Meine E-Mail landet beim Partner im Spam“, „Ich erhalte eine Unzustellbarkeitsmeldung“, „Im Outlook erscheint sie kurz und verschwindet“, „Seit gestern fehlen alle Mails eines Dienstleisters“, „Die Quarantäne enthält eine angeblich wichtige Rechnung“.</p>
+<p><strong>Lernziel:</strong> Aus einer unpräzisen Störungsmeldung ein <strong>eindeutig identifizierbares Nachrichtenereignis</strong> machen, den Transport- und Sicherheitsbefund belegen und eine <strong>minimale, autorisierte</strong> Korrektur mit erneuter Zustellprüfung auswählen.</p>
+<ul>
+<li><strong>L1:</strong> Absender-/Empfängeradresse, Zeitfenster, Richtung, Client und Fehlerbild aufnehmen; Junk-Ordner, Outlook-Regeln und erlaubte Quarantäneansicht prüfen; bei Zugriffsrechten Exchange-/Defender-L2 beauftragen.</li>
+<li><strong>L2 / Messaging:</strong> Message Trace, NDR, Anti-Spam-Klassifizierung, Quarantäne, Mailflow-Regeln, Connectoren und Zustellrestriktionen auswerten; bei Bedarf SPF/DKIM/DMARC prüfen.</li>
+<li><strong>Security/SOC:</strong> Verdacht auf Phishing, Malware, kompromittierte Konten, Massenzustellung, hochriskante Freigaben und Richtlinienausnahmen bewerten. Ein „bekannter Absender“ allein legitimiert keine Freigabe.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-006 behandelt allgemeine Outlook-Sende-/Empfangsfehler; RB-019 Outlook-Profile; RB-031 gemeinsame Postfächer. Hier geht es vorrangig um <strong>Mailflow, Sicherheitsklassifizierung und Zustellentscheidungen</strong>.</p>
+<h2 id="2-wie-eine-e-mail-zugestellt-oder-gefiltert-wird">2. Wie eine E-Mail zugestellt oder gefiltert wird</h2>
+<p>Eine vereinfachte <strong>Diagnosekette</strong> für Nachrichten, die über Microsoft 365 laufen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Absender/Mailserver
+       │
+       ▼
+SMTP-Verbindung / Routing / Empfängerprüfung
+       │
+       ▼
+Microsoft 365 / Exchange Online Protection (EOP)
+       ├── SMTP zurückgewiesen → NDR beim Absender möglich
+       ├── zurückgestellt (deferred) → spätere Zustellung möglich
+       ├── Quarantäne / Sicherheitsaktion
+       └── ins Postfach zugestellt
+                 ├── Posteingang
+                 ├── Junk / anderer Ordner
+                 └── nach Zustellung verschoben/entfernt (Regel/ZAP etc.)
+</code></pre></div>
+<p><strong>Vorsicht:</strong> Dies ist ein Modell zur Fehlereingrenzung, <strong>kein garantiert identischer interner Verarbeitungspfad</strong> für jede Nachricht. Hybrid, Drittanbieter-Gateways, Connectoren und Richtlinien können den Pfad verändern [Q1–Q4]. Ein Trace-Ergebnis „Delivered“ belegt eine Zustellaktion des Dienstes, <strong>nicht zwingend die aktuelle Sichtbarkeit im Outlook-Posteingang</strong>.</p>
+<h2 id="3-schlusselbegriffe-nicht-verwechseln">3. Schlüsselbegriffe – nicht verwechseln</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung</th>
+<th>Was daraus <strong>nicht</strong> folgt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Message Trace</strong></td>
+<td>Ablaufverfolgung für Verarbeitung/Zustellstatus in Exchange Online</td>
+<td>Dass eine nicht gefundene Nachricht nie versendet wurde</td>
+</tr>
+<tr>
+<td><strong>NDR / DSN</strong></td>
+<td>Nichtzustellbarkeitsbericht mit SMTP-/Diagnosecode</td>
+<td>Dass jede fehlende Mail einen NDR erzeugen muss</td>
+</tr>
+<tr>
+<td><strong>SMTP 4xx</strong></td>
+<td>Typischerweise temporärer Fehler; erneuter Zustellversuch möglich</td>
+<td>Dass die Nachricht endgültig verloren ist</td>
+</tr>
+<tr>
+<td><strong>SMTP 5xx</strong></td>
+<td>Typischerweise dauerhafte Zurückweisung</td>
+<td>Dass Spam zwingend der Grund ist</td>
+</tr>
+<tr>
+<td><strong>Junk Email</strong></td>
+<td>Zustellung ins Postfach, aber in Spam-/Junk-Ordner</td>
+<td>Dass die Nachricht nicht zugestellt wurde</td>
+</tr>
+<tr>
+<td><strong>Quarantäne</strong></td>
+<td>Nachricht unterliegt einer Sicherheitsverwahrung</td>
+<td>Dass die Nachricht problemlos freigegeben werden darf</td>
+</tr>
+<tr>
+<td><strong>SCL (Spam Confidence Level)</strong></td>
+<td>Wert zur Spamklassifizierung, je nach Filter-/Regelkontext</td>
+<td>Dass ein hoher SCL allein die komplette Ursache erklärt</td>
+</tr>
+<tr>
+<td><strong>BCL (Bulk Complaint Level)</strong></td>
+<td>Indikator für Massenmail-Klassifizierung</td>
+<td>Dass die Nachricht Malware enthält</td>
+</tr>
+<tr>
+<td><strong>SPF</strong></td>
+<td>Autorisierte Versandquellen der Envelope-Domain anhand von DNS</td>
+<td>Dass SPF-Pass allein Identität des sichtbaren From beweist</td>
+</tr>
+<tr>
+<td><strong>DKIM</strong></td>
+<td>Kryptografische Signatur ausgewählter Header/Körperteile</td>
+<td>Dass DKIM-Pass automatisch DMARC-Pass bedeutet</td>
+</tr>
+<tr>
+<td><strong>DMARC</strong></td>
+<td>Prüft Alignment der sichtbaren From-Domain mit SPF-/DKIM-Identität und zugehörige Policy</td>
+<td>Dass jede DMARC-Auffälligkeit automatisch auf Phishing beruht</td>
+</tr>
+<tr>
+<td><strong>ZAP</strong></td>
+<td>Zero-hour auto purge; nachträgliche Sicherheitsaktion im Postfach</td>
+<td>Dass eine zuvor zugestellte Mail unverändert im Posteingang bleiben muss</td>
+</tr>
+</tbody>
+</table></div>
+<p>Zur Spamklassifizierung und den Headerwerten siehe [Q3, Q8]; zur Authentifizierung [Q5].</p>
+<h2 id="4-intake-welches-ereignis-ist-tatsachlich-betroffen">4. Intake: Welches Ereignis ist tatsächlich betroffen?</h2>
+<p>Erfasse möglichst <strong>eine konkrete Beispielnachricht</strong> und formuliere überprüfbar:</p>
+<ol>
+<li><strong>Richtung:</strong> eingehend (externer Partner → eigener Tenant), ausgehend oder intern?</li>
+<li><strong>Identität:</strong> genauer Absender, Empfänger, Alias oder Gruppe; alle Adressen nur im erlaubten Ticketsystem.</li>
+<li><strong>Zeit:</strong> Sendezeit mit Zeitzone und Zeitraum (zum Beispiel 22.11.2026, 14:10 MEZ); Filterung über Fenster, nicht nur Minute.</li>
+<li><strong>Merkmale:</strong> Betreff nur falls datenschutzrechtlich nötig; besser Message-ID/Internet Message ID beziehungsweise Network Message ID, wenn vorhanden.</li>
+<li><strong>Symptom:</strong> Junk, Quarantäne, NDR, Zeitverzögerung, „verschwunden“, nur ein Empfänger oder viele.</li>
+<li><strong>Gegenprobe:</strong> funktioniert ein anderer Absender zum gleichen Empfänger beziehungsweise derselbe Absender zu anderem Empfänger? Nur mit autorisierten Testkonten.</li>
+<li><strong>Impact:</strong> Rechnungen, sicherheitskritische Vorgänge, Mailflut, VIP, tenantweiter Fehler oder eine einzelne Mail.</li>
+</ol>
+<p><strong>Grundsatz Datenminimierung:</strong> Nicht unaufgefordert Mailtexte, Anhänge, personenbezogene Kommunikationsinhalte oder vollständige Rohheader in frei einsehbare Tickets kopieren. Für L2 nur die notwendigen Befundmetadaten bereitstellen.</p>
+<h2 id="5-die-wichtigste-weiche-hat-exchange-online-die-nachricht-gesehen">5. Die wichtigste Weiche: Hat Exchange Online die Nachricht gesehen?</h2>
+<p><strong>Bevorzugtes Werkzeug:</strong> <strong>Exchange Admin Center → Mail flow → Message trace</strong> (<code>https://admin.exchange.microsoft.com/#/messagetrace</code>) [Q1]. Nach <strong>Absender, Empfänger, Zeitfenster und möglichst Message-ID</strong> suchen.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Trace-Beobachtung</th>
+<th>Nächster Diagnosepfad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Received / Delivered</strong></td>
+<td>Zielordner, Regeln, Junk, ggf. ZAP und Drittanbieter-Nachbearbeitung untersuchen</td>
+</tr>
+<tr>
+<td><strong>Quarantined / Filteraktion</strong></td>
+<td>Quarantäne, Klassifizierung, betroffene Sicherheitsrichtlinie prüfen</td>
+</tr>
+<tr>
+<td><strong>Failed / Rejected</strong></td>
+<td>Detailereignisse und konkreten SMTP-/NDR-Code auswerten</td>
+</tr>
+<tr>
+<td><strong>Pending / Deferred</strong></td>
+<td>Zeitabhängige Transportverzögerung, Retry, Connector und Fehlerstatus prüfen</td>
+</tr>
+<tr>
+<td><strong>Kein Eintrag</strong></td>
+<td>Suchparameter, Zeitfenster, Retention, Eingangsweg, Vorfilter/Gateway, sendende Seite prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht gefunden ≠ nicht versendet:</strong> Möglicherweise lag der Fehler vor Eintritt in Microsoft 365, die Suche ist falsch eingegrenzt oder die Daten liegen außerhalb des verfügbaren Zeitfensters. Die moderne Trace-Ansicht unterstützt eine begrenzte Historie; für ältere Daten können andere Abfragen/Reports nötig sein [Q1, Q2].</p>
+<p><strong>Eskalation an L2:</strong> Bei nicht eindeutigen Detailereignissen, Drittsystemen oder möglicher organisationsweiter Störung vollständigen Zeitrahmen und Trace-ID beilegen, nicht bloß „Trace leer“.</p>
+<h2 id="6-pfad-a-nachricht-im-junk-ordner">6. Pfad A – Nachricht im Junk-Ordner</h2>
+<ol>
+<li>Empfängeridentität, Ordner (Junk/sonstiger Ordner) und Zeitpunkt im <strong>Outlook im Web</strong> mit dem Desktopclient vergleichen.</li>
+<li>Outlook-Postfachregeln, blockierte Absender, lokale Junk-Einstellungen und eventuelle Verschiebungen prüfen.</li>
+<li>Falls erlaubt, bei vorhandener Nachricht die <strong>Antispam-Nachrichtenheader</strong> (<code>X-Forefront-Antispam-Report</code>, <code>X-Microsoft-Antispam</code>, <code>Authentication-Results</code>) untersuchen [Q8].</li>
+<li>SCL, SFV, BCL und ggf. Filter-/Transportregel vergleichen – nicht aus einem einzelnen Wert einen vollständigen Sicherheitsbefund ableiten.</li>
+<li>Bei sicher verifizierter legitimer Nachricht als <strong>„Kein Junk“</strong> melden und gegebenenfalls nach Organisationsprozess zur Microsoft-Analyse einreichen [Q7].</li>
+<li>Erneuten kontrollierten Versand oder eine <strong>neue</strong> Testnachricht prüfen; historisch klassifizierte Mails ändern nicht zwangsläufig rückwirkend ihren Speicherort.</li>
+</ol>
+<p><strong>Lernpunkt:</strong> Eine Mail im Junk-Ordner hat den Transport typischerweise bereits durchlaufen. Ein DNS-/MX-Umbau ist bei diesem Befund kein sinnvoller erster Schritt.</p>
+<h2 id="7-pfad-b-nachricht-in-quarantane">7. Pfad B – Nachricht in Quarantäne</h2>
+<p>Administratoren prüfen im Microsoft Defender-Portal die Quarantäne (<code>https://security.microsoft.com/quarantine</code>) und erfassen <strong>Zeit, Absender, Empfänger, Erkennungsgrund, Richtlinie und erlaubte Aktion</strong> [Q4].</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Erkennungsgrund</th>
+<th>Beurteilung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spam/Bulk</td>
+<td>Legitimität anhand Kontext, Metadaten und Richtlinie bewerten</td>
+</tr>
+<tr>
+<td>Hohe Phishing-Sicherheit</td>
+<td><strong>Keine</strong> benutzerseitige Selbstfreigabe; Security-Prozess beachten [Q3, Q4]</td>
+</tr>
+<tr>
+<td>Malware / verdächtiger Anhang</td>
+<td><strong>Nicht</strong> ungeprüft freigeben oder öffnen; SOC/Security einschalten</td>
+</tr>
+<tr>
+<td>Safe Attachments / Richtlinie</td>
+<td>Lizenz-/Policy- und Scanstatus prüfen, autorisierte Fachstelle einbeziehen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Freigabe ist eine Sicherheitsentscheidung:</strong> Sie erfordert Berechtigung, Plausibilitätsprüfung und gegebenenfalls Security-Freigabe. Microsoft unterstützt die Einreichung möglicher Fehlklassifizierungen zur Analyse; Freigaben und „Allow“-Ausnahmen sind <strong>getrennte</strong> Entscheidungen [Q4, Q7, Q12]. Bei einer Freigabe wird eine Nachricht neu zugestellt und kann einen späteren Zustellzeitstempel erhalten [Q4].</p>
+<h2 id="8-pfad-c-ndr-smtp-ablehnung-oder-ausgehende-sperre">8. Pfad C – NDR, SMTP-Ablehnung oder ausgehende Sperre</h2>
+<p><strong>Der exakte Code samt Diagnosekontext zählt</strong>, beispielsweise <code>550 5.7.1</code>: Dieser Code kann unterschiedliche sicherheits- oder berechtigungsbezogene Ursachen haben (z. B. Empfängerrestriktion, Weiterleitungs-/Routingkontext, Relay-Grenze), ist <strong>kein universeller Spamcode</strong> [Q6].</p>
+<p><strong>Prüfablauf:</strong></p>
+<ol>
+<li>NDR vom Absender aus sicherem Kanal einholen; <strong>Diagnostic information for administrators</strong> nach Möglichkeit strukturiert erfassen.</li>
+<li>Eingehend oder ausgehend unterscheiden; Empfänger- und Senderdomänen, Mailbox, Verteiler oder Connector festhalten.</li>
+<li>Bei 4xx: Verzögerung/Retry und Uhrzeitverlauf statt sofortiger Neuversendung untersuchen.</li>
+<li>Bei 5xx: Ablehnenden Server, genauen Code, Text und Auslöser (Restriktion, Spam, Authentifizierung, Routing, Policy) isolieren.</li>
+<li>Bei <strong>outbound spam</strong> / eingeschränktem Konto: Security Incident prüfen, keine Aufhebung der Sperre ohne Klärung möglicher Kompromittierung.</li>
+<li>Erforderliche Regel- oder Konnektoränderungen nur nach Prüfung durch Messaging/Security und Change-Freigabe.</li>
+</ol>
+<p><strong>Abgrenzung:</strong> Ein externer Empfänger kann Nachrichten aufgrund seiner <strong>eigenen</strong> Sicherheitsrichtlinie blockieren. Lokale Microsoft-365-Admins können nicht ohne Weiteres die fremde Empfängerorganisation ändern.</p>
+<h2 id="9-pfad-d-authentifizierung-spf-dkim-dmarc">9. Pfad D – Authentifizierung / SPF, DKIM, DMARC</h2>
+<p>Für externe Zustellprobleme die zugehörigen <strong>Header und Domänenrollen</strong> überprüfen [Q5, Q11].</p>
+<ul>
+<li><strong>SPF:</strong> <code>MAIL FROM</code>-/Return-Path-Domain, sendende Infrastruktur und SPF-Eintrag vergleichen; DNS ist nur ein Teil der Prüfung.</li>
+<li><strong>DKIM:</strong> ist eine überprüfbare Signatur vorhanden und für welche <code>d=</code>-Domain? Weiterleitungen oder Gateways können signierte Inhalte verändern.</li>
+<li><strong>DMARC:</strong> besteht Alignment mit der sichtbaren From-Domain durch passenden SPF- oder DKIM-Pfad? DMARC-Policy <code>p=none</code>, <code>quarantine</code>, <code>reject</code> nur mit genauer Kontextprüfung interpretieren.</li>
+<li><strong>Weiterleitung/Relay:</strong> kann die ursprüngliche Authentifizierung verändern. Bei berechtigter Zwischenstation gegebenenfalls ARC-Mechanismus prüfen.</li>
+<li><strong>Reputation, Bulk, Spoofing:</strong> EOP verwendet zusätzliche Signale; SPF/DKIM/DMARC-Pass garantiert keine Zustellung in den Posteingang.</li>
+</ul>
+<p><strong>Nicht</strong> zur Behebung einer einzelnen Mail wahllos SPF-Einträge erweitern, DMARC abschalten oder externe Domains pauschal allowlisten.</p>
+<h2 id="10-pfad-e-transportregeln-connectoren-postfachaktionen">10. Pfad E – Transportregeln, Connectoren, Postfachaktionen</h2>
+<p>Falls Trace/Filterevents eine andere Schicht zeigen, untersucht L2 <strong>lesend</strong>:</p>
+<ul>
+<li><strong>Exchange Mailflow-Regeln:</strong> Kriterien, Priorität, Regelmodus und Aktionen (Ablehnen, Umleiten, Löschen, SCL beeinflussen). Eine Transportregel kann SCL vor der Antispamwertung verändern [Q9].</li>
+<li><strong>Connectoren / Drittanbieter-Gateways:</strong> Wird Mail tatsächlich über Exchange Online geleitet oder vorgelagert gefiltert? Gibt es Hybrid oder Richtungs-/Routingspezifika?</li>
+<li><strong>Empfängerbeschränkungen:</strong> Gruppenmoderation, externe Senderbeschränkung, gültige Zieladresse, ggf. Empfängerlimit [Q6].</li>
+<li><strong>Postfachseitige Aktionen:</strong> Regeln, Junk, Weiterleitung, mobil-/desktopseitige Ansichten oder Zugriffe. <strong>ZAP</strong> kann nach erfolgter Zustellung eine Sicherheitsaktion auslösen [Q3].</li>
+</ul>
+<p><strong>Aufpassen:</strong> Im Header kann <code>SFV:SKN</code> eine durch Regel ausgelöste Spamumgehung anzeigen; <code>SFV:SKS</code> eine vorherige Spammarkierung. Entscheidend ist die Verbindung aus Trace, Header, Richtlinie und Regel [Q8, Q9].</p>
+<h2 id="11-lesende-powershell-diagnose-berechtigter-l2-kontext">11. Lesende PowerShell-Diagnose (berechtigter L2-Kontext)</h2>
+<p>Voraussetzungen: Exchange-Online-PowerShell, angemessene Rollen, Zustimmung zur Verarbeitung betroffener Nachrichtendaten, aktuelle Module. Microsoft dokumentiert für <code>Get-MessageTraceV2</code> ein hinreichend aktuelles Exchange-Online-PowerShell-Modul [Q1, Q10]. <strong>Diese Befehle lesen; sie geben keine Quarantäne frei und verändern keine Richtlinien.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Fiktive Adressen! Nur in autorisierter Umgebung ausführen.
+Import-Module ExchangeOnlineManagement
+Connect-ExchangeOnline
+
+$sender    = 'dienstleister@partner.example'
+$recipient = 'lea@contoso.example'
+$start     = (Get-Date).AddDays(-2)
+$end       = Get-Date
+
+# Verlauf derselben Richtung und derselben Adressen eingrenzen
+$trace = Get-MessageTraceV2 -SenderAddress $sender `
+    -RecipientAddress $recipient -StartDate $start -EndDate $end
+$trace | Select-Object Received, SenderAddress, RecipientAddress, Subject, Status, MessageTraceId
+
+# Detailereignisse nur für EINEN eindeutig zugeordneten Treffer
+$one = $trace | Select-Object -First 1
+if ($null -ne $one) {
+    Get-MessageTraceDetailV2 -MessageTraceId $one.MessageTraceId `
+        -RecipientAddress $one.RecipientAddress |
+        Select-Object Date, Event, Action, Detail
+}
+
+# Quarantäne-Metadaten (rollen- und richtlinienabhängig)
+Get-QuarantineMessage -RecipientAddress $recipient |
+    Select-Object ReceivedTime, SenderAddress, RecipientAddress, Subject, Type, ReleaseStatus
+
+# Richtlinien / Mailflow-Regeln lesen, keine Änderungen
+Get-HostedContentFilterPolicy | Select-Object Name, SpamAction, HighConfidenceSpamAction, BulkThreshold
+Get-TransportRule | Select-Object Name, State, Mode, Priority
+
+Disconnect-ExchangeOnline -Confirm:$false
+</code></pre></div>
+<p><strong>Hinweise:</strong> <code>Get-MessageTraceV2</code> und <code>Get-MessageTraceDetailV2</code> statt des älteren Trace-Cmdlets bevorzugen [Q10]. Ergebnisse können bei großen Datenmengen paginiert bzw. begrenzt sein; ein einzelner Treffer ist nur nach ID-Abgleich repräsentativ. Die Property-Namen und Cmdlet-Verfügbarkeit können je nach Microsoft-Version/Role variieren. <code>Subject</code> enthält sensible Informationen – im Ticket nur nach begründetem Bedarf verarbeiten. Verbindliche Syntax und Berechtigungen anhand [Q10, Q13] abgleichen.</p>
+<h2 id="12-entscheidungsmatrix-befund-nachste-sinnvolle-aktion">12. Entscheidungsmatrix: Befund → nächste sinnvolle Aktion</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gesicherter Befund</th>
+<th>Minimaler sinnvoller nächster Schritt</th>
+<th>Zuständigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-Mail in Junk, legitimer Inhalt bestätigt</td>
+<td>Als „Kein Junk“ melden, Klassifizierung prüfen, neuen Test</td>
+<td>L1 + L2 bei Muster</td>
+</tr>
+<tr>
+<td>E-Mail quarantänisiert, verdächtig</td>
+<td>Securityprüfung; <strong>keine</strong> voreilige Freigabe</td>
+<td>SOC / Defender-L2</td>
+</tr>
+<tr>
+<td>E-Mail quarantänisiert, geprüfter Fehlalarm</td>
+<td>Autorisierter Security-Workflow: Submission; ggf. gezielte Freigabe</td>
+<td>Defender-L2</td>
+</tr>
+<tr>
+<td>Trace <code>Delivered</code>, Outlook zeigt nichts</td>
+<td>OWA, Zielordner, Postfachregeln, ZAP prüfen</td>
+<td>L1 → L2</td>
+</tr>
+<tr>
+<td>Trace <code>Deferred</code></td>
+<td>temporären Zustellstatus, Retry und Connector prüfen</td>
+<td>Exchange-L2</td>
+</tr>
+<tr>
+<td>Trace <code>Failed</code> mit 5xx</td>
+<td>Exakten SMTP-Code und ablehnendes System prüfen</td>
+<td>Exchange-L2 / Partner</td>
+</tr>
+<tr>
+<td>Trace ohne Treffer, externe Mail</td>
+<td>Suchfenster, Gateway/Vorfilter, Senderlogs und MX prüfen</td>
+<td>Exchange-L2 / Partner</td>
+</tr>
+<tr>
+<td>Wiederholte False Positives von einer legitimen SaaS-Quelle</td>
+<td>Headerauthentifizierung, Dienstkonfiguration und Microsoft-Submission</td>
+<td>Messaging/Security</td>
+</tr>
+<tr>
+<td>Verdacht auf kompromittierten Absender</td>
+<td>Incident-Response-Prozess, Kontoschutz, keine automatische Ausnahme</td>
+<td>SOC</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="13-fiktiver-fall-a-rechnung-in-quarantane-statt-posteingang">13. Fiktiver Fall A – Rechnung in Quarantäne statt Posteingang</h2>
+<p><strong>Muster-Ticket (frei erfunden):</strong> „Ein Dienstleister sagt, die Rechnung sei gestern verschickt worden, aber bei mir ist sie nicht angekommen.“</p>
+<p><strong>Beobachtung:</strong> L1 prüft Absender, Empfänger, UTC-/MEZ-Zeitbezug und Junk/OWA. Exchange-L2 findet im Trace eine Filteraktion; Defender zeigt für die Nachricht Quarantäne mit einer Phishing-Einstufung. Die Betroffene behauptet, der Absender sei „immer vertrauenswürdig“.</p>
+<p><strong>Hypothesen:</strong> echter Angriff durch Spoofing oder kompromittiertes Partnerpostfach; fehlklassifizierte legitime Rechnung; unerwartete Weiterleitung oder fehlerhafte Authentifizierung.</p>
+<p><strong>Sicherer Weg:</strong> Keine Mail öffnen, weiterleiten oder blind freigeben. Security prüft Header/Absenderkanal, Richtlinie, Detektionsgrund und ggf. direkt über bekannten Kommunikationsweg den Partner. Bei bestätigtem False Positive erfolgt der freigegebene Microsoft-Submission-/Freigabeprozess; sonst bleibt die Schutzmaßnahme bestehen.</p>
+<p><strong>Lernergebnis:</strong> „Geschäftskritisch“ ändert die Dringlichkeit, <strong>nicht</strong> automatisch die Vertrauenswürdigkeit.</p>
+<h2 id="14-fiktiver-fall-b-kundenmail-wird-extern-mit-550-5-7-1-abgewiesen">14. Fiktiver Fall B – Kundenmail wird extern mit 550 5.7.1 abgewiesen</h2>
+<p><strong>Muster-Ticket (frei erfunden):</strong> „Die E-Mail an das externe Projektpostfach kommt mit Unzustellbarkeit zurück.“</p>
+<p><strong>Beobachtung:</strong> Absender zeigt NDR <code>550 5.7.1</code> mit einer spezifischen Empfängerrestriktion. Exchange-Trace bestätigt das Senden in Richtung Empfängersystem; die externe Gegenstelle lehnt mit genauer Diagnosezeile ab. Andere Empfänger funktionieren.</p>
+<p><strong>Hypothesen:</strong> Empfängergruppe akzeptiert keine externen Absender; Moderation/ACL; Anti-Spam-Policy auf der Fremdseite; Adress- oder Routingproblem.</p>
+<p><strong>Sicherer Weg:</strong> Fehlerdiagnose aus NDR statt pauschaler Spamannahme; Empfänger-/Partneradmin kontaktiert und Ursache mit dessen Berechtigung geklärt; keine eigene tenantweite Ausnahme. Anschließend kontrollierter Test an genau das Ziel und Vergleich von NDR/Trace/Empfängerbestätigung.</p>
+<p><strong>Lernergebnis:</strong> <code>5.7.1</code> ist eine <strong>Fehlerklasse mit mehreren Ursachen</strong>, kein Beweis für Spam [Q6].</p>
+<h2 id="15-active-recall-self-explanation-und-transfer">15. Active Recall, Self-Explanation und Transfer</h2>
+<p><strong>Wissen (kurz beantworten):</strong></p>
+<ol>
+<li>Wofür nutzt du Message Trace? → Nachrichtentransport, Zustellstatus und Aktionen rekonstruieren.</li>
+<li>Was ist der Unterschied zwischen Junk und Quarantäne? → Zugestellte Mail im Postfachordner vs. sicherheitsseitig zurückgehaltene Nachricht.</li>
+<li>Was bedeutet NDR? → Rückmeldung über Nichtzustellung, mit Diagnoseinformationen.</li>
+<li>Wozu dienen SPF, DKIM und DMARC? → Authentifizierung und Domänen-Alignment im Mailverkehr.</li>
+</ol>
+<p><strong>Verständnis (in eigenen Worten):</strong></p>
+<ol start="5">
+<li>Warum kann eine als „Delivered“ markierte Mail für den Nutzer trotzdem fehlen?</li>
+<li>Warum sollte man SCL, SFV und Richtlinien gemeinsam statt isoliert betrachten?</li>
+<li>Warum darf ein bekannter Absender nicht ohne weitere Prüfung freigegeben werden?</li>
+<li>Warum erklärt ein SPF-Pass nicht immer einen DMARC-Pass?</li>
+</ol>
+<p><strong>Diagnosekarten (ohne Runbook antworten):</strong></p>
+<ol start="9">
+<li>Mail ist im Junk von OWA sichtbar, aber nicht im Desktop-Posteingang: Welche zwei Prüfungen zuerst?</li>
+<li>Im Trace keine Spur einer Kundenmail: Welche drei Alternativerklärungen außer „nie gesendet“?</li>
+<li>Zwei externe Empfänger reagieren unterschiedlich; einer sendet NDR 5.7.1: Welcher Befund wird zuerst gesichert?</li>
+<li>Quarantäne signalisiert „High confidence phishing“, Nutzer fordert sofortige Freigabe: Wie priorisierst du?</li>
+</ol>
+<p><strong>Transfertraining:</strong> Simuliere drei neue Tickets mit gleichem Nutzerwortlaut „Mail kommt nicht an“, aber mit verschiedenen technischen Gründen: (a) Junk, (b) externer SMTP-Reject, (c) Postfachregel nach Zustellung. Formuliere jeweils ein <strong>minimal diskriminierendes Testergebnis</strong> und einen fachlich präzisen Drei-Satz-Ticketkommentar: <strong>Befund → Handlung → Nachweis</strong>.</p>
+<p><strong>Spaced Repetition:</strong> Nach etwa 7 und 21 Tagen mit veränderten Symptomen selbstständig erneut diagnostizieren. <strong>Fertig dokumentiert ist nicht gleich praktisch beherrscht</strong>.</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://learn.microsoft.com/en-us/exchange/monitoring/trace-an-email-message/message-trace-modern-eac" rel="noopener noreferrer" target="_blank">Message trace im neuen Exchange Admin Center</a> – Status, Filter, Rollen, Details.</li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/en-us/exchange/monitoring/trace-an-email-message/message-trace-faq" rel="noopener noreferrer" target="_blank">Message Trace – FAQ</a> – Historie und Suchgrenzen.</li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/anti-spam-protection-about" rel="noopener noreferrer" target="_blank">Anti-spam protection in cloud organizations</a> – Spam- und Phishingklassifizierungen, Richtlinien, ZAP.</li>
+<li><strong>[Q4]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/quarantine-admin-manage-messages-files" rel="noopener noreferrer" target="_blank">Quarantäne: Nachrichten administrativ verwalten</a> – Zuständigkeit, Freigabe und Neubewertung.</li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/email-authentication-about" rel="noopener noreferrer" target="_blank">How email authentication works in Microsoft 365</a> – SPF, DKIM, DMARC/Alignment.</li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/email-delivery/ndr/fix-error-code-550-5-7-1-in-exchange-online" rel="noopener noreferrer" target="_blank">NDR 550 5.7.1: Fehlerbehebung</a> – Ursachen differenzieren.</li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/step-by-step-guides/how-to-handle-false-positives-in-microsoft-defender-for-office-365" rel="noopener noreferrer" target="_blank">False Positives bei Defender for Office 365 untersuchen</a> – sichere Behandlung legitimer Nachrichten.</li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/message-headers-eop-mdo" rel="noopener noreferrer" target="_blank">Anti-spam message headers</a> – SCL/SFV/BCL und Header.</li>
+<li><strong>[Q9]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/anti-spam-policies-troubleshooting" rel="noopener noreferrer" target="_blank">Troubleshoot anti-spam policies</a> – Filter- und Regelinteraktion.</li>
+<li><strong>[Q10]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-messagetracev2" rel="noopener noreferrer" target="_blank">Get-MessageTraceV2</a> und <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-messagetracedetailv2" rel="noopener noreferrer" target="_blank">Get-MessageTraceDetailV2</a> – Syntax und Grenzen.</li>
+<li><strong>[Q11]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/email-authentication-troubleshoot" rel="noopener noreferrer" target="_blank">Troubleshoot email authentication</a> – Authentifizierungsprobleme eingrenzen.</li>
+<li><strong>[Q12]</strong> <a href="https://learn.microsoft.com/en-us/defender-office-365/submissions-admin" rel="noopener noreferrer" target="_blank">Submit messages for analysis</a> – Microsoft-Submission.</li>
+<li><strong>[Q13]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-quarantinemessage" rel="noopener noreferrer" target="_blank">Get-QuarantineMessage</a> – lesende Quarantäneabfrage.</li>
+</ul>
+<blockquote>
+<p><strong>Transparenz / Laborstatus:</strong> Das ist eine recherchierte, didaktisch erstellte Diagnosevorlage; weder ein Nachweis produktiver Fehlerbehebung noch eine praktische Validierung. Änderungen in produktiven Tenants nur in vorgesehenen Rollen und nach Freigabe. Bildnachweis: „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“.</p>
+</blockquote>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-033_Lernartikel.md">RB-033_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-032/index.html">← Ticket 32</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-034/index.html">Ticket 34 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

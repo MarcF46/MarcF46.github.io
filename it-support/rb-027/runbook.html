@@ -1,0 +1,193 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 27: Windows Update schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 27: Windows Update schlägt fehl. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 27: Windows Update schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-und-prioritat">1. Ticketannahme und Priorität</a></li><li><a href="#2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</a></li><li><a href="#3-phase-des-fehlers-klassifizieren">3. Phase des Fehlers klassifizieren</a></li><li><a href="#4-l1-basisprufung-und-vergleich">4. L1-Basisprüfung und Vergleich</a></li><li><a href="#5-diagnoseinformationen-nur-lesen">5. Diagnoseinformationen nur lesen</a></li><li><a href="#6-prufpfad-a-suche-oder-download-gestort">6. Prüfpfad A – Suche oder Download gestört</a></li><li><a href="#7-prufpfad-b-installation-oder-cbs-fehler">7. Prüfpfad B – Installation oder CBS-Fehler</a></li><li><a href="#8-prufpfad-c-rollback-featureupdate-oder-richtlinien">8. Prüfpfad C – Rollback, Featureupdate oder Richtlinien</a></li><li><a href="#9-verifikation-und-ticketabschluss">9. Verifikation und Ticketabschluss</a></li><li><a href="#10-kompetenzcheck-eskalation-herstellerquellen">10. Kompetenzcheck, Eskalation, Herstellerquellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Level:</strong> L1/L2 · <strong>Betriebssystem:</strong> Windows 11<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Aus Microsoft-Herstellerquellen abgeleitet, <strong>nicht auf einem real gestörten Gerät validiert</strong>. Alle Musterwerte sind fiktiv.</p>
+<blockquote>
+<p><strong>Kurzregel:</strong> <strong>KB + Fehlercode + Phase sichern → Updatequelle und Abhängigkeiten prüfen → Logs korrelieren → nur freigegebene Maßnahme → KB/Neustart/Arbeitsfähigkeit verifizieren.</strong></p>
+</blockquote>
+<h2 id="1-ticketannahme-und-prioritat">1. Ticketannahme und Priorität</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Melder, Gerät/Asset, Hersteller/Modell, Standort/Remote, Betriebssystem-Build, geschäftliche Auswirkung aufnehmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Exakte KB-/Updatebezeichnung</strong>, Typ (Qualitätsupdate/Treiber/Featureupdate), Fehlercode und Zusatzcode erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Screenshot von <code>Einstellungen → Windows Update → Updateverlauf</code>, Zeitpunkt und ersten Fehlerzeitpunkt sichern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anzahl betroffener Geräte und zentralen Updatekanal (Windows Update / WSUS / Intune / Configuration Manager) erfragen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bestehen laufende Security-Risiken oder Compliance-Fristen? Bei vielen Geräten oder kritischen Sicherheitsupdates frühzeitig Security/Endpoint einschalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>RB-026-Abzweig:</strong> Windows bootet nicht / BitLocker Recovery / Startschleife? Keine weiteren Updateversuche: Wiederherstellungspfad einsetzen.</li>
+</ul>
+<p><strong>Kernausgabe:</strong> <code>KB / Code / Phase / Build / Gerät / Zeitpunkt / Verteilungskanal / Umfang</code>.</p>
+<h2 id="2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Supportberechtigung, Zuständigkeit und Wartungsfenster geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Backup-/Datenschutzlage dokumentiert? BitLocker-Wiederherstellung <strong>über autorisierten Prozess</strong> möglich, falls erforderlich?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine aktive Paketinstallation unterbrechen; keine harten Resets bei unklarem Updatefortschritt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine eigenmächtigen WSUS-, MDM-, GPO-, Proxy-, Firewall- oder Security-Änderungen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine pauschalen Reset-Skripte für <code>SoftwareDistribution</code>, <code>catroot2</code>, BITS, SIDs, Registrierungsrechte oder Windows Update Dienste.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Neue Logs nur an freigegebenem Ort erzeugen und vor Weitergabe auf sensible Inhalte prüfen.</li>
+</ul>
+<p><strong>Ohne Genehmigung:</strong> nur Aufnahme und lesende Diagnose. <strong>Mit kritischem Daten-/Bootrisiko:</strong> an L2/Endpoint eskalieren.</p>
+<h2 id="3-phase-des-fehlers-klassifizieren">3. Phase des Fehlers klassifizieren</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Phase / Schwerpunkt</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Updatesuche schlägt fehl / keine erwartete KB</td>
+<td><strong>Suche / Richtlinie</strong></td>
+<td>Updatequelle, Intune-/WSUS-Zuweisung, Client-Log</td>
+</tr>
+<tr>
+<td>Update gefunden, Download bricht ab</td>
+<td><strong>Download / Transport</strong></td>
+<td>Internet, Proxy, Quell-URL, Speicher, BITS/Übermittlungsoptimierung</td>
+</tr>
+<tr>
+<td>Download abgeschlossen, Installation scheitert</td>
+<td><strong>Installation / Servicing</strong></td>
+<td><code>CBS.log</code>, Code, Komponentenstatus</td>
+</tr>
+<tr>
+<td>Neustart erforderlich oder Rollback</td>
+<td><strong>Abschluss / Reboot</strong></td>
+<td>Wartungsfenster, Updateverlauf, bei Featureupdate SetupDiag</td>
+</tr>
+<tr>
+<td>Fehler erst nach Neustart, Windows startet nicht</td>
+<td><strong>Bootproblem</strong></td>
+<td>RB-026, Backup-/Recovery-Gate</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Fortschrittsanzeige und WindowsUpdate-Servicestatus allein sind keine sicheren Ursachenbeweise.</p>
+<h2 id="4-l1-basisprufung-und-vergleich">4. L1-Basisprüfung und Vergleich</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>winver</code> / Windows-Build und genaue KB aus Updateverlauf notiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Netzverbindung, Uhrzeit und Stromversorgung überprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Genügend <strong>freier Speicherplatz passend zum Update</strong> vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist ein <strong>Neustart ausstehend</strong>, ohne dass aktuell noch installiert wird?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät in einem gültigen Update-Ring? Nur betreutes Einzelgerät oder mehrere betroffen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn passend und freigegeben: Windows-11-Problembehandlung über <strong>Hilfe anfordern</strong> laufen lassen; Diagnoseergebnis dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein passendes Vergleichsgerät mit <strong>gleicher Updatequelle/Zielgruppe</strong> heranziehen. Nur bekannte, zulässige Testgeräte verwenden.</li>
+</ul>
+<p><strong>L1-Grenze:</strong> Falls keine eindeutige, freigegebene Standardmaßnahme: <strong>mit gesichertem Befund eskalieren</strong>, nicht reparieren „auf Verdacht“.</p>
+<h2 id="5-diagnoseinformationen-nur-lesen">5. Diagnoseinformationen nur lesen</h2>
+<p><strong>PowerShell (auf laufendem Windows, Berechtigungen beachten):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Build und Systemzeit
+Get-CimInstance Win32_OperatingSystem |
+  Select-Object Caption, Version, BuildNumber, LastBootUpTime
+Get-Date
+
+# Freier Platz des Systemlaufwerks
+Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" |
+  Select-Object DeviceID, @{N='FreeGiB';E={[math]::Round($_.FreeSpace/1GB,1)}}
+
+# Update-/Transferdienste nur abfragen (Stopped ≠ automatisch Fehler)
+Get-Service wuauserv,bits,cryptsvc,usosvc -ErrorAction SilentlyContinue |
+  Select-Object Name,Status,StartType
+
+# Ereignisse mit Datum, Quelle, Text; bei fehlenden Rechten an L2
+Get-WinEvent -FilterHashtable @{
+ LogName='Microsoft-Windows-WindowsUpdateClient/Operational'
+ StartTime=(Get-Date).AddDays(-14)
+} -MaxEvents 50 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated,Id,LevelDisplayName,Message
+</code></pre></div>
+<p><strong>Client-/Enterprise-Richtlinien lesen (nicht ändern):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' -EA SilentlyContinue
+Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' -EA SilentlyContinue
+Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Update' -EA SilentlyContinue
+netsh winhttp show proxy
+</code></pre></div>
+<p><strong>Protokoll-Export bei Bedarf (erzeugt Datei, keine Dienstunterbrechung mit <code>-ForceFlush</code>):</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur autorisierter Ablageort; Zielname vorher auf Existenz prüfen.
+Get-WindowsUpdateLog -LogPath "$env:USERPROFILE\Desktop\RB027-WindowsUpdate.log"
+</code></pre></div>
+<ul>
+<li><code>Get-WindowsUpdateLog</code> erzeugt einen <strong>Snapshot</strong>, keinen Live-Log. Spätere Ereignisse erfordern neuen Export.</li>
+<li>Ggf. <code>CBS.log</code> unter <code>%windir%\Logs\CBS\CBS.log</code> <strong>lesend</strong> auswerten und nur zugehörige Fehlerzeilen heranziehen.</li>
+<li>Featureupgrade: <strong>SetupDiag</strong> und Panther-/Rollback-Logs statt ausschließlicher CBS-Analyse.</li>
+</ul>
+<h2 id="6-prufpfad-a-suche-oder-download-gestort">6. Prüfpfad A – Suche oder Download gestört</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtige KB/Zielgruppe/Updatequelle ermittelt? Intune-Ring/WSUS-Freigabe/Configuration Manager mit Zuständigen abgleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erreichbarkeit der <strong>tatsächlichen Updatequelle</strong> untersuchen (VPN, DNS, Proxy, TLS/Firewall); Browser-Test alleine genügt nicht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Clientlogs und Transferphase zum Fehlerzeitpunkt prüfen; bei Verbindungshinweisen Netzwerk-/Proxy-Team beteiligen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Freier Speicher, BITS/Delivery Optimization und Richtlinienstatus erfasst; nicht allein aus <code>Stopped</code> eine Störung ableiten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Nach bestätigter Ursache</strong>: zugelassenen Netzwerk-/Quellenfix oder geregelte Problembehandlung einsetzen; Fehlercode/Neutest notieren.</li>
+</ol>
+<p><strong>Stopp:</strong> Zentral verwaltetes Gerät und falsche Scanquelle? Keine Registrierungsschlüssel löschen oder Updatequelle manuell wechseln. An Endpoint-/WSUS-/Intune-Team.</p>
+<h2 id="7-prufpfad-b-installation-oder-cbs-fehler">7. Prüfpfad B – Installation oder CBS-Fehler</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Download erfolgreich? Exakten Installationscode aus Updateverlauf und eventuelle CBS-Einträge zeitlich verbinden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei begründetem Komponentenspeicherverdacht nur nach L2-Freigabe zunächst prüfen:</li>
+</ol>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">:: Erweiterte, zustandsprüfende Diagnose (Adminrechte, Dauer beachten)
+DISM /Online /Cleanup-Image /CheckHealth
+DISM /Online /Cleanup-Image /ScanHealth
+</code></pre></div>
+<ol start="3">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn eine Reparatur nach Befund sinnvoll und genehmigt ist, <strong>vorher</strong> Backup, geeignete Quelle und Wartungsfenster klären; dann ggf.:</li>
+</ol>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">:: SCHREIBENDE Reparatur, NUR L2 nach Freigabe
+DISM /Online /Cleanup-Image /RestoreHealth
+sfc /scannow
+</code></pre></div>
+<ol start="4">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>0x800F081F</code> im DISM-Kontext? Reparaturquelle passend zur Windows-Version prüfen. <strong>Keine</strong> improvisierte Quelle, keine pauschalen <code>SFC</code>/<code>DISM</code>-Wiederholungsschleifen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Resultat aus CBS-/DISM-Logs festhalten, dann <strong>nur die passende KB</strong> über den freigegebenen Kanal erneut prüfen.</li>
+</ol>
+<p><strong>Stopp:</strong> SSD-/Datenträgerfehler, fehlender Reparaturzugriff, ungeklärter Backupstatus oder wiederholte komponentenbezogene Fehlermeldungen ⇒ L2/L3/Endpoint.</p>
+<h2 id="8-prufpfad-c-rollback-featureupdate-oder-richtlinien">8. Prüfpfad C – Rollback, Featureupdate oder Richtlinien</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Handelt es sich um ein <strong>Featureupdate</strong>? SetupDiag, Panther-/Rollback-Logs und exakten Setup-Fehlercode verwenden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>0xC1900101</code> zusammen mit Setup-Befund? Treiber-/Kompatibilitätsursache prüfen, nicht wahllos Treiber entfernen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mehrere Clients betroffen? Update-Ringe, GPO, MDM- und WSUS-/SUP-Zuordnung durch zuständige Stelle auswerten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows-11-Option <strong>„Probleme mithilfe von Windows Update beheben“</strong> ist eine weitergehende Neuinstallation derselben Version, <strong>keine normale erste Supportmaßnahme</strong>; auf verwalteten Geräten teils nicht verfügbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wiederholte Rollbacks oder BSOD nach Update? Ggf. Security/Endpoint und RB-026 hinzuziehen.</li>
+</ul>
+<h2 id="9-verifikation-und-ticketabschluss">9. Verifikation und Ticketabschluss</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Ziel-KB bzw. Featureversion <strong>als erfolgreich installiert</strong> im Updateverlauf nachweisbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Notwendiger Neustart vollständig abgeschlossen; Anmeldung und arbeitsrelevante Anwendungen funktionieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach einem erneuten Updatecheck <strong>derselbe Fehler nicht erneut</strong> aufgetreten; bei Ringen/WSUS zentrale Meldelatenz berücksichtigen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nachher-Befund (Build, KB, Fehlerfreiheit, Dauer, Geräteumfang) gesichert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Vorher → Maßnahme → Nachher</strong> lückenlos im Ticket dokumentiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Melder informiert; bei ungelöstem Risiko, Compliance-Frist oder Massenstörung an zuständige Stelle eskaliert.</li>
+</ul>
+<p><strong>Erfolg ≠</strong> „Balken bei 100 %“ oder „Updatefenster geschlossen“. <strong>Erfolg = Zielupdate installiert und gewünschte Funktion kontrolliert.</strong></p>
+<h3 id="kopierfertiger-muster-ticketkommentar-fiktiv">Kopierfertiger Muster-Ticketkommentar (fiktiv)</h3>
+<blockquote>
+<p><strong>Störung:</strong> Windows 11, Build [Nummer], Qualitätsupdate [KB], Installation fehlgeschlagen am [Zeitpunkt] mit [Fehlercode]. Download laut Updateverlauf abgeschlossen; [n] Geräte betroffen.<br/>
+<strong>Diagnose:</strong> Ereignisprotokoll WindowsUpdateClient und zugehörige CBS-Einträge [Befund/Zeitfenster] korreliert. Speicherplatz [x GiB], Quelle [WSUS/Intune/Windows Update]. Hypothese [begründet, noch nicht endgültig bewiesen].<br/>
+<strong>Maßnahme:</strong> [Nur tatsächlich ausgeführte und genehmigte Schritte], Referenz [Freigabe/Ticket].<br/>
+<strong>Kontrolle:</strong> [KB] nach erneutem Vorgang installiert/nicht installiert, Neustart [ja/nein], Anwendungen [ok/offen].<br/>
+<strong>Status:</strong> [gelöst / an Endpoint-L2 eskaliert] mit [relevanten Befunden/Logs], kein unautorisierter Eingriff in Richtlinien.</p>
+</blockquote>
+<h2 id="10-kompetenzcheck-eskalation-herstellerquellen">10. Kompetenzcheck, Eskalation, Herstellerquellen</h2>
+<p><strong>Drei Fragen ohne Unterlagen:</strong></p>
+<ol>
+<li>An welchem Artefakt erkennst du, ob ein Fehler im Download oder im <strong>CBS-Servicing</strong> liegt?</li>
+<li>Welcher zusätzliche Diagnoseweg gilt bei einem <strong>Funktionsupdate</strong> mit Rollback?</li>
+<li>Ein Client zeigt „keine Updates“, WSUS weist aber keine KB zu. Welches Team muss handeln und warum?</li>
+</ol>
+<p><strong>An L2/Endpoint übergeben:</strong> <code>KB + Build + Code + Phase + Log-Zeitfenster + GPO/MDM/WSUS-Quelle + Geräteumfang + A/B-Test + Sicherheits-/Backupprozess + versuchte Schritte</code>.</p>
+<p><strong>Offizielle Quellen, eingesehen am 22.11.2026:</strong></p>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/windows-update-troubleshooter" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/windows-update-troubleshooter</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows/deployment/update/windows-update-logs" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/windows-update-logs</a></li>
+<li><a href="https://learn.microsoft.com/de-de/powershell/module/windowsupdate/get-windowsupdatelog" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/powershell/module/windowsupdate/get-windowsupdatelog</a></li>
+<li><a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows/deployment/update/wufb-wsus" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/wufb-wsus</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-protection/troubleshoot-update-rings" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-protection/troubleshoot-update-rings</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag</a></li>
+<li><a href="https://support.microsoft.com/en-gb/windows/deployment/install-upgrade/fix-issues-by-reinstalling-the-current-version-of-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/en-gb/windows/deployment/install-upgrade/fix-issues-by-reinstalling-the-current-version-of-windows</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Recherchierte Vorgehensweise, noch keine praktische Funktionsprüfung. Alle Beispiele sind fiktiv. Eine Unternehmensfreigabe zur Durchführung wird durch dieses Runbook <strong>nicht</strong> ersetzt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-027_Praxis-Runbook.md">RB-027_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-026/index.html">← Ticket 26</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-028/index.html">Ticket 28 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

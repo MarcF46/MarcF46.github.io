@@ -1,0 +1,201 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 46: Softwaredeployment schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 46: Softwaredeployment schlägt fehl. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 46: Softwaredeployment schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-fehlerbild-reproduzierbar-erfassen">1. Ticketannahme: Fehlerbild reproduzierbar erfassen</a></li><li><a href="#2-stop-check-daten-rechte-wartungsfenster">2. STOP-Check: Daten, Rechte, Wartungsfenster</a></li><li><a href="#3-intune-app-zuweisung-und-voraussetzungen-lesend-kontrollieren">3. Intune-App-Zuweisung und Voraussetzungen lesend kontrollieren</a></li><li><a href="#4-client-check-in-und-ime-dienst-lesend-prufen">4. Client-Check-in und IME-Dienst lesend prüfen</a></li><li><a href="#5-contentpfad-voraussetzungen-und-download-aus-ime-logs-auswerten">5. Contentpfad, Voraussetzungen und Download aus IME-Logs auswerten</a></li><li><a href="#6-installationsbefehl-ausfuhrungskontext-und-exit-code-prufen">6. Installationsbefehl, Ausführungskontext und Exit-Code prüfen</a></li><li><a href="#7-detection-rule-gegen-tatsachlich-installierte-app-prufen">7. Detection Rule gegen tatsächlich installierte App prüfen</a></li><li><a href="#8-entscheidungsmatrix-und-configmgr-abzweig">8. Entscheidungsmatrix und ConfigMgr-Abzweig</a></li><li><a href="#9-freigegebene-korrektur-und-zwei-getrennte-retests">9. Freigegebene Korrektur und zwei getrennte Retests</a></li><li><a href="#10-ticketabschluss-eskalation-lernkontrolle">10. Ticketabschluss, Eskalation, Lernkontrolle</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 typische IT-Supportfälle · <strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Recherchiert und dokumentiert; <strong>noch nicht praktisch validiert</strong>. Beispielwerte fiktiv. Schwerpunkt: Intune-Win32-Anwendung (IME), ergänzend ConfigMgr.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb046_henne_ei_softwaredeployment.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-046 – Henne-und-Ei-Infografik zum Softwaredeployment" decoding="async" loading="lazy" src="assets/rb046_henne_ei_softwaredeployment.webp"/></a></div><figcaption>RB-046 – Henne-und-Ei-Infografik zum Softwaredeployment</figcaption></figure>
+<p><strong>Ziel:</strong> Die erste fehlgeschlagene Station <strong>Zuweisung → Check-in → Content → Installation → Erkennung → Anwendung</strong> mit einem Befund nachweisen, genehmigt korrigieren und Erfolg <strong>im Portal und an der Anwendung</strong> überprüfen.</p>
+<blockquote>
+<p><strong>Sicherheitsprinzip:</strong> Lesend untersuchen; <strong>keine</strong> Zuweisungen, Installer, IME-Caches, Detection Rules, Security-Ausnahmen oder Neustarts ohne Freigabe ändern.</p>
+</blockquote>
+<h2 id="1-ticketannahme-fehlerbild-reproduzierbar-erfassen">1. Ticketannahme: Fehlerbild reproduzierbar erfassen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>App-Name, <strong>konkrete Version</strong>, Installer-Typ (Win32/Store/LOB/ConfigMgr), App-ID, Zuweisungsart (Required/Available) dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Geräte-ID/Hostname, Benutzer, Tenant, OS/Architektur, Standort, Uhrzeit mit Zeitzone festgehalten?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Was steht <strong>exakt</strong> im Intune Admin Center/Company Portal (Status, Hex-Fehlercode, Zeitstempel)?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist nur ein Gerät betroffen, eine Gruppe, ein Standort oder der ganze Rollout-Ring?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist die App wirklich nicht installiert, bloß im Portal nicht sichtbar oder installiert, aber nicht startbar?</li>
+</ul>
+<p><strong>Häufige Fehldeutung:</strong> „Intune zeigt fehlgeschlagen“ bedeutet noch <strong>nicht</strong>, dass die App lokal fehlt.</p>
+<h2 id="2-stop-check-daten-rechte-wartungsfenster">2. STOP-Check: Daten, Rechte, Wartungsfenster</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unternehmensfreigabe, verantwortliches App-/Endpoint-Team, Benutzerbeeinträchtigung, Sicherung von App-Daten/Config geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur notwendige Leserechte; Logdateien vor Weitergabe auf personenbezogene Daten prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine produktive Neuinstallation, kein App-/Registry-/Cache-Löschen und keine Änderung von Zuweisungen/Detection Rules als Erstmaßnahme.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Security-Blockade nicht Defender/EDR abschalten, sondern IT-Security einschalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Remotezugriff: Keine Maßnahme, die die einzige Verbindung ohne Fallback gefährdet.</li>
+</ul>
+<p><strong>Eskalation sofort</strong>, wenn Installerherkunft unklar, Signatur verdächtig, viele Systeme betroffen oder ein freigegebenes Rollback fehlt.</p>
+<h2 id="3-intune-app-zuweisung-und-voraussetzungen-lesend-kontrollieren">3. Intune-App-Zuweisung und Voraussetzungen <strong>lesend</strong> kontrollieren</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtige App-Version und richtiger Zuweisungsumfang? Included-/Excluded-Gruppen kontrollieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Required</code> oder <code>Available</code>? Bei Available: Nutzerinstallation tatsächlich ausgelöst?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Requirements: Windows-Version, Architektur, Datenträgerplatz, eigene Regeln, Benutzer-/SYSTEM-Kontext passend?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Abhängigkeiten und Supersedence passend, keine fehlgeschlagene Vorbedingung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerätestatus und letzte Rückmeldung zur App prüfen; nicht mit der allgemeinen Device Compliance verwechseln.</li>
+</ul>
+<p><strong>Befund sichern:</strong> Screenshot oder textuelle Statusnotiz nach Unternehmensvorgaben, App-ID, Zuweisungsring und Uhrzeit.</p>
+<h2 id="4-client-check-in-und-ime-dienst-lesend-prufen">4. Client-Check-in und IME-Dienst <strong>lesend</strong> prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Status des Intune-Management-Extension-Dienstes:
+Get-Service -Name IntuneManagementExtension -ErrorAction SilentlyContinue |
+  Select-Object Name, Status, StartType
+
+# LESEND – IME-Protokollübersicht:
+$imeLogs = Join-Path $env:ProgramData 'Microsoft\IntuneManagementExtension\Logs'
+Get-ChildItem $imeLogs -Filter '*.log' -File -ErrorAction SilentlyContinue |
+  Select-Object Name, Length, LastWriteTime | Sort-Object LastWriteTime -Descending
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind <strong>neue</strong> App-Check-in-/Policy-Ereignisse zeitlich zum Fehler vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>IntuneManagementExtension.log, AppWorkload.log, AppActionProcessor.log auf betroffene App-ID prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur bei belegtem Netzwerk-/Proxyproblem an Netzwerkteam eskalieren; kein Proxy- oder Firewallwechsel auf Verdacht.</li>
+</ul>
+<p><strong>Interpretation:</strong> Dienst „Running“ ist noch kein erfolgreicher App-Check-in.</p>
+<h2 id="5-contentpfad-voraussetzungen-und-download-aus-ime-logs-auswerten">5. Contentpfad, Voraussetzungen und Download aus IME-Logs auswerten</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wurde die Zielzuweisung verarbeitet? Welche Requirement Rule entschied „nicht anwendbar“?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Startete der Download? Abgeschlossen oder Timeout/Proxy-/Contentfehler?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Entstanden Abhängigkeitsfehler oder fehlende Paket-/Contentdateien?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Stimmen Logzeitpunkte, App-ID und Geräte-ID überein?</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – letzte IME-App-Logzeilen; vor externem Teilen sensible Werte prüfen:
+Get-Content -LiteralPath (Join-Path $imeLogs 'AppWorkload.log') -Tail 150 -ErrorAction SilentlyContinue
+Get-Content -LiteralPath (Join-Path $imeLogs 'AppActionProcessor.log') -Tail 120 -ErrorAction SilentlyContinue
+</code></pre></div>
+<p><strong>Kein Check-in</strong> → Station 2; <strong>Downloadfehler</strong> → Station 3; <strong>Installerfehler</strong> → Station 4; <strong>Detectionfehler</strong> → Station 5. Nicht alle Pfade gleichzeitig verändern.</p>
+<h2 id="6-installationsbefehl-ausfuhrungskontext-und-exit-code-prufen">6. Installationsbefehl, Ausführungskontext und Exit-Code prüfen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mit welchem Befehl und in welchem Kontext (SYSTEM/USER) wurde der Installer gestartet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Passt die Architektur x86/x64? Sind Silent-Parameter und Pfade herstellerkonform?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gibt es eine Installer-Kollision oder einen Neustartbedarf?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist der Exit-Code als <strong>Erfolg, Fehler, Retry oder Soft/Hard Reboot</strong> korrekt klassifiziert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gibt es ein MSI- oder Hersteller-Installationslog mit zeitlich passender Fehlerursache?</li>
+</ul>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Typische Bedeutung</th>
+<th>Weiterer Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Installer meldet Erfolg</td>
+<td>Detection und echte Funktion separat testen</td>
+</tr>
+<tr>
+<td><code>1603</code></td>
+<td>Fataler MSI-Fehler</td>
+<td>Fehlerkontext im Installer-Log analysieren</td>
+</tr>
+<tr>
+<td><code>1618</code></td>
+<td>Andere MSI-Installation läuft</td>
+<td>Konflikt zeitlich belegen, Installationsfenster abstimmen</td>
+</tr>
+<tr>
+<td><code>3010</code></td>
+<td>Erfolg, Neustart nötig</td>
+<td>Neustart nach Betriebsfreigabe/Policy kontrollieren</td>
+</tr>
+<tr>
+<td><code>0x87D1041C</code></td>
+<td>Intune erkennt App nach Installationslauf nicht</td>
+<td>Detection Rule und tatsächlichen Installationszustand vergleichen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Die ersten vier Codes gehören zur Windows-Installer-Familie; EXE-Installer dürfen andere Semantik besitzen. <code>0x87D1041C</code> ist ein Intune-Status und kein MSI-Rückgabecode.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – neueste MSI-Ereignisse im Windows-Anwendungsprotokoll:
+Get-WinEvent -FilterHashtable @{
+  LogName='Application'; ProviderName='MsiInstaller';
+  StartTime=(Get-Date).AddDays(-2)
+} -MaxEvents 30 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<h2 id="7-detection-rule-gegen-tatsachlich-installierte-app-prufen">7. Detection Rule gegen <strong>tatsächlich installierte App</strong> prüfen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Detection-Art identifiziert: MSI Product Code, Datei, Registry oder Custom Script?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwarteten Pfad mit realem Pfad <strong>inklusive <code>Program Files</code> vs. <code>Program Files (x86)</code></strong> verglichen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendungs-/Dateiversion mit Regel verglichen, HKLM/HKCU und 32-/64-Bit-Registry geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Detection-Skript: Exit 0 <strong>und</strong> Ausgabe nach STDOUT; keine unerwartete STDERR-Ausgabe? [Q2]</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>App lokal vorhanden? Nur für diesen User oder systemweit? Stimmt der Kontext?</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Beispiel nur nach Anpassung an reale Paketpfade:
+Get-Item -LiteralPath 'C:\Program Files\Contoso\FachApp\FachApp.exe' -ErrorAction SilentlyContinue |
+  Select-Object FullName, Length, LastWriteTime
+
+$paths = @(
+ 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+ 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+Get-ItemProperty $paths -ErrorAction SilentlyContinue |
+ Where-Object DisplayName -like '*FachApp*' |
+ Select-Object DisplayName, DisplayVersion, InstallLocation
+</code></pre></div>
+<p><strong>Sonderfall:</strong> <code>0x87D1041C</code> legt den Fokus auf Detection, beweist aber weder, dass Dateien korrekt installiert wurden, noch dass die Anwendung funktionsfähig ist.</p>
+<h2 id="8-entscheidungsmatrix-und-configmgr-abzweig">8. Entscheidungsmatrix und ConfigMgr-Abzweig</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gesicherter Befund</th>
+<th>Nächster Zuständigkeits-/Diagnosepfad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App nicht zugewiesen/nicht anwendbar</td>
+<td>Intune-Zuweisung, Requirements, Rollout-Gruppe (Endpoint-Team)</td>
+</tr>
+<tr>
+<td>Kein aktueller IME-App-Check-in</td>
+<td>IME/Device Management/Netz (Endpoint-/Netzteam)</td>
+</tr>
+<tr>
+<td>Download bricht ab</td>
+<td>Content/Proxy/Security/Netz (Netz/Security/Endpoint)</td>
+</tr>
+<tr>
+<td>Installer liefert Fehler</td>
+<td>Paketparameter, SYSTEM/USER, MSI-/Vendor-Log (Paketmanagement)</td>
+</tr>
+<tr>
+<td>Installer Erfolg, Detection negativ</td>
+<td>Detection und Kontext (Paketmanagement)</td>
+</tr>
+<tr>
+<td>Portal Erfolg, Anwendung defekt</td>
+<td>App-/Lizenz-/Backendfunktion (Applikationssupport)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wenn ConfigMgr statt Intune verwendet wird:</strong> Nicht im IME-Log suchen, sondern <code>AppIntentEval.log</code> (Anwendbarkeit), <code>AppDiscovery.log</code> (Erkennung), <code>AppEnforce.log</code> (Installation) und ggf. Content-Logs. Quelle: Microsoft-ConfigMgr-Logreferenz [Q9].</p>
+<h2 id="9-freigegebene-korrektur-und-zwei-getrennte-retests">9. Freigegebene Korrektur und zwei getrennte Retests</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vorherigen Fehlerpfad (Befund + Logzeitpunkt) dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Eigentümer/Change-Freigabe klären; minimale passende Maßnahme im Test-Ring anwenden; Rollback festhalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls erforderlich kontrollierten neuen Check-in / neue Erkennung <strong>nach Freigabe</strong> beobachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Retest 1:</strong> Portal-/Detection-Status nach Aktualisierung korrekt, Version passt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Retest 2:</strong> App tatsächlich starten und benötigte Mindestfunktion im richtigen Benutzerkontext ausführen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nachwirkungen prüfen: Benutzerkonfiguration, andere Zielgeräte, Abhängigkeiten, notwendiger Neustart.</li>
+</ul>
+<p><strong>Nicht als Erfolg deklarieren:</strong> „App ist im Portal grün“ ohne Test der tatsächlich benötigten Funktion.</p>
+<h2 id="10-ticketabschluss-eskalation-lernkontrolle">10. Ticketabschluss, Eskalation, Lernkontrolle</h2>
+<p><strong>Belegfelder für Ticket/Weitergabe:</strong> App-ID/Version, Client-/Geräte-ID, Fehlerbild, Zeitpunkt/Zeitzone, verwendete Logs, erste fehlerhafte Station, nachvollziehbare Ursache/Hypothese, Freigabe, konkrete Änderung, Retest für <strong>Detection und Funktion</strong>, zuständige Rolle.</p>
+<p><strong>Muster-Ticketkommentar – ausdrücklich fiktiv:</strong></p>
+<blockquote>
+<p>„RB-046: <code>FachApp 3.2</code> auf <code>CLIENT-046A</code> meldet <code>0x87D1041C</code>. IME-Log: Installerlauf mit Erfolgscode; App-Datei lokal vorhanden. Detection Rule prüft abweichend <code>Program Files (x86)</code> statt <code>Program Files</code>. Pfadabweichung als plausible Ursache dokumentiert, Change an Paketmanagement weitergegeben; nach Korrektur sind erneute Erkennung und Funktionstest vorgesehen. Bis dahin <strong>nicht abgeschlossen</strong>.“</p>
+</blockquote>
+<p><strong>Eskalation:</strong> Unklare Paketquelle/Securityblockade → Security; server-/netzübergreifende Contentprobleme → Netzwerk/Endpoint; Deployment-Regeln → Intune-/ConfigMgr-Administration; Installationslog/Herstellerfehler → Paketmanagement/Hersteller; reine Appfunktion → Anwendungsteam.</p>
+<p><strong>Active Recall:</strong> Warum ist <code>exit 0</code> nicht gleich „App funktioniert“? Welche Logs unterscheiden Intune und ConfigMgr? Welche zwei getrennten Nachweise braucht der Abschluss?</p>
+<h3 id="quellen-offizielle-microsoft-dokumentation-23-11-2026">Quellen – offizielle Microsoft-Dokumentation (23.11.2026)</h3>
+<ul>
+<li>[Q1] <a href="https://learn.microsoft.com/de-de/intune/app-management/deployment/troubleshoot-win32" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/app-management/deployment/troubleshoot-win32</a></li>
+<li>[Q2] <a href="https://learn.microsoft.com/en-us/intune/app-management/deployment/add-win32" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/app-management/deployment/add-win32</a></li>
+<li>[Q4] <a href="https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows</a></li>
+<li>[Q6] <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/app-install-error-codes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/app-install-error-codes</a></li>
+<li>[Q7] <a href="https://learn.microsoft.com/de-de/windows/win32/msi/error-codes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/win32/msi/error-codes</a></li>
+<li>[Q9] <a href="https://learn.microsoft.com/de-de/intune/configmgr/core/plan-design/hierarchy/log-files" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/configmgr/core/plan-design/hierarchy/log-files</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Alle Beispiele sind fiktiv und alle technischen Verfahren noch praktisch zu validieren. Keine Änderungen an Produktivsystemen durchgeführt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-046_Praxis-Runbook.md">RB-046_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-045/index.html">← Ticket 45</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-047/index.html">Ticket 47 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

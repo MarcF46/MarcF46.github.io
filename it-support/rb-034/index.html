@@ -1,0 +1,353 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 34: DNS-Namensauflösung funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 34: DNS-Namensauflösung funktioniert nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 34: DNS-Namensauflösung funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsmeldung-zustandigkeiten-und-lernziele">1. Störungsmeldung, Zuständigkeiten und Lernziele</a></li><li><a href="#2-dns-abhangigkeitskette-verstehen">2. DNS-Abhängigkeitskette verstehen</a></li><li><a href="#3-dns-recordtypen-und-antworten-sicher-einordnen">3. DNS-Recordtypen und Antworten sicher einordnen</a></li><li><a href="#4-vorwissen-aktivieren-welche-fehlerhypothesen-sind-unterscheidbar">4. Vorwissen aktivieren: Welche Fehlerhypothesen sind unterscheidbar?</a></li><li><a href="#5-ticketaufnahme-reproduzierbares-fehlerbild-statt-bauchgefuhl">5. Ticketaufnahme: reproduzierbares Fehlerbild statt Bauchgefühl</a></li><li><a href="#6-clientgrundlagen-prufen-ohne-einstellungen-zu-verandern">6. Clientgrundlagen prüfen – ohne Einstellungen zu verändern</a></li><li><a href="#7-kontrollierte-dns-abfragen-immer-denselben-namen-vergleichen">7. Kontrollierte DNS-Abfragen: immer denselben Namen vergleichen</a></li><li><a href="#8-clientcache-hosts-datei-und-dns-suffix-prufen">8. Clientcache, Hosts-Datei und DNS-Suffix prüfen</a></li><li><a href="#9-sonderfall-vpn-split-dns-und-browser-doh">9. Sonderfall VPN, Split-DNS und Browser-DoH</a></li><li><a href="#10-serverseitige-diagnose-dns-zone-records-forwarder">10. Serverseitige Diagnose: DNS-Zone, Records, Forwarder</a></li><li><a href="#11-dns-transportfehler-richtig-testen-udp-tcp-und-icmp">11. DNS-Transportfehler richtig testen: UDP, TCP und ICMP</a></li><li><a href="#12-kompakte-powershell-diagnose-nur-lesende-befehle">12. Kompakte PowerShell-Diagnose – nur lesende Befehle</a></li><li><a href="#13-entscheidungsmatrix-befund-sicherer-nachster-schritt">13. Entscheidungsmatrix: Befund → sicherer nächster Schritt</a></li><li><a href="#14-zwei-fiktive-storungsfalle-mit-hypothesen-und-prufpfaden">14. Zwei fiktive Störungsfälle – mit Hypothesen und Prüfpfaden</a></li><li><a href="#15-active-recall-self-explanation-und-transfertraining">15. Active Recall, Self-Explanation und Transfertraining</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Netzwerk / Windows 11 / DNS-Client / Windows Server DNS / VPN<br/>
+<strong>Support-Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Vorgehensweisen aus Microsoft-Dokumentation recherchiert; <strong>praktische Validierung noch ausstehend</strong>. IPs, DNS-Zonen, Tickets und Befunde sind fiktiv. Es wurden keine produktiven DNS-Einstellungen verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb034_henne_ei_dns.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-034 – Henne-und-Ei-Infografik zur DNS-Diagnose" decoding="async" loading="lazy" src="assets/rb034_henne_ei_dns.webp"/></a></div><figcaption>RB-034 – Henne-und-Ei-Infografik zur DNS-Diagnose</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „Name nicht erreichbar“ ist eine Beobachtung. Bevor du DNS-Server wechselst oder Caches löschst, beweise <strong>welcher Name / Recordtyp</strong>, <strong>welcher Resolver</strong>, <strong>welche Antwort</strong> und <strong>welcher Netzpfad</strong> betroffen sind.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsmeldung-zustandigkeiten-und-lernziele">1. Störungsmeldung, Zuständigkeiten und Lernziele</h2>
+<p><strong>Typische Tickets:</strong> „Die Freigabe <code>\\srv01.corp.example\Projekte</code> geht nicht mehr, über die Server-IP schon“, „Nur interne Webanwendungen funktionieren aus dem Homeoffice nicht“, „Einige Webseiten gehen, andere nicht“, „Nur mein PC findet den Servernamen nicht“, „DNS-Server antwortet nicht“.</p>
+<p><strong>Ziel:</strong> Mit kontrollierten Abfragen unterscheiden zwischen <strong>Clientkonfiguration</strong>, <strong>lokalem Cache/Hosts/Suffix</strong>, <strong>Transport zum DNS-Server</strong>, <strong>Server-/Zonenantwort</strong>, <strong>Forwarding/Delegation</strong> und <strong>anwendungs- bzw. VPN-spezifischer Auflösung</strong>.</p>
+<ul>
+<li><strong>L1:</strong> präzisen Hostnamen und Wortlaut der Fehlermeldung aufnehmen; betroffene Geräte und Zeitpunkt vergleichen; <code>ipconfig /all</code>, <code>nslookup</code> und erlaubte Gegenprobe erfassen. Keine DNS-Server- oder Registryänderungen.</li>
+<li><strong>L2:</strong> Hypothesen durch Vergleich desselben Namens und Recordtyps auf verschiedenen Resolversystemen testen; Cache, VPN/NRPT, DNS-Zonen, Forwarder und Port-/Firewallpfad analysieren.</li>
+<li><strong>Infrastruktur/Security:</strong> Freigabe für Änderungen an AD-integrierten Zonen, Resolvern, Firewalls, VPN- und DNS-Richtlinien erteilen; Änderungen nachvollziehbar durchführen.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-010 behandelt allgemeine Netzwerkprobleme, RB-011 VPN-Aufbau, RB-035/036 DHCP und APIPA, RB-038/039 Server-/Dienst-/Porterreichbarkeit. Hier wird <strong>Namensauflösung als eigenständige Fehlerdomäne</strong> untersucht.</p>
+<h2 id="2-dns-abhangigkeitskette-verstehen">2. DNS-Abhängigkeitskette verstehen</h2>
+<p>Vereinfachtes Modell (keine zwingend identische Reihenfolge für jede App oder Richtlinie):</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Anwendung fordert z. B. srv01.corp.example an
+            │
+            ▼
+Windows / Browser / VPN-Namensauflösung
+lokaler Cache, Hosts, Suffix, ggf. NRPT / DoH
+            │
+            ▼
+zuständiger DNS-Resolver (IPv4 / IPv6)
+            │
+            ├─ lokale Zone / Cache → Antwort
+            ├─ bedingte Weiterleitung für interne Namespace
+            └─ rekursive Auflösung über Forwarder / Root Hints
+            │
+            ▼
+A / AAAA / CNAME / SRV / negative Antwort / Timeout
+            │
+            ▼
+Anwendung versucht erst danach die Dienstverbindung
+</code></pre></div>
+<p><strong>Drei getrennte Ebenen:</strong> (1) <strong>Name → IP</strong> (DNS), (2) <strong>IP → Ziel erreichbar</strong> (Routing/Firewall), (3) <strong>Zieldienst → funktioniert</strong> (Port, TLS, Anmeldung). Der Zugriff über eine IP ist ein <strong>Indiz</strong>, aber kein universeller DNS-Beweis: Hostheader, Zertifikate und virtuelle Hosts können IP-Zugriffe anders behandeln. [Q1–Q3]</p>
+<p><strong>Beispiel:</strong> <code>Resolve-DnsName srv01.corp.example -Type A</code> liefert <code>10.20.30.50</code>; daraus folgt <strong>nicht</strong>, dass SMB 445 offen oder eine Freigabe berechtigt ist. DNS beantwortet zunächst nur die Namensfrage.</p>
+<h2 id="3-dns-recordtypen-und-antworten-sicher-einordnen">3. DNS-Recordtypen und Antworten sicher einordnen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung / Testbezug</th>
+<th>Kein automatischer Beweis für …</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A / AAAA</strong></td>
+<td>IPv4- bzw. IPv6-Zieladresse</td>
+<td>Erreichbarkeit oder korrekte Anwendung</td>
+</tr>
+<tr>
+<td><strong>CNAME</strong></td>
+<td>Alias auf einen anderen DNS-Namen</td>
+<td>Dass dessen A/AAAA-Auflösung klappt</td>
+</tr>
+<tr>
+<td><strong>SRV</strong></td>
+<td>Diensteintrag (z. B. AD-Domänencontroller-Ermittlung)</td>
+<td>Dass der Dienst am Zielport funktioniert</td>
+</tr>
+<tr>
+<td><strong>PTR</strong></td>
+<td>Reverse Lookup IP → Name</td>
+<td>Dass Vorwärtsauflösung fehlerfrei ist</td>
+</tr>
+<tr>
+<td><strong>NOERROR + Daten</strong></td>
+<td>Positive DNS-Antwort</td>
+<td>Dass IP/Dienst korrekt oder aktuell ist</td>
+</tr>
+<tr>
+<td><strong>NOERROR ohne passenden Record / NODATA</strong></td>
+<td>Name kann existieren, gesuchter Typ fehlt</td>
+<td>Dass der gesamte Name nicht existiert</td>
+</tr>
+<tr>
+<td><strong>NXDOMAIN</strong></td>
+<td>Angefragter Name existiert aus Sicht der befragten DNS-Antwort nicht</td>
+<td>Dass die Anwendung oder das gesamte Netzwerk ausgefallen ist</td>
+</tr>
+<tr>
+<td><strong>SERVFAIL</strong></td>
+<td>DNS-Server konnte Anfrage nicht erfolgreich bearbeiten</td>
+<td>Dass der Name objektiv nicht existiert</td>
+</tr>
+<tr>
+<td><strong>Timeout</strong></td>
+<td>Keine rechtzeitige Antwort im Testkontext</td>
+<td>Dass der Server physisch ausgeschaltet ist</td>
+</tr>
+<tr>
+<td><strong>REFUSED</strong></td>
+<td>Server lehnt Anfrage ab (z. B. Policy/Recursion)</td>
+<td>Dass DNS-Port grundsätzlich blockiert ist</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> <code>NXDOMAIN</code> und <code>NODATA</code> sind grundsätzlich terminale DNS-Antworten, die nicht automatisch ein Fallback auf andere Resolver auslösen. Timeouts und Retry-Konfigurationen verhalten sich anders und hängen von DNS-Server-Policies ab. [Q5]</p>
+<h2 id="4-vorwissen-aktivieren-welche-fehlerhypothesen-sind-unterscheidbar">4. Vorwissen aktivieren: Welche Fehlerhypothesen sind unterscheidbar?</h2>
+<p>Untersuche zunächst ohne Reparaturversuch:</p>
+<ol>
+<li><strong>Nur ein Client</strong> oder mehrere Clients betroffen?</li>
+<li><strong>Ein FQDN</strong>, mehrere interne Namen oder alle Namen betroffen? <code>www.example.com</code> als neutraler externer Testname.</li>
+<li><strong>Kurzname</strong> (<code>srv01</code>) vs. <strong>FQDN</strong> (<code>srv01.corp.example</code>) – Hinweis auf DNS-Suffixe. [Q2]</li>
+<li>Betrifft es <strong>VPN</strong> oder lokale Netzwerke gleichermaßen? Welchen Resolver nutzt der VPN-Client für welche Domäne?</li>
+<li>Liefert der <strong>vorgesehene interne DNS-Server</strong> die korrekte Antwort, während der Standardpfad fehlschlägt?</li>
+<li>Ist die Antwort <strong>falsch</strong>, <strong>negativ</strong> oder <strong>gar nicht vorhanden</strong>?</li>
+<li>Betrifft es <strong>A</strong> oder <strong>AAAA</strong>, eventuell nur eine Anwendung mit abweichender DNS-/Proxy-/DoH-Nutzung?</li>
+</ol>
+<p><strong>Diagnoselogik:</strong> Eine Hypothese ist nur nützlich, wenn der nächste Test ein Ergebnis liefert, das mindestens zwei mögliche Ursachen <strong>unterscheidet</strong>.</p>
+<h2 id="5-ticketaufnahme-reproduzierbares-fehlerbild-statt-bauchgefuhl">5. Ticketaufnahme: reproduzierbares Fehlerbild statt Bauchgefühl</h2>
+<p>Erfasse im Ticket:</p>
+<ul>
+<li><strong>FQDN vollständig</strong>, ggf. exakt eingegebener Kurzname, Recordtyp, betroffener Dienst (SMB/HTTPS/RDP).</li>
+<li><strong>Fehlertext</strong> oder DNS-RCODE; Zeitpunkt mit Zeitzone; Dauer oder intermittierendes Auftreten.</li>
+<li><strong>Clientkontext:</strong> Windows-Version, Host, Ethernet/WLAN, aktiver VPN-Adapter, Standort, gleiche Symptome bei Vergleichsclient?</li>
+<li><strong>Netzkontext:</strong> erwartete IP/Subnetz, DHCP oder statisch, erwarteter DNS-Resolver; IPv6 vorhanden?</li>
+<li><strong>Vorherige Änderungen:</strong> neues VPN, DNS-Eintrag, Migration, GPO, Netzsegment, Firewall, Wechsel der Dockingstation.</li>
+<li><strong>Auswirkungen:</strong> eine Person, Abteilung oder Standort? AD-Login, Teams, Fileshare, Business-Anwendung?</li>
+</ul>
+<p><strong>Datenschutz:</strong> Keine realen internen Namensräume, Nutzerkennungen, IP-Topologien oder vollständigen Protokolle auf einer öffentlichen Website veröffentlichen. Laborbeispiele mit <code>corp.example</code> verwenden.</p>
+<h2 id="6-clientgrundlagen-prufen-ohne-einstellungen-zu-verandern">6. Clientgrundlagen prüfen – ohne Einstellungen zu verändern</h2>
+<p>Beginne mit einer <strong>read-only Bestandsaufnahme</strong>:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">ipconfig /all
+Get-NetIPConfiguration
+Get-DnsClientServerAddress | Format-Table -AutoSize
+Get-DnsClient | Select-Object InterfaceAlias,ConnectionSpecificSuffix
+Get-DnsClientGlobalSetting
+</code></pre></div>
+<p><strong>Interpretation:</strong> DNS-Server je aktiver Schnittstelle, Interface-Metrik/VPN, DHCP/IPv6, Verbindungssuffix und erwartete Firmen-DNS-IP vergleichen. <code>ipconfig /all</code> enthält zusätzliche Informationen zu DNS-Suffixsuchliste und DNS-Servern.</p>
+<p><strong>Wichtig:</strong> Ein Client, der einen öffentlichen Resolver statt eines zuständigen internen AD-DNS-Servers nutzt, kann externe Namen problemlos, interne Namen aber nicht auflösen. <strong>Nicht</strong> auf Verdacht <code>8.8.8.8</code> oder <code>1.1.1.1</code> eintragen – dies kann interne Zonen, Sicherheitsauflagen und Domänendienste verschlechtern.</p>
+<h2 id="7-kontrollierte-dns-abfragen-immer-denselben-namen-vergleichen">7. Kontrollierte DNS-Abfragen: immer denselben Namen vergleichen</h2>
+<p><strong>Basisvergleich:</strong> identischer FQDN und Recordtyp, gleiche Zeit, abweichender Auflösungspfad.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Beispieladressen und -domäne; durch autorisierte Umgebungsdaten ersetzen.
+nslookup srv01.corp.example 10.20.0.53
+Resolve-DnsName -Name srv01.corp.example -Type A -DnsOnly
+Resolve-DnsName -Name srv01.corp.example -Type A -Server 10.20.0.53 -DnsOnly -NoHostsFile
+Resolve-DnsName -Name srv01.corp.example -Type AAAA -Server 10.20.0.53 -DnsOnly -NoHostsFile
+</code></pre></div>
+<ul>
+<li><strong>Expliziter Server erfolgreich, Standardpfad scheitert:</strong> DNS-Zuweisung, Cache, Hosts, NRPT und aktive Netzwerk-/VPN-Konfiguration eingrenzen.</li>
+<li><strong>Expliziter Server falsch/negativ für denselben Namen:</strong> Zone, Recordtyp, Delegation und Antwortquelle serverseitig prüfen.</li>
+<li><strong>Ein Resolver liefert korrekt, ein anderer nicht:</strong> Unterschied der DNS-Daten (z. B. Replikation, Zonenstand, Forwarder/Policy) untersuchen; kein pauschales Failoverversprechen.</li>
+<li><strong>A erfolgreich, AAAA nicht vorhanden:</strong> Nicht automatisch eine Störung, wenn IPv6 im Zielsystem nicht vorgesehen ist.</li>
+<li><strong>Immer Name und Typ dokumentieren</strong>, nicht nur „nslookup erfolgreich“.</li>
+</ul>
+<p><code>nslookup</code> fragt DNS-Server unabhängig vom lokalen Windows-DNS-Clientcache ab. <code>Resolve-DnsName</code> kann bei Standardnutzung Cache und Hosts berücksichtigen; für direkte Queries <code>-DnsOnly -NoHostsFile</code> mit <code>-Server</code> ausdrücklich dokumentieren. [Q1–Q3]</p>
+<h2 id="8-clientcache-hosts-datei-und-dns-suffix-prufen">8. Clientcache, Hosts-Datei und DNS-Suffix prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur LESEN:
+ipconfig /displaydns
+Get-DnsClientCache | Where-Object { $_.Entry -like '*corp.example*' }
+Get-Content "$env:SystemRoot\System32\drivers\etc\hosts"
+Get-DnsClient | Select-Object InterfaceAlias,ConnectionSpecificSuffix
+Get-DnsClientGlobalSetting
+</code></pre></div>
+<p>Microsoft beschreibt, dass ein lokal aufgelöster Name aus <strong>Cache oder Hosts-Datei</strong> kommen kann, ohne dass eine DNS-Anfrage ins Netz gesendet wird [Q1]. <code>nslookup</code> dient deshalb als Gegenprobe. Eine negative Antwort kann ebenfalls zwischengespeichert sein [Q2].</p>
+<p><strong>Kurzname vs. FQDN:</strong> Wenn <code>srv01.corp.example</code> auflösbar ist, <code>srv01</code> aber nicht, zuerst die <strong>DNS-Suffix-/Suchliste</strong> prüfen. Bei Verwendung des FQDN mit abschließendem Punkt lässt sich Suffixanhängen kontrollieren, z. B. <code>nslookup srv01.corp.example.</code> (abhängig vom Testwerkzeug). [Q2]</p>
+<p><strong>Cache leeren ist keine Ursachenanalyse:</strong> <code>ipconfig /flushdns</code> verändert den diagnostisch wichtigen Cachezustand. Erst <strong>nach Befundsicherung, Freigabe und Hypothese „veralteter Cache“</strong> gezielt durchführen und erneut vergleichen. Hosts-Datei niemals ungeprüft bearbeiten.</p>
+<h2 id="9-sonderfall-vpn-split-dns-und-browser-doh">9. Sonderfall VPN, Split-DNS und Browser-DoH</h2>
+<p>Ein VPN kann erfolgreich verbunden sein, ohne dass die <strong>interne DNS-Namensauflösung</strong> korrekt funktioniert:</p>
+<ul>
+<li>Erhält die VPN-Schnittstelle die vorgesehenen Resolver und den Suchsuffix?</li>
+<li>Enthält die <strong>Name Resolution Policy Table (NRPT)</strong> passende Namespace-Regeln (sofern verwendet)?</li>
+<li>Wird <code>srv01.corp.example</code> über den internen Resolver oder einen externen Resolver gefragt?</li>
+<li>Betrifft der Fehler nur Browser mit <strong>Secure DNS/DoH</strong>, einen Proxy, eine besondere App oder alle Windows-Anwendungen?</li>
+<li>Ist interne DNS-Auflösung durch VPN-Routing, ACLs oder Firewallfilter blockiert?</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Lesende Auskunft, sofern NRPT auf diesem Client genutzt wird:
+Get-DnsClientNrptPolicy
+Get-DnsClientServerAddress
+</code></pre></div>
+<p><strong>Einschränkung:</strong> Leere NRPT-Ausgabe beweist keine fehlerhafte VPN-Konfiguration – nicht jedes VPN nutzt NRPT. Explizite <code>-Server</code>-Queries testen den angegebenen Resolver und ersetzen nicht automatisch die Analyse des <strong>tatsächlich von der Anwendung gewählten</strong> Resolverpfads. DoH- und VPN-Einstellungen nur nach Unternehmensvorgabe ändern. [Q6–Q7]</p>
+<h2 id="10-serverseitige-diagnose-dns-zone-records-forwarder">10. Serverseitige Diagnose: DNS-Zone, Records, Forwarder</h2>
+<p>Wenn mehrere Clients bei <strong>demselben DNS-Server</strong> dieselbe falsche Antwort erhalten, benötigt L2 DNS-Serverbefunde. Auf autorisiertem Windows-DNS-Server oder einer Verwaltungsstation mit DNS-Server-Modul:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur lesende administrative Abfragen in genehmigter Umgebung:
+Get-DnsServerZone -ComputerName dns01.corp.example
+Get-DnsServerResourceRecord -ComputerName dns01.corp.example `
+    -ZoneName 'corp.example' -Name 'srv01' -RRType A
+Get-DnsServerForwarder -ComputerName dns01.corp.example
+Get-DnsServerZone -ComputerName dns01.corp.example | Where-Object ZoneType -eq 'Forwarder'
+</code></pre></div>
+<p><strong>Prüfpfade:</strong></p>
+<ul>
+<li><strong>Autoritative Zone:</strong> Existiert richtiger FQDN/Recordtyp? IP aktualisiert? TTL? Zone auf zuständigem DNS-Server geladen? Weitere replizierte DNS-Server konsistent?</li>
+<li><strong>Nur extern fehlerhaft:</strong> Rekursion, Forwarder, Timeouts, Firewall, DNS-Server-Routing, Root Hints und Richtlinien untersuchen. [Q4–Q5]</li>
+<li><strong>Nur bestimmte interne Zone:</strong> Conditional Forwarder, Stub-/delegierte Zone, Zonenkonflikt, unterschiedliche Server-Antworten prüfen.</li>
+<li><strong>AD-Störungen:</strong> Bei Domänenanmeldung/Services zusätzlich SRV-Records und Domänencontroller-DNS prüfen; dies ist <strong>nicht</strong> mit einer einzelnen A-Abfrage abgedeckt.</li>
+</ul>
+<p><strong>Warnung:</strong> <code>Get-*</code>-Cmdlets benötigen geeignete Berechtigungen und vorhandenes DNS-Server-Modul. Zonenneuanlage, Recordänderungen, Forwarderwechsel und Cachelöschung des DNS-Servers sind <strong>Änderungen</strong> mit Scope-/Freigaberisiko.</p>
+<h2 id="11-dns-transportfehler-richtig-testen-udp-tcp-und-icmp">11. DNS-Transportfehler richtig testen: UDP, TCP und ICMP</h2>
+<p>DNS verwendet typischerweise <strong>UDP 53</strong> und bei Bedarf auch <strong>TCP 53</strong>. Diagnosefehler entstehen häufig durch folgende Fehlschlüsse:</p>
+<ul>
+<li><code>ping 10.20.0.53</code> erfolgreich → beweist <strong>nicht</strong> DNS-Dienstfunktion (ICMP ≠ DNS).</li>
+<li><code>Test-NetConnection 10.20.0.53 -Port 53</code> erfolgreich → prüft in diesem Aufruf <strong>TCP 53</strong>, nicht UDP 53.</li>
+<li><code>nslookup</code> Timeout → kann DNS-Dienst, ACL, Routing, UDP/Antwortweg, Paketfilter, Serverüberlast oder eine andere Pfadursache haben.</li>
+<li>Antwort <code>SERVFAIL</code> → der Server hat <strong>geantwortet</strong>; nicht als Timeout klassifizieren.</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Erst Diagnosetest, keine Änderung:
+Test-NetConnection -ComputerName 10.20.0.53 -Port 53
+Resolve-DnsName -Name www.example.com -Server 10.20.0.53 -DnsOnly -NoHostsFile
+Resolve-DnsName -Name www.example.com -Server 10.20.0.53 -DnsOnly -NoHostsFile -TcpOnly
+</code></pre></div>
+<p><strong>Interpretation:</strong> Explizite TCP-Abfrage kann helfen, UDP-spezifische Pfadprobleme einzugrenzen; daraus allein folgt noch keine vollständige Firewall-Diagnose. Für UDP/53-Befund ggf. genehmigte Paketmitschnitte/Serverlogs mit Zeitstempel, Namen und Client-/Server-IP erheben; personenbezogene/organisatorische Daten minimieren. [Q3–Q4]</p>
+<h2 id="12-kompakte-powershell-diagnose-nur-lesende-befehle">12. Kompakte PowerShell-Diagnose – nur lesende Befehle</h2>
+<p>Die folgenden Befehle sind <strong>Beispiele</strong>, keine automatisierte Reparatur; nur auf autorisierten Systemen ausführen. <code>corp.example</code> und <code>10.20.0.53</code> sind Platzhalter.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># 1) Zugewiesene Resolver und DNS-Suffixe
+Get-DnsClientServerAddress
+Get-DnsClientGlobalSetting
+Get-DnsClient | Select-Object InterfaceAlias,ConnectionSpecificSuffix
+
+# 2) Cache lesen, nicht leeren
+Get-DnsClientCache | Where-Object Entry -like '*corp.example*'
+
+# 3) Abfrage über standardmäßige Windows-Auflösung
+Resolve-DnsName -Name srv01.corp.example -Type A
+
+# 4) Gezielt auf den vorgesehenen internen Resolver fragen
+Resolve-DnsName -Name srv01.corp.example -Server 10.20.0.53 -Type A -DnsOnly -NoHostsFile
+
+# 5) Kurznamenvergleich / Suffixhypothese
+nslookup srv01
+nslookup srv01.corp.example. 10.20.0.53
+
+# 6) Nur bei konkreter VPN-/Namespace-Frage
+Get-DnsClientNrptPolicy
+
+# 7) TCP-Porttest als Zusatzhinweis, NICHT als UDP-Beweis
+Test-NetConnection -ComputerName 10.20.0.53 -Port 53
+</code></pre></div>
+<p><strong>Nur als freigegebene Korrektur, nicht Teil des Diagnoseblocks:</strong> <code>ipconfig /flushdns</code>, <code>Clear-DnsClientCache</code>, <code>Set-DnsClientServerAddress</code>, Änderungen an Hosts, Zonen, Forwardern, Firewall, NRPT oder Browser-DoH. Vor Änderung Zustand sichern; nach Änderung identischen Query plus Anwendungstest wiederholen. [Q1–Q10]</p>
+<h2 id="13-entscheidungsmatrix-befund-sicherer-nachster-schritt">13. Entscheidungsmatrix: Befund → sicherer nächster Schritt</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Wahrscheinlicher Prüfbereich</th>
+<th>Sinnvolle nächste Gegenprobe</th>
+<th>Keine voreilige Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ein Client falsch, Vergleichsclient korrekt</td>
+<td>DNS-Zuweisung, Cache, Hosts, VPN/NRPT</td>
+<td>Direktquery mit identischem Server/Name/Typ; Cache/Hosts lesen</td>
+<td>Nicht alle DNS-Zonen ändern</td>
+</tr>
+<tr>
+<td>Alle Clients einer Zone: NXDOMAIN</td>
+<td>Zone/Record, Autorität, Conditional Forwarder</td>
+<td>Autoritativen DNS-Server, Zone, Record vergleichen</td>
+<td>Nicht blind Forwarder ändern</td>
+</tr>
+<tr>
+<td>Nur Kurzname scheitert, FQDN korrekt</td>
+<td>DNS-Suffixsuchliste</td>
+<td><code>ipconfig /all</code>, <code>Get-DnsClientGlobalSetting</code></td>
+<td>Kein A-Record-Duplikat anlegen</td>
+</tr>
+<tr>
+<td>A korrekt, Anwendung nicht erreichbar</td>
+<td>Port/Routing/Firewall/TLS/App</td>
+<td>Ziel-IP und Dienstport getrennt prüfen</td>
+<td>Nicht als DNS-Ticket abschließen</td>
+</tr>
+<tr>
+<td>Interner Name über VPN scheitert</td>
+<td>VPN-DNS, Split DNS, NRPT, Routing</td>
+<td>Name gegen Firmendns explizit, dann echten Clientpfad</td>
+<td>Keinen öffentlichen DNS eintragen</td>
+</tr>
+<tr>
+<td>Nur externe Namen scheitern bei allen</td>
+<td>Forwarder/Rekursion/Firewall</td>
+<td>DNS-Server selbst fragt extern; Forwarder prüfen</td>
+<td>Nicht Rekursion pauschal einschalten</td>
+</tr>
+<tr>
+<td><code>SERVFAIL</code> auf bestimmtem DNS-Server</td>
+<td>Rekursion/Delegation/DNSSEC/Policy</td>
+<td>anderen zuständigen Resolver und Serverlogs</td>
+<td>Nicht mit <code>NXDOMAIN</code> verwechseln</td>
+</tr>
+<tr>
+<td>Query timeout, TCP/53 verfügbar</td>
+<td>UDP/Antwortweg/DNS-Dienst</td>
+<td>protokollierte UDP-/TCP-DNS-Abfragen</td>
+<td>Nicht aus TCP-Porttest auf UDP schließen</td>
+</tr>
+<tr>
+<td>Cache liefert alte IP, direkter DNS-Test neue IP</td>
+<td>lokaler Cache/TTL</td>
+<td>Cache-Eintrag + TTL dokumentieren</td>
+<td>Nicht Cache vor Beweissicherung leeren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Priorisierung:</strong> Mit dem <strong>kleinsten, sichersten Test</strong> beginnen, der die meisten konkurrierenden Ursachen voneinander trennt. Problembehebung erst nach präziser Hypothese und angemessener Freigabe.</p>
+<h2 id="14-zwei-fiktive-storungsfalle-mit-hypothesen-und-prufpfaden">14. Zwei fiktive Störungsfälle – mit Hypothesen und Prüfpfaden</h2>
+<h3 id="fall-a-eine-mitarbeiterin-findet-files01-corp-example-nicht">Fall A: Eine Mitarbeiterin findet <code>files01.corp.example</code> nicht</h3>
+<p><strong>Meldung:</strong> „Die Freigabe geht nicht mehr; mein Kollege kommt hinein.“ Die direkte IP-Verbindung auf einen Testdienst klappt; die Kollegin hat eine alte Ziel-IP im DNS-Clientcache.</p>
+<p><strong>Denkweg:</strong> Ist DNS-Clientzuweisung richtig? Betrifft es denselben FQDN auf beiden Geräten? Antwortet ein autoritativer Server identisch? Wie lautet der Cacheeintrag? Eine neue IP wurde kürzlich zugewiesen.</p>
+<p><strong>Fiktive Messungen:</strong> <code>Get-DnsClientCache</code> auf betroffenem Client zeigt <code>10.20.30.40</code> für den Namen, <code>Resolve-DnsName ... -Server 10.20.0.53 -DnsOnly -NoHostsFile</code> dagegen <code>10.20.30.50</code>; Vergleichsclient liefert ebenfalls <code>10.20.30.50</code>.</p>
+<p><strong>Schlussfolgerung:</strong> <strong>Lokaler alter Cacheeintrag</strong> ist plausibel und durch Vergleich gestützt. Cacheeintrag/TTL dokumentieren, dann <strong>nach Freigabe</strong> gezielt Clientcache leeren bzw. TTL-Ablauf abwarten; Namensauflösung und SMB-Funktion testen. <strong>Nicht</strong> Servereintrag korrigieren, solange authoritative Antwort korrekt ist.</p>
+<p><strong>Transferfrage:</strong> Welche Messung widerlegt die Hypothese „DNS-Zone falsch“?</p>
+<h3 id="fall-b-aussenauflosung-scheitert-fur-mehrere-clients">Fall B: Außenauflösung scheitert für mehrere Clients</h3>
+<p><strong>Meldung:</strong> „Interne AD- und Fileservernamen funktionieren, aber externe DNS-Abfragen laufen seit dem Firewallwechsel in Timeouts.“ Betroffen sind mehrere Clients am selben Standort.</p>
+<p><strong>Denkweg:</strong> Die Clients nutzen einen internen DNS-Server, der interne Zonen beantwortet. <code>Resolve-DnsName www.example.com -Server 10.20.0.53 -DnsOnly</code> liefert fiktiv einen Timeout. Direkt auf dem DNS-Server schlägt die externe Auflösung gleichfalls fehl. Ein Forwarder ist konfiguriert, der vom DNS-Server aus nicht zuverlässig erreichbar ist.</p>
+<p><strong>Schlussfolgerung:</strong> Ein Problem <strong>im serverseitigen Rekursions-/Forwardingpfad</strong> ist wahrscheinlich. Das Netzwerk-/DNS-Team prüft Forwarder-IP, Port 53 (UDP/TCP), DNS-Logs, Rekursionspolicy und Firewalländerung; nur autorisierte Konfigurationskorrektur, anschließend interner und externer Retest.</p>
+<p><strong>Transferfrage:</strong> Warum wäre <code>ipconfig /flushdns</code> auf sämtlichen Clients hier keine belastbare Reparatur?</p>
+<p><strong>Transparenz:</strong> Beide Fälle sind didaktische Beispiele. Es liegen keine echten Messungen aus einem Labor oder Kundennetz vor.</p>
+<h2 id="15-active-recall-self-explanation-und-transfertraining">15. Active Recall, Self-Explanation und Transfertraining</h2>
+<p><strong>Ohne Lösungsabschnitt beantworten:</strong></p>
+<ol>
+<li>Welche <strong>drei Ebenen</strong> trennst du, wenn eine Website über Namen nicht funktioniert?</li>
+<li>Wie unterscheidest du einen <strong>falschen DNS-Cache</strong> von einer <strong>falschen autoritativen DNS-Antwort</strong>?</li>
+<li>Was unterscheidet <code>NXDOMAIN</code>, <code>SERVFAIL</code>, <code>Timeout</code> und <code>NOERROR</code> ohne passenden Record?</li>
+<li>Warum beweist <code>ping</code> keine funktionierende Namensauflösung?</li>
+<li>Welche Bedeutung hat der Vergleich <strong>Kurzname vs. FQDN</strong>?</li>
+<li>Warum kann ein VPN verbunden sein, obwohl interne Namensauflösung nicht funktioniert?</li>
+<li>Welche Konsequenz hat ein erfolgreicher <strong>TCP-53-Test</strong> für <strong>UDP 53</strong>? (Nicht die gleiche Aussage.)</li>
+<li>Was prüfen Sie bei <strong>mehreren betroffenen Clients</strong> auf demselben Resolver zuerst?</li>
+<li>Weshalb sollte man <code>ipconfig /flushdns</code> <strong>erst nach Beweissicherung</strong> einsetzen?</li>
+<li>Formuliere einen <strong>Drei-Satz-Ticketkommentar</strong>: Symptom/Befund → begründete Hypothese/Nächster Test → Ergebnis/Eskalation.</li>
+</ol>
+<p><strong>Transferfall:</strong> Ein Firmen-Notebook findet <code>intranet.corp.example</code> im Office, aber nicht im Homeoffice. Zwei andere öffentliche Webseiten funktionieren im Homeoffice. Schreibe <strong>drei unterschiedliche</strong> Hypothesen und je einen Test, der sie klar trennt; die Lösung steht nicht im Fragetext.</p>
+<p><strong>Spaced Repetition:</strong> Nach etwa <strong>7 und 21 Tagen</strong> dieselben Grundprinzipien an anderen Symptomen abfragen. Karten erst nach eigener Diagnoseprüfung erstellen, z. B. <strong>Wissen</strong> (RCODE), <strong>Verständnis</strong> (Server vs. Cache), <strong>Diagnose</strong> (FQDN ok/Kurzname nicht).</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues" rel="noopener noreferrer" target="_blank">Windows-Client: DNS-Namensauflösung diagnostizieren</a></li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client" rel="noopener noreferrer" target="_blank">Windows Server: DNS-Clientproblembehandlung</a></li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Resolve-DnsName – Syntax, <code>-DnsOnly</code>, <code>-Server</code>, <code>-TcpOnly</code>, <code>-NoHostsFile</code></a></li>
+<li><strong>[Q4]</strong> <a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/troubleshoot/troubleshoot-dns-server" rel="noopener noreferrer" target="_blank">DNS-Server: Problembehandlung</a></li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/windows-server/networking/dns/forwarding" rel="noopener noreferrer" target="_blank">Windows Server: DNS Forwarding und Fallback</a></li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientnrptpolicy?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-DnsClientNrptPolicy</a></li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/dnsoverhttpsmode" rel="noopener noreferrer" target="_blank">Microsoft Edge: Richtlinie DNS-over-HTTPS-Modus</a></li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientserveraddress" rel="noopener noreferrer" target="_blank">Get-DnsClientServerAddress</a></li>
+<li><strong>[Q9]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsclient/get-dnsclientcache" rel="noopener noreferrer" target="_blank">Get-DnsClientCache</a></li>
+<li><strong>[Q10]</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dns-forwarders-related-failures" rel="noopener noreferrer" target="_blank">DNS-Forwarder-Fehlerdiagnose – Windows Server</a></li>
+<li><strong>[Q11]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsserver/get-dnsserverresourcerecord?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-DnsServerResourceRecord</a></li>
+<li><strong>[Q12]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dnsserver/get-dnsserverforwarder?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-DnsServerForwarder</a></li>
+<li><strong>[Q13]</strong> <a href="https://learn.microsoft.com/de-de/windows-server/networking/dns/configure-dns-forwarding" rel="noopener noreferrer" target="_blank">DNS-Weiterleitung einrichten und auslesen (<code>Get-DnsServerZone | Where-Object ZoneType -eq "Forwarder"</code>)</a></li>
+</ul>
+<p><strong>Hinweis zur Veröffentlichung:</strong> Konfigurationen sind zur Schulung konstruiert; Befehle sind nicht für ungeprüfte Ausführung in produktiven Netzen gedacht. Änderungen erfordern nachvollziehbare Freigabe, Change-Prozess, Rollback und erneuten Test. Die Website wurde durch dieses Paket nicht verändert.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-034_Lernartikel.md">RB-034_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-033/index.html">← Ticket 33</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-035/index.html">Ticket 35 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

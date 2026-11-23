@@ -1,0 +1,177 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 29: Microsoft-365-Lizenz fehlt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 29: Microsoft-365-Lizenz fehlt. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 29: Microsoft-365-Lizenz fehlt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-und-prioritat-l1">1. Ticketaufnahme und Priorität (L1)</a></li><li><a href="#2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</a></li><li><a href="#3-l1-schnellprufung-symptome-trennen">3. L1-Schnellprüfung: Symptome trennen</a></li><li><a href="#4-pfad-a-lizenzprodukt-fehlt-oder-passt-nicht">4. Pfad A – Lizenzprodukt fehlt oder passt nicht</a></li><li><a href="#5-pfad-b-lizenzprodukt-vorhanden-dienst-fehlt">5. Pfad B – Lizenzprodukt vorhanden, Dienst fehlt</a></li><li><a href="#6-pfad-c-gruppenlizenzierung-fehlgeschlagen">6. Pfad C – Gruppenlizenzierung fehlgeschlagen</a></li><li><a href="#7-pfad-d-tenant-lizenz-korrekt-office-desktop-unlizenzierter-client">7. Pfad D – Tenant-Lizenz korrekt, Office Desktop unlizenzierter Client</a></li><li><a href="#8-nur-lesende-microsoft-graph-diagnose-l2">8. Nur lesende Microsoft-Graph-Diagnose (L2)</a></li><li><a href="#9-erfolgskontrolle-und-eskalationsgrenze">9. Erfolgskontrolle und Eskalationsgrenze</a></li><li><a href="#10-ticketdokumentation-und-mini-lerncheck">10. Ticketdokumentation und Mini-Lerncheck</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Support-Level:</strong> L1 / L2 (Lizenzadministration nach Berechtigungsmodell)<br/>
+<strong>Version:</strong> 1.0 · <strong>22.11.2026</strong> · <strong>Fachstatus:</strong> recherchiert, <strong>praktisch nicht validiert</strong>.</p>
+<blockquote>
+<p><strong>Arbeitsregel:</strong> Erst ermitteln, ob ein passendes Produkt zugewiesen ist, der richtige Dienst aktiviert wurde und die Zuweisung erfolgreich verarbeitet ist. Erst <strong>danach</strong> einen rein lokalen Office-Aktivierungsfehler behandeln. Keine vorschnellen Lizenz- oder Gruppenänderungen.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb029_henne_ei_m365_lizenz.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-und-Ei-Infografik – Lizenz, Dienstplan und Aktivierung" decoding="async" loading="lazy" src="assets/rb029_henne_ei_m365_lizenz.webp"/></a></div><figcaption>Henne-und-Ei-Infografik – Lizenz, Dienstplan und Aktivierung</figcaption></figure>
+<p>Technischer Entscheidungsbaum: <a href="assets/rb029_diagnosebaum.svg">SVG</a> · <a href="assets/rb029_diagnosebaum.svg">PNG-Vorschau</a></p>
+<hr/>
+<h2 id="1-ticketaufnahme-und-prioritat-l1">1. Ticketaufnahme und Priorität (L1)</h2>
+<p><strong>Minimaldaten:</strong> Ticket-ID; Zeitpunkt; Anwendung/Dienst; exakter Fehlertext/-code; betroffene User/Gruppe; richtiger Tenant und anonymisierte Benutzerkennung; Business-Auswirkung; letzte Konto-/Lizenz-/Gruppenänderung; Rolle/Verantwortlichkeit der bearbeitenden Person.</p>
+<p><strong>Klassifizierung:</strong></p>
+<ul>
+<li><strong>Ein User:</strong> übliches L1/L2-Ticket, sofern nicht geschäftskritischer Prozess blockiert ist.</li>
+<li><strong>Mehrere User:</strong> gemeinsame SKU, Gruppenzuweisung, Abonnementstatus, Service Health und Changes vergleichen; ggf. Major-Incident-Prozess.</li>
+<li><strong>Nur Desktop / nur Web / nur ein Dienst:</strong> präzise eingrenzen, keinen pauschalen Office-/M365-Ausfall annehmen.</li>
+</ul>
+<p><strong>Abfrage an den Nutzer:</strong> „Welche konkrete Funktion ist nicht möglich, und was zeigt die Meldung? Ist das im Browser genauso? Seit wann und nach welcher Änderung?“</p>
+<h2 id="2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</h2>
+<ul>
+<li>Richtigen Tenant, Account und Zuständigkeit bestätigen; privilegierte Rollen nicht allein aufgrund eines Symptoms erweitern.</li>
+<li>Keine produktiven Lizenzen, Gruppen, Serviceplans, Benutzer oder Profile ohne Freigabe löschen, entfernen oder verändern.</li>
+<li>Auswirkungen auf Mailbox, Teams, Dateizugriff und Arbeitsfähigkeit bei Lizenzänderungen beachten; Lizenzentzug ist nicht trivial.</li>
+<li>Vor Änderungen am Office-Aktivierungsstatus: Client, Lizenzmodus, Anmeldestatus und Datenlage dokumentieren.</li>
+<li>Keine Passwörter, Tokens, privaten Dokumente oder vollständige Zugangsnachweise im Ticket ablegen.</li>
+<li>Wenn aktueller Tenant-/Produktzustand nicht zuverlässig gelesen werden kann: <strong>STOPP → Berechtigungs-/Identitätsteam</strong>.</li>
+</ul>
+<h2 id="3-l1-schnellprufung-symptome-trennen">3. L1-Schnellprüfung: Symptome trennen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Schritt</th>
+<th>Test / Beobachtung</th>
+<th>Aussage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Fehlertext und betroffenen Dienst notieren</td>
+<td>Problemtyp identifizieren</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Richtige Firmenidentität/UPN im Client und im Browser vergleichen</td>
+<td>Konto-/Tenantverwechslung ausschließen</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Word/Excel/Teams Web und Desktop getrennt testen (soweit erlaubt)</td>
+<td>Nur Client oder auch Cloud betroffen?</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Bei Admin-Center-Lesezugriff Benutzer → Aktive Benutzer → Lizenzen und Apps</td>
+<td>Tatsächlich zugewiesenes Lizenzprodukt prüfen</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Soll-Funktion gegen aktuellen Produktumfang halten</td>
+<td>Passender SKU-/Serviceplan vorhanden?</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Browserfunktion <strong>beweist keine Desktopberechtigung</strong>. Ein Microsoft 365 Business Basic-Tarif kann Web-Office bereitstellen, ohne die entsprechenden Desktop-Apps zu umfassen [Q6].</p>
+<h2 id="4-pfad-a-lizenzprodukt-fehlt-oder-passt-nicht">4. Pfad A – Lizenzprodukt fehlt oder passt nicht</h2>
+<p><strong>Voraussetzung:</strong> Das Admin Center zeigt für den korrekten Benutzer keine passende SKU – oder die vorliegende SKU deckt den konkreten Leistungsbedarf nicht ab.</p>
+<ol>
+<li>Erwarteten Sollzustand aus Onboarding-/Berechtigungsmatrix und freigegebener Produktliste ermitteln.</li>
+<li>Prüfen, ob <strong>direkte</strong> oder <strong>gruppenbasierte</strong> Vergabe vorgesehen ist.</li>
+<li>Lizenzbestand, Zielgruppe, verfügbaren Platz und Nutzungsregion kontrollieren [Q1, Q2].</li>
+<li>Befund an lizenzberechtigte Stelle übergeben: „Sollprodukt fehlt“ oder „Vorhandener Plan enthält keinen gewünschten Dienst“.</li>
+<li><strong>Nur nach Freigabe</strong> passende Zuweisung vornehmen lassen; keine andere Nutzerlizenz auf Verdacht abziehen.</li>
+<li>Nach Verarbeitung SKU und Dienst nachweisen und denselben Nutzer-Funktionstest wiederholen.</li>
+</ol>
+<p><strong>Kein Schnellfix:</strong> Massenhafte Direktlizenzierung als Umgehung einer fehlerhaften lizenzierten Gruppe.</p>
+<h2 id="5-pfad-b-lizenzprodukt-vorhanden-dienst-fehlt">5. Pfad B – Lizenzprodukt vorhanden, Dienst fehlt</h2>
+<p><strong>Voraussetzung:</strong> SKU ist dem Nutzer zugewiesen, aber der benötigte Serviceplan ist nicht vorhanden, deaktiviert oder nicht provisioniert.</p>
+<ol>
+<li><strong>Welche konkrete Funktion</strong> ist betroffen (z. B. Exchange Online vs. Desktop-App)?</li>
+<li>Prüfen, ob Produkt den Plan überhaupt enthält. Falls nein: <strong>Tarif-/Beschaffungsfrage</strong>.</li>
+<li>Falls Plan enthalten: Ist er für den Nutzer <strong>aktiv</strong>? Ggf. globale Sollkonfiguration gegenprüfen.</li>
+<li>Bei gruppenbasierter Vergabe: Gruppenmitgliedschaft, Zuweisungsfehler und konkurrierende Pläne kontrollieren.</li>
+<li>Erst nach Freigabe Serviceplan/SKU/Gruppe korrigieren lassen; anschließend tatsächliche Dienstfunktion nachweisen.</li>
+</ol>
+<p><strong>Achtung:</strong> Lizenz-/Serviceplanprobleme nicht mit Conditional Access, Authentifizierungs- oder Microsoft-365-Dienststörung verwechseln.</p>
+<h2 id="6-pfad-c-gruppenlizenzierung-fehlgeschlagen">6. Pfad C – Gruppenlizenzierung fehlgeschlagen</h2>
+<p><strong>Prüfpunkt:</strong> Microsoft 365 Admin Center → Abrechnung → Lizenzen → Produkt → <strong>Fehler &amp; Probleme</strong> (oder entsprechender Entra-Bereich; UI abhängig vom Rollout) [Q1, Q2].</p>
+<p><strong>Typische Fehler:</strong> Keine verfügbaren Plätze; kollidierende Serviceplans; nicht unterstützte Nutzungsregion; Abhängigkeiten/zusätzliche Produkte; fehlerhafte Verarbeitung.</p>
+<p><strong>Maßnahmenfolge:</strong></p>
+<ol>
+<li>Meldung und <strong>betroffene SKU/Gruppe</strong> dokumentieren.</li>
+<li>Ursache bestimmen und mit zuständiger Stelle beheben; Änderungen nur gemäß Berechtigung.</li>
+<li>Falls der Vorgang nach Ursachenbehebung fehlerhaft bleibt: vorgesehene <strong>Reprocess</strong>-Funktion durch autorisierte Administration nutzen [Q1].</li>
+<li>Erneut den <strong>Zuweisungsstatus ohne Fehler</strong> und die nutzbare Funktion nachweisen.</li>
+</ol>
+<p><strong>Beim Gruppenwechsel:</strong> Zielgruppe hinzufügen → neue wirksame Lizenz bestätigen → alte Gruppe entfernen, um Unterbrechungen zu vermeiden [Q2].</p>
+<h2 id="7-pfad-d-tenant-lizenz-korrekt-office-desktop-unlizenzierter-client">7. Pfad D – Tenant-Lizenz korrekt, Office Desktop unlizenzierter Client</h2>
+<p><strong>Anwendung:</strong> Rechte für die konkrete Desktop-App sind nachgewiesen; nur der Client meldet Aktivierungsfehler.</p>
+<ol>
+<li>Word/Excel → <strong>Datei &gt; Konto</strong>: Produktinformationen, Aktivierungsstatus, angemeldete Adresse lesen.</li>
+<li>Business- und Privatkonto unterscheiden; richtige Organisation überprüfen.</li>
+<li>Internet-/Proxy-/Anmelde- und Lizenzdiensterreichbarkeit anhand Endpoint-Vorgaben untersuchen.</li>
+<li>Bei passendem Befund: vorgeschriebenen offiziellen Microsoft-Aktivierungs-Troubleshooter einsetzen [Q3].</li>
+<li>Bei RDS/VDI/Shared Computer Activation: <strong>Sonderlizenzmodus und unterstützten Tarif</strong> prüfen [Q5]; gegebenenfalls an Endpoint-/VDI-Team eskalieren.</li>
+<li>Erst nach technischer Bestätigung und Freigabe ein dokumentiertes, herstellerkonformes Token-/Aktivierungsresetverfahren erwägen [Q7]. <strong>Keine manuelle Löschung auf Verdacht.</strong></li>
+<li>Word erneut öffnen, Anzeige der Aktivierung prüfen, neues Testdokument öffnen, bearbeiten und speichern.</li>
+</ol>
+<p><strong>Sonderfall:</strong> Gerätelizenzierung nutzt andere Berechtigungs-/Aktivierungsregeln als Nutzerlizenzierung; bei Anzeichen dafür separat dokumentieren und zuständige Stelle einbeziehen [Q4].</p>
+<h2 id="8-nur-lesende-microsoft-graph-diagnose-l2">8. Nur lesende Microsoft-Graph-Diagnose (L2)</h2>
+<p><strong>Voraussetzungen:</strong> Graph PowerShell SDK, autorisierte Rolle und Einwilligung für Lese-Scopes; nur im richtigen Tenant. Keine tatsächlichen Benutzerdaten im Lernprotokoll veröffentlichen.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Genehmigte Lesesitzung öffnen; Benutzer-/Tenant-Kontext prüfen.
+Connect-MgGraph -Scopes "User.Read.All", "Organization.Read.All"
+Get-MgContext | Select-Object Account,TenantId,Scopes
+
+# Platzhalter-UPN durch autorisierten Testbenutzer ersetzen.
+$upn = "test.user@firma.example"
+
+# Zugewiesene SKUs und die Lizenzverarbeitungszustände anzeigen.
+Get-MgUser -UserId $upn -Property UserPrincipalName,UsageLocation,AssignedLicenses,LicenseAssignmentStates |
+  Select-Object UserPrincipalName,UsageLocation,AssignedLicenses,LicenseAssignmentStates |
+  Format-List
+
+# Lizenzprodukt und Serviceplans für den User anzeigen.
+Get-MgUserLicenseDetail -UserId $upn |
+  Select-Object SkuPartNumber,ServicePlans |
+  Format-List
+
+# Tenant-Produkte und gekaufte/verwendete Einheiten anzeigen.
+Get-MgSubscribedSku |
+  Select-Object SkuPartNumber,ConsumedUnits,PrepaidUnits |
+  Format-Table -AutoSize
+</code></pre></div>
+<p><strong>Auswertung:</strong> Differenz zwischen Produkt-SKU, dem gewünschten Serviceplan und <code>LicenseAssignmentStates</code> erklären; ein leerer Graph-Befund <strong>kann</strong> am falschen Tenant oder an Berechtigungen liegen. <code>PrepaidUnits</code> ist kein einfacher Ganzzahlwert. <strong><code>Set-MgUserLicense</code> wird hier bewusst nicht verwendet.</strong> Quellen: [Q8, Q9, Q10].</p>
+<h2 id="9-erfolgskontrolle-und-eskalationsgrenze">9. Erfolgskontrolle und Eskalationsgrenze</h2>
+<p><strong>Ticket nur schließen, wenn die ursprünglich betroffene Funktion reproduzierbar funktioniert und die zuständige Person dies bestätigt oder der vereinbarte Freigabeprozess erfüllt ist:</strong></p>
+<ul>
+<li>Richtiger Benutzer/Tenant und Soll-Lizenzprodukt eindeutig bestätigt.</li>
+<li>Benötigter Serviceplan aktiv und wirksam; keine offenen Zuordnungsfehler.</li>
+<li>Bei Desktop-Problem zeigt Office <strong>aktiviert</strong>; konkrete Datei bearbeiten/speichern möglich.</li>
+<li>Bei Cloud-Dienst Problem ist genau dieser Dienst auf dem betroffenen Konto nutzbar.</li>
+<li>Ergebnis mindestens zweimal nachvollzogen, z. B. nach erneuter App-Anmeldung/Start, soweit sinnvoll.</li>
+<li>Ursache, autorisierte Maßnahme, Zeitpunkt und Testergebnis im Ticket dokumentiert.</li>
+</ul>
+<p><strong>L2/License/Identity eskalieren</strong>, wenn Sollplan unklar, Lizenzbudget betroffen, Gruppenmigration notwendig, Provisionierungsfehler ungelöst, RDS/VDI-Lizenzmodus betroffen oder Administratorrolle nicht verfügbar. <strong>Endpoint eskalieren</strong>, wenn Tenantberechtigung korrekt und ein Client-/Token-/Geräteproblem plausibel ist. <strong>Incident Management</strong>, wenn mehrere Benutzer gleichzeitig ausfallen.</p>
+<h2 id="10-ticketdokumentation-und-mini-lerncheck">10. Ticketdokumentation und Mini-Lerncheck</h2>
+<h3 id="muster-ticketkommentar-ausdrucklich-fiktiv">Muster-Ticketkommentar – ausdrücklich fiktiv</h3>
+<blockquote>
+<p><strong>Sachverhalt:</strong> Benutzer meldet „Nicht lizenziertes Produkt“ in Word Desktop; Word Web funktioniert. Identität und Tenant abgeglichen. <strong>Diagnose:</strong> Für das betroffene Konto war ein gültiger Web-only-Tarif zugewiesen; die benötigte Desktop-App-Nutzung war dadurch nicht abgedeckt. <strong>Maßnahme:</strong> Soll-Tarif mit Lizenzverantwortlichen geprüft, erforderliche Desktop-Berechtigung nach Freigabe zugewiesen. <strong>Prüfung:</strong> Lizenz-/Serviceplanstatus ohne Fehler; Word Desktop unter Firmenkonto aktiviert; Öffnen, Bearbeiten und Speichern einer Testdatei erfolgreich. <strong>Status:</strong> Nur Musterfall, nicht produktiv durchgeführt.</p>
+</blockquote>
+<h3 id="l1-status-in-drei-satzen">L1-Status in drei Sätzen</h3>
+<blockquote>
+<p><strong>Problem:</strong> Word meldet fehlende Lizenz, obwohl Web-Zugriff möglich ist. <strong>Prüfung:</strong> Konto und Tenant sind abgeglichen; passender Desktop-Tarif beziehungsweise lokaler Aktivierungsstatus wird getrennt verifiziert. <strong>Nächster Schritt:</strong> Erforderliche Lizenzänderung nur nach Freigabe durch die zuständige Administration; danach erneuter Funktionstest.</p>
+</blockquote>
+<h3 id="active-recall-drei-schnelle-fragen">Active Recall – drei schnelle Fragen</h3>
+<ol>
+<li>Was unterscheidet <strong>SKU</strong>, <strong>Serviceplan</strong> und <strong>lokale Aktivierung</strong>?</li>
+<li>Warum ist eine Gruppenmitgliedschaft <strong>kein</strong> Beweis für eine fehlerfreie Lizenzvergabe?</li>
+<li>Welchen Beleg brauchst du, bevor du einen Client-Aktivierungsreset überhaupt in Betracht ziehst?</li>
+</ol>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</h2>
+<ul>
+<li>[Q1] Lizenzzuweisung und Fehleransicht im Microsoft 365 Admin Center: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/assign-licenses-to-users?view=o365-worldwide" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/manage/assign-licenses-to-users?view=o365-worldwide</a></li>
+<li>[Q2] Gruppenbasierte Lizenzierung: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-group-licenses?view=o365-worldwide" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/manage/manage-group-licenses?view=o365-worldwide</a></li>
+<li>[Q3] Aktivierungsfehler und „Nicht lizenziertes Produkt“: <a href="https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office</a></li>
+<li>[Q4] Lizenz-/Aktivierungsmodelle für Microsoft 365 Apps: <a href="https://learn.microsoft.com/en-us/microsoft-365-apps/licensing-activation/overview-licensing-activation-microsoft-365-apps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365-apps/licensing-activation/overview-licensing-activation-microsoft-365-apps</a></li>
+<li>[Q5] Shared Computer Activation: <a href="https://learn.microsoft.com/en-us/microsoft-365-apps/licensing-activation/troubleshoot-shared-computer-activation" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365-apps/licensing-activation/troubleshoot-shared-computer-activation</a></li>
+<li>[Q6] Microsoft 365 Business-Tarifvergleich: <a href="https://www.microsoft.com/de-de/microsoft-365/business/compare-all-microsoft-365-business-products" rel="noopener noreferrer" target="_blank">https://www.microsoft.com/de-de/microsoft-365/business/compare-all-microsoft-365-business-products</a></li>
+<li>[Q7] Microsoft-365-Apps-Aktivierung zurücksetzen (nur nach Diagnose/Freigabe): <a href="https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/activation/reset-activation-state" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/activation/reset-activation-state</a></li>
+<li>[Q8] Lizenzdetails mit Graph PowerShell anzeigen: <a href="https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-account-license-and-service-details-with-microsoft-365-powershell" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/enterprise/view-account-license-and-service-details-with-microsoft-365-powershell</a></li>
+<li>[Q9] Gruppenlizenzen/Fehler mit Graph PowerShell: <a href="https://learn.microsoft.com/en-us/entra/identity/users/licensing-powershell-graph-examples" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/identity/users/licensing-powershell-graph-examples</a></li>
+<li>[Q10] <code>Get-MgUserLicenseDetail</code> Referenz: <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.users/get-mguserlicensedetail?view=graph-powershell-1.0" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.users/get-mguserlicensedetail?view=graph-powershell-1.0</a></li>
+</ul>
+<p><strong>Fachstatus:</strong> Nur Recherche und Dokumentation. Kein Kunden-Tenant wurde geprüft oder verändert; alle Fälle und Testergebnisse sind als Muster gekennzeichnet.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-029_Praxis-Runbook.md">RB-029_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-028/index.html">← Ticket 28</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-030/index.html">Ticket 30 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,208 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 22: Monitor wird nicht erkannt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 22: Monitor wird nicht erkannt. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 22: Monitor wird nicht erkannt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-erstaufnahme-impact-l1">1. Erstaufnahme / Impact (L1)</a></li><li><a href="#2-monitor-und-signalweg-ohne-systemeingriff-l1">2. Monitor und Signalweg ohne Systemeingriff (L1)</a></li><li><a href="#3-a-b-gegenprobe-und-direktanschluss-l1">3. A/B-Gegenprobe und Direktanschluss (L1)</a></li><li><a href="#4-windows-projektionsmodus-und-gerateerkennung-l1">4. Windows-Projektionsmodus und Geräteerkennung (L1)</a></li><li><a href="#5-reinitialisierung-nur-nach-befund-l1">5. Reinitialisierung nur nach Befund (L1)</a></li><li><a href="#6-lesende-powershell-prufung-l1-l2">6. Lesende PowerShell-Prüfung (L1/L2)</a></li><li><a href="#7-usb-c-dock-mst-spezielle-pruffragen-l1-l2">7. USB-C / Dock / MST: spezielle Prüffragen (L1 → L2)</a></li><li><a href="#8-massnahme-nur-nach-nachweisbarem-befund">8. Maßnahme nur nach nachweisbarem Befund</a></li><li><a href="#9-erfolgskontrolle-mit-benutzer-l1">9. Erfolgskontrolle mit Benutzer (L1)</a></li><li><a href="#10-l2-eskalation-und-quellen">10. L2-Eskalation und Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Zweck:</strong> Sichere L1-Fehlereingrenzung für fehlende externe Anzeigen unter Windows 11.<br/>
+<strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Auf Grundlage offizieller Herstellerquellen recherchiert; <strong>praktische Validierung noch ausstehend</strong>.</p>
+<blockquote>
+<p><strong>Arbeitsregel:</strong> Nicht „kein Bild“ mit „Windows erkennt den Monitor nicht“ gleichsetzen. Signalquelle und Hardwarepfad zuerst, dann Windows-Einstellungen, erst anschließend Treiber/Firmware. Vor jedem Test nur <strong>eine Variable</strong> ändern und den Befund festhalten.</p>
+</blockquote>
+<h2 id="1-erstaufnahme-impact-l1">1. Erstaufnahme / Impact (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nutzer, Arbeitsplatz, Zeitpunkt, Priorität, letzte Änderungen dokumentiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Notebook-/Desktop-Modell, Monitor-Modell, ggf. Dock/Adapter/KVM notiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anzahl betroffener Anzeigen und genutzter Anschlüsse (HDMI/DP/USB-C) geklärt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Exakte Beobachtung:</strong> OSD aus, „Kein Signal“, „Out of range“, schwarzes Bild, nur dupliziert oder nur eine Windows-Anzeige?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wurde zuvor umgesteckt, ein Update installiert, das Gerät ab-/angedockt oder aus dem Standby geweckt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Benutzer über kurzfristige Bild-/Arbeitsunterbrechung informiert, Testfreigabe eingeholt.</li>
+</ul>
+<p><strong>Sofortige Aufteilung:</strong> Kein Monitormenü/kein Strom → zuerst Monitor-Hardware/Strom. Monitormenü funktioniert → Eingang und Signalweg. Windows erkennt bereits zwei Displays → primär Anzeigeaktivierung/Projektionsmodus prüfen.</p>
+<h2 id="2-monitor-und-signalweg-ohne-systemeingriff-l1">2. Monitor und Signalweg ohne Systemeingriff (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Monitor-Strom/LED und <strong>eigenes OSD-Menü</strong> geprüft (nicht nur Laptopanzeige).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Signalquelle am Monitor passend zur gesteckten Buchse gewählt (<code>HDMI 1</code>, <code>HDMI 2</code>, <code>DP</code>, <code>USB-C</code> etc.).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kabel sitzt beidseitig fest; Schäden/Verbiegen ausgeschlossen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls sicher verfügbar: geeignetes, funktionierendes <strong>Ersatzkabel</strong> im selben Anschlussweg getestet.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Desktop-PC geprüft, an <strong>welchem</strong> Videoadapter/Port das Kabel steckt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Test-Resultat nach <strong>jeder</strong> Einzeländerung protokolliert.</li>
+</ul>
+<p><strong>Befund:</strong> „Kein Signal“ bedeutet nur, dass der Monitor über den <strong>gewählten Eingang</strong> kein verwertbares Bildsignal darstellt. Ursache bleibt bis zur Gegenprobe offen.</p>
+<h2 id="3-a-b-gegenprobe-und-direktanschluss-l1">3. A/B-Gegenprobe und Direktanschluss (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Veränderung</th>
+<th>Aussage bei Erfolg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Gleicher PC/Port/Monitor, nur geeignetes Ersatzkabel</td>
+<td>Altes Kabel/Kontaktweg wird wahrscheinliche Ursache</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Gleicher Monitor, freigegebener anderer Videoausgang</td>
+<td>Alter Port/Portkonfiguration eingrenzen</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Gleicher Monitor <strong>direkt</strong> am Notebook/PC statt über Dock</td>
+<td>Fehler sitzt eher im Dock-/Adapter-/Hostport-Zweig</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Anderer bekanntermaßen funktionierender Monitor am alten Signalweg</td>
+<td>Eigenen Monitor vs. Ausgangsweg vergleichen</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur technisch kompatible Varianten prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei fehlendem geeigneten Testmaterial Befund <strong>„nicht geprüft“</strong> dokumentieren; keine Sicherheit vortäuschen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Stecker nicht gewaltsam lösen oder in inkompatible Buchsen drücken.</li>
+</ul>
+<h2 id="4-windows-projektionsmodus-und-gerateerkennung-l1">4. Windows-Projektionsmodus und Geräteerkennung (L1)</h2>
+<p><strong>Ausführungsort:</strong> Lokaler Windows-11-Client. Die folgenden GUI-Schritte sind rückgängig zu machen; ursprüngliche Einstellungen zunächst notieren.</p>
+<ol>
+<li><strong><code>Windows + P</code></strong> → gewünschten Modus <strong>Erweitern</strong> oder <strong>Duplizieren</strong> wählen; „Nur PC-Bildschirm“ als mögliche Ursache prüfen.</li>
+<li><strong>Einstellungen → System → Anzeige</strong>: Sind <code>1</code> und <code>2</code> als Rechtecke sichtbar?</li>
+<li><strong>Wenn mehrere vorhanden:</strong> <strong>Identifizieren</strong>; prüfen, ob die gewünschte Anzeige deaktiviert ist und ob sich ein Fenster auf den zweiten Desktop verschieben lässt.</li>
+<li><strong>Wenn zweiter Monitor fehlt:</strong> <strong>Mehrere Bildschirme → Erkennen</strong> betätigen und Ergebnis festhalten.</li>
+<li><strong>Wenn erkannt, aber kein nutzbares Bild:</strong> Unterstützte Auflösung/Hz des betroffenen Monitors in <strong>Erweiterte Anzeige</strong> und Herstellerangaben prüfen; keine beliebigen höheren Frequenzen wählen.</li>
+</ol>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows zeigt zwei Monitore, einer wird nur nicht genutzt</td>
+<td>Projektionsmodus und Anzeigeaktivierung korrigieren, sofort End-to-End-Test</td>
+</tr>
+<tr>
+<td>Windows zeigt nur einen Monitor und OSD sagt „Kein Signal“</td>
+<td>Kabel, Eingang, Port, USB-C-/Dock-Fähigkeit durch A/B-Test prüfen</td>
+</tr>
+<tr>
+<td>Monitor wird zeitweise erkannt</td>
+<td>Kabelkontakt, Dock-/Sleep-Zustand, Signalqualität/Port, später Treiberpfad prüfen</td>
+</tr>
+<tr>
+<td>Nur dritter Monitor nicht erkannt</td>
+<td>Herstellergrenze (GPU, Dock, MST, Auflösung, Hz) prüfen lassen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Merke:</strong> „Identifizieren“ zeigt die Zuordnung <strong>bereits erkannter</strong> Displays. „Erkennen“ versucht ein <strong>fehlendes</strong> Display zu finden.</p>
+<h2 id="5-reinitialisierung-nur-nach-befund-l1">5. Reinitialisierung nur nach Befund (L1)</h2>
+<p>Wenn das bisher funktionierende Setup plötzlich ausfällt, nach Rücksprache mit dem Anwender:</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong><code>Windows + Strg + Umschalt + B</code></strong> als kurzer Grafiktreiber-Reinitialisierungstest; Bildflackern/Signalton möglich.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls ohne Erfolg und betrieblich möglich: geplanter Neustart nach Speichern offener Arbeit.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Derselbe Testaufbau wird <strong>unverändert</strong> erneut geprüft.</li>
+</ul>
+<p><strong>Nicht automatisch:</strong> Treiber deinstallieren, Registry ändern, alle ausgeblendeten Monitore löschen oder Firmware flashen.</p>
+<h2 id="6-lesende-powershell-prufung-l1-l2">6. Lesende PowerShell-Prüfung (L1/L2)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Zeigt aktuell vorhandene PnP-Monitorinstanzen.
+# OK ist KEIN Beweis für korrektes externes Videosignal.
+Get-PnpDevice -Class Monitor -PresentOnly |
+    Select-Object Status, Class, FriendlyName, InstanceId
+
+# Zeigt aktuell vorhandene Grafikadapter.
+Get-PnpDevice -Class Display -PresentOnly |
+    Select-Object Status, FriendlyName, InstanceId
+
+# Zeigt Treiberversion und vom System gemeldeten Videomodus.
+# Nur lesen, nichts installieren oder zurücksetzen.
+Get-CimInstance -ClassName Win32_VideoController |
+    Select-Object Name, DriverVersion, VideoModeDescription
+</code></pre></div>
+<p><strong>Hinweis:</strong> Geräteklassen und Treiberdaten können je nach Hardware abweichen. In einer Ticketkopie personenbezogene/geräteidentifizierende Angaben minimieren. Der <strong>Geräte-Manager</strong> ergänzt die Abfrage um eventuelle Warnsymbole und Fehlercodes.</p>
+<h2 id="7-usb-c-dock-mst-spezielle-pruffragen-l1-l2">7. USB-C / Dock / MST: spezielle Prüffragen (L1 → L2)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unterstützt <strong>dieser konkrete USB-C-PC-Port</strong> die benötigte Videoausgabe (<strong>DP Alt Mode</strong>/geeignetes Thunderbolt)? Nicht anhand der Steckerform annehmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unterstützen <strong>Kabel</strong>, Adapter, Monitor und Dock die benötigten Protokolle und Bandbreiten?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Direktanschluss</strong> funktioniert, nur Dock-Zweig nicht? → Dockmodell, Hostport, Treiber/DisplayLink und Firmware durch L2 prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind mehrere Monitore über DP-/USB-C-MST verbunden? Unterstützen Kette und Hardware diese Anzahl und Auflösungen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist ein einfacher HDMI-Splitter im Einsatz? Er dupliziert typischerweise, statt Windows zwei unabhängige Displays zu liefern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind <strong>gleichzeitig</strong> Dock-USB oder Dock-LAN gestört? → RB-023 als verknüpften Supportfall aufnehmen.</li>
+</ul>
+<p><strong>Sicherheitsregel:</strong> BIOS-, GPU-/Dock-Firmware- und Docktreiberänderungen nur durch zuständige Mitarbeiter und nach freigegebenem Verfahren.</p>
+<h2 id="8-massnahme-nur-nach-nachweisbarem-befund">8. Maßnahme nur nach nachweisbarem Befund</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Kontrollierte Maßnahme</th>
+<th>Zielprüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OSD falscher HDMI/DP-Eingang</td>
+<td>Richtigen Eingang auswählen</td>
+<td>Bild und Windows-Anzeige sichtbar</td>
+</tr>
+<tr>
+<td>A/B-Test isoliert Kabel</td>
+<td>Geeignetes Kabel ersetzen</td>
+<td>Bild und stabile Wiederverbindung</td>
+</tr>
+<tr>
+<td>Windows hat zwei Displays, aber zweiten deaktiviert</td>
+<td><code>Windows + P → Erweitern</code> bzw. gewünschten Modus</td>
+<td>Fenster auf externen Bildschirm verschieben</td>
+</tr>
+<tr>
+<td>USB-C-Port ohne Video</td>
+<td>Unterstützten Videoanschluss nutzen</td>
+<td>Monitor über passenden Weg erkannt</td>
+</tr>
+<tr>
+<td>Monitor nur über Dock gestört</td>
+<td>Dock-/Portweg an L2 / RB-023 übergeben</td>
+<td>Direkttest vs. Docktest dokumentiert</td>
+</tr>
+<tr>
+<td>GPU-Treiberproblem plausibel</td>
+<td>L2: Hersteller-/Endpointprozess für Rollback/Update</td>
+<td>Nach genehmigter Änderung erneut testen</td>
+</tr>
+<tr>
+<td>Verdacht auf Hardwaredefekt</td>
+<td>Gesteuerten Kreuztausch, Hardwareticket</td>
+<td>Reproduzierbarer Ausfall an kompatiblen Gegenkomponenten</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-erfolgskontrolle-mit-benutzer-l1">9. Erfolgskontrolle mit Benutzer (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Monitormenü und gewünschter Videoeingang stimmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Reales Bild</strong> auf dem externen Monitor sichtbar, nicht nur ein PnP-Eintrag.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Einstellungen → System → Anzeige</code> zeigt die erwarteten Monitore; <strong>Identifizieren</strong> bestätigt Zuordnung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Erweitern</strong> oder vereinbarte Anzeigeart funktioniert; Fenster per Maus verschiebbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Auflösung/Frequenz angemessen; nach Ab-/Anstecken bzw. Wiederverbindung im üblichen Nutzungskontext stabil.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache, durchgeführter Einzeltest und Nutzerbestätigung dokumentiert.</li>
+</ul>
+<h3 id="muster-ticketkommentar-fiktiv">Muster-Ticketkommentar (fiktiv)</h3>
+<blockquote>
+<p><strong>INC-022 | Rückmeldung:</strong> Externer Monitor am Windows-11-Notebook zeigte „Kein Signal“; OSD erreichbar. Kabel am Monitor an HDMI 1 angeschlossen, Eingang aber auf HDMI 2 gestellt. Eingang auf HDMI 1 geändert. Anschließend zwei Anzeigen unter Windows erkannt und <code>Erweitern</code> mit dem Anwender erfolgreich geprüft. <strong>Ursache:</strong> falsche Eingangsquelle. <strong>Maßnahmen:</strong> OSD-Eingang korrigiert, keine Treiber-/Firmwareänderung. <strong>Status:</strong> Beispielhaft gelöst; fiktiver Schulungsfall, nicht praktisch durchgeführt.</p>
+</blockquote>
+<h2 id="10-l2-eskalation-und-quellen">10. L2-Eskalation und Quellen</h2>
+<p><strong>Minimalpaket für L2:</strong> Symptom inkl. OSD-/Windows-Befund, betroffener Nutzer/Client nach Unternehmensrichtlinie, Geräte-/Port-/Kabelkette, Treiberversion, Zeitpunkt/Änderungskontext, reproduzierbare A/B-Testmatrix, eindeutige oder verbleibende Hypothesen, Risiken, bereits ausgeführte und <em>nicht</em> ausgeführte Maßnahmen.</p>
+<p><strong>Offizielle Herstellerquellen:</strong></p>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/troubleshoot-external-monitor-connections-in-windows" rel="noopener noreferrer" target="_blank">Microsoft – Externe Monitorverbindungen behandeln</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/how-to-use-multiple-monitors-in-windows" rel="noopener noreferrer" target="_blank">Microsoft – Mehrere Monitore in Windows</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/usb/fix-usb-c-problems-in-windows" rel="noopener noreferrer" target="_blank">Microsoft – USB-C-Probleme behandeln</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-PnpDevice</a></li>
+<li><a href="https://www.dell.com/support/kbdoc/en-us/000326500/dell-monitor-usb-c-port-displays-no-video" rel="noopener noreferrer" target="_blank">Dell – USB-C ohne Monitorbild (modellbezogen)</a></li>
+<li><a href="https://www.dell.com/support/kbdoc/en-us/000124295/guide-to-dell-docking-stations" rel="noopener noreferrer" target="_blank">Dell – Guide to Docking Stations</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Recherchierte L1-/L2-Anleitung, <strong>keine</strong> praktische Validierung des Falls in einer Produktivumgebung. Unternehmensrichtlinien und konkrete Gerätespezifikationen haben Vorrang.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-022_Praxis-Runbook.md">RB-022_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-021/index.html">← Ticket 21</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-023/index.html">Ticket 23 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

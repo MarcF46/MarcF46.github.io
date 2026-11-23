@@ -1,0 +1,143 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 43: Datenträger voll | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 43: Datenträger voll. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 43: Datenträger voll</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-exakten-fehler-und-betroffenen-speicherort-erfassen">1. Ticketannahme: Exakten Fehler und betroffenen Speicherort erfassen</a></li><li><a href="#2-sicherheits-und-freigabecheck-vor-jeder-loschung">2. Sicherheits- und Freigabecheck vor jeder Löschung</a></li><li><a href="#3-betroffenes-volume-und-freien-platz-lesend-messen">3. Betroffenes Volume und freien Platz lesend messen</a></li><li><a href="#4-kategorien-und-konkrete-belegung-ohne-schreibzugriff-eingrenzen">4. Kategorien und konkrete Belegung ohne Schreibzugriff eingrenzen</a></li><li><a href="#5-systembestandteile-und-sonderfalle-lesend-prufen">5. Systembestandteile und Sonderfälle lesend prüfen</a></li><li><a href="#6-hypothese-anhand-zweier-unabhangiger-befunde-absichern">6. Hypothese anhand zweier unabhängiger Befunde absichern</a></li><li><a href="#7-genehmigte-kleinste-wirksame-massnahme-wahlen">7. Genehmigte, kleinste wirksame Maßnahme wählen</a></li><li><a href="#8-vorher-nachher-messung-und-nachhaltige-wirkung">8. Vorher/Nachher-Messung und nachhaltige Wirkung</a></li><li><a href="#9-eskalation-stoppkriterien">9. Eskalation / Stoppkriterien</a></li><li><a href="#10-abschluss-und-muster-ticketkommentar">10. Abschluss und Muster-Ticketkommentar</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 typische IT-Supportfälle · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Recherchiert; <strong>noch nicht praktisch validiert</strong>. Lesende Befehle sind entsprechend gekennzeichnet. Keine automatisierte Bereinigung.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb043_henne_ei_datentraeger_voll.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-043 – Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb043_henne_ei_datentraeger_voll.webp"/></a></div><figcaption>RB-043 – Henne-und-Ei-Infografik</figcaption></figure>
+<p><strong>Ziel:</strong> Engpass und Datenbesitzer nachweisen, nur genehmigte und reversible Maßnahmen wählen, freien Speicher sowie die tatsächliche Anwendung nachtesten.</p>
+<h2 id="1-ticketannahme-exakten-fehler-und-betroffenen-speicherort-erfassen">1. Ticketannahme: Exakten Fehler und betroffenen Speicherort erfassen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fehlermeldung/Warnung, Zeitpunkt, Gerät, Benutzer/Abteilung und Anwendung dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist es lokales <code>C:</code>/<code>D:</code>, Netzwerkpfad, Profilcontainer, Server-/Hostvolume oder Quota?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Einzelgerät oder viele, seit wann, jüngste Updates/Backups/Installationen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Produktionsrisiko (Datenbank, Anmeldung, Update, Backup, Geschäftsanwendung) bewertet?</li>
+</ul>
+<h2 id="2-sicherheits-und-freigabecheck-vor-jeder-loschung">2. Sicherheits- und Freigabecheck <strong>vor jeder Löschung</strong></h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Datenbesitzer, Aufbewahrung, Datenschutz, Backupstatus und Rückfallkopie geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Freigabe für <strong>konkrete</strong> Datei-/Kategorie-/Quota-Maßnahme dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine unkontrollierte Bereinigung von Windows-, Benutzer-, Backup-, VSS-, VHDX- oder Produktivlogs?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Remotezugriff: Rückweg und ausreichend Arbeitsreserve geklärt?</li>
+</ul>
+<p><strong>STOP:</strong> Fehlt die Freigabe, gibt es Datenintegritätsfehler oder ist der Speicherort unklar → keine Bereinigung, L2/L3 beziehungsweise Datenbesitzer einbeziehen.</p>
+<h2 id="3-betroffenes-volume-und-freien-platz-lesend-messen">3. Betroffenes Volume und freien Platz <strong>lesend</strong> messen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Keine Änderung; lokales Windows-Gerät:
+Get-Volume |
+  Select-Object DriveLetter, FileSystemLabel, FileSystemType,
+                Size, SizeRemaining, HealthStatus
+Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' |
+  Select-Object DeviceID, Size, FreeSpace, VolumeName
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ausgangswerte <strong>absolut (GiB)</strong> und relativ (%) mit Zeitpunkt gesichert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gegenprobe mit <em>Windows → Einstellungen → System → Speicher</em> oder Explorer?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Quota-/Netzfreigabefehler nicht mit lokalem Freiplatz verwechselt?</li>
+</ul>
+<h2 id="4-kategorien-und-konkrete-belegung-ohne-schreibzugriff-eingrenzen">4. Kategorien und konkrete Belegung ohne Schreibzugriff eingrenzen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Speicherübersicht: Apps, temporär, Benutzerdateien, System/Reserviert, Cloud betrachtet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zeitlicher Trend: Neue Dateiablagen, große Logfiles, Update-/Backup-/Syncwachstum?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur mit Einverständnis im konkret genannten Benutzerverzeichnis nach Dateigrößen gesehen?</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Ausschließlich direkte Dateien in den Downloads des aktuellen Kontos:
+$ordner = Join-Path $env:USERPROFILE 'Downloads'
+Get-ChildItem -LiteralPath $ordner -File -ErrorAction Stop |
+  Sort-Object Length -Descending |
+  Select-Object -First 15 Name, Length, LastWriteTime
+</code></pre></div>
+<p><strong>Hinweis:</strong> Dateilängen summieren sich nicht zwingend zur realen Belegung; keine ungebremste Rekursion über <code>C:\</code> oder produktive Freigaben.</p>
+<h2 id="5-systembestandteile-und-sonderfalle-lesend-prufen">5. Systembestandteile und Sonderfälle <strong>lesend</strong> prüfen</h2>
+<p><strong>Wenn begründet relevant, mit passender Berechtigung:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">REM Komponentenspeicher untersuchen, NICHT bereinigen:
+DISM.exe /Online /Cleanup-Image /AnalyzeComponentStore
+REM VSS-Nutzung prüfen, NICHT löschen:
+vssadmin list shadowstorage
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>WinSxS-Größe als Hardlink-/Komponentenspeicherthema interpretiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>OneDrive-Synchronisation und benötigte Offlinekopien berücksichtigt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>VSS/Wiederherstellung/Backup-Vorgaben bekannt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei VDI/Server: Host, Share, virtuelle Disk und Benutzerquota getrennt geprüft?</li>
+</ul>
+<h2 id="6-hypothese-anhand-zweier-unabhangiger-befunde-absichern">6. Hypothese anhand zweier unabhängiger Befunde absichern</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gesicherter Befund</th>
+<th>Plausibler Pfad</th>
+<th>Nicht daraus folgern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Große Downloads im <strong>genehmigten</strong> Benutzerordner</td>
+<td>Dateien mit Besitzer abgleichen</td>
+<td>Dass alle Downloads entbehrlich sind</td>
+</tr>
+<tr>
+<td>VSS-Speicher stark belegt</td>
+<td>Backup-/Restorekonzept prüfen</td>
+<td>Dass Schattenkopien gelöscht werden dürfen</td>
+</tr>
+<tr>
+<td>WinSxS im Explorer „groß“</td>
+<td>DISM-Analyse</td>
+<td>Dass gemeldete Ordnergröße exklusiv belegt ist</td>
+</tr>
+<tr>
+<td>Cloud-Dateien lokal groß</td>
+<td>Synchronisations-/Offlinebedarf prüfen</td>
+<td>Dass Cloudobjekte gelöscht werden dürfen</td>
+</tr>
+<tr>
+<td>Volume frei, App-Quota erreicht</td>
+<td>Ziel-/Profilquota untersuchen</td>
+<td>Dass lokale Datenträger voll sind</td>
+</tr>
+<tr>
+<td>Speicherplatz sofort wieder weg</td>
+<td>Aktiven Verursacher verfolgen</td>
+<td>Dass wiederholtes pauschales Löschen hilft</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="7-genehmigte-kleinste-wirksame-massnahme-wahlen">7. Genehmigte, kleinste wirksame Maßnahme wählen</h2>
+<p><strong>L1-geeignet nach Richtlinie:</strong> Microsoft-Bereinigungsempfehlungen <strong>einzeln</strong> überprüfen, unkritische temporäre Kategorien erst mit Freigabe bereinigen; Eigentümer legt freigegebene, gesicherte Benutzerdateien zur Archivierung fest; bei OneDrive ggf. nur lokale Kopie nach Sync-/Offlineprüfung freigeben.</p>
+<p><strong>L2/Storage-/Application-Team:</strong> Gezielte Logrotation, Retention, Quota-/Volumenerweiterung, VSS- und Backupverwaltung, VDI-/FSLogix-Container, Datenträger-/Dateisystemdefekt. Änderungen mit Wartungs-/Rollbackplan.</p>
+<p><strong>Verbotene Schnellschüsse:</strong> Manuelles Löschen von <code>WinSxS</code>, <code>Installer</code>, <code>AppData</code>-Inhalten, <code>pagefile.sys</code>, Backups, Datenbanken, Schattenkopien, Produktivlogs; <code>DISM ... /ResetBase</code> als Routine; pauschale PowerShell-<code>Remove-Item</code>-Skripte.</p>
+<h2 id="8-vorher-nachher-messung-und-nachhaltige-wirkung">8. Vorher/Nachher-Messung und nachhaltige Wirkung</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gleiches Volume und gleiche Messmethode vor/nach Aktion; absolute GiB dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Relevante Anwendung kann wieder speichern/synchronisieren/updaten?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Daten und notwendige Wiederherstellungsfunktionen nach Maßnahme verfügbar?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei wiederkehrender Belegung Logwachstum oder weitere Ursachen mit Folgeticket überwachen?</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Erneuter lesender Nachweis:
+Get-Volume -DriveLetter C |
+  Select-Object DriveLetter, Size, SizeRemaining, HealthStatus
+</code></pre></div>
+<p><strong>Erfolgsmaßstab:</strong> Nicht willkürlich „10 % frei“, sondern ausreichend Reserve für den vorgesehenen Workload; Störungsmeldung und Auslöser zuverlässig behoben.</p>
+<h2 id="9-eskalation-stoppkriterien">9. Eskalation / Stoppkriterien</h2>
+<p>Sofort an L2/L3/Storage/Backup eskalieren bei:</p>
+<ul>
+<li>fehlendem Backup/unklarem Datenbesitz oder unklarer Aufbewahrungsfrist;</li>
+<li>Dateisystem-/I/O-Fehlern, Storage-Health-Warnungen oder unerwartetem Datenträgerverlust;</li>
+<li>produktiver Server-/Datenbank-/Hyper-V-/VDI-Kapazität und unklaren Quotas;</li>
+<li>unkontrolliertem Wiederanwachsen, Backup-/Sicherungsproblemen oder zweifelhafter Cloud-Synchronisierung;</li>
+<li>nicht reproduzierbarer Wirkung trotz ausreichendem freien Platz.</li>
+</ul>
+<h2 id="10-abschluss-und-muster-ticketkommentar">10. Abschluss und Muster-Ticketkommentar</h2>
+<p><strong>Vor Abschluss:</strong> Ursache, Belegungsquelle, Eigentümerfreigabe, Änderung, Vorher/Nachher und Testablauf im Ticket dokumentieren; sensible Dateinamen nur soweit wirklich notwendig nennen.</p>
+<blockquote>
+<p><strong>Muster – ausdrücklich fiktiv:</strong> „Auf Gerät LAB-CLIENT07 war das Volume C: mit 238 GiB Gesamtkapazität bis auf 2,8 GiB belegt. Im freigegebenen Downloads-Ordner wurden ältere, bereits extern gesicherte ISO-Dateien als Hauptverbraucher identifiziert. Nach bestätigter Freigabe archiviert/entfernt; freier Platz anschließend 26,1 GiB. Geplanter Datei-Export und erneute Anmeldung erfolgreich getestet. Kein Eingriff in Windows-Komponentenspeicher, VSS oder Benutzerprofile. Wiedervorlage zur Prüfung des Speichertrends vereinbart.“</p>
+</blockquote>
+<hr/>
+<h3 id="recherchierte-herstellerquellen-22-11-2026">Recherchierte Herstellerquellen (22.11.2026)</h3>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/free-up-drive-space-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/free-up-drive-space-in-windows</a></li>
+<li><a href="https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/manage-drive-space-with-storage-sense" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/manage-drive-space-with-storage-sense</a></li>
+<li><a href="https://support.microsoft.com/de-de/onedrive/save-disk-space-with-onedrive-files-on-demand-for-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/onedrive/save-disk-space-with-onedrive-files-on-demand-for-windows</a></li>
+<li><a href="https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder?view=windows-11" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder?view=windows-11</a></li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2025-ps</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin-list-shadowstorage" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin-list-shadowstorage</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Das Runbook ist ein recherchierter Prüfplan und ersetzt keine praktische Freigabe oder Laborvalidierung.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-043_Praxis-Runbook.md">RB-043_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-042/index.html">← Ticket 42</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-044/index.html">Ticket 44 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

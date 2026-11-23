@@ -1,0 +1,393 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 21: Teams-Kamera oder Mikrofon funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 21: Teams-Kamera oder Mikrofon funktioniert nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 21: Teams-Kamera oder Mikrofon funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket-und-die-zielsetzung">1. Das Supportticket und die Zielsetzung</a></li><li><a href="#2-grundlagen-die-medienkette-verstehen">2. Grundlagen – die Medienkette verstehen</a></li><li><a href="#3-fehlerbilder-und-plausible-ursachen">3. Fehlerbilder und plausible Ursachen</a></li><li><a href="#4-wo-arbeitet-der-supporttechniker">4. Wo arbeitet der Supporttechniker?</a></li><li><a href="#5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</a></li><li><a href="#6-diagnose-a-hardware-stummschaltung-und-verbindungsweg-l1">6. Diagnose A – Hardware, Stummschaltung und Verbindungsweg (L1)</a></li><li><a href="#7-diagnose-b-windows-unabhangig-von-teams-prufen-l1">7. Diagnose B – Windows unabhängig von Teams prüfen (L1)</a></li><li><a href="#8-diagnose-c-windows-berechtigungen-korrekt-verstehen-l1-administriert">8. Diagnose C – Windows-Berechtigungen korrekt verstehen (L1 / administriert)</a></li><li><a href="#9-diagnose-d-teams-desktop-gezielt-prufen-l1">9. Diagnose D – Teams-Desktop gezielt prüfen (L1)</a></li><li><a href="#10-diagnose-e-teams-im-browser-als-vergleich-l1">10. Diagnose E – Teams im Browser als Vergleich (L1)</a></li><li><a href="#11-diagnose-f-lesende-windows-powershell-abfragen-l1-l2">11. Diagnose F – Lesende Windows-PowerShell-Abfragen (L1/L2)</a></li><li><a href="#12-befundabhangige-behebung-von-reversibel-zu-invasiv">12. Befundabhängige Behebung – von reversibel zu invasiv</a></li><li><a href="#13-erfolgskontrolle-l1-l2-eskalation-und-dokumentation">13. Erfolgskontrolle, L1/L2-Eskalation und Dokumentation</a></li><li><a href="#14-musterticket-diagnoseubung-active-recall-und-anki">14. Musterticket, Diagnoseübung, Active Recall und Anki</a></li><li><a href="#15-quellen-methodik-und-transparenz">15. Quellen, Methodik und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Microsoft Teams / Windows 11 / Peripherie / Berechtigungen<br/>
+<strong>Support-Level:</strong> L1 (Erstdiagnose, Geräteeinstellungen, Vergleichstests) und L2 (Treiber, verwaltete Richtlinien, VDI, Serienfehler)<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Technisch auf Grundlage offizieller Microsoft-Quellen recherchiert; <strong>nicht in einer realen Umgebung praktisch validiert</strong>. Fiktives Schulungsbeispiel.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb021_henne_ei_teams_kamera_mikrofon.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik zu Teams-Kamera und Mikrofon" decoding="async" loading="lazy" src="assets/rb021_henne_ei_teams_kamera_mikrofon.webp"/></a></div><figcaption>Henne-Ei-Infografik zu Teams-Kamera und Mikrofon</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Eine in Windows erkannte Kamera beziehungsweise ein Mikrofon funktioniert nicht automatisch in Teams. Hardware, Geräteinitialisierung, Datenschutzfreigabe, Anwendungsauswahl und Besprechungsstatus sind <strong>getrennt zu prüfen</strong>. Der Befund entscheidet über den nächsten Schritt – nicht eine pauschale Reparaturliste.</p>
+</blockquote>
+<h2 id="1-das-supportticket-und-die-zielsetzung">1. Das Supportticket und die Zielsetzung</h2>
+<p><strong>Musterfall INC-021 (fiktiv):</strong> Eine Mitarbeiterin meldet: „Seit heute sehen mich die anderen in Teams nicht. Manchmal wird auch das Mikrofon nicht gefunden. Ich habe gleich eine Besprechung.“ Die Firma verwendet Windows 11 und Microsoft Teams für Arbeit oder Schule. Ein Headset und eine integrierte Notebookkamera sind vorhanden.</p>
+<p><strong>Ziel:</strong> Die betroffene Komponente sicher identifizieren, funktionierende und ausgefallene Ebenen voneinander abgrenzen, möglichst <strong>reversible</strong> Korrekturen vornehmen und mit der Mitarbeiterin die tatsächliche Funktion belegen. Wenn keine L1-Lösung möglich ist, eine aussagekräftige L2-Eskalation vorbereiten.</p>
+<p><strong>Nicht automatisch Teil des Tickets:</strong> Generelle Teams-Anmeldung, Cloud-Dienstausfall oder Chat-Nachrichten – siehe <a href="https://marcf46.github.io/it-support/rb-015/" rel="noopener noreferrer" target="_blank">RB-015 – Microsoft Teams funktioniert nicht</a> im Projekt. Der vorliegende Fall konzentriert sich auf <strong>Audio-/Videogeräte</strong>.</p>
+<h3 id="was-zuerst-gefragt-werden-muss">Was zuerst gefragt werden muss</h3>
+<ul>
+<li>Kamera, Mikrofon oder beide betroffen? Sieht die Person sich selbst in der Vorschau? Sehen andere zwar das Bild, hören aber keinen Ton?</li>
+<li>Teams als <strong>Desktop-App</strong>, <strong>im Browser</strong> oder in einer <strong>virtuellen Desktopumgebung (VDI/RDP)</strong>?</li>
+<li>Seit wann? Vorher funktionsfähig? Wechsel zu neuem Headset, Dock, USB-Port, Browser, Windows- oder Teams-Update?</li>
+<li>Nur dieses Gerät, nur dieser Benutzer, nur eine Besprechung oder mehrere Arbeitsplätze?</li>
+<li>Fehlertext? Gerät fehlt in der Auswahlliste, ist ausgegraut, liefert ein schwarzes Bild oder zeigt Pegel ohne hörbaren Ton?</li>
+<li>Bereits laufende andere Konferenzsoftware? Abdeckung der Webcam, Hardware-Mute-Taste, Bluetooth-Verbindung?</li>
+</ul>
+<p><strong>Priorität:</strong> Zeitkritische Besprechung beachten, ohne die Fehleranalyse durch unkontrollierte Änderungen zu ersetzen. Ggf. vorübergehend ein freigegebenes Ersatz-Headset, Telefon-Audio oder einen anderen verwalteten Arbeitsplatz einsetzen.</p>
+<h2 id="2-grundlagen-die-medienkette-verstehen">2. Grundlagen – die Medienkette verstehen</h2>
+<p>Die Funktion hängt von mehreren Schichten ab:</p>
+<ol>
+<li><strong>Physische Ebene:</strong> Kamera, Mikrofon, Kabel, USB-Port, Dock, Bluetooth, Notebook-Schalter, Abdeckung, Stromversorgung.</li>
+<li><strong>Windows-Geräteebene:</strong> Das Gerät wird erkannt, der Treiber initialisiert es und stellt seine Funktion bereit; im Geräte-Manager beziehungsweise den Audio-/Kameraeinstellungen kann es sichtbar sein.</li>
+<li><strong>Berechtigungsebene:</strong> Windows erlaubt den Kamera-/Mikrofonzugriff für die benötigte App-Kategorie. Bei Teams im Browser muss zusätzlich <strong>die konkrete Website</strong> im Browser freigegeben sein.</li>
+<li><strong>Anwendungsebene:</strong> Teams wählt das passende Eingabegerät aus; es kann von der Windows-Standardauswahl abweichen. Die Person kann im Meeting zusätzlich stummgeschaltet sein oder Video deaktiviert haben.</li>
+<li><strong>Sonderumgebungen:</strong> Bei Remote Desktop / VDI muss das lokale Gerät eventuell in die entfernte Sitzung <strong>umgeleitet</strong> werden. Die Teams-Medienoptimierung ist eine zusätzliche Ebene.</li>
+</ol>
+<p><strong>Merksatz:</strong> „Gerät erkannt“ ≠ „Gerät nimmt auf“ ≠ „Zugriff erlaubt“ ≠ „in Teams ausgewählt“ ≠ „im Anruf übertragen“.</p>
+<h3 id="abkurzungen">Abkürzungen</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung</th>
+<th>Relevanz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>USB</td>
+<td>Universal Serial Bus</td>
+<td>Kabel, Port, Hub oder Dock als mögliche Fehlerstelle</td>
+</tr>
+<tr>
+<td>Bluetooth</td>
+<td>Funkverbindung für Peripherie</td>
+<td>Kopplung und Profil/aktive Verbindung prüfen</td>
+</tr>
+<tr>
+<td>PnP</td>
+<td>Plug and Play</td>
+<td>Windows-Geräteerkennung, Status und Treiberzuordnung</td>
+</tr>
+<tr>
+<td>VDI</td>
+<td>Virtual Desktop Infrastructure</td>
+<td>Kamera-/Mikrofonumleitung und Optimierung können fehlen</td>
+</tr>
+<tr>
+<td>RDP</td>
+<td>Remote Desktop Protocol</td>
+<td>Lokale Ressourcen müssen je nach Szenario übertragen werden</td>
+</tr>
+<tr>
+<td>L1 / L2</td>
+<td>First-/Second-Level-Support</td>
+<td>Unterschiedliche Zuständigkeiten und Änderungsbefugnisse</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="3-fehlerbilder-und-plausible-ursachen">3. Fehlerbilder und plausible Ursachen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Denkbare Ursachen</th>
+<th>Entscheidender Gegenbeweis / Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kamera in Teams-Liste nicht vorhanden</td>
+<td>Hardware/USB, Treiber, Windows- oder VDI-Erkennung</td>
+<td>Kamera-App und Geräte-Manager prüfen; lokaler gegen virtuellen Desktop</td>
+</tr>
+<tr>
+<td>Kamera in Teams auswählbar, aber schwarzes Bild</td>
+<td>Verschluss, fremde Anwendung, Berechtigung, Treiber, Teams-Auswahl</td>
+<td>Kamera-App und Teams-Vorschau getrennt testen</td>
+</tr>
+<tr>
+<td>Mikrofon aufnehmbar, andere hören nichts</td>
+<td>Stummschaltung, falsches Mikrofon, zu geringer Pegel, Meeting-Einstellung</td>
+<td>Windows-Aufnahmeprobe und Teams-Testanruf</td>
+</tr>
+<tr>
+<td>Mikrofon fehlt auch in Windows</td>
+<td>Bluetooth/USB/Audio-Treiber oder Hardware</td>
+<td>Andere Buchse, alternatives Headset, PnP-Status</td>
+</tr>
+<tr>
+<td>Windows-Test funktioniert, nur Teams Desktop versagt</td>
+<td>Falsches Gerät, App-/Berechtigungsproblem, Teams-Client</td>
+<td>Gerät in Teams wählen; Teams Web als <strong>kontrollierte Gegenprobe</strong></td>
+</tr>
+<tr>
+<td>Teams Web scheitert, Desktop funktioniert</td>
+<td>Websiteberechtigung, Browser-Geräteauswahl oder Richtlinie</td>
+<td>Browser-Siteberechtigung für tatsächliche Teams-URL prüfen</td>
+</tr>
+<tr>
+<td>Nur in RDP/VDI fehlerhaft</td>
+<td>Fehlende Umleitung/Medienoptimierung, Clientrichtlinie</td>
+<td>Lokalen Test mit dem entfernten Test vergleichen</td>
+</tr>
+<tr>
+<td>Mehrere Benutzer/Standorte gleichzeitig betroffen</td>
+<td>Gemeinsam eingesetzte App-Version, Gerätemodell, Richtlinie oder Dienst</td>
+<td>Umfang und Zeitpunkt vergleichen; IT-Administration hinzuziehen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Solche Symptome machen eine Ursache <em>plausibel</em>, nicht bewiesen. Eine Kamera im Geräte-Manager mit Status „OK“ ist beispielsweise noch kein Nachweis für ein korrektes Livebild.</p>
+<h2 id="4-wo-arbeitet-der-supporttechniker">4. Wo arbeitet der Supporttechniker?</h2>
+<p><strong>Am Benutzer-PC (L1):</strong> Einwilligung zur Fernhilfe und zum Test einholen; Teams-Geräteeinstellungen, Windows-Kamera-App, Windows-Audio-Eingabetest, Gerätemanager und Datenschutzeinstellungen untersuchen. Bei Bild-/Tonprobe nur notwendige Testdaten verwenden und <strong>keine privaten Aufnahmen speichern</strong>.</p>
+<p><strong>Am verwalteten Client / Adminarbeitsplatz (L2):</strong> Softwareverteilung, USB-/Gerätebeschränkungen, Gerätemanagement, Treiberversionen, Browser-Policies oder VDI-Konfiguration prüfen – ausschließlich mit passenden Rechten und Freigaben.</p>
+<p><strong>Nicht erforderlich:</strong> Gleich zu Beginn das gesamte Teams-Profil oder den Cache löschen, Audio-/Kameratreiber deinstallieren, Sicherheitsrichtlinien deaktivieren oder Teams neu installieren. Solche Maßnahmen überspringen die Diagnose und erzeugen möglicherweise zusätzliche Probleme.</p>
+<h2 id="5-diagnose-entscheidungsbaum">5. Diagnose-Entscheidungsbaum</h2>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb021_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="Diagnosebaum zu Teams Kamera und Mikrofon" decoding="async" loading="lazy" src="assets/rb021_diagnosebaum.svg"/></a></div><figcaption>Diagnosebaum zu Teams Kamera und Mikrofon</figcaption></figure>
+<p><strong>Lesereihenfolge:</strong></p>
+<ol>
+<li><strong>Fehlertyp und Einsatzumgebung</strong> feststellen; Hardware-Mute, Abdeckung, USB und Bluetooth prüfen.</li>
+<li><strong>Außerhalb von Teams</strong> testen: Kamera-App für das Bild; unter Windows <strong>Einstellungen → System → Sound → Eingabe → Test starten</strong> für das Mikrofon.</li>
+<li><strong>Windows-Test fehlgeschlagen:</strong> Geräteinitialisierung, Treiber, Berechtigungen oder Hardware untersuchen; erst danach Teams erneut prüfen.</li>
+<li><strong>Windows-Test erfolgreich:</strong> Teams-Geräteauswahl, eigene Stummschaltung, Video-Vorschau und App-Berechtigungen prüfen.</li>
+<li><strong>Desktop gegen Web</strong> gezielt vergleichen – im Web zusätzlich Websiteberechtigung und Browser-Auswahl prüfen; Testanruf steht laut Microsoft <strong>nicht in Teams Web</strong> zur Verfügung.</li>
+<li><strong>Nur in VDI/RDP:</strong> lokale gegen entfernte Funktion und die Umleitung prüfen, dann die zuständige Administration einbinden.</li>
+<li><strong>Wiederholungstest und Ticketbefund</strong>; bei weiterem Fehler mit reproduzierbaren Daten eskalieren.</li>
+</ol>
+<h2 id="6-diagnose-a-hardware-stummschaltung-und-verbindungsweg-l1">6. Diagnose A – Hardware, Stummschaltung und Verbindungsweg (L1)</h2>
+<p><strong>Prüfschritte:</strong></p>
+<ol>
+<li>Kameraabdeckung physisch öffnen; gegebenenfalls Kameraschalter, Fn-Taste oder herstellerspezifischen Privacy-Modus kontrollieren.</li>
+<li>Mikrofon-Mute am Headset, am Notebook und in der Teams-Besprechung unterscheiden. Ein Hardware-Mute kann trotz sichtbarem Windows-Gerät aktiv sein.</li>
+<li>Externe Geräte abziehen und <strong>nach Absprache</strong> an einem direkten USB-Port anschließen; zunächst möglichst ohne Dock/Hub testen.</li>
+<li>Bluetooth-Gerät: Akkustand, Paarung und tatsächlich verbundene Audiofunktion prüfen; mögliches Umschalten zwischen Telefon und Notebook beachten.</li>
+<li>Andere Konferenzsoftware schließen, die das Gerät möglicherweise nutzt. Gespeicherte Arbeit zuvor sichern.</li>
+<li>Wenn möglich, eine <strong>kontrollierte A/B-Gegenprobe</strong>: anderes bekannt funktionierendes Headset am gleichen PC beziehungsweise dasselbe Headset an einem zweiten freigegebenen PC.</li>
+</ol>
+<p><strong>Interpretation:</strong> Tritt der Fehler nur am Dock auf, ist ein Dock-/USB-Zweig wahrscheinlich; versagt dasselbe Headset an zwei Rechnern, steigt der Hardwareverdacht. Diese Vergleiche beweisen allein aber noch keine spezifische Treiberursache.</p>
+<h2 id="7-diagnose-b-windows-unabhangig-von-teams-prufen-l1">7. Diagnose B – Windows unabhängig von Teams prüfen (L1)</h2>
+<h3 id="7-1-kamera-app-als-trennversuch">7.1 Kamera-App als Trennversuch</h3>
+<ol>
+<li>In Windows 11 die <strong>Kamera-App</strong> öffnen.</li>
+<li>Prüfen, ob die gewünschte Kamera ausgewählt ist, die Abdeckung offen ist und ein bewegtes Bild erscheint.</li>
+<li>Nur wenn erforderlich, eine zweite Kamera zum Vergleich auswählen. <strong>Keine unnötigen Fotos oder Videos aufnehmen.</strong></li>
+</ol>
+<p><strong>Ergebnis A: kein Bild auch in Windows.</strong> Fokus auf Hardware, Treiber, Datenschutzzugriff, Erkennung und konkurrierende Software – nicht zuerst Teams neu installieren.</p>
+<p><strong>Ergebnis B: Livebild funktioniert.</strong> Kamera und grundlegender lokaler Zugriff funktionieren in diesem Test. Danach Teams-Auswahl und Teams-/Browser-Berechtigungen untersuchen. Eine erfolgreiche Kamera-App beweist nicht, dass Teams Zugriff hat.</p>
+<h3 id="7-2-mikrofon-unabhangig-testen">7.2 Mikrofon unabhängig testen</h3>
+<ol>
+<li><strong>Einstellungen → System → Sound → Eingabe</strong> öffnen.</li>
+<li>Gewünschtes Mikrofon auswählen. Prüfen, ob es aktiviert und nicht stummgeschaltet ist; Eingabelautstärke kontrollieren.</li>
+<li>Windows-Funktion <strong>Test starten</strong> verwenden, einen neutralen Testsatz sprechen und anschließend beenden bzw. Probe abspielen, wenn angeboten.</li>
+<li>Eingabepegel und Aufnahmeprobe zusammen bewerten. Der sichtbare Pegel allein beweist noch nicht die erwartete Sprachqualität.</li>
+</ol>
+<p><strong>Ergebnis A:</strong> Kein Ausschlag / keine Aufnahme → zuerst Windows-/Gerätezweig.<br/>
+<strong>Ergebnis B:</strong> Aufnahme gelingt → Teams-Geräteauswahl und Meetingstatus prüfen.</p>
+<h2 id="8-diagnose-c-windows-berechtigungen-korrekt-verstehen-l1-administriert">8. Diagnose C – Windows-Berechtigungen korrekt verstehen (L1 / administriert)</h2>
+<p>Unter <strong>Einstellungen → Datenschutz &amp; Sicherheit → Kamera</strong> beziehungsweise <strong>Mikrofon</strong> liegen mehrere Schalter: Gerätezugriff, Zugriff durch Apps und Zugriff durch <strong>Desktop-Apps</strong>. Microsoft weist ausdrücklich darauf hin, dass klassische Desktop-Apps <strong>nicht unbedingt einzeln in der App-Liste erscheinen</strong> und sich deren Kamerazugriff nicht immer pro Desktop-App einstellen lässt. Die genaue Anzeige hängt von App-Typ und Windows-Version ab.</p>
+<p><strong>Prüfen statt ungefragt aktivieren:</strong> Ist der Zugriff gewollt und nach Unternehmensrichtlinie erlaubt? Sind Schalter gesperrt oder ausgegraut? Dann <strong>keine GPO-/Intune-Umgehung</strong>, sondern L2-Weitergabe.</p>
+<ul>
+<li>Kamera: Kamera-Zugriff sowie relevante Desktop-App-Berechtigung kontrollieren.</li>
+<li>Mikrofon: Mikrofon-Zugriff sowie relevante Desktop-App-Berechtigung kontrollieren.</li>
+<li>Teams im <strong>Browser</strong> benötigt zusätzlich die Freigabe der tatsächlich aufgerufenen Teams-Seite im Browser; allgemeine Browserfreigabe allein reicht nicht zwingend.</li>
+<li>Ein „Aus“ kann eine bewusste organisatorische Datenschutzentscheidung sein – nicht automatisch ein Fehler, den L1 übersteuern darf.</li>
+</ul>
+<h2 id="9-diagnose-d-teams-desktop-gezielt-prufen-l1">9. Diagnose D – Teams-Desktop gezielt prüfen (L1)</h2>
+<ol>
+<li>Teams öffnen und unter <strong>Einstellungen und mehr → Einstellungen → Geräte</strong> nachsehen.</li>
+<li>Bei <strong>Mikrofon</strong> und <strong>Kamera</strong> explizit das erwartete Gerät auswählen. Der Eintrag „Standard“ kann nach Dock-/Headsetwechsel auf ein unerwartetes Gerät zeigen.</li>
+<li>Kamera-Vorschau beobachten; gegebenenfalls anderes Kameragerät vergleichen.</li>
+<li>Für Mikrofon/Lautsprecher den <strong>Testanruf</strong> nach verfügbarer App-Funktion verwenden. Microsoft beschreibt diesen Test in der Desktop-App; er ist aktuell <strong>nicht in Teams Web</strong> verfügbar. Das Testergebnis ist <strong>kein Nachweis</strong>, dass eine externe Meetingverbindung unter allen Netzwerkbedingungen funktionieren muss.</li>
+<li>In der tatsächlichen Besprechung prüfen, ob <strong>Mikrofon</strong> bzw. <strong>Kamera</strong> durch die Person ausgeschaltet ist. Ein korrekt erfasstes Windows-Mikrofonsignal nutzt nichts, wenn Teams stummgeschaltet ist.</li>
+<li>Nach einer einzelnen gezielten Änderung den gleichen Test wiederholen und das Ergebnis festhalten.</li>
+</ol>
+<p><strong>Faustregel:</strong> Nur Teams Desktop fehlerhaft, Windows und Teams Web erfolgreich → Teams-Client, dessen Geräteauswahl oder lokale Clientumgebung stärker verdächtig. Nicht sofort alle Clientdaten löschen.</p>
+<h2 id="10-diagnose-e-teams-im-browser-als-vergleich-l1">10. Diagnose E – Teams im Browser als Vergleich (L1)</h2>
+<p><strong>Vergleichsmethode:</strong> Browser Teams mit dem <strong>gleichen Konto, gleichen Gerät und nach Möglichkeit unter vergleichbaren Bedingungen</strong> öffnen. Browser-Zugriff nur nach Unternehmensfreigabe und wenn diese Nutzungsform unterstützt wird.</p>
+<ul>
+<li>Im Browser prüfen, ob die <strong>tatsächliche Teams-Website</strong> Kamera-/Mikrofonberechtigung besitzt und nicht auf „Blockieren“ steht.</li>
+<li>Im Browser selbst das korrekte Kameragerät bzw. Mikrofon auswählen.</li>
+<li>Wenn Windows und Teams Desktop funktionieren, aber Teams Web nicht: Site-Berechtigung und Browser-/Policy-Zweig bevorzugen.</li>
+<li>Wenn Browser und Desktop beide fehlschlagen, beweist das <strong>keine</strong> Cloud-Störung; gemeinsam genutzte Windows-Einstellungen, Hardware, Richtlinien und Nutzungsbedingungen sind ebenfalls möglich.</li>
+<li>Nicht die in <strong>Teams eingebetteten Drittanbieter-Apps</strong> mit dem normalen Teams-Besprechungsgerät verwechseln; sie können nochmals eigene Berechtigungen besitzen.</li>
+</ul>
+<p><strong>Risiko der Fehlinterpretation:</strong> Ein fehlender „Testanruf“-Knopf in Teams Web ist laut Microsoft eine Funktionseinschränkung und keine diagnostische Fehlermeldung.</p>
+<h2 id="11-diagnose-f-lesende-windows-powershell-abfragen-l1-l2">11. Diagnose F – Lesende Windows-PowerShell-Abfragen (L1/L2)</h2>
+<p>Die folgenden Befehle ändern keine Windows-Konfiguration. Sie sind <strong>ergänzende Indizien</strong>, nicht Ersatz für eine Bild-/Tonprobe. In einer <strong>autorisierten</strong> Windows-PowerShell-Sitzung ausführen; lokale Richtlinien beachten. Für Bildschirm-/Log-Ausgaben personenbezogene Gerätenamen gegebenenfalls anonymisieren.</p>
+<h3 id="11-1-erkannte-audio-und-kameragerate-anzeigen">11.1 Erkannte Audio- und Kamerageräte anzeigen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Fragt ausschließlich aktuell vorhandene Plug-and-Play-Geräte ab.
+# Kamera- und Audiogeräte können je nach Hersteller/Klassifizierung
+# unter Camera, Image, AudioEndpoint oder MEDIA auftauchen.
+Get-PnpDevice -PresentOnly |
+    Where-Object { $_.Class -in @('Camera', 'Image', 'AudioEndpoint', 'MEDIA') } |
+    Select-Object Class, FriendlyName, Status, InstanceId |
+    Sort-Object Class, FriendlyName
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>Status = OK</code> zeigt eine erfolgreiche PnP-Initialisierung an, <strong>nicht</strong>, dass Teams das richtige Gerät gewählt hat oder eine verwendbare Aufnahme liefert. Fehlt ein erwartetes Gerät, Verbindung, Erkennung und Herstellerkonfiguration prüfen. Die Liste kann interne und virtuelle Audiogeräte enthalten.</p>
+<h3 id="11-2-windows-audiodienste-ohne-eingriff-lesen">11.2 Windows-Audiodienste ohne Eingriff lesen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Fragt die Zustände der Windows-Audiodienste ab.
+# Der Befehl startet oder stoppt keine Dienste.
+Get-Service -Name 'Audiosrv', 'AudioEndpointBuilder' |
+    Select-Object Name, DisplayName, Status, StartType
+</code></pre></div>
+<p><strong>Interpretation:</strong> Abweichende Dienstzustände dokumentieren, aber nicht allein daraus „Dienstneustart erforderlich“ ableiten. Systemweite Neustarts können andere Anwendungen beeinträchtigen.</p>
+<h3 id="11-3-konkretes-gerat-im-gerate-manager-zuordnen">11.3 Konkretes Gerät im Geräte-Manager zuordnen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Liefert lediglich Geräte mit nicht erfolgreichem PnP-Status.
+# Fehlende Treffer bedeuten nicht, dass alle Medienpfade funktionieren.
+Get-PnpDevice -PresentOnly |
+    Where-Object {
+        $_.Status -ne 'OK' -and
+        $_.Class -in @('Camera', 'Image', 'AudioEndpoint', 'MEDIA')
+    } |
+    Select-Object Class, FriendlyName, Status, Problem, InstanceId
+</code></pre></div>
+<p><strong>Hinweis:</strong> <code>Get-PnpDevice</code> ist unter unterstützten Windows-Systemen im PnPDevice-Modul verfügbar. Die genaue Ausgabe und vorhandene Klassen sind geräteabhängig. Kommandos auf einem entfernten Rechner zeigen nur dann dessen Zustände, wenn sie <strong>dort</strong> im passenden Kontext laufen.</p>
+<h2 id="12-befundabhangige-behebung-von-reversibel-zu-invasiv">12. Befundabhängige Behebung – von reversibel zu invasiv</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Befund</th>
+<th>Geeigneter nächster Schritt</th>
+<th>Zuständigkeit / Vorsicht</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hardware-Mute bzw. Kameraverschluss aktiv</td>
+<td>Mute lösen, Abdeckung öffnen</td>
+<td>L1, mit betroffener Person abstimmen</td>
+</tr>
+<tr>
+<td>Falsches USB-/Bluetooth-Gerät verbunden</td>
+<td>Verbindung/Kopplung korrigieren, Dock umgehen, Gerät neu auswählen</td>
+<td>L1; andere aktive Sitzungen beachten</td>
+</tr>
+<tr>
+<td>Windows-Berechtigung fehlt, Freigabe ist zulässig</td>
+<td>Betroffenen Schalter <strong>nach Richtlinie</strong> korrigieren</td>
+<td>L1 oder Admin, keine Richtlinien umgehen</td>
+</tr>
+<tr>
+<td>Windows-Test funktioniert, falsches Gerät in Teams</td>
+<td>Kamera/Mikrofon in Teams gezielt auswählen</td>
+<td>L1; Vorschau und Testanruf wiederholen</td>
+</tr>
+<tr>
+<td>Nur Browser schlägt fehl</td>
+<td>Websiteberechtigung und Browser-Geräteauswahl korrigieren</td>
+<td>L1, sofern Policy es erlaubt</td>
+</tr>
+<tr>
+<td>Gerät wird von Windows nicht erkannt, auch A/B-Test negativ</td>
+<td>Hardware-/USB-Fehler lokalisieren, Hersteller-Treiberstand prüfen</td>
+<td>L1 Eingrenzung, L2 Treiberänderung</td>
+</tr>
+<tr>
+<td>Nur in VDI/RDP oder mehrere Benutzer betroffen</td>
+<td>Client-/Serverumleitung, Optimierung und Richtlinien untersuchen</td>
+<td>L2 / VDI-Administration</td>
+</tr>
+<tr>
+<td>Nur eine Teams-Appversion/Installation betroffen</td>
+<td>Versions-/Anwendungsdiagnose, ggf. abgestimmte Reparatur</td>
+<td>L2; <strong>kein blindes Cache-Löschen</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht pauschal machen:</strong> Datenschutzschalter global aufdrehen, Registry/GPO ändern, Treiber löschen, Teams-Cache leeren, Teams deinstallieren oder den PC im laufenden Meeting ungefragt neu starten. Vor verändernden Eingriffen Datensicherung, Auswirkungen, Rollenzuständigkeit und Freigabe prüfen.</p>
+<h2 id="13-erfolgskontrolle-l1-l2-eskalation-und-dokumentation">13. Erfolgskontrolle, L1/L2-Eskalation und Dokumentation</h2>
+<h3 id="erfolgskriterien-tatsachlich-vorgefuhrt">Erfolgskriterien – tatsächlich vorgeführt</h3>
+<ul>
+<li>Kamera: Benutzerin bestätigt in der Teams-Vorschau ein korrektes, aktuelles Bild; gegebenenfalls in einer <strong>freigegebenen Testbesprechung</strong> die Übertragung prüfen.</li>
+<li>Mikrofon: Aufnahme in Windows und im Teams-Desktop-Testanruf beziehungsweise in einer autorisierten Testbesprechung verständlich. Meeting-Mute und Geräteeinstellung passen.</li>
+<li>Geprüft nach der letzten Änderung; bei Bluetooth/Dock möglichst auch nach Wechsel/Neuverbindung erneut prüfen.</li>
+<li>Benutzerin kann das gewünschte Gerät künftig selbst identifizieren; Ticket hält Ursache, Maßnahme und Prüfergebnis fest.</li>
+</ul>
+<h3 id="l2-eskalation-wenn">L2-Eskalation, wenn</h3>
+<ul>
+<li>Gerät auch außerhalb von Teams nicht funktioniert und A/B-/Treiberbefunde auf eine Clientstörung hinweisen;</li>
+<li>Unternehmensrichtlinien, UAC, Intune-/GPO-Sperren oder Browser-Policies die Berechtigung festlegen;</li>
+<li>Probleme nur in VDI/RDP oder nach gemeinsamem Update auftreten;</li>
+<li>Fehler nach kontrollierter Teams-/Windows-Gegenprobe reproduzierbar bleibt;</li>
+<li>mehrere Beschäftigte gleichzeitig betroffen sind oder Sicherheitsbedenken bestehen.</li>
+</ul>
+<p><strong>Mitgeben:</strong> betroffene Windows-/Teams-Version (soweit bekannt), Gerätebezeichnung und Anschlussart, Zeitpunkt, konkrete Fehlermeldung, Desktop/Web/VDI, Windows-Kamera-/Mikrofontest, Berechtigungsstatus, Teams-Auswahl, A/B-Vergleich, durchgeführte Maßnahmen und Ergebnis. Keine vertraulichen Audio-/Videodateien ohne eindeutige Freigabe anhängen.</p>
+<h2 id="14-musterticket-diagnoseubung-active-recall-und-anki">14. Musterticket, Diagnoseübung, Active Recall und Anki</h2>
+<h3 id="14-1-muster-ticket-inc-021-a-mikrofon-fiktiv">14.1 Muster-Ticket INC-021-A – Mikrofon (fiktiv)</h3>
+<p><strong>Meldung:</strong> „Im Teams-Meeting hört mich niemand; das Headset ist verbunden.“<br/>
+<strong>Eingrenzung:</strong> Windows 11, Teams Desktop, nur eine Mitarbeiterin. Windows-Mikrofontest mit USB-Headset liefert verständliche Aufnahme. In Teams ist jedoch das integrierte Notebook-Mikrofon gewählt.<br/>
+<strong>Ursache:</strong> Falsche <strong>Teams-Eingabegeräteauswahl</strong>.<br/>
+<strong>Maßnahme:</strong> USB-Headset in Teams → Einstellungen → Geräte als Mikrofon gewählt.<br/>
+<strong>Erfolg:</strong> Teams-Testanruf mit verständlicher Wiedergabe; bei der Mitarbeiterin bestätigt.<br/>
+<strong>Ticketstatus:</strong> Gelöst – <strong>ausschließlich fiktives Schulungsbeispiel, kein durchgeführter Test</strong>.</p>
+<h3 id="14-2-muster-ticket-inc-021-b-kamera-fiktiv">14.2 Muster-Ticket INC-021-B – Kamera (fiktiv)</h3>
+<p><strong>Meldung:</strong> „Kamera bleibt in Teams schwarz.“<br/>
+<strong>Eingrenzung:</strong> Teams Desktop und Kamera-App liefern schwarz; im Geräte-Manager erscheint die Kamera. Sichtprüfung ergibt geschlossenen mechanischen Kameraverschluss.<br/>
+<strong>Ursache:</strong> Kameraverschluss geschlossen; <strong>PnP-Erkennung war trotzdem möglich</strong>.<br/>
+<strong>Maßnahme:</strong> Verschluss mit Einverständnis geöffnet.<br/>
+<strong>Erfolg:</strong> Kamera-App und Teams-Vorschau zeigen aktuelles Bild.<br/>
+<strong>Ticketstatus:</strong> Gelöst – <strong>fiktiv</strong>.</p>
+<h3 id="14-3-transferaufgabe-ohne-losungsvorgabe">14.3 Transferaufgabe ohne Lösungsvorgabe</h3>
+<p>Ein Notebook wird morgens über ein Dock betrieben. Der Windows-Mikrofontest mit dem integrierten Mikrofon funktioniert. Teams Desktop zeigt <strong>kein</strong> funktionierendes Signal, Teams Web im selben Windows-Profil funktioniert jedoch mit dem USB-Headset. Nach einer Bildschirmfreigabe stört sich die Person an einer zusätzlichen Stummschaltung. <strong>Formuliere drei konkurrierende Hypothesen, ordne zwei differenzierende Tests an und erkläre, welche Beobachtung jede Hypothese entkräftet.</strong></p>
+<h3 id="14-4-active-recall-ohne-unterlagen">14.4 Active Recall – ohne Unterlagen</h3>
+<ol>
+<li>Warum beweist <code>Get-PnpDevice: OK</code> keine funktionierende Teams-Kamera?</li>
+<li>Wie unterscheidest du ein Mikrofonproblem von einem Lautsprecherproblem?</li>
+<li>Welcher Vergleich trennt einen Windows-Gerätefehler von einem reinen Teams-Fehler?</li>
+<li>Welche zusätzliche Berechtigungsebene kommt bei Teams im Browser hinzu?</li>
+<li>Was bedeutet es, wenn die Windows-Kamera-App funktioniert, Teams aber ein schwarzes Bild zeigt?</li>
+<li>Weshalb ist die Testanruf-Funktion in Teams Web kein geeigneter Prüfschritt?</li>
+<li>Wann ist der Fall an die VDI-/Endpoint-Administration zu übergeben?</li>
+<li>Welche vier Befunde gehören zwingend in einen hochwertigen Ticketabschluss?</li>
+</ol>
+<h3 id="14-5-anki-kandidaten-noch-nicht-als-importdatei-ausgegeben">14.5 Anki-Kandidaten (noch nicht als Importdatei ausgegeben)</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Kategorie</th>
+<th>Vorderseite</th>
+<th>Rückseite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wissen</td>
+<td>Windows-Pfad für Mikrofontest?</td>
+<td>Einstellungen → System → Sound → Eingabe → Test starten</td>
+</tr>
+<tr>
+<td>Wissen</td>
+<td>Wo wird das Mikrofon in Teams gewählt?</td>
+<td>Einstellungen → Geräte → Mikrofon</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Windows erkennt die Kamera. Warum kann Teams trotzdem scheitern?</td>
+<td>Erkennung ≠ Zugriff ≠ Auswahl ≠ Medienübertragung</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Warum Desktop/Web vergleichen?</td>
+<td>Clientfehler von Browser-/Berechtigungsfehler abgrenzen</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Windows-Aufnahme OK, Teams stumm. Erste Prüfung?</td>
+<td>Teams-Geräteauswahl und Meeting-Mute</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Kamera-App und Teams beide schwarz. Erste Spuren?</td>
+<td>Verschluss, Hardware, Berechtigungen, Treiber</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Nur VDI-Sitzung ohne Ton. Zuständiger Zweig?</td>
+<td>Mikrofonumleitung/VDI-Optimierung, L2</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="15-quellen-methodik-und-transparenz">15. Quellen, Methodik und Transparenz</h2>
+<p><strong>Methodik:</strong> Offizielle Microsoft-Dokumentation zum Stand der Recherche am 22.11.2026 geprüft. Die genannten Diagnosezweige und die Priorisierung sind eine <strong>didaktische Ableitung</strong>; sie sind nicht Microsofts universelles Schritt-für-Schritt-Skript für jede Unternehmensumgebung. Es wurden <strong>keine Live-Systeme getestet</strong>, keine Benutzerkonten verändert und keine Geräte neu konfiguriert.</p>
+<p><strong>Offizielle Quellen:</strong></p>
+<ol>
+<li>Microsoft Support – <a href="https://support.microsoft.com/de-de/teams/meetings/my-camera-isn-t-working-in-microsoft-teams" rel="noopener noreferrer" target="_blank">Meine Kamera funktioniert nicht in Microsoft Teams</a> – andere Kamera-Apps, Testanruf, Windows-/Browser-Berechtigungen.</li>
+<li>Microsoft Support – <a href="https://support.microsoft.com/de-de/teams/meetings/my-microphone-isn-t-working-in-microsoft-teams" rel="noopener noreferrer" target="_blank">Mein Mikrofon funktioniert nicht in Microsoft Teams</a> – Geräteauswahl, Soundtest, Stummschaltung, Windows- und Browserrechte.</li>
+<li>Microsoft Support – <a href="https://support.microsoft.com/de-de/windows/privacy/manage-app-permissions-for-a-camera-in-windows" rel="noopener noreferrer" target="_blank">Verwalten von App-Berechtigungen für eine Kamera in Windows</a> – Unterschied Store-/Desktop-Apps und Zugriffskontrollen.</li>
+<li>Microsoft Support – <a href="https://support.microsoft.com/de-de/windows/hardware/drivers/fix-microphone-problems" rel="noopener noreferrer" target="_blank">Beheben von Mikrofonproblemen</a> – Aufnahmeprobe, Headset, Treiber und Geräteverbindung.</li>
+<li>Microsoft Support – <a href="https://support.microsoft.com/en-us/teams/notifications-settings/manage-your-device-settings-in-microsoft-teams" rel="noopener noreferrer" target="_blank">Manage your device settings in Microsoft Teams</a> – Geräteauswahl und Testanruf.</li>
+<li>Microsoft Support – <a href="https://support.microsoft.com/en-us/teams/troubleshooting/troubleshoot-device-features-in-microsoft-teams-on-the-web" rel="noopener noreferrer" target="_blank">Troubleshoot device features in Microsoft Teams on the web</a> – Browserfreigabe und zusätzliche App-Rechte.</li>
+<li>Microsoft Learn – <a href="https://learn.microsoft.com/en-us/microsoftteams/vdi-2" rel="noopener noreferrer" target="_blank">New VDI solution for Teams</a> – Besonderheiten von virtualisierten Teams-Umgebungen (L2-Sonderfall).</li>
+</ol>
+<p><strong>Quellenhinweis:</strong> Microsoft kann Menübezeichnungen und Seiteninhalte aktualisieren. Vor Umsetzung im Betrieb ist der tatsächliche Clientstand maßgeblich. Die Illustrationen sind <strong>eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT</strong>; kein Screenshot und keine echte Supportaufzeichnung. Beispielidentitäten und Tickets sind erfunden.</p>
+<p><strong>Weiterführend im Projekt:</strong> <a href="https://marcf46.github.io/it-support/rb-015/" rel="noopener noreferrer" target="_blank">RB-015 – Microsoft Teams funktioniert nicht</a> für Login/Client/Dienstprobleme. Beim Import auf die Website die verlinkte Zielseite bei Bedarf anhand der dortigen Verzeichnisstruktur anpassen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-021_Lernartikel.md">RB-021_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-020/index.html">← Ticket 20</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-022/index.html">Ticket 22 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

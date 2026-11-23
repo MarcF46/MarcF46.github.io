@@ -1,0 +1,446 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 28: Microsoft-Office-Anwendung startet nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 28: Microsoft-Office-Anwendung startet nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 28: Microsoft-Office-Anwendung startet nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportfall-ziel-und-abgrenzung">1. Supportfall, Ziel und Abgrenzung</a></li><li><a href="#2-technische-abhangigkeitskette-warum-kann-office-schon-beim-start-scheitern">2. Technische Abhängigkeitskette: Warum kann Office schon beim Start scheitern?</a></li><li><a href="#3-fehlersymptome-prazise-unterscheiden">3. Fehlersymptome präzise unterscheiden</a></li><li><a href="#4-die-acht-wichtigsten-fragen-der-erstaufnahme">4. Die acht wichtigsten Fragen der Erstaufnahme</a></li><li><a href="#5-sicherheits-und-anderungs-gate">5. Sicherheits- und Änderungs-Gate</a></li><li><a href="#6-l1-grunddiagnose-ohne-systemanderung">6. L1-Grunddiagnose ohne Systemänderung</a></li><li><a href="#7-office-safe-mode-als-zentrale-diagnose">7. Office Safe Mode als zentrale Diagnose</a></li><li><a href="#8-add-ins-reproduzierbar-isolieren">8. Add-ins reproduzierbar isolieren</a></li><li><a href="#9-word-excel-und-powerpoint-anwendungsspezifische-pfade">9. Word, Excel und PowerPoint: anwendungsspezifische Pfade</a></li><li><a href="#10-l2-windows-ereignisprotokoll-und-reproduzierbare-belege">10. L2: Windows-Ereignisprotokoll und reproduzierbare Belege</a></li><li><a href="#11-office-installation-prufen-und-gezielt-reparieren">11. Office-Installation prüfen und gezielt reparieren</a></li><li><a href="#12-lizenz-update-dateifehler-und-unternehmenskontext-abgrenzen">12. Lizenz, Update, Dateifehler und Unternehmenskontext abgrenzen</a></li><li><a href="#13-systematische-entscheidungsmatrix">13. Systematische Entscheidungsmatrix</a></li><li><a href="#14-zwei-fiktive-praxisfalle-keine-laborergebnisse">14. Zwei fiktive Praxisfälle (keine Laborergebnisse)</a></li><li><a href="#15-active-recall-transfer-und-praktische-validierung">15. Active Recall, Transfer und praktische Validierung</a></li><li><a href="#herstellerquellen-und-prufbasis-abgerufen-22-11-2026">Herstellerquellen und Prüfbasis (abgerufen: 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Anwendungs- und Arbeitsplatzsupport · Microsoft 365 Apps / Office unter Windows 11<br/>
+<strong>Support-Level:</strong> L1/L2 (L1: Aufnahme, sichere Vergleiche und genehmigte Standardmaßnahmen; L2: Ereignis-/Profilanalyse, verwaltete Add-ins, Installationsreparatur)<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Offizielle Microsoft-Quellen recherchiert und didaktisch aufgearbeitet. <strong>Keine praktische Validierung an einem fehlerhaften Arbeitsplatz.</strong> Alle Musterfälle, Tickets und Testausgaben sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb028_henne_ei_office_start.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-028 – Office-Anwendung startet nicht: Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb028_henne_ei_office_start.webp"/></a></div><figcaption>RB-028 – Office-Anwendung startet nicht: Henne-und-Ei-Infografik</figcaption></figure>
+<blockquote>
+<p><strong>Leitidee:</strong> Eine nicht startende Office-App ist ein Symptom. Ein <strong>Normalstart-/Safe-Mode-Vergleich</strong> grenzt Startkomponenten ein; er <strong>beweist allein noch keine bestimmte Ursache</strong>. Nur mit belegter Fehlerhypothese und Freigabe reparieren.</p>
+</blockquote>
+<h2 id="1-supportfall-ziel-und-abgrenzung">1. Supportfall, Ziel und Abgrenzung</h2>
+<p><strong>INC-028 (fiktiv):</strong> „Word öffnet sich kurz, danach verschwindet das Fenster. Excel funktioniert auf demselben Windows-11-PC.“</p>
+<p><strong>Auftrag:</strong> Auswirkung und Fehlerbild erfassen, Anwendungs- und Startpfad eingrenzen, dokumentierte Diagnose durchführen, gegebenenfalls eine autorisierte Korrektur umsetzen und den Erfolg über einen normalen Programmstart mit Testdokument nachweisen.</p>
+<p><strong>Abgrenzungen:</strong></p>
+<ul>
+<li><strong>RB-004 – Anwendung startet nicht:</strong> allgemeine Windows-Anwendungsdiagnose; hier Microsoft-Office-spezifische Startmechanismen.</li>
+<li><strong>RB-019 – Outlook-Profil beschädigt:</strong> Outlook-spezifische Profil- und Datendateidiagnose; bei Outlook in dieses Runbook verzweigen.</li>
+<li><strong>RB-029 – Microsoft-365-Lizenz fehlt:</strong> Aktivierungs- und Berechtigungsfall; ein Lizenzfehler ist nicht automatisch ein Prozessabsturz.</li>
+<li><strong>Dokumentproblem:</strong> Startet Word/Excel normal, aber nur <strong>eine bestimmte Datei</strong> nicht, ist vorrangig die Datei, der Speicherort, das Format oder die Dokumenterweiterung betroffen – nicht zwangsläufig die Installation.</li>
+</ul>
+<p><strong>Umfang:</strong> Vor allem die klassischen Windows-Desktopanwendungen Word, Excel und PowerPoint (Microsoft 365 Apps bzw. unterstützte Office-Versionen). Office im Browser, Mac, mobile Apps und das neue Outlook haben teils andere Diagnosewege.</p>
+<h2 id="2-technische-abhangigkeitskette-warum-kann-office-schon-beim-start-scheitern">2. Technische Abhängigkeitskette: Warum kann Office schon beim Start scheitern?</h2>
+<p>Vereinfacht wirken beim Start mehrere Komponenten zusammen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Sitzung und Benutzerkontext
+          ↓
+Installierte Office-App + Programmdateien
+          ↓
+Benutzereinstellungen, Vorlagen, Startdateien
+          ↓
+Geladene Erweiterungen / COM-Add-ins
+          ↓
+Programmoberfläche, Konto-/Dienste-Funktionen
+</code></pre></div>
+<p>Diese Darstellung ist <strong>ein vereinfachtes Denkmodell, keine strikte tatsächliche Startreihenfolge</strong>. Komponenten können parallel oder abhängig vom konkreten Startpfad geladen werden. Lizenzierung, Netzwerk, Cloud-Dateien und geschützte Unternehmensrichtlinien spielen je nach Fehlerbild unterschiedliche Rollen.</p>
+<p><strong>Die Henne fragt:</strong> „Word startet nicht – ist Office kaputt?“<br/>
+<strong>Das Ei antwortet:</strong> „Das ist noch offen. Läuft Excel? Startet Word mit <code>winword /safe</code>? Passiert es bei jeder Datei? Erst diese Unterschiede zeigen uns, <em>wo</em> wir suchen sollten.“</p>
+<h3 id="warum-der-vergleich-wichtig-ist">Warum der Vergleich wichtig ist</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste Arbeitsannahme</th>
+<th>Was noch nicht bewiesen ist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur Word betroffen, Excel und PowerPoint starten</td>
+<td>Word-spezifische Startkomponente</td>
+<td>Dass die gesamte Office-Installation fehlerfrei ist</td>
+</tr>
+<tr>
+<td>Alle Office-Apps stürzen ab</td>
+<td>Gemeinsame Komponente, Installation, Update oder Windows-Kontext</td>
+<td>Dass eine Onlinereparatur zwingend hilft</td>
+</tr>
+<tr>
+<td>Word startet mit <code>/safe</code>, normal aber nicht</td>
+<td>Im Safe Mode deaktivierte oder anders geladene Komponente</td>
+<td>Dass zwingend ein COM-Add-in schuld ist</td>
+</tr>
+<tr>
+<td>Word startet auch mit <code>/safe</code> nicht</td>
+<td>Fehler außerhalb des durch Safe Mode umgangenen Pfads möglich</td>
+<td>Dass Profile/Erweiterungen vollständig ausgeschlossen sind</td>
+</tr>
+<tr>
+<td>Nur eine Datei führt zum Absturz</td>
+<td>Datei-/Vorlagen-/Speicherortproblem</td>
+<td>Dass die App selbst defekt ist</td>
+</tr>
+<tr>
+<td>App startet, meldet „Nicht lizenziertes Produkt“</td>
+<td>Aktivierungs-/Lizenzpfad</td>
+<td>Dass das Programm nicht starten kann</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Herstellerbezug:</strong> Microsoft beschreibt Office Safe Mode ausdrücklich als Hilfsmittel, um Probleme durch Add-ins, Erweiterungen oder bestimmte Startressourcen einzugrenzen.<br/>
+Quelle: <a href="https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc</a></p>
+<h2 id="3-fehlersymptome-prazise-unterscheiden">3. Fehlersymptome präzise unterscheiden</h2>
+<ul>
+<li><strong>Kein sichtbares Fenster:</strong> Klick wirkt folgenlos; eventuell bereits ein Prozess vorhanden. Prozesszustand erst prüfen, nicht sofort beenden.</li>
+<li><strong>Splashscreen, dann Absturz:</strong> Word-/Excel-Logo erscheint und verschwindet; Zeitpunkt, Fehlermodul und Windows-Ereignis ermitteln.</li>
+<li><strong>„Funktioniert nicht mehr“ / Fehlermeldung:</strong> Exakten Wortlaut, Code, Modul und Zeitstempel sichern.</li>
+<li><strong>Anwendung hängt:</strong> Fenster sichtbar, aber keine Reaktion; nicht mit einem Crash verwechseln.</li>
+<li><strong>Nur beim Doppelklick auf Dokument:</strong> Leere Anwendung getrennt starten; Dateiassoziation, Vorlage, Dateiinhalte und Speicherort isolieren.</li>
+<li><strong>„Nicht lizenziertes Produkt“ / Anmeldung verlangt:</strong> App startet – Aktivierung und Konto gehören zunächst in einen eigenen Pfad.</li>
+<li><strong>„Office ist ausgelastet“ / Click-to-Run-Vorgang:</strong> Prüfen, ob Bereitstellung, Update oder Reparatur läuft; Vorgang nicht unkontrolliert abbrechen.</li>
+</ul>
+<p><strong>Merksatz:</strong> „Startet nicht“ ist erst eine brauchbare Ticketbeschreibung, wenn mindestens <strong>App + Fehlerphase + Fehlermeldung + Umfang + Vergleichsergebnis</strong> vorliegen.</p>
+<h2 id="4-die-acht-wichtigsten-fragen-der-erstaufnahme">4. Die acht wichtigsten Fragen der Erstaufnahme</h2>
+<ol>
+<li><strong>Welche App und Variante?</strong> Word, Excel, PowerPoint; Microsoft 365 Apps, Office LTSC, Office 2021/2024? Desktop oder Web?</li>
+<li><strong>Was genau passiert?</strong> Keine Reaktion, Splashscreen, Absturz, Hänger, Aktivierungsmeldung, nur Dokumentstart?</li>
+<li><strong>Seit wann und nach welcher Änderung?</strong> Office-/Windows-Update, Add-in-Update, Profilmigration, neues Makro-/DMS-/PDF-Add-in?</li>
+<li><strong>Eine App oder mehrere?</strong> Word vs. Excel vs. PowerPoint auf demselben Gerät prüfen.</li>
+<li><strong>Ein Benutzer oder mehrere?</strong> Nur dieser Benutzer auf einem Gerät? Andere Geräte betroffen? Vergleich ausschließlich autorisiert.</li>
+<li><strong>Jede Datei oder nur eine?</strong> Start ohne Dokument und mit leerem Testdokument getrennt testen.</li>
+<li><strong>Was ist geschäftskritisch?</strong> Zeitdruck, Dokumente mit sensiblen Daten, Arbeitsunterbrechung, SLA?</li>
+<li><strong>Welche Berechtigungen/Richtlinien?</strong> Verwaltete Office-Installation, zentral zugewiesene Add-ins, Updatekanal, freigegebene Änderungen?</li>
+</ol>
+<p><strong>Ticket-Mindestdaten:</strong> Gerät, Benutzer/Abteilung nach Berechtigung, App/Build, Zeitpunkt, Symptom, normale Startmethode, Safe-Mode-Ergebnis, mögliche Änderung und bisherige Tests.</p>
+<h2 id="5-sicherheits-und-anderungs-gate">5. Sicherheits- und Änderungs-Gate</h2>
+<p>Vor Maßnahmen mit Änderungen:</p>
+<ul>
+<li>Genehmigung, Support-Level, Hersteller-/Unternehmensrichtlinien und Wartungsfenster prüfen.</li>
+<li><strong>Dokumente sichern:</strong> Ungespeicherte Änderungen, AutoWiederherstellen, lokale Vorlagen, Makros und Add-in-Konfiguration berücksichtigen.</li>
+<li><strong>Keine Profile, Vorlagen, Registry-Schlüssel oder Add-ins ungesichert löschen.</strong> Bei Bedarf erst sichern und reversibel umbenennen; L2/Freigabe.</li>
+<li><strong>Keine Office- oder Windows-Sicherheitsfunktionen abschalten</strong>, um einen Start zu erzwingen.</li>
+<li><strong>Keine unkontrollierten Testanmeldungen mit fremden Konten</strong> und keine sensiblen Beispieldokumente in fremde Cloudbereiche kopieren.</li>
+<li><strong>Onlinereparatur</strong> kann erneute Anmeldung, Download/Bandbreite und Änderung der Installation mit sich bringen. Vorher Produkt, Freigabe und Bereitstellungsweg klären.</li>
+<li>Bei mehreren betroffenen PCs: Change-/Incident-Verfahren nutzen, bevor ein Einzelplatz-Workaround auf alle Systeme ausgerollt wird.</li>
+</ul>
+<p><strong>L1:</strong> Erfassen, vergleichen, Safe Mode testen, genehmigte Standardmaßnahmen. <strong>L2:</strong> profil-/registrierungsnahe Maßnahmen, Add-in-Deployment, Office-Reparatur, WER-/Crash-Auswertung und zentral verwaltete Installationen.</p>
+<h2 id="6-l1-grunddiagnose-ohne-systemanderung">6. L1-Grunddiagnose ohne Systemänderung</h2>
+<h3 id="6-1-startpfade-trennen">6.1 Startpfade trennen</h3>
+<ol>
+<li>Windows-Startmenü: Office-App <strong>ohne Datei</strong> starten.</li>
+<li>Mit neuem, unkritischem Testdokument vergleichen. Bei bereits vorhandenen Dateien zunächst nur freigegebene Testdateien nutzen.</li>
+<li>Dasselbe Office-Programm über die bekannte Verknüpfung und über Windows-Startmenü vergleichen.</li>
+<li>Andere Office-Apps auf demselben Gerät prüfen.</li>
+<li>Bei normalem Appstart, aber Dateifehler: Dateiformat, Ablageort, Dateizugriff und geschützte Ansicht getrennt behandeln. Schutzfunktionen nicht blind deaktivieren.</li>
+</ol>
+<h3 id="6-2-sichtbare-windows-zustande">6.2 Sichtbare Windows-Zustände</h3>
+<ul>
+<li>Task-Manager: Ist <code>WINWORD.EXE</code>, <code>EXCEL.EXE</code> oder <code>POWERPNT.EXE</code> bereits aktiv? CPU-/Speichernutzung? Nicht ohne Rücksprache beenden (ungespeicherte Arbeit).</li>
+<li>Windows-Updateverlauf und gegebenenfalls Office-Updatekanal/Bereitstellung dokumentieren; Updates nur genehmigt starten.</li>
+<li><strong>Installierte Apps:</strong> Erscheint die gesamte Office-Suite? Gibt es mehrere Installationsvarianten? Nicht pauschal deinstallieren.</li>
+<li>Freier Datenträgerspeicher, Neustartbedarf, Sicherheitssoftware- und Verwaltungsstatus <strong>beobachten</strong>, aber nicht aus einer einzelnen Auffälligkeit auf die Ursache schließen.</li>
+</ul>
+<h2 id="7-office-safe-mode-als-zentrale-diagnose">7. Office Safe Mode als zentrale Diagnose</h2>
+<p><strong>Achtung:</strong> Der <strong>abgesicherte Modus von Office</strong> ist <strong>nicht</strong> der abgesicherte Modus von Windows.</p>
+<p>Mit <code>Windows + R</code> und anschließend einem Befehl starten:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">winword /safe
+excel /safe
+powerpnt /safe
+</code></pre></div>
+<p>Zwischen Programmname und <code>/safe</code> steht ein Leerzeichen. Nur <strong>eine App pro Test</strong> starten. Die Titelleiste zeigt im Erfolgsfall typischerweise „Abgesicherter Modus“; Funktion und sichtbare Anzeige dokumentieren.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ergebnis</th>
+<th>Plausible Schlussfolgerung</th>
+<th>Nächster Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Safe Mode startet, Normalmodus nicht</strong></td>
+<td>Startabhängige Add-ins, Vorlagen, Ressourcen oder Benutzereinstellungen als Kandidaten</td>
+<td>COM-/Office-Add-ins und Startdateien isolieren, Standardstart nach jeder Änderung prüfen</td>
+</tr>
+<tr>
+<td><strong>Safe Mode und Normalmodus scheitern</strong></td>
+<td>Fehler liegt auch auf dem reduzierten Startpfad</td>
+<td>Fehlermeldung/Eventlog, Installation und Systemkontext untersuchen</td>
+</tr>
+<tr>
+<td><strong>Safe Mode und Normalmodus starten, bestimmte Datei nicht</strong></td>
+<td>Dokument-/Speicherortproblem wahrscheinlich</td>
+<td>Leeres Dokument vs. problematische Datei vergleichen</td>
+</tr>
+<tr>
+<td><strong>Safe Mode startet, bestimmte Funktionen fehlen</strong></td>
+<td>Erwartbar: Safe Mode deaktiviert Startkomponenten</td>
+<td>Nicht als vollständigen Funktionstest werten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Eine App, die unter <code>/safe</code> läuft, zeigt einen nützlichen Unterschied, aber <strong>keinen kausalen Beweis</strong> für ein spezielles Add-in. Auch mehrere andere Startressourcen werden anders behandelt.</p>
+<p>Herstellerquelle: <a href="https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc</a></p>
+<h2 id="8-add-ins-reproduzierbar-isolieren">8. Add-ins reproduzierbar isolieren</h2>
+<p>Nach erfolgreichem Safe-Mode-Start und erforderlicher Freigabe:</p>
+<ol>
+<li>Liste vorhandener <strong>COM-Add-ins, Office-/Anwendungs-Add-ins und „Deaktivierte Elemente“</strong> dokumentieren.</li>
+<li>Über <code>Datei → Optionen → Add-Ins</code> den passenden Typ unter <strong>Verwalten</strong> auswählen und mit <strong>Los...</strong> öffnen (abhängig von App/Version).</li>
+<li><strong>Aktivierungszustand vor Änderung sichern.</strong> Nur freigegebene Add-ins vorübergehend deaktivieren; zentral verwaltete Add-ins nicht ohne Zuständigkeit ändern.</li>
+<li>Office-App vollständig beenden und <strong>normal</strong> neu starten.</li>
+<li>Wenn der Start dann klappt, Add-ins <strong>nacheinander</strong> wieder aktivieren und jeweils den Normalstart testen.</li>
+<li>Wenn ein einzelnes Add-in den Fehler reproduzierbar zurückbringt: Version/Hersteller/Deployment dokumentieren, gezielten Update-/Reparaturpfad mit L2/Hersteller abstimmen.</li>
+<li>Ist kein Add-in eindeutig verantwortlich: Änderung zurücknehmen und andere Startkomponenten prüfen.</li>
+</ol>
+<p><strong>Warum einzeln?</strong> Nur so entsteht ein belastbarer Zusammenhang: <code>Add-in X aktiv → Fehler; X deaktiviert → kein Fehler; X erneut aktiv → Fehler</code> (sofern sichere Reproduktion möglich).</p>
+<p><strong>Nicht verwechseln:</strong> Office-Web-Add-ins, COM-Add-ins und Excel-Add-ins sind technisch unterschiedlich. Ein COM-Add-in-Test deckt nicht automatisch jede andere Erweiterung ab.</p>
+<p>Hersteller: <a href="https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc</a></p>
+<h2 id="9-word-excel-und-powerpoint-anwendungsspezifische-pfade">9. Word, Excel und PowerPoint: anwendungsspezifische Pfade</h2>
+<h3 id="9-1-word">9.1 Word</h3>
+<ul>
+<li><strong><code>winword /a</code></strong> ist ein zusätzlicher Word-spezifischer Diagnoseschalter; Microsoft dokumentiert ihn für Startprobleme und das Umgehen bestimmter Add-ins und Vorlagen. Nicht als Reparaturbefehl missverstehen.</li>
+<li><strong><code>Normal.dotm</code></strong> kann benutzerspezifische Einstellungen/Makros enthalten. Bei begründetem Verdacht und Freigabe <strong>vorher sichern</strong>, dann als reversiblen A/B-Test umbenennen, nicht löschen. Eine neu erzeugte Vorlage kann persönliche Anpassungen fehlen lassen.</li>
+<li>Word-Startordner und globale Vorlagen können das Startverhalten beeinflussen. Keine unbekannten Makros aktivieren und keine Unternehmensvorlagen entfernen, ohne deren Rolle zu kennen.</li>
+</ul>
+<p>Hersteller: <a href="https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word</a><br/>
+Hersteller: <a href="https://support.microsoft.com/de-de/word/change-the-normal-template-normal-dotm" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/word/change-the-normal-template-normal-dotm</a></p>
+<h3 id="9-2-excel">9.2 Excel</h3>
+<ul>
+<li>Excel besitzt <strong>COM-Add-ins</strong>, <strong>Excel-Add-ins</strong> und <strong>XLSTART-/Startordner</strong>. Microsoft nennt alle ausdrücklich als mögliche Einflussgrößen.</li>
+<li>Eine Arbeitsmappe aus <strong>XLSTART</strong> wird beim Start automatisch geöffnet. Ein fehlerhaftes oder nicht zugängliches Startdokument kann wie ein Appstart-Fehler wirken.</li>
+<li>Auch hier: Startordnerinhalte bei Freigabe <strong>sichern und einzeln</strong> aus dem Startpfad herausnehmen; nach jeder Veränderung Normalstart prüfen.</li>
+</ul>
+<p>Hersteller: <a href="https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working</a></p>
+<h3 id="9-3-powerpoint">9.3 PowerPoint</h3>
+<ul>
+<li>Zunächst <code>powerpnt /safe</code> mit Normalstart vergleichen.</li>
+<li>Add-ins, Startressourcen und problematische Präsentationsdateien anhand desselben Grundschemas prüfen.</li>
+<li>Eventlogs und Office-Reparatur nur nach Befund, statt pauschal Einstellungen aus Word oder Excel auf PowerPoint zu übertragen.</li>
+</ul>
+<h3 id="9-4-outlook-bewusste-ubergabe">9.4 Outlook – bewusste Übergabe</h3>
+<p>Outlook verwendet zusätzliche Komponenten (Profile, Datendateien, Exchange-/MAPI-Add-ins). Bei Outlook-spezifischer Störung auf <strong>RB-019</strong> beziehungsweise das passende Outlook-Runbook verzweigen; <code>outlook /safe</code> kann dort ein Eingangstest sein. Das <strong>neue Outlook</strong> ist kein identischer Diagnosefall.</p>
+<h2 id="10-l2-windows-ereignisprotokoll-und-reproduzierbare-belege">10. L2: Windows-Ereignisprotokoll und reproduzierbare Belege</h2>
+<h3 id="10-1-ereignisanzeige-zuverlassigkeitsverlauf">10.1 Ereignisanzeige / Zuverlässigkeitsverlauf</h3>
+<ul>
+<li><code>eventvwr.msc</code> → <strong>Windows-Protokolle → Anwendung</strong>; nach Uhrzeit/Programm filtern.</li>
+<li>Bei echten Abstürzen können <strong>Application Error (oft Ereignis-ID 1000)</strong> und <strong>Windows Error Reporting (häufig 1001)</strong> Hinweise geben.</li>
+<li>Ein genanntes Fehlermodul wie <code>KERNELBASE.dll</code> ist <strong>nicht zwangsläufig die eigentliche Ursache</strong>. Weitere Belege erforderlich.</li>
+<li><code>perfmon /rel</code> öffnet – soweit verfügbar – den <strong>Zuverlässigkeitsverlauf</strong>; als ergänzende zeitliche Übersicht, nicht als alleiniger Fehlerbeweis.</li>
+</ul>
+<p>Microsoft Learn: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior</a></p>
+<h3 id="10-2-nur-lesende-powershell-abfragen">10.2 Nur lesende PowerShell-Abfragen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># OS und letzte Startzeit: gelesen, nicht verändert
+Get-CimInstance Win32_OperatingSystem |
+  Select-Object Caption,Version,BuildNumber,LastBootUpTime
+
+# Laufende Office-Prozesse, wenn vorhanden; nur Anzeige
+Get-Process WINWORD,EXCEL,POWERPNT -ErrorAction SilentlyContinue |
+  Select-Object ProcessName,Id,StartTime,Responding
+
+# Installierte Software über Uninstall-Registry: NUR LESEN
+$paths = @(
+ 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+ 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+Get-ItemProperty $paths -ErrorAction SilentlyContinue |
+  Where-Object DisplayName -Match 'Microsoft 365|Microsoft Office|Office LTSC' |
+  Select-Object DisplayName,DisplayVersion,Publisher,InstallDate
+
+# Abstürze der letzten 7 Tage, nach Anwendung eingrenzen; nur Lesen
+Get-WinEvent -FilterHashtable @{
+  LogName='Application'; StartTime=(Get-Date).AddDays(-7)
+  Id=1000,1001
+} -MaxEvents 200 -ErrorAction SilentlyContinue |
+  Where-Object { $_.Message -match 'WINWORD\.EXE|EXCEL\.EXE|POWERPNT\.EXE' } |
+  Select-Object TimeCreated,Id,ProviderName,Message
+</code></pre></div>
+<p><strong>Einschränkungen:</strong> Nicht jede Installation erscheint in diesen Uninstall-Schlüsseln. Leere Ergebnisse sind kein Beweis, dass Office fehlt. Eventlog-Meldungen können Namen/Pfade/Daten enthalten: nur berechtigt lesen und geschützt dokumentieren. <code>Get-Process</code> liefert einen Momentanstatus und beweist nicht, dass eine App korrekt funktioniert.</p>
+<h3 id="10-3-konten-profilvergleich">10.3 Konten-/Profilvergleich</h3>
+<p>Nur nach Freigabe mit einem <strong>zulässigen Testprofil</strong> oder Referenzgerät vergleichen. Keine produktiven Benutzerprofile löschen und keine fremden Zugangsdaten verwenden. <code>Betroffener Benutzer auf anderem Gerät</code> vs. <code>anderer genehmigter Testbenutzer auf betroffenem Gerät</code> kann den möglichen Fehlerbereich eingrenzen; Vergleichsbetrieb muss datenschutzkonform sein.</p>
+<h2 id="11-office-installation-prufen-und-gezielt-reparieren">11. Office-Installation prüfen und gezielt reparieren</h2>
+<p><strong>Nicht direkt mit einer Komplett-Neuinstallation beginnen.</strong> Erst dokumentieren, welche App/Version betroffen ist, ob Safe Mode hilft, ob weitere Office-Apps funktionieren und welche Ereignisse aufgezeichnet wurden.</p>
+<p><strong>Microsofts Standardweg unter Windows 11:</strong> <code>Einstellungen → Apps → Installierte Apps → Microsoft 365/Office → … → Ändern</code> (Bezeichnungen je Installation abweichend).</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Installationstyp</th>
+<th>Reparaturoption</th>
+<th>Eingriff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Click-to-Run</strong></td>
+<td><strong>Schnellreparatur</strong></td>
+<td>Überprüft/ersetzt beschädigte Dateien, typischerweise kürzer; zuerst erwägen, wenn passend</td>
+</tr>
+<tr>
+<td><strong>Click-to-Run</strong></td>
+<td><strong>Onlinereparatur</strong></td>
+<td>Umfassender, benötigt in der Regel Netz/Bereitstellungsfähigkeit; ggf. erneute Anmeldung/Änderungen</td>
+</tr>
+<tr>
+<td><strong>MSI-basiert</strong></td>
+<td><strong>Reparieren</strong></td>
+<td>Abweichender Dialog und Verfahren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Auch wenn nur Word betroffen ist, repariert die Office-Oberfläche häufig <strong>die gesamte Suite</strong>, nicht nur Word. Immer alle Office-Anwendungen schließen, betroffene Arbeitsabläufe berücksichtigen, Autorisierung prüfen und nachher vollständigen Funktionstest durchführen. Microsoft empfiehlt je nach Fehler auch die Onlinereparatur; die Reihenfolge muss zu Fehlerbild und Betriebsrichtlinie passen.</p>
+<p>Offizielle Anleitung: <a href="https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application</a></p>
+<p><strong>Weitere Eingriffe:</strong> Neuinstallation/Deinstallation, Office-Deployment-Tool, Updatekanalwechsel, Rückrollen eines Builds, Registry-Änderungen oder Neuaufbau des Benutzerprofils sind <strong>L2/Endpoint-/Change-Maßnahmen</strong>. Nicht als allgemeiner Standardbefehl ausführen.</p>
+<h2 id="12-lizenz-update-dateifehler-und-unternehmenskontext-abgrenzen">12. Lizenz, Update, Dateifehler und Unternehmenskontext abgrenzen</h2>
+<h3 id="aktivierung-und-lizenz">Aktivierung und Lizenz</h3>
+<p>Eine App kann starten und dennoch eingeschränkte Funktionen wegen einer fehlenden Lizenz anzeigen. Dann gelten Konto-, Abonnement- und Lizenzzuweisungsprüfungen – <strong>nicht pauschal eine Crash-Reparatur</strong>. Wurde Lizenzierung als eigentlicher Fehler identifiziert, Übergabe an <strong>RB-029</strong>. Keine Lizenzdaten/Token in Tickets kopieren.</p>
+<p>Quelle: <a href="https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office</a></p>
+<h3 id="update-bekannte-fehler">Update / bekannte Fehler</h3>
+<p>Wenn der Startfehler <strong>zeitgleich mit einem bestimmten Office-Build</strong> auf mehreren Geräten auftritt, Version/Build, Updatekanal, Zeitpunkt, identische Add-ins und den offiziellen Known-Issues-Status vergleichen. Einzelne Microsoft-Updates können konkrete Startprobleme verursachen; eine automatische „Rollback“-Empfehlung ohne Herstellerhinweis wäre unbegründet.</p>
+<p>Quellen: <a href="https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-office-issues" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-office-issues</a> und <a href="https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-issues-in-word-for-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-issues-in-word-for-windows</a></p>
+<h3 id="dokument-vs-anwendung">Dokument vs. Anwendung</h3>
+<p>Ein Fehler nur bei einem bestimmten Word-Dokument oder einer Excel-Arbeitsmappe verlangt zunächst Test mit <strong>neuer leerer Datei</strong>, Prüfung des Speicherorts und der zugehörigen Erweiterungen. Office-„Geschützte Ansicht“, Makros und Endpoint-Schutz sind Sicherheitsgrenzen; niemals ohne genehmigte Risikoabwägung deaktivieren.</p>
+<h3 id="verwaltete-umgebung">Verwaltete Umgebung</h3>
+<p>Firmen können Add-ins per Richtlinie zentral verteilen, Office-Updates über festgelegte Kanäle steuern und Anmeldungen über Microsoft Entra ID verwalten. L1 sollte Zuweisung und Umfang klären, bevor ein lokaler Fix versucht wird. Nur autorisierte Administratoren ändern zentrales Deployment, Richtlinien oder Schutzkonfigurationen.</p>
+<h2 id="13-systematische-entscheidungsmatrix">13. Systematische Entscheidungsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Reproduzierbare Gegenprobe</th>
+<th>Arbeitshypothese</th>
+<th>Zulässiger nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Word startet nicht; Excel startet</td>
+<td><code>winword /safe</code></td>
+<td>Word-spezifischer Startpfad</td>
+<td>Add-ins/Vorlage/Benutzerkontext differenzieren</td>
+</tr>
+<tr>
+<td>Excel startet nur in <code>/safe</code></td>
+<td>COM-Add-ins (mit Freigabe) einzeln prüfen</td>
+<td>Excel-Erweiterung</td>
+<td>Problematisches Add-in nachweisen und mit Hersteller abstimmen</td>
+</tr>
+<tr>
+<td>Word startet mit <code>/safe</code>, aber nicht normal; Add-ins ausgeschlossen</td>
+<td><code>winword /a</code> + Word-Vorlagen (L2)</td>
+<td>Word-Startressource</td>
+<td>Reversibler, gesicherter Vorlagentest</td>
+</tr>
+<tr>
+<td>Mehrere Office-Apps stürzen ab</td>
+<td>gleicher Build/anderer Benutzer/anderes Gerät</td>
+<td>Gemeinsame Installation/Profil/Update</td>
+<td>Eventlog korrelieren, Endpoint/L2, ggf. genehmigte Reparatur</td>
+</tr>
+<tr>
+<td>Nur Doppelklick auf <code>.docx</code> scheitert</td>
+<td>Word leer starten; unkritische zweite Datei</td>
+<td>Datei/Zuordnung/Speicherort</td>
+<td>Dateifehlerpfad statt pauschaler Office-Reparatur</td>
+</tr>
+<tr>
+<td>App öffnet, Bearbeiten gesperrt</td>
+<td>genaue Lizenzmeldung und Kontoanzeige</td>
+<td>Aktivierung/Lizenz</td>
+<td>RB-029 und Lizenzverwaltung</td>
+</tr>
+<tr>
+<td>Office zeigt „wird aktualisiert“</td>
+<td>Office-/Deploymentstatus, Zeitstempel</td>
+<td>Laufender Prozess</td>
+<td>Status abklären, nicht blind beenden</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Diagnose ist ein Vergleichsverfahren:</strong> Jede Zeile ist eine Hypothese – erst der passende Test und sein Resultat können sie bestätigen oder verwerfen.</p>
+<h2 id="14-zwei-fiktive-praxisfalle-keine-laborergebnisse">14. Zwei fiktive Praxisfälle (keine Laborergebnisse)</h2>
+<h3 id="musterfall-a-word-startet-nur-im-office-safe-mode">Musterfall A – Word startet nur im Office Safe Mode</h3>
+<p><strong>Ticket INC-028-A (fiktiv):</strong> In einer Buchhaltungsabteilung verschwindet Word direkt nach dem Splashscreen. Excel und PowerPoint öffnen sich. <code>winword /safe</code> funktioniert.</p>
+<p><strong>Hypothesen:</strong> COM-Add-in für DMS, globale Word-Vorlage, benutzerspezifische Startkomponente.</p>
+<p><strong>Geplanter Ablauf:</strong></p>
+<ol>
+<li>Zeitpunkt, Word-Version, genaues Symptom und Änderungsverlauf aufnehmen.</li>
+<li>Normales Word-Starten und <code>winword /safe</code> an gleicher Sitzung vergleichen.</li>
+<li>Liste der installierten, aktiven und verwalteten Add-ins dokumentieren.</li>
+<li>Nach Freigabe: nicht zentral verwaltete Add-ins einzeln testweise deaktivieren, normal starten, bei Erfolg nacheinander reaktivieren.</li>
+<li>Bei eindeutigem Befund Hersteller/Deployment für problematisches Add-in prüfen; abgestimmtes Update ausrollen.</li>
+<li>Normalstart und ein freigegebenes Musterdokument wiederholt testen; Ticket schließen nach Bestätigung.</li>
+</ol>
+<p><strong>Möglicher, rein hypothetischer Befund:</strong> Ein DMS-COM-Add-in in alter Version verursacht den Fehler. <strong>Dieser Befund wurde nicht real gemessen.</strong></p>
+<p><strong>Selbsterklärung:</strong> Weshalb wäre ein sofortiger Office-Reinstall in diesem Fall diagnostisch schwächer als ein kontrollierter Add-in-Vergleich?</p>
+<h3 id="musterfall-b-alle-office-apps-sturzen-nach-einer-anderung-ab">Musterfall B – Alle Office-Apps stürzen nach einer Änderung ab</h3>
+<p><strong>Ticket INC-028-B (fiktiv):</strong> Word, Excel und PowerPoint starten weder normal noch mit <code>/safe</code>. Die Störung begann nach einem Software-Rollout; auf einem Vergleichsgerät mit gleichem Office-Kanal tritt sie nicht auf.</p>
+<p><strong>Hypothesen:</strong> beschädigte Click-to-Run-Installation, inkompatible neue Systemkomponente, Rechte-/Profilproblem, bekanntes Problem eines Updates.</p>
+<p><strong>Geplanter Ablauf:</strong></p>
+<ol>
+<li>Fehlermeldungen und Ereigniszeiten aus Windows-Anwendungsprotokoll sichern.</li>
+<li>Office-Build und Rollout-Änderungen mit genehmigtem Referenzgerät vergleichen.</li>
+<li>Benutzerkontext nur mit freigegebenem Testprofil eingrenzen.</li>
+<li>Bei Hersteller-/Endpointfreigabe geeignete Office-Reparatur wählen (zuerst Eingriffsumfang bewerten).</li>
+<li>Wenn Reparatur nicht hilft, Problem mit Logs und Reproduktionsdaten an L2/Endpoint/Hersteller eskalieren.</li>
+<li>Alle betroffenen Apps und relevante Unternehmens-Add-ins erneut testen.</li>
+</ol>
+<p><strong>Möglicher, rein hypothetischer Befund:</strong> Office-Dateien oder ein gemeinsam geladenes Modul sind beschädigt. <strong>Keine reale Validierung.</strong></p>
+<p><strong>Selbsterklärung:</strong> Warum ist „Safe Mode geht auch nicht“ allein noch kein Beweis für eine beschädigte Office-Installation?</p>
+<h2 id="15-active-recall-transfer-und-praktische-validierung">15. Active Recall, Transfer und praktische Validierung</h2>
+<h3 id="wissen-ohne-hilfsmittel-abrufen">Wissen ohne Hilfsmittel abrufen</h3>
+<ol>
+<li>Welche drei Startbefehle verwenden Word, Excel und PowerPoint im Office Safe Mode?</li>
+<li>Worin unterscheidet sich Office Safe Mode vom Windows-Safe-Mode?</li>
+<li>Welche fünf Daten gehören mindestens in die Erstaufnahme eines Office-Startproblems?</li>
+<li>Welche zwei grundlegend verschiedenen Diagnosewege folgen auf „Safe Mode klappt“ vs. „Safe Mode klappt nicht“?</li>
+<li>Wozu dienen die Windows-Events 1000/1001, und was beweisen sie <strong>nicht</strong>?</li>
+</ol>
+<h3 id="verstandnis-und-transfer">Verständnis und Transfer</h3>
+<ol start="6">
+<li>Warum bedeutet „Word öffnet sich im Safe Mode“ nicht automatisch „COM-Add-in defekt“?</li>
+<li>Warum darf eine Word-Vorlage nicht ungesichert gelöscht werden?</li>
+<li>Ein Benutzer kann Word öffnen, aber nicht bearbeiten: Welche Kategorie ist zuerst zu prüfen?</li>
+<li>Warum liefert der Vergleich „nur eine Office-App betroffen“ einen anderen Diagnoseweg als „alle Apps betroffen“?</li>
+<li>Warum muss nach einem erfolgreichen Normalstart auch ein <strong>Dokument- und Funktionsprüfung</strong> erfolgen?</li>
+</ol>
+<h3 id="drei-diagnosekarten-vorschlag-fur-spatere-anki-erstellung">Drei Diagnosekarten (Vorschlag für spätere Anki-Erstellung)</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Kartentyp</th>
+<th>Vorderseite</th>
+<th>Kurze Rückseite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wissen</td>
+<td>Word im Office Safe Mode starten?</td>
+<td><code>winword /safe</code></td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Safe Mode startet – was weißt du sicher?</td>
+<td>Der reduzierte Startpfad unterscheidet sich; Ursache noch offen.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Excel startet nur normal nicht, im Safe Mode schon. Erster Nachweis?</td>
+<td>Add-ins/Startdateien einzeln isolieren; Normalstart jeweils prüfen.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="reale-lab-validierung-spater-freiwillig-und-risikoarm">Reale Lab-Validierung: später, freiwillig und risikoarm</h3>
+<ul>
+<li>Auf einer freigegebenen Testinstallation die drei <code>/safe</code>-Startbefehle prüfen, ohne produktive Daten zu verwenden.</li>
+<li>Lesende Prozess- und Ereignisabfragen anwenden und Beobachtungen protokollieren.</li>
+<li>Nur wenn eine <strong>genehmigte Testumgebung</strong> vorliegt: ein unkritisches Add-in kontrolliert aktivieren/deaktivieren; Zusammenhang testen.</li>
+<li>Erfolgskriterien: normaler Start, neue Testdatei erstellen/öffnen/speichern/schließen, erneuter Start, keine reproduzierbare Fehlermeldung.</li>
+<li>Keine künstlich erzeugten Defekte an einem produktiven System. <strong>Bis zur tatsächlichen Prüfung den Status „recherchiert, nicht validiert“ beibehalten.</strong></li>
+</ul>
+<p><strong>Zeitversetzter Check:</strong> Nach ungefähr 7 und 21 Tagen aus dem Gedächtnis die Diagnosematrix anwenden; Transferfall ohne vorgegebene Ursache bearbeiten.</p>
+<hr/>
+<h2 id="herstellerquellen-und-prufbasis-abgerufen-22-11-2026">Herstellerquellen und Prüfbasis (abgerufen: 22.11.2026)</h2>
+<ol>
+<li><strong>Microsoft – Office-Anwendungen im abgesicherten Modus öffnen:</strong> <a href="https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc</a></li>
+<li><strong>Microsoft – „Office-App funktioniert nicht mehr“ beim Start:</strong> <a href="https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc</a></li>
+<li><strong>Microsoft – Reparieren einer Office-Anwendung:</strong> <a href="https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application</a></li>
+<li><strong>Microsoft – Excel hängt, friert ein, stürzt ab:</strong> <a href="https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working</a></li>
+<li><strong>Microsoft – Word-Start-/Nutzungsprobleme:</strong> <a href="https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word</a></li>
+<li><strong>Microsoft – Normal.dotm-Vorlage:</strong> <a href="https://support.microsoft.com/de-de/word/change-the-normal-template-normal-dotm" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/word/change-the-normal-template-normal-dotm</a></li>
+<li><strong>Microsoft – Unlicensed Product und Aktivierungsfehler:</strong> <a href="https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office</a></li>
+<li><strong>Microsoft – Fehler 0xC0000142 beim Office-Start:</strong> <a href="https://support.microsoft.com/de-de/office/lifecycle/error-0xc0000142-when-you-start-an-office-application" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/error-0xc0000142-when-you-start-an-office-application</a></li>
+<li><strong>Microsoft – bekannte Office-Probleme:</strong> <a href="https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-office-issues" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/support/known-issues/fixes-or-workarounds-for-recent-office-issues</a></li>
+<li><strong>Microsoft Learn – Anwendungsabstürze in Eventlog/WER untersuchen:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior</a></li>
+</ol>
+<p><strong>Quellenstatus:</strong> Die konkreten Schritte sind an den genannten Microsoft-Herstellerquellen ausgerichtet; die Diagnoseentscheidung, Sicherheits-Gates und Lernfälle sind eine eigenständige didaktische Aufbereitung. Oberfläche und Optionen können je nach Office-Produkt, Version, Deployment und Unternehmensrichtlinie variieren. Diese Unterlagen ersetzen keine Freigabe oder reale Prüfung.</p>
+<p><strong>Grafikhinweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-028_Lernartikel.md">RB-028_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-027/index.html">← Ticket 27</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-029/index.html">Ticket 29 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

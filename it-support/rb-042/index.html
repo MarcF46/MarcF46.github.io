@@ -1,0 +1,363 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 42: Windows-Benutzerprofil beschädigt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 42: Windows-Benutzerprofil beschädigt. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 42: Windows-Benutzerprofil beschädigt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</a></li><li><a href="#2-die-profil-ladekette-technische-grundlagen">2. Die Profil-Ladekette – technische Grundlagen</a></li><li><a href="#3-fehlerbilder-nicht-verwechseln">3. Fehlerbilder nicht verwechseln</a></li><li><a href="#4-ticketannahme-und-reproduzierbaren-befund-erfassen">4. Ticketannahme und reproduzierbaren Befund erfassen</a></li><li><a href="#5-sicherheitsgate-daten-und-ruckweg-zuerst">5. Sicherheitsgate: Daten und Rückweg zuerst</a></li><li><a href="#6-diagnose-a-identitat-profilsitzung-und-speicherplatz-nur-lesen">6. Diagnose A – Identität, Profilsitzung und Speicherplatz nur lesen</a></li><li><a href="#7-diagnose-b-user-profile-service-und-ereigniszeit-auswerten">7. Diagnose B – User Profile Service und Ereigniszeit auswerten</a></li><li><a href="#8-diagnose-c-profilelist-ordnerpfad-und-zugriffsrechte-vorsichtig-lesen">8. Diagnose C – ProfileList , Ordnerpfad und Zugriffsrechte vorsichtig lesen</a></li><li><a href="#9-diagnose-d-lokal-roaming-ordnerumleitung-oder-fslogix">9. Diagnose D – lokal, Roaming, Ordnerumleitung oder FSLogix?</a></li><li><a href="#10-entscheidungsmatrix-was-belegt-welcher-befund">10. Entscheidungsmatrix: Was belegt welcher Befund?</a></li><li><a href="#11-korrekturstrategie-nach-freigabe-von-wenig-zu-stark-eingreifend">11. Korrekturstrategie nach Freigabe – von wenig zu stark eingreifend</a></li><li><a href="#12-retest-nur-ein-sichtbarer-desktop-reicht-nicht">12. Retest: Nur ein sichtbarer Desktop reicht nicht</a></li><li><a href="#13-fiktiver-praxisfall-a-lokales-temp-profil-bei-vollem-systemlaufwerk">13. Fiktiver Praxisfall A – Lokales TEMP-Profil bei vollem Systemlaufwerk</a></li><li><a href="#14-fiktiver-praxisfall-b-fslogix-container-an-vdi-host-nicht-eingebunden">14. Fiktiver Praxisfall B – FSLogix-Container an VDI-Host nicht eingebunden</a></li><li><a href="#15-active-recall-diagnosekarten-und-transfertraining">15. Active Recall, Diagnosekarten und Transfertraining</a></li><li><a href="#herstellerquellen-recherchebelege">Herstellerquellen / Recherchebelege</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Umgebung:</strong> Windows 11, Windows-Benutzerprofildienst, lokale und domänengebundene Konten; optional Roaming/FSLogix<br/>
+<strong>Support-Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Anhand offizieller Microsoft-Quellen recherchiert, <strong>noch nicht im Labor praktisch validiert</strong>. Alle Personen, Orte, Geräte, Fehlermeldungskombinationen und Beispielmesswerte sind <strong>fiktiv</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb042_henne_ei_benutzerprofil.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-042 – Henne und Ei: Profilpfad, User Profile Service, temporäres Profil" decoding="async" loading="lazy" src="assets/rb042_henne_ei_benutzerprofil.webp"/></a></div><figcaption>RB-042 – Henne und Ei: Profilpfad, User Profile Service, temporäres Profil</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> Ein <strong>temporäres Profil</strong> ist ein Warnsignal, <strong>kein Beweis</strong>, dass die ursprünglichen Dateien verloren sind oder der Profilordner gelöscht werden muss. <strong>Zuerst Daten sichern und den Ladefehler belegen, erst dann eingreifen.</strong> [Q1–Q3]</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</h2>
+<p><strong>Typische Anwenderberichte:</strong></p>
+<ul>
+<li>„Die Anmeldung klappt, aber mein Desktop und meine Einstellungen sind plötzlich weg.“</li>
+<li>„Windows meldet: <em>Wir können Sie nicht bei Ihrem Konto anmelden</em> oder <em>Sie wurden mit einem temporären Profil angemeldet</em>.“</li>
+<li>„Die Anmeldung wird mit <em>Fehler bei der Anmeldung des Diensts Benutzerprofildienst</em> abgebrochen.“</li>
+<li>„Mit einem anderen Benutzerkonto funktioniert derselbe Computer.“</li>
+<li>„Nach der Anmeldung in der VDI erscheint das falsche oder ein leeres Profil.“</li>
+</ul>
+<p><strong>Lernziele:</strong> Das Anmeldeproblem einer konkreten Phase zuordnen, das <strong>ursprüngliche Benutzerprofil erhalten</strong>, Hinweise aus der Ereignisanzeige auswerten, lokale Ursachen von Profilcontainer-/Netzwerkursachen unterscheiden und nur genehmigte Reparaturen mit Retest durchführen.</p>
+<p><strong>Abgrenzung:</strong> RB-001 behandelt allgemeine Windows-Anmeldung, RB-026 Windows-Startfehler, RB-041 AD-Gruppenmitgliedschaften. RB-042 beginnt dort, wo <strong>Identität/Anmeldung möglich ist, aber die Profilinitialisierung scheitert oder falsche Profildaten erscheinen</strong>. Ein Passwort- oder MFA-Fehler ist kein bewiesener Profilschaden.</p>
+<p><strong>Rollen:</strong> L1 dokumentiert Meldung und schützt aktuelle Anwenderarbeit. L2 untersucht lokale Profildaten, Dienstereignisse und Profilpfade. AD-/VDI-/Storage-/Security-Owner genehmigen Veränderungen an servergespeicherten Profilen, ACLs, Containern oder Registry.</p>
+<h2 id="2-die-profil-ladekette-technische-grundlagen">2. Die Profil-Ladekette – technische Grundlagen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Authentifizierung des Benutzerkontos (Konto/SID)
+                 ↓
+Profillokalisierung (ProfileList/ProfileImagePath, ggf. Profilrichtlinie)
+                 ↓
+Profilquelle: lokaler Ordner ODER Roaming-/Containerlösung
+                 ↓
+User Profile Service (ProfSvc) lädt Profil-Hive/Profilkomponenten
+                 ↓
+Benutzersitzung + Desktop + anwendungsspezifische Einstellungen
+                 ├── korrekt geladen
+                 └── Ladefehler → Anmeldung abgebrochen ODER temporäres Profil
+</code></pre></div>
+<ul>
+<li><strong>SID:</strong> Sicherheitskennung des Kontos; präziser als ein Anzeigename. Die SID gehört zur Identität, der Ordnername allein nicht.</li>
+<li><strong><code>C:\Users\&lt;Benutzer&gt;</code>:</strong> häufiges lokales Profilverzeichnis; tatsächlichen Pfad ermitteln statt voraussetzen.</li>
+<li><strong><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList</code>:</strong> Registry-Verzeichnis für Profilzuordnungen, darunter <code>ProfileImagePath</code>; <strong>vorerst nur lesen</strong>.</li>
+<li><strong><code>NTUSER.DAT</code>:</strong> Teil der benutzerspezifischen Registry-Hive; eine defekte oder nicht zugreifbare Hive kann Profilprobleme verursachen, ist aber nicht bei jedem temporären Profil die Ursache.</li>
+<li><strong>User Profile Service / ProfSvc:</strong> Windows-Dienst, der das Laden und Entladen von Profilen koordiniert. [Q4, Q5, Q8]</li>
+</ul>
+<p><strong>Merksatz:</strong> „Konto erfolgreich authentifiziert“ ≠ „ursprüngliches Profil geladen“ ≠ „Daten gelöscht“.</p>
+<h2 id="3-fehlerbilder-nicht-verwechseln">3. Fehlerbilder nicht verwechseln</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Fehlerbild</th>
+<th>Erste Hypothese</th>
+<th>Kein ausreichender Beweis für</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Meldung „Temporäres Profil“</td>
+<td>Ursprüngliches Profil wurde nicht normal geladen</td>
+<td>Defekte Festplatte oder zerstörte Nutzerdaten</td>
+</tr>
+<tr>
+<td>Anmeldefehler vor Desktop</td>
+<td>Profildienst/Profilladung, aber auch Konto-/Systemursachen</td>
+<td>Nur <code>NTUSER.DAT</code> beschädigt</td>
+</tr>
+<tr>
+<td>Nur Desktop leer</td>
+<td>Anderes/temporäres Profil, Umleitung, OneDrive, Ansicht</td>
+<td>Profil vollständig verloren</td>
+</tr>
+<tr>
+<td>Nur eine App startet nicht</td>
+<td>App-spezifische Konfiguration</td>
+<td>Komplettes Windows-Profil defekt</td>
+</tr>
+<tr>
+<td>Viele Benutzer gleichzeitig betroffen</td>
+<td>Gemeinsamer Dienst, Storage, Policy, Update, VDI</td>
+<td>Fehler in jedem einzelnen Benutzerprofil</td>
+</tr>
+<tr>
+<td>VDI mit FSLogix betroffen</td>
+<td>Container-Anbindung, Berechtigung, Kapazität, Sperre</td>
+<td>Lokaler Windows-Ordner als einzige Ursache</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ein <strong>temporäres Profil</strong> kann bei einer erneuten Anmeldung verworfen werden. <strong>Daten, die der Anwender während dieser temporären Sitzung erzeugt</strong>, sind besonders gefährdet und müssen <strong>vor Abmeldung oder Neustart</strong> an einen bestätigten, sicheren Speicherort kopiert werden. [Q2]</p>
+<h2 id="4-ticketannahme-und-reproduzierbaren-befund-erfassen">4. Ticketannahme und reproduzierbaren Befund erfassen</h2>
+<ol>
+<li><strong>Benutzer/Identität:</strong> korrektes lokales, AD- oder Entra-Konto, SID (nur falls erforderlich), Computername, Standort, Zeitpunkt der Anmeldung.</li>
+<li><strong>Fehlertext:</strong> exakte Meldung, Screenshot ohne vertrauliche Inhalte, Uhrzeit, Auftritt bei jedem oder nur einem Login.</li>
+<li><strong>Sitzungsstatus:</strong> Anmeldung überhaupt möglich? Tatsächlicher <code>$env:USERPROFILE</code>? Wird „Temporäres Profil“ angezeigt?</li>
+<li><strong>Betroffenheit:</strong> ein Benutzer an einem PC, mehrere Benutzer an einem PC oder viele PCs/VDI-Hosts?</li>
+<li><strong>Änderungskontext:</strong> Windows-Update, Speicherplatzwarnung, neue Richtlinie, AV-/EDR-Ereignis, Profilcontainer-Änderung?</li>
+<li><strong>Datenlage:</strong> Welche Dateien wurden <strong>seit der fehlerhaften Anmeldung</strong> bearbeitet? Gibt es geprüftes Backup, Cloud-Synchronisierung oder Dateiumleitung?</li>
+</ol>
+<p><strong>Wichtig:</strong> Die Person soll nicht wiederholt ab- und angemeldet werden, während ungesicherte Daten aus einem temporären Profil vorliegen.</p>
+<h2 id="5-sicherheitsgate-daten-und-ruckweg-zuerst">5. Sicherheitsgate: Daten und Rückweg zuerst</h2>
+<p>Vor jedem <strong>schreibenden</strong> Eingriff:</p>
+<ul>
+<li>Daten in <strong>temporärer Sitzung</strong> sofort an einem von der Organisation freigegebenen Ort sichern und <strong>Lesbarkeit kontrollieren</strong>. Keine unkontrollierte Kopie in fremde Cloud-Dienste oder private USB-Medien.</li>
+<li><strong>Originalprofil</strong> einschließlich relevanter Benutzerdateien und app-spezifischer Daten gegen Datenverlust absichern. Gesondert prüfen: <code>Desktop</code>, <code>Dokumente</code>, <code>Downloads</code>, benutzerdefinierte Verzeichnisse, OneDrive-Dateien mit lokalem Status, PST-Dateien und benötigte App-Einstellungen.</li>
+<li>Backup-Restore-Pfad, <strong>BitLocker-Recovery-Schlüssel</strong> bei geplantem Offlinezugriff, zuständigen Data Owner, Wartungsfenster und Change-Freigabe klären.</li>
+<li><strong>Keine</strong> Löschung/Renamings von <code>C:\Users\...</code>, <code>NTUSER.DAT</code>, <code>.bak</code>-Schlüsseln oder <code>ProfileList</code>-Einträgen „auf Verdacht“; <strong>kein</strong> Reset und keine Neuinstallation als erste Maßnahme.</li>
+<li><strong>Keine</strong> pauschale Deaktivierung von Defender/EDR oder Anpassung von Sicherheits-/Profilrichtlinien. Sicherheitsänderungen sind separate genehmigungspflichtige Untersuchungen, kein Standardrezept.</li>
+<li><strong>Protokolle/Profildaten</strong> können vertrauliche Pfade, Benutzernamen und Dokumentnamen enthalten; nur die benötigten Ausschnitte im Ticket speichern.</li>
+</ul>
+<p><strong>Prüftor:</strong> Gibt es eine geprüfte Kopie der notwendigen Daten und eine getestete Rückfalloption? Wenn nein: <strong>keine destruktive Reparatur</strong>. [Q1, Q2, Q9]</p>
+<h2 id="6-diagnose-a-identitat-profilsitzung-und-speicherplatz-nur-lesen">6. Diagnose A – Identität, Profilsitzung und Speicherplatz nur lesen</h2>
+<p>Die folgenden Abfragen <strong>lesen</strong> lokalen Zustand. Auf dem betroffenen Computer, im relevanten Benutzer- oder autorisierten Administratorkontext:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Identität des aktuellen Prozesses – nicht automatisch die betroffene Person!
+whoami /user
+whoami /upn
+
+# Tatsächliches Profilverzeichnis des aktuellen Kontexts anzeigen:
+$env:USERPROFILE
+
+# Alle dem System bekannten Profile, Pfade und Ladezustände:
+Get-CimInstance -ClassName Win32_UserProfile |
+  Select-Object SID, LocalPath, Loaded, Special, Status, LastUseTime
+
+# Freien lokalen Speicherplatz lesen (Beispiel Systemlaufwerk C:):
+Get-Volume -DriveLetter C |
+  Select-Object DriveLetter, FileSystem, Size, SizeRemaining, HealthStatus
+</code></pre></div>
+<p><strong>Interpretation:</strong> Stimmen Konto/SID und <code>LocalPath</code> überein? Ist die betreffende Profilinstanz noch geladen? Gibt es auffällig geringen freien Platz? <code>Win32_UserProfile</code> ist eine <strong>Bestandsabfrage</strong>, kein alleiniger Nachweis für eine erfolgreiche Benutzeranmeldung. Der Wert <code>Status</code> muss anhand seiner Dokumentation und zusammen mit Ereignissen interpretiert werden. [Q5]</p>
+<p><strong>Einschränkung:</strong> <code>whoami /upn</code> kann bei rein lokalen Konten scheitern. <code>C:</code> ist nicht auf jedem System das Windows-Volume; gegebenenfalls den tatsächlichen Laufwerksbuchstaben prüfen. <strong>Keinen</strong> automatischen <code>Remove-CimInstance</code>-Aufruf verwenden.</p>
+<h2 id="7-diagnose-b-user-profile-service-und-ereigniszeit-auswerten">7. Diagnose B – User Profile Service und Ereigniszeit auswerten</h2>
+<p>Erste Anlaufstelle laut Microsoft: <strong>Ereignisanzeige → Windows-Protokolle → Anwendung</strong>, dann auf den Benutzerprofildienst filtern. Anschließend <strong>Anwendungs- und Dienstprotokolle → Microsoft → Windows → User Profile Service → Operational</strong> (Bezeichnung abhängig von Sprache/Version). [Q3]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Lesender Abruf: Ereignisse der letzten 48 Stunden vom Profilanbieter.
+# Kann administrative Leserechte benötigen; Providername im System prüfen.
+Get-WinEvent -FilterHashtable @{
+    LogName      = 'Application'
+    ProviderName = 'Microsoft-Windows-User Profiles Service'
+    StartTime    = (Get-Date).AddHours(-48)
+} -ErrorAction Stop |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message |
+  Format-List
+
+# Welche betrieblichen User-Profile-Protokolle heißen auf DEM System wie?
+Get-WinEvent -ListLog '*User Profile*' |
+  Select-Object LogName, IsEnabled, RecordCount
+</code></pre></div>
+<p><strong>Hinweise auf profilbezogene Ereignisse:</strong> 1500 (Profil kann nicht geladen werden), 1508 (Lade-/Registry-Hive-Problem), 1509 (Kopier-/Dateizugriffsfehler), 1511 (temporäres Profil) oder 1515 (Profilbackup) können vorkommen. <strong>Die genaue Meldung, Quelle, Zeit und der Betriebssystemkontext entscheiden – nicht die ID allein.</strong> [Q3, Q7]</p>
+<p><strong>Sonderfall:</strong> Ereignis <strong>1530</strong> bedeutet häufig, dass eine Anwendung noch Registry-Handles offen hielt. Microsoft stuft dieses Ereignis für sich genommen im Profil-Ladeproblem nicht als zwingenden Reparaturbefund ein; ein bestimmter Prozess kann dennoch relevant sein, wenn wiederholt konkrete Folgen nachgewiesen werden. [Q3, Q10]</p>
+<h2 id="8-diagnose-c-profilelist-ordnerpfad-und-zugriffsrechte-vorsichtig-lesen">8. Diagnose C – <code>ProfileList</code>, Ordnerpfad und Zugriffsrechte vorsichtig lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Alle Profil-SID-Zuordnungen und gespeicherten ProfileImagePath-Werte LESEN.
+Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList' |
+  ForEach-Object {
+    $p = Get-ItemProperty -LiteralPath $_.PSPath
+    [pscustomobject]@{
+      Key              = $_.PSChildName
+      ProfileImagePath = $p.ProfileImagePath
+      State            = $p.State
+      RefCount         = $p.RefCount
+    }
+  } | Format-Table -AutoSize
+
+# Nur Diagnose des ausgewählten Pfads; nicht auf allen Profilen pauschal ausführen.
+$ProfilePath = 'C:\Users\testuser'    # fiktiver Pfad – gezielt ersetzen
+Test-Path -LiteralPath $ProfilePath
+Get-Item -LiteralPath $ProfilePath -Force |
+  Select-Object FullName, Attributes, CreationTime, LastWriteTime
+Get-Acl -LiteralPath $ProfilePath |
+  Select-Object Owner, AccessToString
+</code></pre></div>
+<p><strong>Entscheidend:</strong> Exakte SID mit richtigem Konto abgleichen. Ein <code>ProfileImagePath</code>, der auf einen anderen Benutzer oder einen nicht existierenden Pfad zeigt, ist ein <strong>Hinweis</strong>, aber die Reparatur erfordert Beweissicherung. Gleichnamige Ordner und <code>.bak</code>-Schlüssel nie automatisch überschreiben, umbenennen oder löschen.</p>
+<p><strong>ACL-Fehler?</strong> Nur mit berechtigtem Admin und unter Einbeziehung der vererbten Rechte beurteilen. <strong>Keine</strong> rekursive <code>icacls /grant Everyone:F</code>- oder Eigentümerübernahme auf Verdacht. Nicht blind <code>NTUSER.DAT</code> aus einem Profil kopieren; das kann Einstellungen, SID-Bindung, DPAPI oder anwendungsspezifische Zustände unbrauchbar machen. [Q1, Q4, Q8]</p>
+<h2 id="9-diagnose-d-lokal-roaming-ordnerumleitung-oder-fslogix">9. Diagnose D – lokal, Roaming, Ordnerumleitung oder FSLogix?</h2>
+<p>Nicht jeder Benutzer hat ein vollständig lokales Profil. Die <strong>konkrete Bereitstellungsart</strong> bestimmen:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Profiltyp</th>
+<th>Zusätzliche Prüfungen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lokal</td>
+<td>Datenträger, Profildienst, SID/Registry, Ordner-/Hive-Zugriff, ACL</td>
+</tr>
+<tr>
+<td>Domänenprofil/Roaming</td>
+<td>Erreichbarkeit der Profilfreigabe, ACL, DNS/SMB, Synchronisierung, Gruppenrichtlinien</td>
+</tr>
+<tr>
+<td>Ordnerumleitung/OneDrive</td>
+<td>Tatsächlicher Speicherort von Desktop/Dokumenten, Syncstatus, Offline-/Cloudinhalte</td>
+</tr>
+<tr>
+<td>FSLogix-Profilcontainer (VDI/AVD/RDS)</td>
+<td>VHD(X)-Attach, Container-Sperre, Storage-Kapazität, FSLogix-Protokoll, SMB-Zugriff, Konfiguration</td>
+</tr>
+</tbody>
+</table></div>
+<p>Bei eingesetztem FSLogix zuerst <strong>lesend</strong> prüfen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur, wenn FSLogix in der Umgebung tatsächlich eingesetzt wird:
+Get-ChildItem 'C:\ProgramData\FSLogix\Logs\Profile' -Filter 'Profile_*.log' |
+  Sort-Object LastWriteTime -Descending |
+  Select-Object -First 5 Name, LastWriteTime, Length
+
+# Beispiel für Zugriff auf einen freigegebenen Profil-Storagepfad:
+Test-NetConnection -ComputerName 'fslogix-store.corp.example' -Port 445
+</code></pre></div>
+<p>Das Log enthält möglicherweise persönliche Pfade, Host- und Sitzungsdaten: nur notwendige Fehlermeldungen nach Datenschutzvorgaben auswerten. <strong>Nicht</strong> Container-VHD(X) zwangsweise aushängen, zurücksetzen, verkleinern oder löschen, während eine Sitzung aktiv ist. Microsoft nennt u. a. Share-/NTFS-Berechtigungen, Containerlimit, Speicherplatzauslastung, DNS/Netzwerk sowie gesperrte Container als mögliche Ursachen. [Q6, Q7]</p>
+<h2 id="10-entscheidungsmatrix-was-belegt-welcher-befund">10. Entscheidungsmatrix: Was belegt welcher Befund?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Prüf-Hypothese</th>
+<th>Nächster lesender Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ein Nutzer, anderer Account am selben PC funktioniert</td>
+<td>Nutzerspezifischer Profilpfad/Hive/ACL</td>
+<td>SID, Ereigniszeit, ProfileList, Pfad und ACL vergleichen</td>
+</tr>
+<tr>
+<td>Mehrere Nutzer auf einem PC betroffen</td>
+<td>Gemeinsamer Profildienst/Systemvolumen/Policy</td>
+<td>Disk, Dienst-/Systemereignisse, letzte Änderung prüfen</td>
+</tr>
+<tr>
+<td>Viele RDS-/VDI-Nutzer betroffen</td>
+<td>Storage, FSLogix, Netzwerk, Profilrichtlinie</td>
+<td>Container-Logs, Storage-Freigabe, Host-Vergleich</td>
+</tr>
+<tr>
+<td>1511 mit temporärer Anmeldung</td>
+<td>Ursprüngliches Profil nicht normal geladen</td>
+<td>Originalpfad, Ereignisse und aktuelle TEMP-Daten sichern</td>
+</tr>
+<tr>
+<td>Meldung Zugriff verweigert beim Hive-Laden</td>
+<td>Datei-/Registryberechtigung oder Sperre</td>
+<td>Detailereignis, ACL und betroffenen Prozess prüfen</td>
+</tr>
+<tr>
+<td>Profil normal, nur Dokumente fehlen</td>
+<td>Umleitung/OneDrive/anderen Ordner prüfen</td>
+<td>Tatsächlichen Pfad und Cloud-/Offlinezustand vergleichen</td>
+</tr>
+<tr>
+<td>Nur eine App verliert Einstellungen</td>
+<td>Anwendung oder per-user Konfiguration</td>
+<td>App-/Profil-Trennung, kein pauschaler Profilreset</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> „Ein anderer Benutzer kann sich anmelden“ grenzt den Fehler ein, beweist aber nicht zwingend, dass die Festplatte vollständig gesund ist. Auch „kein TEMP-Pfad“ schließt Profilprobleme nicht aus.</p>
+<h2 id="11-korrekturstrategie-nach-freigabe-von-wenig-zu-stark-eingreifend">11. Korrekturstrategie nach Freigabe – von wenig zu stark eingreifend</h2>
+<ol>
+<li><strong>Vorbedingungen:</strong> Anwenderarbeiten aus temporärer Sitzung gesichert, Originaldaten kontrolliert, betroffene Person/Owner informiert, Backup und Rollback dokumentiert.</li>
+<li><strong>Ursache sicher korrigieren:</strong> Beispiel: nachgewiesenen Storage-Engpass beheben; falschen, eindeutig dokumentierten Profilpfad oder falsche ACL <strong>gezielt durch berechtigte Administration</strong> mit Rückfallplan korrigieren.</li>
+<li><strong>Kontrollierte erneute Anmeldung:</strong> Nur nach Sicherung temporärer Daten und nach Abstimmung, da ein Neustart/Abmelden die temporäre Sitzung verwirft; in Remote-/VDI-Szenarien den Rückweg sichern.</li>
+<li><strong>Wenn Profil nachweislich nicht reparabel:</strong> Microsoft empfiehlt, ein neues Konto/Profil einzurichten und <strong>persönliche Dateien aus dem alten Profil</strong> zu kopieren. In Unternehmen muss die Zielidentität dem Gerätemanagement entsprechen; <strong>kein ungeplanter dauerhafter Wechsel auf ein lokales Admin-Konto</strong>. Anwendungsspezifische Daten, EFS/DPAPI, Kontenzuordnung, Outlook-/Browserdaten und Cloud-Synchronisierung separat planen. [Q1]</li>
+<li><strong>Spezialfälle:</strong> Profileinträge/Registry, FSLogix-Container, Roaming-Profile oder Sicherheitssoftware nur durch zuständiges Team nach Beweissicherung und Change freigeben; Änderungen vor Ausführung in isolierter Testumgebung prüfen.</li>
+</ol>
+<p><strong>Ausdrücklich nicht als Standardlösung:</strong> <code>.bak</code>-Registry-Schlüssel „bereinigen“, <code>C:\Users\Benutzer</code> umbenennen/löschen, blindes SFC/DISM/Reset oder Defender/EDR deaktivieren. Solche Eingriffe können die Beweislage und Nutzerdaten verschlechtern. Windows-Komponentenkorruption ist gegebenenfalls ein <strong>separater</strong> Diagnosezweig mit eigener Evidenz, siehe RB-026.</p>
+<h2 id="12-retest-nur-ein-sichtbarer-desktop-reicht-nicht">12. Retest: Nur ein sichtbarer Desktop reicht nicht</h2>
+<p><strong>Sichere Erfolgskriterien:</strong></p>
+<ul>
+<li>Anmeldung im <strong>beabsichtigten Konto</strong> am <strong>ursprünglichen Gerät/VDI-Host</strong> erfolgreich, ohne Temp-Profilwarnung.</li>
+<li><code>whoami /user</code>, <code>$env:USERPROFILE</code> und Profilpfad korrelieren; relevante User-Profile-Service-Ereignisse nach dem Test geprüft.</li>
+<li>Desktop, Dokumente, umgeleitete Ordner, relevante Anwendungen, Drucker/Netzlaufwerke und Cloudsync stimmen mit erwarteter Benutzerumgebung überein.</li>
+<li>Neu erstellte <strong>Testdatei</strong> im vorgesehenen Profil wird nach kontrollierter Ab-/Anmeldung <strong>nachweislich wiedergefunden</strong>; nur zu genehmigten Testdaten und nach Sicherung.</li>
+<li>Bei Profilemigration: Vollständigkeit anhand einer vereinbarten Dateiliste und fachlicher Freigabe prüfen. Altes Profil <strong>nicht sofort löschen</strong>; Aufbewahrung gemäß Richtlinie.</li>
+<li>Erneute Anmeldung auf derselben Zielumgebung stabil; dokumentierter Fallabschluss erst nach Anwenderbestätigung/Owner-Freigabe.</li>
+</ul>
+<p>Eine funktionsfähige temporäre Sitzung oder bloß ein neu angelegtes Profil ohne verifizierte Dateien gilt <strong>nicht</strong> als vollständig gelöst.</p>
+<h2 id="13-fiktiver-praxisfall-a-lokales-temp-profil-bei-vollem-systemlaufwerk">13. Fiktiver Praxisfall A – Lokales TEMP-Profil bei vollem Systemlaufwerk</h2>
+<p><strong>Meldung:</strong> Nach einem Neustart sieht der Benutzer einen leeren Desktop und eine Warnung zu einem temporären Profil. Die Sitzung läuft noch. <strong>Alle Daten/Ergebnisse in diesem Abschnitt sind erfunden.</strong></p>
+<p><strong>Hypothesen (vor Diagnose):</strong> Profilordner nicht vorhanden, Hive-Zugriff fehlerhaft, Datenträgerplatz erschöpft, Zugriffsrechte fehlerhaft.</p>
+<p><strong>Beobachtungen (fiktiv):</strong> <code>whoami</code> zeigt das korrekte Konto, <code>$env:USERPROFILE</code> zeigt ein TEMP-Verzeichnis, Ereignislog meldet ein Profilladeproblem und <code>Get-Volume</code> nur 80 MB frei. Der Originalordner <code>C:\Users\a.mustermann</code> ist lesbar. <strong>Das beweist noch nicht</strong>, dass Platzmangel die einzige Ursache ist.</p>
+<p><strong>Kontrollierte Vorgehensweise:</strong> Aktuelle TEMP-Arbeitsdateien sicher exportieren, ursprüngliche Daten gegenprüfen, belegte Systempartition und zeitlich passende Ereignisse korrelieren; genehmigte Speicherplatzbereinigung durch zuständigen Owner und anschließend kontrollierte Neuanmeldung mit Anwenderzustimmung. Keine Profil- oder Registry-Löschung.</p>
+<p><strong>Erfolgsnachweis (fiktiv):</strong> Anmeldung mit Originalpfad, lokale Dateien vorhanden, Testdatei über eine erneute Anmeldung erhalten; Ticket mit Ursache und kontrollierten Tests geschlossen.</p>
+<h2 id="14-fiktiver-praxisfall-b-fslogix-container-an-vdi-host-nicht-eingebunden">14. Fiktiver Praxisfall B – FSLogix-Container an VDI-Host nicht eingebunden</h2>
+<p><strong>Meldung:</strong> Mehrere Anwender erhalten auf einem VDI-Host temporäre Profile; andere VDI-Hosts sind unauffällig. Alle Angaben sind <strong>fiktiv</strong>.</p>
+<p><strong>Hypothesen:</strong> Serverübergreifende Berechtigungsabweichung, gesperrte VHD(X), Netz-/DNS-/SMB-Störung oder Speicherplatzproblem der Profilfreigabe.</p>
+<p><strong>Beobachtungen (fiktiv):</strong> Anmeldezeit 09:15; im FSLogix-Profillog steht ein Attach-Fehler und <code>Test-NetConnection</code> meldet vom betroffenen Host keine Verbindung zum Storage-Ziel über TCP 445. Ein Vergleichshost erreicht die Freigabe. <strong>Nicht ausgeschlossen:</strong> zusätzlicher Authentifizierungs- oder Storagefehler.</p>
+<p><strong>Vorgehen:</strong> VDI-/Storage-Team mit Befunden einbeziehen, DNS/Port/Firewallpfad und betroffene Freigabe eingrenzen; <strong>keine</strong> VHD(X)-Dateien entfernen und keine Container-Detach-Operation im laufenden Betrieb ausführen. Nach genehmigter Netzkorrektur Anmelde-/Profilattach auf Testhost und anschließend in der betroffenen Nutzerumgebung nachprüfen.</p>
+<p><strong>Erfolgsnachweis (fiktiv):</strong> Originalcontainer wird geladen, Anwendungszustand und Dateien vorhanden, keine erneuten Attach-Fehler, Freigabe und Regressionstest dokumentiert.</p>
+<h2 id="15-active-recall-diagnosekarten-und-transfertraining">15. Active Recall, Diagnosekarten und Transfertraining</h2>
+<p><strong>Fragen zunächst ohne Lösung beantworten:</strong></p>
+<ol>
+<li>Warum beweist eine erfolgreiche Kennwortprüfung nicht, dass das Benutzerprofil korrekt geladen wurde?</li>
+<li>Welche Daten sind während einer temporären Sitzung besonders gefährdet – und wann?</li>
+<li>Worin unterscheiden sich <code>whoami /user</code>, <code>Win32_UserProfile</code> und <code>ProfileList</code>?</li>
+<li>Warum muss die Ereigniszeit zur konkreten Anmeldung passen?</li>
+<li>Welche Aussage <strong>kann</strong> ein einzelnes Ereignis 1530 nicht beweisen?</li>
+<li>Wann hilft der Vergleich „ein Nutzer / viele Nutzer“ bei der Eingrenzung?</li>
+<li>Welche zusätzlichen Abhängigkeiten bringt ein FSLogix-Profilcontainer mit?</li>
+<li>Welche Voraussetzungen gelten vor einer erneuten Anmeldung oder Profilmigration?</li>
+<li>Warum ist das Entfernen eines <code>.bak</code>-Schlüssels ohne Diagnose riskant?</li>
+<li>Wie beweist du, dass nach einer Reparatur die <strong>richtigen</strong> Benutzerdaten geladen wurden?</li>
+</ol>
+<p><strong>Kompakte Anki-Vorschläge (Antwortseite jeweils selbst erstellen):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Typ</th>
+<th>Vorderseite</th>
+<th>Erwartete Antwort (Kurzanker)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wissen</td>
+<td>Welcher Dienst lädt Windows-Benutzerprofile?</td>
+<td>User Profile Service (ProfSvc).</td>
+</tr>
+<tr>
+<td>Wissen</td>
+<td>Welche Datei trägt einen wesentlichen Teil der Benutzer-Registry-Hive?</td>
+<td><code>NTUSER.DAT</code>.</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>„TEMP-Profil“ bedeutet automatisch Datenverlust des alten Profils?</td>
+<td>Nein; alte Daten separat prüfen, TEMP-Änderungen sofort sichern.</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Warum sind „Konto“ und „Profil“ getrennte Fehlerdomänen?</td>
+<td>Authentifizierung ≠ Profilladung.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Ein Nutzer, Login erfolgreich, TEMP, Profilordner vorhanden: zuerst?</td>
+<td>TEMP-Daten sichern; Ereignisse, Pfad, Disk und ACL korrelieren.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Viele VDI-Logins mit TEMP: welcher Zweig?</td>
+<td>FSLogix/Storage/Netz/Policy im Hostvergleich.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Event 1530 allein: Profil defekt?</td>
+<td>Kein hinreichender Nachweis.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Transferaufgabe:</strong> In einer isolierten Windows-11-VM ein Testkonto und Testdaten vorbereiten; nur <strong>genehmigte, reversible</strong> Störungsvarianten einsetzen. Zuerst Diagnoseprotokoll ausfüllen; Lösung erst danach mit dem Runbook vergleichen. <strong>Keine</strong> echte Benutzerprofilbeschädigung ohne Snapshot, Backup und Recovery-Test erzwingen. Wiederholung mit neuen Symptomen nach ca. 7 und 21 Tagen.</p>
+<hr/>
+<h2 id="herstellerquellen-recherchebelege">Herstellerquellen / Recherchebelege</h2>
+<ul>
+<li><strong>[Q1] Microsoft Support – Reparieren eines beschädigten Benutzerprofils:</strong> <a href="https://support.microsoft.com/de-de/windows/security/identity-signin/fix-a-corrupted-user-profile" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/security/identity-signin/fix-a-corrupted-user-profile</a></li>
+<li><strong>[Q2] Microsoft Support – We can't sign in to your account / temporary profile:</strong> <a href="https://support.microsoft.com/en-us/windows/security/identity-signin/we-can-t-sign-in-to-your-account-error-message" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/en-us/windows/security/identity-signin/we-can-t-sign-in-to-your-account-error-message</a></li>
+<li><strong>[Q3] Microsoft Learn – Problembehandlung von Benutzerprofilen mit Ereignissen:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/user-profiles-and-logon/troubleshoot-user-profiles-events" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/user-profiles-and-logon/troubleshoot-user-profiles-events</a></li>
+<li><strong>[Q4] Microsoft Learn – About User Profiles:</strong> <a href="https://learn.microsoft.com/en-us/windows/win32/shell/about-user-profiles" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/win32/shell/about-user-profiles</a></li>
+<li><strong>[Q5] Microsoft Learn – Win32_UserProfile-Klasse:</strong> <a href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/usm/win32-userprofile" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/previous-versions/windows/desktop/usm/win32-userprofile</a></li>
+<li><strong>[Q6] Microsoft Learn – FSLogix: Container Attach/Detach:</strong> <a href="https://learn.microsoft.com/en-us/fslogix/troubleshooting-container-attach-detach" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/fslogix/troubleshooting-container-attach-detach</a></li>
+<li><strong>[Q7] Microsoft Learn – FSLogix: Protokolle und Diagnose:</strong> <a href="https://learn.microsoft.com/de-de/fslogix/troubleshooting-events-logs-diagnostics" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/fslogix/troubleshooting-events-logs-diagnostics</a></li>
+<li><strong>[Q8] Microsoft Learn – Recognized Environment Variables / ProfileList:</strong> <a href="https://learn.microsoft.com/windows/deployment/usmt/usmt-recognized-environment-variables" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/windows/deployment/usmt/usmt-recognized-environment-variables</a></li>
+<li><strong>[Q9] Microsoft Support – Sicherung und Wiederherstellung unter Windows:</strong> <a href="https://support.microsoft.com/en-us/windows/experience/backup-recovery/backup-restore-and-recovery-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/en-us/windows/experience/backup-recovery/backup-restore-and-recovery-in-windows</a></li>
+<li><strong>[Q10] Microsoft Learn – Ereignis 1530 im Anwendungsprotokoll:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/user-profiles-and-logon/event-1530-application-log" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/user-profiles-and-logon/event-1530-application-log</a></li>
+</ul>
+<p><strong>Anwendbarkeit:</strong> Die Quellen umfassen Windows-11-Supportartikel und teilweise Windows-Server-/FSLogix-Szenarien; konkrete Diagnosemaßnahmen sind <strong>versions- und umgebungsabhängig</strong>. Herangezogene allgemeine Grundsätze sind deshalb von speziellen Server- oder VDI-Verfahren getrennt. Alle Befehle und Testannahmen sind als Lernvorlage zu prüfen, <strong>nicht</strong> auf dem echten Betriebssystem ausgeführt. Links: Stand der Recherche 22.11.2026.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-042_Lernartikel.md">RB-042_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-041/index.html">← Ticket 41</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-043/index.html">Ticket 43 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

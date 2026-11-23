@@ -1,0 +1,170 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 30: SharePoint-Datei nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 30: SharePoint-Datei nicht erreichbar. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 30: SharePoint-Datei nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-auswirkung-und-prioritat-l1">1. Ticketannahme, Auswirkung und Priorität (L1)</a></li><li><a href="#2-sicherheits-freigabe-gate-vor-anderungen">2. Sicherheits-/Freigabe-Gate (vor Änderungen)</a></li><li><a href="#3-l1-schnelltriage-konto-pfad-und-kontext-ohne-anderungen">3. L1-Schnelltriage: Konto, Pfad und Kontext (ohne Änderungen)</a></li><li><a href="#4-diagnosepfad-a-403-zugriff-verweigert">4. Diagnosepfad A – 403 / „Zugriff verweigert“</a></li><li><a href="#5-diagnosepfad-b-404-datei-nicht-gefunden">5. Diagnosepfad B – 404 / „Datei nicht gefunden“</a></li><li><a href="#6-diagnosepfad-c-browser-funktioniert-explorer-nicht">6. Diagnosepfad C – Browser funktioniert, Explorer nicht</a></li><li><a href="#7-diagnosepfad-d-gast-sicherheitsrichtlinie-oder-plattformproblem">7. Diagnosepfad D – Gast, Sicherheitsrichtlinie oder Plattformproblem</a></li><li><a href="#8-lesende-powershell-admin-prufungen">8. Lesende PowerShell-/Admin-Prüfungen</a></li><li><a href="#9-abschlussprufung-und-eskalation">9. Abschlussprüfung und Eskalation</a></li><li><a href="#10-ticketdokumentation-status-und-mini-kompetenzcheck">10. Ticketdokumentation, Status und Mini-Kompetenzcheck</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherchiert-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (recherchiert 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Version:</strong> 1.0 · <strong>22.11.2026</strong><br/>
+<strong>Fachstatus:</strong> Herstellerquellen recherchiert, <strong>noch nicht praktisch validiert</strong>.</p>
+<blockquote>
+<p><strong>Arbeitsregel:</strong> <strong>403 ≠ fehlende Berechtigung bewiesen. 404 ≠ Datei endgültig gelöscht bewiesen. Web funktioniert ≠ Explorer synchronisiert.</strong> Konto, Ort und Zugriffsweg trennen; <strong>keine</strong> Rechte oder Sicherheitsregeln ohne festgestellten Sollzustand ändern.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb030_henne_ei_sharepoint.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne und Ei – SharePoint-Datei systematisch diagnostizieren" decoding="async" loading="lazy" src="assets/rb030_henne_ei_sharepoint.webp"/></a></div><figcaption>Henne und Ei – SharePoint-Datei systematisch diagnostizieren</figcaption></figure>
+<p>Technischer Entscheidungsbaum: <a href="assets/rb030_diagnosebaum.svg">SVG</a> · <a href="assets/rb030_diagnosebaum.svg">PNG-Vorschau</a></p>
+<hr/>
+<h2 id="1-ticketannahme-auswirkung-und-prioritat-l1">1. Ticketannahme, Auswirkung und Priorität (L1)</h2>
+<p><strong>Sichere Mindestdaten:</strong> Fall-ID; redigierter Dateiname bzw. interne Ressourcenreferenz; Website/Bibliothek (keine öffentlichen Sharing-Tokens); exakter Fehlertext/HTTP-Code; Zeitpunkt; App bzw. Zugriffsweg (Teams/SharePoint-Web/Explorer); betroffene Aktion (Ansehen/Bearbeiten/Herunterladen); betroffene Personen und Auswirkung; jüngste Änderungen.</p>
+<p><strong>Erstfrage an den Nutzer:</strong> „Können Sie die SharePoint-Website und die Datei direkt im Browser aufrufen, oder tritt der Fehler nur beim geteilten Link beziehungsweise im Explorer auf?“</p>
+<p><strong>Priorisierung:</strong> Einzelner Nutzer / einzelne Datei üblicher Incident; mehrere Dateien/Sites/Abteilungen oder unternehmensweiter Zugriff: Incident- bzw. Major-Incident-Prozess und Service-Health-Prüfung. Eine vertrauliche Datei nicht zur Fehlersuche per E-Mail oder persönlicher Cloud verteilen.</p>
+<h2 id="2-sicherheits-freigabe-gate-vor-anderungen">2. Sicherheits-/Freigabe-Gate (vor Änderungen)</h2>
+<ul>
+<li>Zugriff nur mit <strong>eigenem zulässigen Firmenkonto</strong>; keine fremden Anmeldungen, Links oder Dokumentinhalte sichern.</li>
+<li>Im Ticket URLs nur <strong>ohne Freigabetoken</strong> oder als intern geschützte Referenz erfassen; private Inhalte, Credentials, Cookies und MFA-Codes vermeiden.</li>
+<li>Wer ist fachlicher Datei-/Site-Eigentümer? Welches <strong>Sollrecht</strong> braucht die Person (Lesen/Bearbeiten/Download)? Gibt es eine dokumentierte Genehmigung?</li>
+<li><strong>Kein Schnellfix:</strong> „Jeder mit Link“, globaler Gastzugriff, CA-Deaktivierung, Vollzugriff, pauschaler Gruppenbeitritt.</li>
+<li>Vor Papierkorb-Restore oder OneDrive-Reset: Änderungsfreigabe, Backup/Offlinebearbeitungen und Auswirkungen prüfen.</li>
+<li>Bei unklarem Sollrecht oder fehlender Berechtigung: <strong>STOPP und zuständige Freigabestelle</strong>.</li>
+</ul>
+<h2 id="3-l1-schnelltriage-konto-pfad-und-kontext-ohne-anderungen">3. L1-Schnelltriage: Konto, Pfad und Kontext (ohne Änderungen)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Frage/Test</th>
+<th>Entscheidung</th>
+<th>Folge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Richtiges Geschäfts-/Schulkonto/Tenant?</td>
+<td>Nein / unklar</td>
+<td>Anmeldung/Kontokontext klären; keine Zugriffsliste auf Verdacht erweitern</td>
+</tr>
+<tr>
+<td>SharePoint-Site im Web erreichbar?</td>
+<td>Nein</td>
+<td>Identität, Site, Richtlinie, Dienstlage prüfen</td>
+</tr>
+<tr>
+<td>Bibliothek und Datei direkt im Web erreichbar?</td>
+<td>Ja</td>
+<td>Original ist für diesen Nutzer erreichbar → Link/Client nachfolgend vergleichen</td>
+</tr>
+<tr>
+<td>Nur geteilter Link schlägt fehl?</td>
+<td>Ja</td>
+<td>Linktyp, Empfängerbindung, Gültigkeit durch Owner prüfen</td>
+</tr>
+<tr>
+<td>Nur Explorer/OneDrive-Ordner betroffen?</td>
+<td>Ja</td>
+<td>Syncstatus und lokale Abbildung prüfen, nicht Rechte wechseln</td>
+</tr>
+<tr>
+<td>Mehrere Nutzer / Sites betroffen?</td>
+<td>Ja</td>
+<td>M365 Service Health / Change / SharePoint Admin einbeziehen</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ein InPrivate-Test kann Mehrfachkonten und Sessionkontext abgrenzen, <strong>ersetzt aber keine Rechte-/Sicherheitsprüfung</strong>. [Q1, Q2]</p>
+<h2 id="4-diagnosepfad-a-403-zugriff-verweigert">4. Diagnosepfad A – 403 / „Zugriff verweigert“</h2>
+<p><strong>Voraussetzung:</strong> Fehler kommt am Web-/Freigabezugriff, auch mit richtigem Konto.</p>
+<ol>
+<li>Fehlertext, Zeitpunkt und Benutzer-/Tenantkontext dokumentieren.</li>
+<li>Site und Bibliothek mit <em>berechtigtem</em> Konto öffnen lassen; prüfen, ob nur Datei, Ordner oder gesamte Site betroffen ist.</li>
+<li><strong>Zugriff verwalten/Teilen</strong> mit Eigentümer oder Site-Owner kontrollieren: Personen, Gruppen, direkte/geerbte/linkbasierte Rechte, Linktyp [Q3].</li>
+<li>Prüfen, ob Link ausdrücklich für andere Person bestimmt, abgelaufen oder erneuert wurde [Q4].</li>
+<li>Wenn Rechte vorhanden: zusätzliche <strong>Restricted Site Access</strong>, CA, Gästeinstellungen und ggf. LockState durch L2/Security prüfen [Q5, Q6].</li>
+<li><strong>Erst nach Genehmigung</strong> kleinstmögliche Rolle/Gruppe korrigieren; dann <strong>mit ursprünglicher Identität</strong> erneuten Zugriff nachweisen.</li>
+</ol>
+<p><strong>Nicht vergessen:</strong> Restricted Site Access benötigt <strong>sowohl</strong> Dateirecht als auch erlaubte Restriktionsgruppe; eines allein reicht nicht [Q5].</p>
+<h2 id="5-diagnosepfad-b-404-datei-nicht-gefunden">5. Diagnosepfad B – 404 / „Datei nicht gefunden“</h2>
+<ol>
+<li>Konkrete URL-/Dateireferenz dem zuständigen Owner übergeben (keine Sharing-Tokens in offenen Tickets).</li>
+<li>Owner kontrolliert in der Bibliothek: <strong>umbenannt / verschoben / gelöscht?</strong> [Q7]</li>
+<li>Datei an neuem Ort vorhanden → aktuellen, passend adressierten Link neu bereitstellen, alten Link ggf. aktualisieren.</li>
+<li>Datei tatsächlich gelöscht → zuständige Person prüft <strong>ersten</strong> und bei Bedarf <strong>zweiten SharePoint-Papierkorb</strong>; Restore nur nach Freigabe [Q8].</li>
+<li>Nach Wiederherstellung Dateipfad, Metadaten, Rechte, Inhalt und Zugriff prüfen; Konflikte oder Dubletten ausschließen.</li>
+</ol>
+<p><strong>Zeitgrenze:</strong> Microsoft nennt bei SharePoint Online für die beiden Papierkorb-Stufen grundsätzlich 93 Tage ab Löschen; keine garantierte Verfügbarkeit und abhängig von Lösch-/Aufbewahrungsbedingungen [Q8].</p>
+<h2 id="6-diagnosepfad-c-browser-funktioniert-explorer-nicht">6. Diagnosepfad C – Browser funktioniert, Explorer nicht</h2>
+<ol>
+<li><strong>Dieselbe Datei</strong> mit derselben Unternehmensidentität in SharePoint <strong>Web</strong> öffnen.</li>
+<li>OneDrive-Symbol im Infobereich: Angemeldetes Geschäftskonto, Warnung, pausierte Synchronisierung, Konflikt, Dateistatus.</li>
+<li>Prüfen: Stimmt der lokale Ordner zur <strong>richtigen Bibliothek</strong>? Ist Datei online-only / offline verfügbar? Gibt es Pfad-/Dateinamensprobleme oder ungesyncte lokale Änderungen? [Q9, Q10]</li>
+<li>Sync-Symptom und Web-Zustand dokumentieren; ggf. Endpoint-L2 und RB-016 hinzuziehen.</li>
+<li>Erst bei nachgewiesener Client-Ursache <strong>und</strong> gesicherten Änderungen eine autorisierte Sync-Reparatur durchführen lassen.</li>
+<li>Danach Web-/lokalen Änderungsstand und öffnen/bearbeiten erneut vergleichen.</li>
+</ol>
+<p><strong>Niemals zu Beginn:</strong> Client entkoppeln, Cache/Sync-Ordner löschen oder OneDrive ohne Klärung lokaler Offlinekopien zurücksetzen.</p>
+<h2 id="7-diagnosepfad-d-gast-sicherheitsrichtlinie-oder-plattformproblem">7. Diagnosepfad D – Gast, Sicherheitsrichtlinie oder Plattformproblem</h2>
+<ul>
+<li><strong>Externe Gäste:</strong> Eingeladene Identität, passende Linkzielgruppe, SharePoint-Site-/Tenant-Freigaberegeln und erlaubte Domains prüfen [Q11].</li>
+<li><strong>Restricted Site Access:</strong> L2 kontrolliert die Site-Restriktionsgruppe zusätzlich zu den üblichen Dateirechten [Q5].</li>
+<li><strong>Conditional Access / Device Compliance / Label:</strong> Security-Team bewertet Richtlinien und sign-in-Belege im zulässigen Kontext. Nicht durch private Geräte umgehen [Q6].</li>
+<li><strong>Viele Benutzer betroffen:</strong> M365 Admin Center → Health → Service health und jüngste Changes durch Admin prüfen [Q1].</li>
+<li><strong>Site gesperrt:</strong> Nur SharePoint-Admin bewertet <code>LockState</code> und Ursachen. Eine Site-Entsperrung ist kein L1-Schnellfix [Q2].</li>
+</ul>
+<p><strong>Eskalationsübergabe:</strong> Zeitpunkt, Nutzer-/Tenantkontext, redigierte Ressource, Fehlermeldung, Web/Explorer-Vergleich, betroffene Gruppe, dokumentierte Rechte/Richtlinienbefunde und bisherige nicht-schreibende Tests.</p>
+<h2 id="8-lesende-powershell-admin-prufungen">8. Lesende PowerShell-/Admin-Prüfungen</h2>
+<p><strong>Optional; keine Voraussetzung für jedes L1-Ticket.</strong> Keine vertraulichen Linktokens in Konsolenausgaben oder Protokolldateien speichern.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Netzwerk-DNS: Nur Auflösung des SharePoint-Dienstnamens.
+Resolve-DnsName 'beispiel.sharepoint.com'
+
+# Verbindungsprüfung auf TCP 443. KEIN Nachweis für Datei-/Benutzerzugriff!
+Test-NetConnection 'beispiel.sharepoint.com' -Port 443
+
+# Läuft der lokale OneDrive-Sync-Client überhaupt?
+Get-Process OneDrive -ErrorAction SilentlyContinue |
+  Select-Object ProcessName, Id, StartTime
+</code></pre></div>
+<p><strong>Administrativer L2-Lesepfad</strong> – nur mit Rolle, genehmigtem SharePoint Online PowerShell-Modul, richtigen Tenant-Adressen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Interaktive Anmeldung beim richtigen Admin-Endpunkt.
+Connect-SPOService -Url 'https://beispiel-admin.sharepoint.com'
+
+# Site-Eigenschaften NUR LESEN (keine effektiven Dateirechte!).
+Get-SPOSite -Identity 'https://beispiel.sharepoint.com/sites/Projekt' |
+  Select-Object Url, LockState, SharingCapability
+</code></pre></div>
+<p><strong>Einordnung:</strong> <code>Test-NetConnection</code> kann erfolgreich sein, während SharePoint 403 liefert. <code>Get-SPOSite</code> zeigt Site-Eigenschaften, aber <strong>nicht</strong> ob ein bestimmter User eine konkrete Datei lesen darf [Q12]. <code>Set-SPOSite</code> oder Rechteänderung nur als gesondert genehmigter L2-Eingriff.</p>
+<h2 id="9-abschlussprufung-und-eskalation">9. Abschlussprüfung und Eskalation</h2>
+<p><strong>Erfolgsmessung:</strong></p>
+<ul>
+<li>Betroffene Person öffnet <strong>die richtige Datei</strong> mit ihrem ursprünglichen Konto über den ursprünglich problematischen Arbeitsweg.</li>
+<li>Die gewünschte Aktion (ansehen/bearbeiten/herunterladen) funktioniert tatsächlich, ohne zu breite Rechte.</li>
+<li>Link und Dateipfad zeigen auf den richtigen Inhalt; bei Explorer-Fällen sind Sync-Status und Dateiversion konsistent.</li>
+<li>Sicherheits-/Freigaberichtlinien sind weiterhin intakt; Änderung und Eigentümerfreigabe sind dokumentiert.</li>
+</ul>
+<p><strong>Stopp/Eskalation:</strong> fehlendes Sollrecht, ungeklärte externe Identität, Compliance-Policy, nicht nachvollziehbarer Gruppen-/Site-Zugriff, mehrere Sites/Benutzer, nicht sicherbare Offlineänderungen, Verdacht auf Datenverlust oder fortbestehende 403 trotz dokumentierter Berechtigungen.</p>
+<h2 id="10-ticketdokumentation-status-und-mini-kompetenzcheck">10. Ticketdokumentation, Status und Mini-Kompetenzcheck</h2>
+<h3 id="muster-ticketkommentar-ausdrucklich-fiktiv">Muster-Ticketkommentar – ausdrücklich fiktiv</h3>
+<blockquote>
+<p><strong>Problem:</strong> Der Benutzer erhielt beim Öffnen eines SharePoint-Dokuments über einen gespeicherten Link „404 – Datei nicht gefunden“. <strong>Diagnose/Maßnahme:</strong> Die Datei war von der zuständigen Eigentümerin in einen anderen Bibliotheksordner verschoben worden; über den aktuellen Speicherort wurde ein gültiger Link bereitgestellt, ohne Berechtigungen zu erweitern. <strong>Ergebnis:</strong> Datei ließ sich mit dem ursprünglichen Benutzerkonto wieder öffnen; neuer Link und Ursache sind dokumentiert.</p>
+</blockquote>
+<h3 id="l1-status-in-drei-satzen">L1-Status in drei Sätzen</h3>
+<blockquote>
+<p>„Der Dateizugriff schlägt aktuell über den geteilten Link fehl. Ich habe den Kontokontext und den direkten SharePoint-Zugriff voneinander abgegrenzt; die Überprüfung der Freigabe liegt nun beim zuständigen Dateieigentümer. Nach der Rückmeldung testen wir den Zugriff mit demselben Benutzerkonto erneut.“</p>
+</blockquote>
+<h3 id="active-recall-drei-fragen">Active Recall: drei Fragen</h3>
+<ol>
+<li>Welcher Vergleich trennt <strong>veralteten Link</strong> von <strong>fehlender Site-/Dateiberechtigung</strong>?</li>
+<li>Warum reicht bei <strong>Restricted Site Access</strong> eine direkte Dateifreigabe gegebenenfalls nicht aus?</li>
+<li>Was ist der sicherste erste Schritt, wenn die Datei <strong>im Web funktioniert, aber nicht im Explorer</strong>?</li>
+</ol>
+<h3 id="weiterfuhrendes-lernen">Weiterführendes Lernen</h3>
+<p>Für die praktische Validierung drei voneinander unterscheidbare Fehlerszenarien in einem autorisierten M365-Testtenant nachstellen: <strong>falscher Link</strong>, <strong>fehlendes Sollrecht</strong>, <strong>lokal gestörter OneDrive-Sync</strong>. Zu jedem Szenario erst Hypothesen, dann Trenn-Test, dann Maßnahme und nachgelagerte Verifikation festhalten. Später ohne Anleitung erneut lösen.</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherchiert-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (recherchiert 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/sharepoint/administration/sharepoint-online-inaccessible" rel="noopener noreferrer" target="_blank">Unable to access SharePoint Online</a>.</li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/sharepoint/sharing-and-permissions/error-403-forbidden" rel="noopener noreferrer" target="_blank">403 Forbidden in OneDrive or SharePoint</a>.</li>
+<li><strong>[Q3]</strong> <a href="https://support.microsoft.com/de-de/sharepoint/sharepoint-sharing-and-permissions/see-who-a-file-is-shared-with-in-onedrive-or-sharepoint" rel="noopener noreferrer" target="_blank">Anzeigen, für wen eine Datei in OneDrive oder SharePoint freigegeben ist</a>.</li>
+<li><strong>[Q4]</strong> <a href="https://support.microsoft.com/de-de/onedrive/sharepoint/manage-sharing-and-permissions-in-onedrive-and-sharepoint" rel="noopener noreferrer" target="_blank">Verwalten von Teilen und Berechtigungen in OneDrive und SharePoint</a>.</li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/sharepoint/restricted-access-control" rel="noopener noreferrer" target="_blank">Restrict SharePoint site access with groups</a>.</li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/sharepoint/authentication-context-example" rel="noopener noreferrer" target="_blank">Conditional Access policy – SharePoint</a>.</li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/sharepoint/administration/error-404-onedrive-sharepoint" rel="noopener noreferrer" target="_blank">404 File/Page not found in SharePoint</a>.</li>
+<li><strong>[Q8]</strong> <a href="https://support.microsoft.com/de-de/sharepoint/admin/restore-deleted-items-from-the-site-collection-recycle-bin" rel="noopener noreferrer" target="_blank">Wiederherstellen gelöschter Elemente</a>.</li>
+<li><strong>[Q9]</strong> <a href="https://support.microsoft.com/de-de/sharepoint/sync/fix-sharepoint-online-sync-problems" rel="noopener noreferrer" target="_blank">Beheben von SharePoint-Synchronisierungsproblemen</a>.</li>
+<li><strong>[Q10]</strong> <a href="https://support.microsoft.com/de-de/onedrive/restrictions-and-limitations-in-onedrive-and-sharepoint" rel="noopener noreferrer" target="_blank">Einschränkungen in OneDrive und SharePoint</a>.</li>
+<li><strong>[Q11]</strong> <a href="https://learn.microsoft.com/en-us/sharepoint/external-sharing-overview" rel="noopener noreferrer" target="_blank">Overview of external sharing</a>.</li>
+<li><strong>[Q12]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.online.sharepoint.powershell/get-sposite" rel="noopener noreferrer" target="_blank">Get-SPOSite</a>.</li>
+</ul>
+<p><strong>Status:</strong> Recherchiert, nicht praktisch getestet. Bei veränderter Tenant-Oberfläche oder abweichender Microsoft-Version im konkreten Fall erneut gegen die aktuelle Herstellerdokumentation prüfen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-030_Praxis-Runbook.md">RB-030_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-029/index.html">← Ticket 29</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-031/index.html">Ticket 31 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,277 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingangsticket-lernziel-und-abgrenzung">1. Eingangsticket, Lernziel und Abgrenzung</a></li><li><a href="#2-technisches-modell-die-onboarding-abhangigkeitskette">2. Technisches Modell: die Onboarding-Abhängigkeitskette</a></li><li><a href="#3-auftragsaufnahme-notwendige-und-unzulassige-angaben">3. Auftragsaufnahme: notwendige und unzulässige Angaben</a></li><li><a href="#4-quellsystem-der-identitat-cloud-only-oder-hybrid">4. Quellsystem der Identität: Cloud-only oder hybrid?</a></li><li><a href="#5-gruppen-rollen-und-minimalberechtigung">5. Gruppen, Rollen und Minimalberechtigung</a></li><li><a href="#6-lizenzen-serviceplane-und-bereitstellungsverzug">6. Lizenzen, Servicepläne und Bereitstellungsverzug</a></li><li><a href="#7-sichere-erstanmeldung-mfa-tap-conditional-access">7. Sichere Erstanmeldung: MFA, TAP, Conditional Access</a></li><li><a href="#8-arbeitsplatzgerat-intune-autopilot-und-schutzstatus">8. Arbeitsplatzgerät, Intune, Autopilot und Schutzstatus</a></li><li><a href="#9-fachliche-end-to-end-prufung-statt-oberflachlicher-checkliste">9. Fachliche End-to-End-Prüfung statt oberflächlicher Checkliste</a></li><li><a href="#10-lesende-windows-microsoft-graph-diagnose">10. Lesende Windows-/Microsoft-Graph-Diagnose</a></li><li><a href="#11-diagnosematrix-bei-fehlgeschlagenem-onboarding">11. Diagnosematrix bei fehlgeschlagenem Onboarding</a></li><li><a href="#12-fiktiver-praxisfall-a-konto-und-lizenz-vorhanden-mail-fehlt">12. Fiktiver Praxisfall A – Konto und Lizenz vorhanden, Mail fehlt</a></li><li><a href="#13-fiktiver-praxisfall-b-konto-und-laptop-bereit-fachapp-gesperrt">13. Fiktiver Praxisfall B – Konto und Laptop bereit, Fachapp gesperrt</a></li><li><a href="#14-sicherer-abschluss-ticketkommentar-eskalation">14. Sicherer Abschluss, Ticketkommentar, Eskalation</a></li><li><a href="#15-wissenstransfer-active-recall-und-spatere-laborvalidierung">15. Wissenstransfer, Active Recall und spätere Laborvalidierung</a></li><li><a href="#offizielle-quellen-microsoft-learn-recherche-23-11-2026">Offizielle Quellen (Microsoft Learn; Recherche 23.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0 · <strong>Systeme:</strong> Microsoft 365, Microsoft Entra ID, optional Active Directory DS (hybrid), Intune/Windows Autopilot, Exchange Online, Teams, OneDrive/SharePoint und Fachanwendungen<br/>
+<strong>Status:</strong> Aktuelle Herstellerquellen recherchiert; <strong>keine praktische Validierung</strong>. Alle Personen, Organisationsdaten, Gerätenamen, Tickets, Konten und Ergebnisse in diesem Dokument sind fiktiv. Es wurden keine produktiven Systeme verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb049_henne_ei_onboarding.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-049 – Henne-und-Ei-Infografik: Arbeitsplatz und Zugänge kontrolliert bereitstellen" decoding="async" loading="lazy" src="assets/rb049_henne_ei_onboarding.webp"/></a></div><figcaption>RB-049 – Henne-und-Ei-Infografik: Arbeitsplatz und Zugänge kontrolliert bereitstellen</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>Konto erstellt ≠ Berechtigungen genehmigt ≠ Lizenz aktiv ≠ MFA eingerichtet ≠ Gerät verwaltet ≠ Mitarbeiter arbeitsfähig.</strong> Jede Voraussetzung muss für die tatsächlich benötigte Tätigkeit nachgewiesen werden.</p>
+</blockquote>
+<hr/>
+<h2 id="1-eingangsticket-lernziel-und-abgrenzung">1. Eingangsticket, Lernziel und Abgrenzung</h2>
+<p><strong>Fiktives Eingangsticket:</strong> „Neue Kollegin, Jana Weber, beginnt am Montag als Sachbearbeiterin. Bitte Windows-Laptop, Firmen-E-Mail, Microsoft Teams, OneDrive und Zugriff auf das freigegebene Teamlaufwerk sowie die Fachanwendung <code>Kundenportal</code> bereitstellen. Genehmigungsnummer: <code>HR-ONB-1049</code>. Ansprechpartnerin ist die Teamleitung. Auslieferung vor Dienstbeginn.“</p>
+<p><strong>Lernziel:</strong> Aus einem freigegebenen Eintrittsauftrag einen <strong>nachvollziehbar funktionsfähigen Arbeitsplatz</strong> mit minimal erforderlichen Rechten bereitstellen. Dabei Abhängigkeiten, Verantwortlichkeiten und Prüfpunkte erkennen, statt lediglich Konten zu erstellen.</p>
+<p><strong>Abgrenzung:</strong> RB-012 behandelt MFA-Störungen; RB-017 Netzlaufwerke; RB-029 Lizenzfehler; RB-041 Gruppenmitgliedschaft; RB-045 Intune-Geräteverwaltung; RB-046 Softwaredeployment. RB-049 integriert diese Teilfähigkeiten in einen kontrollierten <strong>Joiner-Prozess</strong>. RB-050 behandelt den gegenteiligen Prozess (Offboarding).</p>
+<p><strong>Organisatorischer Grundsatz:</strong> Die Quelle für Eintritt, Name, Funktion und Startdatum ist der <strong>autorisierte HR-/Personalprozess</strong>; Zugriffsrechte benötigen die dokumentierte Zustimmung der fachlich Verantwortlichen. Eine mündliche Nachricht ohne belegbaren Auftrag ersetzt keine Freigabe.</p>
+<h2 id="2-technisches-modell-die-onboarding-abhangigkeitskette">2. Technisches Modell: die Onboarding-Abhängigkeitskette</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">HR-/Fachauftrag und Eintrittsdatum bestätigt
+  → Identitäts-Quellsystem (Cloud oder AD DS/hybrid) festlegen
+  → Benutzerkonto / UPN / eindeutige Zuordnung
+  → Rollenbasierte Gruppen und Ressourcenrechte mit Genehmigung
+  → Erforderliche Lizenzprodukte und Servicepläne
+  → Sichere Erstauthentifizierung und MFA/Conditional Access
+  → Inventarisiertes Gerät, Enrollment, Compliance und Anwendungen
+  → Funktionstest mit berechtigter Person / Übergabe / Ticketabschluss
+</code></pre></div>
+<p><strong>Warum diese Reihenfolge?</strong> Gruppen können Apps, Lizenzen und Richtlinien steuern; Intune und Autopilot benötigen passende Benutzer-/Gerätevoraussetzungen; Conditional Access kann Zugriff trotz korrekter Lizenz blockieren. Die <strong>Kette ist eine praktische Prozesslogik</strong>, keine einzige fest verdrahtete Reihenfolge aller Microsoft-Tenants. Viele Teilprozesse können parallel ablaufen oder werden automatisiert, müssen aber am Ende gemeinsam geprüft werden. [Q1][Q3][Q4][Q6][Q8]</p>
+<h2 id="3-auftragsaufnahme-notwendige-und-unzulassige-angaben">3. Auftragsaufnahme: notwendige und unzulässige Angaben</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Erforderlicher Sachverhalt</th>
+<th>Beispiel / Prüfung</th>
+<th>Zuständig</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Genehmigung und Startdatum</td>
+<td>HR-Ticket, Rolle, Team, Standort, voraussichtlicher Eintritt</td>
+<td>HR/Teamleitung</td>
+</tr>
+<tr>
+<td>Identitätsdaten</td>
+<td>Namensschreibweise, eindeutige Mitarbeiterkennung, UPN-Konvention</td>
+<td>Identity-Team</td>
+</tr>
+<tr>
+<td>Funktion und Soll-Rechte</td>
+<td>Freigegebene Rollenmatrix, Datenbereiche, Fachapp, Dateifreigaben</td>
+<td>Fachbereich/Dateneigner</td>
+</tr>
+<tr>
+<td>Microsoft-365-Leistungen</td>
+<td>Exchange, Teams, Office-Desktop, OneDrive, Zusatzdienste</td>
+<td>Lizenzadministration</td>
+</tr>
+<tr>
+<td>Gerät</td>
+<td>Inventarnummer, Modell, Standort, Zubehör, Übergabetermin</td>
+<td>Endpoint-/Asset-Team</td>
+</tr>
+<tr>
+<td>Authentifizierung</td>
+<td>Vorgesehene MFA-Methode, sichere Initialübergabe</td>
+<td>Identity/Security</td>
+</tr>
+<tr>
+<td>Abnahme</td>
+<td>Testperson, Sollfunktionen, Übergabeprotokoll, Restarbeiten</td>
+<td>Support/Benutzer</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht ins Ticket:</strong> Klartextkennwort, Temporary Access Pass, Recovery-Schlüssel, Passkeys, private MFA-Daten, Ausweiskopien oder vollständige vertrauliche Personalunterlagen. Stattdessen Art und Ergebnis der zulässigen Identitätsprüfung dokumentieren; Secrets nur über freigegebene, zeitlich begrenzte Übergabewege. Bei ungeklärter Identität oder fehlender Genehmigung <strong>STOP</strong>.</p>
+<h2 id="4-quellsystem-der-identitat-cloud-only-oder-hybrid">4. Quellsystem der Identität: Cloud-only oder hybrid?</h2>
+<p><strong>Cloud-only:</strong> Benutzer wird nach genehmigter Identitätsprüfung in Entra ID / Microsoft 365 angelegt und verwaltet.</p>
+<p><strong>Hybrid:</strong> Das Unternehmen kann das lokale <strong>Active Directory DS</strong> als maßgebliche Quelle für synchronisierte Benutzerkonten verwenden. In diesem Fall darf nicht nebenbei ein zweites gleichnamiges Cloudkonto entstehen; für Änderungen sind der zuständige Schreibort und Synchronisierungsweg maßgeblich. Die konkrete Source-of-Authority-Konfiguration ist zu prüfen und kann von neuen Cloud-Sync-Funktionen beeinflusst werden. [Q2][Q11]</p>
+<p><strong>Vor dem Anlegen prüfen:</strong> Existiert der Benutzer bereits (z. B. Vorvertrag, Wiederanstellung, Gastkonto)? Ist UPN/Anmeldename eindeutig? Sind Anzeigename, Manager, Kostenstelle und <code>usageLocation</code> entsprechend Richtlinie gepflegt? Stimmt der geplante Aktivierungszeitpunkt? Keine zusätzlichen Konten erzeugen, nur weil ein Sync noch aussteht.</p>
+<p><strong>Beobachtbare Befunde:</strong> Konto in AD aber noch nicht in Entra → Synchronisationsstatus; Cloudkonto vorhanden, aber Login blockiert → Account-Status/Conditional Access; doppeltes Objekt → Identitätskonflikt durch Identity-Team untersuchen.</p>
+<h2 id="5-gruppen-rollen-und-minimalberechtigung">5. Gruppen, Rollen und Minimalberechtigung</h2>
+<ul>
+<li>Eine <strong>Rollenmatrix</strong> nennt erforderliche Ressourcen, Geschäftsrolle, Besitzer und Genehmigung. Nur diese Gruppen vergeben; kein Kopieren aller Gruppen eines Kollegen.</li>
+<li><strong>Entra-Sicherheitsgruppen, Microsoft-365-Gruppen und AD-Sicherheitsgruppen</strong> dienen unterschiedlichen Zwecken; eine Mitgliedschaft bedeutet nicht automatisch Zugriffsrecht auf jede Ressource. Gruppenverschachtelung, Token-Aktualisierung und Rechte auf der Zielressource müssen berücksichtigt werden. [Q3]</li>
+<li><strong>Adminrollen</strong> nur mit gesondertem Auftrag, Least Privilege und ggf. privilegiertem Freigabeprozess. Normale Endbenutzer brauchen in der Regel keine lokalen Adminrechte.</li>
+<li>Freigaben, SharePoint, Teams, Fachapplikation und Datei-/Druckdienste haben möglicherweise <strong>eigene Berechtigungsmodelle</strong>. Alle Soll-Zugriffe getrennt nachweisen.</li>
+</ul>
+<p><strong>Sicherheitsstop:</strong> Wenn ein Antrag „alle Rechte wie bei Kollege X“ lautet, Rückfrage an den Ressourceneigner; keine ungeprüfte Übernahme historisch gewachsener Sonderberechtigungen.</p>
+<h2 id="6-lizenzen-serviceplane-und-bereitstellungsverzug">6. Lizenzen, Servicepläne und Bereitstellungsverzug</h2>
+<p>Eine zugewiesene <strong>SKU</strong> garantiert nicht, dass der benötigte <strong>Serviceplan</strong> aktiv ist oder die Anwendung schon bereitsteht. Beispiel: Ein Lizenzprodukt mit Exchange-Online-Leistung ist eine Voraussetzung für das reguläre Benutzerpostfach, doch dessen Provisionierung kann zeitlich verzögert sein. [Q4][Q9][Q10]</p>
+<p><strong>Prüfkette:</strong> Konto → Nutzungsstandort → Lizenzprodukt und verfügbares Kontingent → direkter oder gruppenbasierter Zuweisungsweg → Serviceplanstatus → tatsächlicher Dienst (Postfach/Teams/etc.). Bei gruppenbasierter Zuweisung können Fehler später auf dem Benutzerobjekt sichtbar werden; daher Status nachprüfen. [Q4][Q15]</p>
+<p><strong>Diagnosebeispiele:</strong> Lizenzzuweisung fehlgeschlagen wegen fehlendem Usage Location, zu wenigen verfügbaren Plätzen oder Konflikten; Postfach fehlt trotz Lizenz → Exchange-Provisionierung und Dienststatus prüfen. <strong>Nicht</strong> planlos Lizenzen entziehen und erneut vergeben, um Verzögerungen vermeintlich zu beheben.</p>
+<h2 id="7-sichere-erstanmeldung-mfa-tap-conditional-access">7. Sichere Erstanmeldung: MFA, TAP, Conditional Access</h2>
+<ul>
+<li>Vor Erstzugang die <strong>Personenidentität und autorisierte Geräteübergabe</strong> nach Organisationsprozess verifizieren.</li>
+<li>Vorgesehene MFA-Methode bzw. passwortlose Methode <strong>durch den Benutzer selbst</strong> einrichten lassen, nicht durch einen Supportmitarbeiter stellvertretend registrieren.</li>
+<li>Falls organisatorisch vorgesehen, kann ein <strong>Temporary Access Pass (TAP)</strong> eine zeitlich begrenzte Ersteinrichtung von Anmeldemethoden unterstützen. TAP ist ein sensibler Zugangscode und nur nach Berechtigung, Gültigkeits- und Übergaberichtlinien zu verwenden. [Q5]</li>
+<li><strong>Conditional Access</strong> kann App-Zugriff an MFA, Gerätecompliance oder andere Bedingungen knüpfen; ein gesperrter Zugriff wird über <strong>Anmeldeprotokoll und angewendete Richtlinie</strong> diagnostiziert, nicht durch pauschales Deaktivieren der Policy. [Q8][Q13]</li>
+</ul>
+<p><strong>Nachweis:</strong> Benutzer kann die vorgesehene Authentifizierung erfolgreich und ohne Sicherheitsausnahme abschließen; Support dokumentiert nur <strong>erfolgreich / Fehlercode / Zeit</strong>, keine Codes oder Authenticator-Inhalte.</p>
+<h2 id="8-arbeitsplatzgerat-intune-autopilot-und-schutzstatus">8. Arbeitsplatzgerät, Intune, Autopilot und Schutzstatus</h2>
+<p><strong>Gerätebereitstellung:</strong> Zugeordnetes Gerät stimmt mit Assetverwaltung/Seriennummer überein; Windows-Version und Unternehmensimage freigegeben; vorgesehenes Enrollment (z. B. Intune per Windows Autopilot) abgeschlossen; Gerät erscheint mit <strong>passendem Benutzer, Gerätezustand, Check-in und Compliance-Status</strong>. [Q6][Q7][Q12]</p>
+<p><strong>Kontrollen:</strong> Verschlüsselungsstatus und <strong>gesicherte BitLocker-Recovery-Informationen</strong> nach Richtlinie, Sicherheitslösung und Richtlinienzustand, erforderliche Anwendungen, Updates, Hostname, Unternehmensnetz/VPN sowie Drucker und Zubehör nach Bedarf. BitLocker-Schlüssel niemals im Ticket notieren.</p>
+<p><strong>Nicht verwechseln:</strong> Entra-Geräteidentität ≠ MDM-Enrollment ≠ erfolgreicher Check-in ≠ Policy-Anwendung ≠ betriebsbereites Gerät. [Q6][Q12]</p>
+<p><strong>Abweichung:</strong> App fehlt trotz Unternehmensportal-Eintrag → Targeting/IME-Installation/Detection unterscheiden (RB-046). Gerät ist nicht compliant → Compliance-Grund/Check-in statt pauschalem Policy-Bypass prüfen (RB-045).</p>
+<h2 id="9-fachliche-end-to-end-prufung-statt-oberflachlicher-checkliste">9. Fachliche End-to-End-Prüfung statt oberflächlicher Checkliste</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Sollfunktion</th>
+<th>Tatsächlicher Funktionstest</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows</td>
+<td>Benutzer kann sich anmelden; Windows-Sitzung und Profil korrekt</td>
+</tr>
+<tr>
+<td>Exchange</td>
+<td>Postfach erreichbar; autorisierte Testmail senden und empfangen</td>
+</tr>
+<tr>
+<td>Teams</td>
+<td>Anmeldung, Team-/Chat-Zugriff und erforderliche Kommunikation</td>
+</tr>
+<tr>
+<td>OneDrive/SharePoint</td>
+<td>Zugriff auf genehmigte Testdatei; Synchronisierung, falls benötigt</td>
+</tr>
+<tr>
+<td>Fachanwendung</td>
+<td>Mit echter Benutzerrolle starten und erlaubte, ungefährliche Testaktion</td>
+</tr>
+<tr>
+<td>Dateiablage</td>
+<td>Berechtigte Freigabe öffnen; Schreibzugriff nur falls genehmigt</td>
+</tr>
+<tr>
+<td>Drucker/VPN/Peripherie</td>
+<td>Nur wenn der Arbeitsplatz dies tatsächlich benötigt</td>
+</tr>
+<tr>
+<td>Sicherheit</td>
+<td>MFA/Conditional Access und Gerätecompliance erfüllt; keine unnötigen Rechte</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Testprinzip:</strong> Kein Support-Login „als Benutzer“ ohne zulässige Methode; MFA-Secret nicht abfragen. Der betroffene Mitarbeiter oder eine ausdrücklich berechtigte Testperson führt interaktive Tests aus. Die IT begleitet und dokumentiert das Ergebnis.</p>
+<h2 id="10-lesende-windows-microsoft-graph-diagnose">10. Lesende Windows-/Microsoft-Graph-Diagnose</h2>
+<p><strong>Voraussetzung:</strong> Nur mit genehmigter Rolle, freigegebener Arbeitsstation und den jeweils notwendigen Microsoft Graph-/RSAT-Modulen. Die Beispiele sind <strong>lesend</strong>, benötigen passende Rollen/Berechtigungen, und die Rückgabe muss datenschutzkonform behandelt werden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Optional: Microsoft Graph PowerShell, nur lesende Beispiele.
+# Connect-MgGraph startet eine interaktive Anmeldung; keine Konfigurationsänderung.
+Connect-MgGraph -Scopes 'User.Read.All','Directory.Read.All'
+
+$upn = 'jana.weber@firma.example'  # fiktiv
+Get-MgUser -UserId $upn `
+    -Property 'Id,DisplayName,UserPrincipalName,AccountEnabled,UsageLocation,AssignedLicenses,OnPremisesSyncEnabled' |
+    Select-Object Id, DisplayName, UserPrincipalName, AccountEnabled, UsageLocation, OnPremisesSyncEnabled
+
+# Lizenzdetails lesend prüfen; Verfügbarkeit der Felder hängt von Rechten ab.
+Get-MgUserLicenseDetail -UserId $upn |
+    Select-Object SkuPartNumber, SkuId, ServicePlans
+
+# Lokal auf dem bereitzustellenden Gerät:
+dsregcmd /status
+Get-ComputerInfo | Select-Object CsName, WindowsProductName, WindowsVersion
+Get-Tpm  # nur Status, kein TPM-Clear
+Get-BitLockerVolume -MountPoint 'C:' | Select-Object MountPoint, ProtectionStatus, VolumeStatus
+</code></pre></div>
+<p><strong>Bei Hybrid-AD</strong> und vorhandenen RSAT-/Lese-Rechten:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Import-Module ActiveDirectory
+Get-ADUser -Identity 'jweber' -Properties Enabled,UserPrincipalName,MemberOf,WhenCreated |
+    Select-Object SamAccountName, Enabled, UserPrincipalName, WhenCreated, MemberOf
+</code></pre></div>
+<p><code>Get-ADUser ... MemberOf</code> zeigt nicht zwangsläufig <strong>alle verschachtelten effektiven Berechtigungen</strong>. Abfragen direkt am Verzeichnis ersetzen nicht den ressourcenbezogenen Funktionstest. Keine Kennwörter oder Authentifizierungstokens im Skript hinterlegen.</p>
+<h2 id="11-diagnosematrix-bei-fehlgeschlagenem-onboarding">11. Diagnosematrix bei fehlgeschlagenem Onboarding</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Plausible Ursache</th>
+<th>Nächster gezielter Nachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Benutzerkonto sichtbar</td>
+<td>Auftrag unvollständig, falsches Quellsystem, Hybrid-Sync</td>
+<td>HR-Freigabe; AD/Entra-Abgleich und Syncstatus</td>
+</tr>
+<tr>
+<td>Login scheitert</td>
+<td>Account-Status, Kennwortübergabe, MFA/CA</td>
+<td>Entra-Anmeldelog/Fehlercode; TAP-Methode falls genehmigt</td>
+</tr>
+<tr>
+<td>Outlook ohne Postfach</td>
+<td>Exchange-Serviceplan, Lizenzfehler, Provisionierung</td>
+<td>User-Lizenzdetails und Exchange-Empfängerstatus</td>
+</tr>
+<tr>
+<td>Teams oder SharePoint verweigert</td>
+<td>Falsche Gruppe/Sollrolle, CA, Ressource</td>
+<td>Rollenmatrix, Gruppenstatus, Sign-in-Log, Site/Team-Rechte</td>
+</tr>
+<tr>
+<td>Gerät nicht verwaltet</td>
+<td>Autopilot-Profil/Enrollment/Intune-Lizenz</td>
+<td>Geräteidentität, Enrollmentstatus, Intune-Check-in</td>
+</tr>
+<tr>
+<td>App fehlt</td>
+<td>Targeting/Installation/Erkennung</td>
+<td>Intune-Appstatus, Anforderungen, IME-Logs</td>
+</tr>
+<tr>
+<td>Nutzer kann anmelden, aber nicht arbeiten</td>
+<td>Fachapp- oder Netzfreigabe fehlt</td>
+<td>End-to-End-Test der geforderten Tätigkeit</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Diagnoselogik:</strong> Immer feststellen, an welcher Stelle <strong>Soll und Ist erstmals auseinanderlaufen</strong>. Ein „grüner“ Portalstatus ist nur ein Teilnachweis und kein Ersatz für den Benutzer-Funktionstest. [Q10][Q12][Q13]</p>
+<h2 id="12-fiktiver-praxisfall-a-konto-und-lizenz-vorhanden-mail-fehlt">12. Fiktiver Praxisfall A – Konto und Lizenz vorhanden, Mail fehlt</h2>
+<p><strong>Ticket:</strong> <code>HR-ONB-1049</code> – Jana Weber beginnt heute; Entra-Konto vorhanden, Windows-Anmeldung erfolgreich, Outlook meldet fehlendes Postfach.</p>
+<p><strong>Erste Hypothesen:</strong> (H1) Exchange-Online-Serviceplan nicht aktiv; (H2) gruppenbasierte Lizenzzuweisung fehlgeschlagen; (H3) Postfachprovisionierung verzögert; (H4) falscher Benutzer/Tenant.</p>
+<p><strong>Prüfweg:</strong> UPN/Benutzer-ID aus HR-Auftrag → eindeutige Identität → Nutzungsstandort und Lizenzdetails → Servicepläne und Zuweisungsfehler → Exchange-Empfängerstatus und Zeitpunkt der Zuweisung → ggf. Service Health/Exchange-Support. Vergleich mit genehmigtem Referenznutzer der gleichen Rolle, ohne dessen Rechte zu kopieren.</p>
+<p><strong>Fiktiver Befund:</strong> Die gruppenbasierte Zuweisung steht auf Fehler, weil der Nutzungsstandort nicht gepflegt ist. <strong>Freigegebene Maßnahme</strong> des Lizenzteams: Nutzungsstandort nach HR-Standortdaten korrigieren, Zuweisung erneut verarbeiten lassen, Exchange-Provisionierung abwarten und verifizieren.</p>
+<p><strong>Funktionstest:</strong> Die Kollegin öffnet Outlook, sendet eine Testmail an eine genehmigte Testadresse und empfängt die Antwort. Zeit und Ergebnis dokumentieren, keine Mailinhalte im allgemeinen Ticket speichern. <strong>Dies ist eine Übung, kein durchgeführter Test.</strong></p>
+<h2 id="13-fiktiver-praxisfall-b-konto-und-laptop-bereit-fachapp-gesperrt">13. Fiktiver Praxisfall B – Konto und Laptop bereit, Fachapp gesperrt</h2>
+<p><strong>Ticket:</strong> <code>HR-ONB-1050</code> – Neue Mitarbeiterin kann Windows, Exchange und Teams benutzen, aber <code>Kundenportal</code> meldet „Access denied“.</p>
+<p><strong>Hypothesen:</strong> (H1) Ressourcengruppe fehlt; (H2) Gruppenänderung noch nicht im aktuellen Token; (H3) Fachapp benötigt eine zusätzliche Rollenvergabe; (H4) Conditional Access verlangt einen verwalteten/complianten Client.</p>
+<p><strong>Prüfweg:</strong> Fachbereichsfreigabe mit Rollenmatrix → erforderliche Gruppenzuordnung → App-spezifische Rollen → Entra-Sign-in-Log und angewendete CA-Policy → Gerätecompliance → benutzerseitiger Test nach kontrollierter Aktualisierung der Sitzung.</p>
+<p><strong>Fiktiver Befund:</strong> Zugriff ist an die genehmigte Sicherheitsgruppe gebunden, die im Auftrag fehlte. Nach dokumentierter Zustimmung des App-Eigners und Gruppenänderung ist erneute <strong>autorisierte Anmeldung</strong> nötig, bevor das neue Recht wirksam wird.</p>
+<p><strong>Retest:</strong> Die Mitarbeiterin kann die erlaubte Funktion öffnen; unzulässige Bereiche bleiben gesperrt. <strong>Nicht</strong> zusätzliche Administratorrechte als Schnelllösung zuweisen. Auch dieser Fall ist <strong>nicht real getestet</strong>.</p>
+<h2 id="14-sicherer-abschluss-ticketkommentar-eskalation">14. Sicherer Abschluss, Ticketkommentar, Eskalation</h2>
+<p><strong>Abschlusskriterien:</strong> HR-/Fachfreigabe verknüpft, eindeutiger Benutzer, Soll- und Ist-Gruppen/Lizenzen abgeglichen, MFA erfolgreich, Gerät inventarisiert und verwaltet, geforderte Apps vorhanden, End-to-End-Test mit Benutzer bestätigt, Übergabe (Gerät/Zubehör/Einweisung) quittiert. Restpunkte mit Owner und Termin offen dokumentieren; bei ausstehenden Pflichtzugängen <strong>nicht</strong> „vollständig abgeschlossen“ melden.</p>
+<p><strong>Fiktiver Muster-Ticketkommentar:</strong></p>
+<blockquote>
+<p>„Onboarding für neue Mitarbeiterin gemäß HR-ONB-1049 und dokumentierter Rollenfreigabe vorbereitet. Identität und Quellsystem verifiziert; benötigte Gruppen und Lizenzen nach Sollrolle geprüft. Windows-Gerät <code>LT-049</code> inventarisiert, Verwaltung/Compliance kontrolliert. MFA-Ersteinrichtung begleitet, ohne Zugangsdaten im Ticket zu speichern. Funktionstests: Windows [Status], Outlook [Status], Teams [Status], OneDrive [Status], Fachapp [Status]. Übergabe am [Datum] durch berechtigte Person bestätigt. Offene Punkte: [keine/Owner und Frist]. Keine ungeprüften Administrationsrechte vergeben.“</p>
+</blockquote>
+<p><strong>Eskalation:</strong> Identity-Team bei Duplicate/Hybrid/Sync; Lizenz- und Exchange-Team bei Dienstbereitstellung; Security bei MFA/CA-Konflikt oder unklarer Identität; Endpoint bei Autopilot/Intune; App-Owner für Fachrollen. STOP bei fehlender Freigabe, unklarem Quellsystem, Sicherheitsverdacht oder sensiblen Sonderrollen.</p>
+<h2 id="15-wissenstransfer-active-recall-und-spatere-laborvalidierung">15. Wissenstransfer, Active Recall und spätere Laborvalidierung</h2>
+<p><strong>Active Recall – Antworten zunächst ohne Runbook formulieren:</strong></p>
+<ol>
+<li>Warum ist ein Entra-Konto noch kein Nachweis für eine abgeschlossene Arbeitsplatzbereitstellung?</li>
+<li>Worin unterscheiden sich Gruppenmitgliedschaft, Serviceplan, MDM-Enrollment und Conditional Access?</li>
+<li>Weshalb ist bei hybriden Konten das Quellsystem wichtiger als der Ort, an dem du gerade angemeldet bist?</li>
+<li>Wie prüfst du „Lizenz vorhanden, aber Postfach fehlt“ <strong>ohne</strong> Lizenz-Reset auf Verdacht?</li>
+<li>Wann ist ein Temporary Access Pass sinnvoll, und was gehört dabei <strong>nicht</strong> ins Ticket?</li>
+<li>Warum ist „in Intune sichtbar“ nicht identisch mit „alle Anwendungen installiert und Gerät compliant“?</li>
+<li>Wie beweist du die tatsächliche Fachanwendungsberechtigung ohne übermäßige Rechte?</li>
+<li>Wie dokumentierst du ein Teil-Onboarding, bei dem der Arbeitsplatz noch nicht vollständig arbeitsfähig ist?</li>
+</ol>
+<p><strong>Laboridee:</strong> Mit autorisierter Testumgebung und fiktiven Testbenutzern einen Eintrittsauftrag simulieren. Erst eigenen Soll-/Ist-Prüfplan entwickeln; dann Konto, Gruppen, Lizenzen, MFA, Gerät und Apps kontrolliert nachstellen, soweit passende Testlizenzen/Hardware vorhanden sind. Anschließend absichtlich <strong>einen</strong> Fehler (z. B. fehlende Rollen-Gruppe oder App-Zuweisung) setzen und ohne Vorabansicht des Muster-Runbooks diagnostizieren. <strong>Nicht vorhandene Microsoft-365-/Intune-Funktionen als theoretisch geprüft, nicht praktisch validiert markieren.</strong></p>
+<p><strong>Spaced Repetition:</strong> Geeignete Wissens-, Verständnis- und Diagnosekarten nur nach Auswahl; erneute Diagnose eines abgewandelten Falls ungefähr nach 7 und 21 Tagen.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb049_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-049 – Diagnosebaum zum Onboarding" decoding="async" loading="lazy" src="assets/rb049_diagnosebaum.svg"/></a></div><figcaption>RB-049 – Diagnosebaum zum Onboarding</figcaption></figure>
+<hr/>
+<h2 id="offizielle-quellen-microsoft-learn-recherche-23-11-2026">Offizielle Quellen (Microsoft Learn; Recherche 23.11.2026)</h2>
+<ul>
+<li>[Q1] Microsoft 365 – Benutzer anlegen und Lizenzen zuweisen: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/add-users" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/add-users</a></li>
+<li>[Q2] Microsoft Entra – Benutzer erstellen und verwalten: <a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-create-delete-users" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/fundamentals/how-to-create-delete-users</a></li>
+<li>[Q3] Microsoft Entra – Gruppen verwalten: <a href="https://learn.microsoft.com/en-us/entra/fundamentals/how-to-manage-groups" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/fundamentals/how-to-manage-groups</a></li>
+<li>[Q4] Microsoft 365 – Lizenzen direkt oder gruppenbasiert vergeben und Fehler prüfen: <a href="https://learn.microsoft.com/en-us/entra/fundamentals/license-users-groups" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/fundamentals/license-users-groups</a></li>
+<li>[Q5] Microsoft Entra – Temporary Access Pass für sichere Einrichtung von Authentifizierungsmethoden: <a href="https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-temporary-access-pass" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/identity/authentication/howto-authentication-temporary-access-pass</a></li>
+<li>[Q6] Microsoft Intune – Windows-Geräteregistrierung: <a href="https://learn.microsoft.com/en-us/intune/device-enrollment/windows/guide" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-enrollment/windows/guide</a></li>
+<li>[Q7] Windows Autopilot – benutzergesteuerte Bereitstellung: <a href="https://learn.microsoft.com/en-us/autopilot/user-driven" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/autopilot/user-driven</a></li>
+<li>[Q8] Microsoft Entra – Compliance und Conditional Access: <a href="https://learn.microsoft.com/en-us/intune/intune-service/protect/create-conditional-access-intune" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/intune-service/protect/create-conditional-access-intune</a></li>
+<li>[Q9] Exchange Online – Benutzerpostfächer und Lizenzierung: <a href="https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/create-user-mailboxes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/create-user-mailboxes</a></li>
+<li>[Q10] Exchange Online – Verzögerte Benutzer-/Postfachbereitstellung: <a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/user-and-shared-mailboxes/delays-provision-mailbox-sync-changes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/exchange/user-and-shared-mailboxes/delays-provision-mailbox-sync-changes</a></li>
+<li>[Q11] Microsoft Entra – Hybrididentität und Quellsystem: <a href="https://learn.microsoft.com/en-us/microsoft-365/enterprise/deploy-identity-solution-identity-model" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/enterprise/deploy-identity-solution-identity-model</a></li>
+<li>[Q12] Intune – Richtlinienstatus/MDM-Check-in prüfen: <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/troubleshoot-policies-in-microsoft-intune" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/troubleshoot-policies-in-microsoft-intune</a></li>
+<li>[Q13] Microsoft Entra – Anmeldeprobleme mit Conditional Access diagnostizieren: <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/identity/conditional-access/troubleshoot-conditional-access</a></li>
+<li>[Q14] Microsoft Entra – Mitarbeiter-Lebenszyklus / Joiner-Workflows: <a href="https://learn.microsoft.com/en-us/entra/architecture/governance-deployment-employee-lifecycle" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/architecture/governance-deployment-employee-lifecycle</a></li>
+<li>[Q15] Microsoft Entra – Gruppenbasierte Lizenzfehler: <a href="https://learn.microsoft.com/en-us/entra/fundamentals/concept-group-based-licensing" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/fundamentals/concept-group-based-licensing</a></li>
+</ul>
+<p><strong>Dokumentationshinweis:</strong> „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.“ Die oben dargestellten Abläufe sind auf Grundlage der Quellen zusammengestellt, <strong>nicht praktisch validiert</strong>. Keine produktiven Änderungen durchgeführt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-049_Lernartikel.md">RB-049_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-048/index.html">← Ticket 48</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-050/index.html">Ticket 50 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

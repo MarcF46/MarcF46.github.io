@@ -1,0 +1,199 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 28: Microsoft-Office-Anwendung startet nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 28: Microsoft-Office-Anwendung startet nicht. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 28: Microsoft-Office-Anwendung startet nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-erstaufnahme-und-priorisierung-l1">1. Erstaufnahme und Priorisierung (L1)</a></li><li><a href="#2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</a></li><li><a href="#3-startfehler-klassifizieren-vier-vergleiche">3. Startfehler klassifizieren: vier Vergleiche</a></li><li><a href="#4-l1-standarddiagnose-office-safe-mode">4. L1-Standarddiagnose: Office Safe Mode</a></li><li><a href="#5-pfad-a-safe-mode-erfolgreich-normalstart-fehlerhaft">5. Pfad A – Safe Mode erfolgreich, Normalstart fehlerhaft</a></li><li><a href="#6-pfad-b-start-auch-im-safe-mode-erfolglos">6. Pfad B – Start auch im Safe Mode erfolglos</a></li><li><a href="#7-pfad-c-und-d-dateifehler-oder-aktivierung-statt-absturz">7. Pfad C und D – Dateifehler oder Aktivierung statt Absturz</a></li><li><a href="#8-nur-lesende-windows-diagnose-l1-l2">8. Nur lesende Windows-Diagnose (L1+/L2)</a></li><li><a href="#9-erfolgskontrolle-eskalation-und-abschluss">9. Erfolgskontrolle, Eskalation und Abschluss</a></li><li><a href="#10-ticketdokumentation-und-kompakter-lerncheck">10. Ticketdokumentation und kompakter Lerncheck</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Support:</strong> L1/L2 · <strong>System:</strong> Windows 11 / Office-Desktop (Word, Excel, PowerPoint)<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Aus Microsoft-Herstellerquellen abgeleitet. <strong>Nicht an einem real gestörten System praktisch validiert.</strong> Alle Ticketbeispiele fiktiv.</p>
+<blockquote>
+<p><strong>Sofortregel:</strong> <strong>App + genaue Fehlermeldung + Umfang → Normalstart / Office Safe Mode vergleichen → Add-ins/Startkomponenten oder Installation eingrenzen → nur freigegeben ändern → normalen Programmstart und Dateioperation belegen.</strong></p>
+</blockquote>
+<h2 id="1-erstaufnahme-und-priorisierung-l1">1. Erstaufnahme und Priorisierung (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffene App: <strong>Word / Excel / PowerPoint / mehrere</strong>? Desktop- oder Browser-App?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Symptom</strong>: nichts sichtbar, Splashscreen, Absturz, „Keine Rückmeldung“, Login-/Lizenzfehler, nur bei Dateidoppelklick?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zeitpunkt, exakter Text/Code und Screenshot erfasst; Fenster nicht mit Passwort/Token dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows-Version, Office-Produkt/Build (soweit verfügbar), Gerät und berechtigter Benutzerkontext erfasst.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur ein Benutzer/PC oder mehrere betroffen? Gemeinsam genutzte Add-ins, Office-Build oder jüngste Änderungen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendung ohne Datei startbar? Andere Office-Apps startbar? Ein Testdokument betroffen oder alle?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Business-Impact, Datensicherung, laufende ungespeicherte Dokumente, Frist/SLA geklärt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ggf. an <strong>RB-019 (Outlook)</strong> oder <strong>RB-029 (Lizenzierung)</strong> verweisen.</li>
+</ul>
+<p><strong>Belegpaket:</strong> <code>Gerät / Benutzerkontext / App / Office-Version / Fehlerzeit / genaue Meldung / Scope / Safe-Mode-Resultat / Änderungshistorie</code>.</p>
+<h2 id="2-sicherheits-gate-vor-anderungen">2. Sicherheits-Gate vor Änderungen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur lesende/risikoarme Tests ohne weitere Freigabe; alle Änderungen gemäß Unternehmensrichtlinie.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vor Beenden laufender Office-Prozesse: <strong>ungespeicherte Arbeit</strong> und Anwenderzustimmung klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vor Umbenennen/Verschieben von Vorlagen, Add-ins oder Startdateien: <strong>Sicherung, Besitzer, Rückweg und Freigabe</strong> geklärt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Registry-Schlüssel ungesichert löschen, keine neuen lokalen Adminrechte verteilen, keine AV-/Makro-Schutzregeln abschalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei zentralen Add-ins, Cloud-/DMS-Integrationen oder Click-to-Run-Deployment: Endpoint/Anwendungsteam einbeziehen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Office-Reparatur nur, wenn Produkt/Bereitstellungsweg, Arbeitsauswirkung, Freigabe und ggf. erneute Anmeldung geklärt sind.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Logdaten und Screenshots geschützt speichern (Dateinamen/Benutzernamen können sensible Informationen enthalten).</li>
+</ul>
+<p><strong>Stop-Kriterium:</strong> Kein autorisierter Change-Pfad, kritische Produktivdaten gefährdet, Verdacht auf Malware, viele Clients betroffen → eskalieren.</p>
+<h2 id="3-startfehler-klassifizieren-vier-vergleiche">3. Startfehler klassifizieren: vier Vergleiche</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Vergleich</th>
+<th>Test</th>
+<th>Folgerung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ohne vs. mit Datei</strong></td>
+<td>App aus Startmenü ohne Datei; erst dann freigegebene Testdatei</td>
+<td>Nur Datei betroffen → Dateipfad getrennt untersuchen</td>
+</tr>
+<tr>
+<td><strong>App A vs. App B</strong></td>
+<td>Word, Excel, PowerPoint getrennt starten</td>
+<td>Nur eine betroffen → App-spezifischer Pfad plausibel</td>
+</tr>
+<tr>
+<td><strong>Normal vs. Office Safe Mode</strong></td>
+<td><code>winword /safe</code>, <code>excel /safe</code>, <code>powerpnt /safe</code></td>
+<td>Normalfehler bei erfolgreichem Safe Mode → Startkomponenten eingrenzen</td>
+</tr>
+<tr>
+<td><strong>Ein Benutzer/Gerät vs. Referenz</strong></td>
+<td>Nur autorisierter Vergleich mit zweitem Profil/Gerät</td>
+<td>Lokaler Kontext, Profil oder zentraler Rollout besser eingrenzbar</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Befunde <strong>stets dokumentieren</strong>, nicht aus der ersten Beobachtung die Ursache ableiten.</p>
+<h2 id="4-l1-standarddiagnose-office-safe-mode">4. L1-Standarddiagnose: Office Safe Mode</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Alle betroffenen Office-Fenster kontrolliert schließen; <strong>nicht ungespeicherte Arbeit verlieren</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Windows + R</code> öffnen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Genau <strong>einen</strong> Befehl entsprechend der betroffenen Desktop-App ausführen:</li>
+</ol>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">winword /safe
+excel /safe
+powerpnt /safe
+</code></pre></div>
+<ol start="4">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Startresultat und Titel „Abgesicherter Modus“ nach Möglichkeit bestätigen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Noch <strong>keine</strong> Vorlagen/Registry-Einstellungen verändern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Office-App schließen und erneut <strong>normal</strong> starten; Status vergleichen.</li>
+</ol>
+<p><strong>Entscheidung:</strong></p>
+<ul>
+<li><strong>Safe Mode funktioniert, normal nicht:</strong> Pfad A (Add-ins / Startvorlagen / benutzerspezifische Komponenten).</li>
+<li><strong>Safe Mode funktioniert ebenfalls nicht:</strong> Pfad B (Installation / Ereignisse / Systemkontext).</li>
+<li><strong>App startet normal, nur eine Datei scheitert:</strong> Pfad C (Dokument / Ablageort).</li>
+<li><strong>App startet, zeigt Lizenzmeldung:</strong> Pfad D (Lizenz / Konto / RB-029).</li>
+</ul>
+<p><strong>Microsoft:</strong> <a href="https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc</a></p>
+<h2 id="5-pfad-a-safe-mode-erfolgreich-normalstart-fehlerhaft">5. Pfad A – Safe Mode erfolgreich, Normalstart fehlerhaft</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffene App / Startdatum / Add-in-Liste inklusive Version und Zuweisung erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Datei → Optionen → Add-Ins → Verwalten: COM-Add-Ins → Los...</code> (je nach Oberfläche); ergänzend andere Add-in-Typen und deaktivierte Elemente.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur <strong>autorisierte</strong>, nicht geschäftskritische Add-ins testweise deaktivieren; ursprünglichen Zustand notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>App <strong>normal</strong> neu starten; verändert sich der Befund?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Erfolg nach Freigabe Add-ins <strong>einzeln</strong> reaktivieren; nach <strong>jedem</strong> Schritt Normalstart prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Reproduzierbares fehlerhaftes Add-in gefunden? Hersteller, Version, Unternehmensverteilung und Updateweg dokumentieren; zuständiges Team einbeziehen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein Befund? Word: <code>winword /a</code> als <strong>zusätzlichen Vergleich</strong> prüfen; gesicherte globale Vorlagen/<code>Normal.dotm</code> bzw. Excel: XLSTART nach L2-Freigabe isolieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Rückbau-/Sollzustand festhalten; keine nicht genehmigten dauerhaften Add-in-Deaktivierungen.</li>
+</ul>
+<p><strong>Achtung:</strong> Ein erfolgreicher Safe Mode identifiziert <strong>noch keinen</strong> einzelnen Auslöser. Auch Startressourcen, Vorlagen und bestimmte Benutzerkonfigurationen sind Kandidaten.</p>
+<p>Hersteller: <a href="https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc</a></p>
+<h2 id="6-pfad-b-start-auch-im-safe-mode-erfolglos">6. Pfad B – Start auch im Safe Mode erfolglos</h2>
+<p><strong>Zuerst Befund sichern:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Fehlermeldung, Zeitstempel, Eventlog (<code>Application Error</code>, ggf. ID 1000/1001), Office-Version, letzter Change.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Andere Office-Apps betroffen? Eventlog-Fehler in derselben Minute aufgetreten?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Installation/Click-to-Run-Aktivität, Sicherheitsrichtlinien und Bereitstellungsstatus prüfen; keinen laufenden Vorgang erzwingen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vergleich zu genehmigtem Referenzgerät / Office-Build und vom Administrator bekannten Problemen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach Autorisierung <strong>Schnellreparatur</strong> erwägen. Wenn nötig <strong>Onlinereparatur</strong> als umfassenderen Eingriff, unter Berücksichtigung von Netz und Anmeldung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach Reparatur normaler Appstart + Testdokument; bei Misserfolg L2/Endpoint und Crash-Log-Analyse.</li>
+</ul>
+<p><strong>Windows 11:</strong> <code>Einstellungen → Apps → Installierte Apps → Microsoft 365/Office → … → Ändern</code>. Abweichungen je Click-to-Run-/MSI-Setup beachten. Die Reparatur betrifft bei Suites <strong>die gesamte Suite</strong>.</p>
+<p><strong>Keine Sofortmaßnahme:</strong> Office deinstallieren, Benutzerprofil löschen, Registry bereinigen, Office-Build zurückrollen oder Dateisystemreparatur ohne Diagnose und Freigabe.</p>
+<p>Hersteller: <a href="https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application</a></p>
+<h2 id="7-pfad-c-und-d-dateifehler-oder-aktivierung-statt-absturz">7. Pfad C und D – Dateifehler oder Aktivierung statt Absturz</h2>
+<p><strong>Pfad C: Nur einzelnes Dokument betroffen</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>App ohne Datei und mit neuer leerer Testdatei öffnen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Speicherort (lokal, Netzwerk, OneDrive/SharePoint), Zugriffsrechte und Version der betroffenen Datei abgleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dateityp, mögliche Makros/Vorlagen/Erweiterungen und schreibgeschützten Zustand feststellen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nicht Produktivdateien unautorisiert kopieren, Schutzansichten/Makrosicherheit deaktivieren oder Dateien „reparieren“, ohne Sicherung und Zustimmung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ggf. an Datei-/DMS-/OneDrive-Team eskalieren.</li>
+</ul>
+<p><strong>Pfad D: App öffnet, Lizenz-/Abo-Hinweis</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Meldung, Kontotyp und zugewiesene Office-Edition aufnehmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mit Microsoft 365-/Lizenzteam verifizieren; ggf. RB-029 nutzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine unautorisierte Kontoumstellung, Token-/Credentials-Bereinigung oder Seriennummernweitergabe.</li>
+</ul>
+<h2 id="8-nur-lesende-windows-diagnose-l1-l2">8. Nur lesende Windows-Diagnose (L1+/L2)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Version und Startzeit des Betriebssystems
+Get-CimInstance Win32_OperatingSystem |
+  Select-Object Caption,Version,BuildNumber,LastBootUpTime
+
+# Nur Prozessstatus (bei nicht laufenden Prozessen keine Ausgabe)
+Get-Process WINWORD,EXCEL,POWERPNT -ErrorAction SilentlyContinue |
+  Select-Object ProcessName,Id,StartTime,Responding
+
+# Ereignisse 1000/1001: auf Office-Prozesse und Zeitraum eingrenzen
+Get-WinEvent -FilterHashtable @{
+  LogName='Application'; Id=1000,1001
+  StartTime=(Get-Date).AddDays(-7)
+} -MaxEvents 200 -ErrorAction SilentlyContinue |
+  Where-Object { $_.Message -match 'WINWORD\.EXE|EXCEL\.EXE|POWERPNT\.EXE' } |
+  Select-Object TimeCreated,Id,ProviderName,Message
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zusätzlich <code>eventvwr.msc</code> und – soweit vorhanden – <code>perfmon /rel</code> prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>ID 1000/1001 kann Crashzeit, Anwendung, Modul und Exception liefern. <strong>Modulname allein ist kein Ursachenbeweis.</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Get-Process</code> und Eventlog-Abfragen sind lesend; <strong>kein</strong> automatisches <code>Stop-Process</code>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffenes Protokoll nur geschützt exportieren; ggf. L2/Privacy vor Weitergabe.</li>
+</ul>
+<p>Quelle: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior</a></p>
+<h2 id="9-erfolgskontrolle-eskalation-und-abschluss">9. Erfolgskontrolle, Eskalation und Abschluss</h2>
+<p><strong>Erfolg nur bestätigen, wenn:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>App startet <strong>normal</strong>, nicht nur im Office Safe Mode.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Neuer Testinhalt lässt sich anlegen, bearbeiten, speichern, schließen und erneut öffnen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein erneuter Normalstart funktioniert ohne dieselbe Meldung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erforderliche geschäftliche Add-ins/Vorlagen funktionieren nach der Maßnahme.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Benutzer bestätigt die Arbeitsfähigkeit – sofern erreichbar und vorgesehen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursprünglicher Fehlercode, Ursache/Hypothese, Maßnahme, Test und ggf. Restrisiko sauber dokumentiert.</li>
+</ul>
+<p><strong>Eskalieren bei:</strong> Unternehmensweiter Häufung, zentralem Add-in/Policy-/Office-Rollout, fehlender Berechtigung, Verdacht auf Profil-/Installationskorruption, Crash ohne identifizierbare Ursache, Datenschutzrisiko oder Scheitern genehmigter Standardmaßnahmen.</p>
+<p><strong>L2-Übergabedaten:</strong> Gerät/Office-Edition und Build, fehlerschlagende App, Safe-Mode-Vergleich, Eventzeit, Event-ID, Exception/Modul soweit vorhanden, Änderungsverlauf, Umfang, genehmigte Tests, Ausgangsstatus und Testnachweis.</p>
+<h2 id="10-ticketdokumentation-und-kompakter-lerncheck">10. Ticketdokumentation und kompakter Lerncheck</h2>
+<h3 id="muster-ticketkommentar-fiktiv-nicht-durchgefuhrt">Muster-Ticketkommentar – fiktiv, nicht durchgeführt</h3>
+<blockquote>
+<p><strong>Problem:</strong> Word öffnet sich beim normalen Start nicht; Fenster schließt nach dem Splashscreen. Excel und PowerPoint funktionieren.<br/>
+<strong>Diagnose:</strong> <code>winword /safe</code> startet Word; Normalstart wiederholt fehlgeschlagen. COM-Add-ins aufgelistet, zeitlicher Zusammenhang mit neu verteiltem DMS-Add-in als Hypothese notiert.<br/>
+<strong>Maßnahme (geplant):</strong> Nach Freigabe Add-ins einzeln isolieren; bei reproduzierbarem Befund Hersteller-/Endpoint-Team für Add-in-Update einschalten.<br/>
+<strong>Erfolgskontrolle:</strong> Noch ausstehend – kein realer Funktionstest.<br/>
+<strong>Status:</strong> In Diagnose / Übergabe an L2.</p>
+</blockquote>
+<h3 id="l1-status-dreisatz-kommunikation">L1-Status – Dreisatz-Kommunikation</h3>
+<blockquote>
+<p><strong>Problem:</strong> Word beendet sich unmittelbar beim Start, während Excel funktioniert.<br/>
+<strong>Analyse:</strong> Der Office Safe Mode startet; damit liegt der Verdacht auf einer zusätzlichen Startkomponente, nicht zwingend auf einer defekten Installation.<br/>
+<strong>Nächster Schritt:</strong> Add-ins und Vorlagen nach Freigabe gezielt vergleichen und den normalen Start erneut prüfen.</p>
+</blockquote>
+<h3 id="active-recall-drei-schnelle-fragen">Active Recall – drei schnelle Fragen</h3>
+<ol>
+<li>Warum ist <code>winword /safe</code> diagnostisch nützlich, aber kein Beweis für ein bestimmtes Add-in?</li>
+<li>Was unterscheidet die Pfade „Safe Mode funktioniert“ und „Safe Mode funktioniert nicht“?</li>
+<li>Was musst du <strong>nach</strong> erfolgreicher Office-Reparatur zusätzlich zum Programmstart kontrollieren?</li>
+</ol>
+<p><strong>Lerntransfer:</strong> Ein Excel-Fehler tritt nur beim Doppelklick auf die Arbeitsmappe eines Netzlaufwerks auf, während Excel leer startet. Welchen Pfad nutzt du zuerst, und welche Änderung unterlässt du?</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherche-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (Recherche 22.11.2026)</h2>
+<ul>
+<li><a href="https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/open-office-apps-in-safe-mode-on-a-windows-pc</a></li>
+<li><a href="https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/i-get-a-stopped-working-error-when-i-start-office-applications-on-my-pc</a></li>
+<li><a href="https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/office/lifecycle/repair-an-office-application</a></li>
+<li><a href="https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/word/how-to-troubleshoot-problems-that-occur-when-you-start-or-use-word</a></li>
+<li><a href="https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/excel/excel-not-responding-hangs-freezes-or-stops-working</a></li>
+<li><a href="https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/microsoft-365-activation-licensing/office-install/unlicensed-product-and-activation-errors-in-office</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Diagnoseschema auf Basis verifizierter Herstellerquellen; Musterwerte und Ticketkommentar sind fiktiv, praktische Validierung steht aus.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-028_Praxis-Runbook.md">RB-028_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-027/index.html">← Ticket 27</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-029/index.html">Ticket 29 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

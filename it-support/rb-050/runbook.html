@@ -1,0 +1,131 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-eingang-freigabe-und-wirksamkeitszeit">1. Ticket-Eingang, Freigabe und Wirksamkeitszeit</a></li><li><a href="#2-vorbereiten-abhangigkeiten-und-verantwortliche-stellen">2. Vorbereiten: Abhängigkeiten und verantwortliche Stellen</a></li><li><a href="#3-autorisierte-sperrung-im-massgeblichen-verzeichnis">3. Autorisierte Sperrung im maßgeblichen Verzeichnis</a></li><li><a href="#4-sitzungen-und-weitere-aktive-zugange-behandeln">4. Sitzungen und weitere aktive Zugänge behandeln</a></li><li><a href="#5-gerate-intune-und-ruckgabe">5. Geräte, Intune und Rückgabe</a></li><li><a href="#6-e-mail-onedrive-teams-daten-und-aufbewahrung">6. E-Mail/OneDrive/Teams-Daten und Aufbewahrung</a></li><li><a href="#7-lizenz-und-kontobereinigung-separat-freigeben">7. Lizenz- und Kontobereinigung separat freigeben</a></li><li><a href="#8-lesende-prufungen-keine-statusanderung">8. Lesende Prüfungen (keine Statusänderung)</a></li><li><a href="#9-nachweis-restzugange-und-eskalationsmatrix">9. Nachweis, Restzugänge und Eskalationsmatrix</a></li><li><a href="#10-muster-ticketkommentar-und-abschlussbedingungen">10. Muster-Ticketkommentar und Abschlussbedingungen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0 · <strong>Status:</strong> Recherchiert, <strong>nicht produktiv validiert</strong>. Dieses Muster ist an die jeweilige HR-, Security-, Datenschutz- und Change-Policy anzupassen.</p>
+<h2 id="1-ticket-eingang-freigabe-und-wirksamkeitszeit">1. Ticket-Eingang, Freigabe und Wirksamkeitszeit</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>HR-/Security-Auftrag mit Referenz, eindeutiger Person, Auslöser und <strong>Zeitpunkt inkl. Zeitzone</strong> vorhanden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Cloud-/AD-Identität (UPN, Objekt-ID und ggf. sAMAccountName) eindeutig zugeordnet.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zuständige Rollen für Identität, SaaS, Geräte, Daten, Lizenzen und Abnahme bestimmt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Geplant oder Sofortsperre? Schutzbedarf und Eskalationsstufe geklärt.</li>
+</ul>
+<p><strong>STOP:</strong> Keine Sperrung wegen Namensgleichheit, unklarem Auftrag oder ungeprüfter Benutzerkennung.</p>
+<h2 id="2-vorbereiten-abhangigkeiten-und-verantwortliche-stellen">2. Vorbereiten: Abhängigkeiten und verantwortliche Stellen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Cloud-only oder Hybrid (lokales AD als Quellsystem?) klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fachanwendungen, VPN, Remotezugänge, Adminrollen, SSO und eigene App-Konten inventarisieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Firmenhardware/BYOD, Seriennummern, Eigentum, Rückgabe und Offline-Risiken erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Daten-, Mail-, Lizenz- und Aufbewahrungsauftrag parallel an Data Owner / Exchange / Compliance geben.</li>
+</ul>
+<p><strong>Bei Sofortaustritt:</strong> Identitäts-/Sitzungssperre nicht auf eine längere Dateninventur verschieben; offene Besitz-/Retention-Fragen als Folgearbeit dokumentieren.</p>
+<h2 id="3-autorisierte-sperrung-im-massgeblichen-verzeichnis">3. Autorisierte Sperrung im maßgeblichen Verzeichnis</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zuständige Adminrolle und freigegebener Zeitpunkt bestätigt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Cloud-only: neue Anmeldung über Entra-Benutzerstatus blockieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hybrid: Benutzer im zuständigen lokalen AD deaktivieren und Cloudzustand/Sync kontrollieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Kompromittierung Security-Prozess zu Credential-Rotation und weiteren Risiken aktivieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ausführung, Zeitstempel, Zielobjekt und Audit-Nachweis dokumentieren.</li>
+</ul>
+<p><strong>L1:</strong> Auftrag und Status erfassen, berechtigtes Team beauftragen. <strong>L2/Identity:</strong> freigegebene Sperraktion ausführen; niemals blind eine gleichnamige Identität bearbeiten.</p>
+<h2 id="4-sitzungen-und-weitere-aktive-zugange-behandeln">4. Sitzungen und weitere aktive Zugänge behandeln</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Entra-Sitzungen/Refresh-Tokens gemäß Verfahren widerrufen (separate Aktion von Kontosperrung).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>VPN-/Gateway- und RDS-Sitzungen prüfen; unabhängige SaaS-App-Sessions beim App-Owner widerrufen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>AD-/Entra-Gruppen, App-Rollen, Direktberechtigungen und privilegierte Zugänge prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>API-Schlüssel, SSH-/Zertifikatszugänge, Passwörter gemeinsam genutzter Konten: Besitzer und Rotation prüfen.</li>
+</ul>
+<p><strong>Wichtig:</strong> Access-Token, App-Session-Cookie und Refresh-Token sind nicht identisch; Entra-Sitzungswiderruf garantiert keinen sofortigen Logout aller Drittanbieter-Apps. [Q2][Q3]</p>
+<h2 id="5-gerate-intune-und-ruckgabe">5. Geräte, Intune und Rückgabe</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät mit Inventar-/Seriennummer zuordnen, Rückgabe/Verschlüsselungsstatus erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Für Unternehmensgerät zulässige Sicherungs-, Wiederverwendungs- oder Isolierungsaktion festlegen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>BYOD: <code>Retire</code> bzw. selektives Entfernen von Firmendaten nur nach Plattform-/Datenschutzprüfung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>Wipe</code> ausschließlich als explizit genehmigter, möglicherweise irreversibler Eingriff; Offline-Aufträge auf Erfolg prüfen.</li>
+</ul>
+<p><strong>STOP:</strong> Keine Fernlöschung, bevor Geräteidentität, Eigentum, Datenbedarf und Freigabe geklärt sind.</p>
+<h2 id="6-e-mail-onedrive-teams-daten-und-aufbewahrung">6. E-Mail/OneDrive/Teams-Daten und Aufbewahrung</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mailbox-Zweck, Archiv, Litigation/Retention Hold und rechtlichen Aufbewahrungsbedarf geklärt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls Shared Mailbox vorgesehen: <strong>vor Lizenzentzug</strong> konvertieren, Größenvorgaben und Benutzerobjekt als Anker berücksichtigen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>OneDrive-/SharePoint-Projektdateien nur an autorisierte Nachfolger übertragen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Teams-/Site-/Flow-/App-Eigentümerschaften und geschäftliche Kalender-/Prozessabhängigkeiten prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Datenschutz/Legal bestätigen Umfang und Art der Übergabe sowie Fristen.</li>
+</ul>
+<p><strong>Nicht:</strong> automatisches Kopieren kompletter Privatbereiche, ungeprüfte Mailweiterleitung, Aufnahme personenbezogener Inhalte ins Supportticket.</p>
+<h2 id="7-lizenz-und-kontobereinigung-separat-freigeben">7. Lizenz- und Kontobereinigung separat freigeben</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Schriftliche Freigabe nach Prüfung von Mailbox-Typ, Archiv/Hold, OneDrive/Retention, Serviceabhängigkeiten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Lizenz nur entfernen, wenn Aufbewahrung und benötigte Dienste abgesichert sind.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Konto <strong>nicht</strong> löschen, wenn es als Anker einer weiterbestehenden Shared Mailbox gebraucht wird.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Benutzerlöschung erst nach gesonderter Entscheidung; Fristen und Wiederherstellungswege erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Task-Owner, geplanten Zeitpunkt und spätere Nachkontrolle dokumentieren.</li>
+</ul>
+<p><strong>STOP:</strong> Niemals Lizenzentzug oder <code>Remove-MgUser</code> nur deshalb ausführen, weil „Offboarding fertig“ im Ticket steht.</p>
+<h2 id="8-lesende-prufungen-keine-statusanderung">8. Lesende Prüfungen (keine Statusänderung)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Microsoft Graph PowerShell SDK und genehmigte Leseberechtigungen vorausgesetzt
+Connect-MgGraph -Scopes 'User.Read.All','Directory.Read.All'
+$upn = 'mira.seidel@firma.example'  # fiktiv
+Get-MgUser -UserId $upn -Property 'Id,DisplayName,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled' |
+  Select-Object Id,DisplayName,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled
+Get-MgUserLicenseDetail -UserId $upn | Select-Object SkuPartNumber,ServicePlans
+
+# Nur in Hybrid-AD mit installiertem RSAT und Leserechten:
+Import-Module ActiveDirectory
+Get-ADUser -Identity 'mseidel' -Properties Enabled,UserPrincipalName |
+  Select-Object SamAccountName,Enabled,UserPrincipalName
+</code></pre></div>
+<p>Diese Befehle prüfen <strong>nur Zustände</strong>. Tokens, Klartextkennwörter, Session-Cookies, Recovery-Schlüssel und private Daten nicht exportieren oder ins Ticket kopieren.</p>
+<h2 id="9-nachweis-restzugange-und-eskalationsmatrix">9. Nachweis, Restzugänge und Eskalationsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Prüfergebnis</th>
+<th>Bewertung</th>
+<th>Nächste Aufgabe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Konto gesperrt, AD/Entra inkonsistent</td>
+<td>Hybrid-Sync / Scope prüfen</td>
+<td>Identity-Team</td>
+</tr>
+<tr>
+<td>Entra gesperrt, SaaS-Sitzung aktiv</td>
+<td>App-eigene Session, nicht erledigt</td>
+<td>App/Security</td>
+</tr>
+<tr>
+<td>VPN verbunden trotz Sperrung</td>
+<td>Gateway-Sitzung prüfen</td>
+<td>Network/Security</td>
+</tr>
+<tr>
+<td>Shared-Mailbox-Erhalt unklar</td>
+<td>Lizenz/Anker/Compliance STOP</td>
+<td>Exchange/Legal</td>
+</tr>
+<tr>
+<td>Intune-Wipe ausstehend</td>
+<td>Noch kein Erfolgsnachweis</td>
+<td>Endpoint/Asset</td>
+</tr>
+<tr>
+<td>Lizenz geplant, OneDrive-Daten offen</td>
+<td>Kein Entzug vor Datenentscheidung</td>
+<td>Data Owner/Compliance</td>
+</tr>
+<tr>
+<td>Zugriff auf alle relevanten Systeme geprüft</td>
+<td>Maßnahmen und Nachweise korrelieren</td>
+<td>Ticket Owner</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sperrwirkung nachweisen:</strong> Accountstatus/Audit-Eintrag, Sicherheitsprotokolle und vorgesehene App-/VPN-Statusmeldungen prüfen. Kein Test mittels fremder Anmeldedaten; autorisierter Negativtest nur über zulässiges Verfahren. Rest-Risiko wegen Token-/Sessionlaufzeit transparent vermerken.</p>
+<h2 id="10-muster-ticketkommentar-und-abschlussbedingungen">10. Muster-Ticketkommentar und Abschlussbedingungen</h2>
+<blockquote>
+<p><strong>Fiktiver Ticketkommentar:</strong> „Offboarding <code>HR-OFF-1050</code> zum genehmigten Zeitpunkt <code>[UTC/Lokalzeit]</code> eingeleitet. Benutzerobjekt <code>[UPN/Objekt-ID pseudonymisiert]</code> über Quellsystem <code>[AD DS/Entra]</code> zugeordnet. Sperrstatus <code>[Ergebnis/Zeit]</code> geprüft; Sitzungssperrung <code>[Aktion/Ergebnis]</code>; VPN/SaaS/Fachzugänge <code>[Team, Status]</code>; Geräte <code>[Inventar, Rückgabe oder Remoteaktion/Status]</code>. Mail-/OneDrive-/Projektübertragung: <code>[Anordnung, Owner, Freigabe/Frist]</code>. Lizenz-/Kontobereinigung: <code>[separate Freigabe oder ausstehend]</code>. Nachweise: <code>[Audit-Referenzen, Zeiten, offene Risiken]</code>. Keine Zugangsdaten oder privaten Inhalte im Ticket.“</p>
+</blockquote>
+<p><strong>Abschluss:</strong> Nur wenn die <strong>genehmigte Sicherheitssperre</strong> mit geeignetem Nachweis vollzogen und Restzugänge konkret zugeordnet sind. Daten-/Lizenz-/Löschvorgänge können separate Folgeaufträge mit Verantwortlichen und Fristen erfordern. „Alles deaktiviert“ nur dann behaupten, wenn die betroffenen Systeme tatsächlich geprüft wurden.</p>
+<p><strong>Herstellerquellen:</strong> [Q1]–[Q14] im Lernartikel und der README.<br/>
+<strong>Validierung:</strong> Recherchiert und dokumentiert; <strong>keine reale Durchführung, kein praktischer Endtest</strong>.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-050_Praxis-Runbook.md">RB-050_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-049/index.html">← Ticket 49</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

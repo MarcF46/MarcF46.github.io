@@ -1,0 +1,151 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 33: E-Mails werden blockiert oder als Spam eingestuft | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 33: E-Mails werden blockiert oder als Spam eingestuft. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 33: E-Mails werden blockiert oder als Spam eingestuft</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-triage-und-reproduzierbares-fehlerbild">1. Ticket-Triage und reproduzierbares Fehlerbild</a></li><li><a href="#2-sicherheits-und-berechtigungsgate-vor-jeder-anderung">2. Sicherheits- und Berechtigungsgate – vor jeder Änderung</a></li><li><a href="#3-l1-schnellprufung-benutzer-und-clientseite">3. L1-Schnellprüfung – Benutzer- und Clientseite</a></li><li><a href="#4-l2-message-trace-und-zustellbefund-sichern">4. L2 – Message Trace und Zustellbefund sichern</a></li><li><a href="#5-vier-primare-diagnosepfade-a-d-plus-postfachpfad-e">5. Vier primäre Diagnosepfade (A–D) plus Postfachpfad (E)</a></li><li><a href="#6-richtlinien-spf-dkim-dmarc-und-header-nur-nach-befund-auswerten">6. Richtlinien, SPF/DKIM/DMARC und Header nur nach Befund auswerten</a></li><li><a href="#7-optionale-lesende-exchange-online-powershell-abfragen-l2">7. Optionale lesende Exchange-Online-PowerShell-Abfragen (L2)</a></li><li><a href="#8-freigegebene-losung-und-kontrollierter-retest">8. Freigegebene Lösung und kontrollierter Retest</a></li><li><a href="#9-stopp-eskalation-und-ubergabe-an-l2-soc">9. Stopp, Eskalation und Übergabe an L2/SOC</a></li><li><a href="#10-muster-ticketkommentar-und-abschlusskriterien">10. Muster-Ticketkommentar und Abschlusskriterien</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle · <strong>Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Recherchierte Arbeitsanweisung – <strong>nicht praktisch validiert</strong>. Für Exchange Online/EOP/Defender for Office 365; Anpassung an die Umgebung erforderlich.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb033_henne_ei_mailfilter.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-033 – Mailflow und sichere Diagnose" decoding="async" loading="lazy" src="assets/rb033_henne_ei_mailfilter.webp"/></a></div><figcaption>RB-033 – Mailflow und sichere Diagnose</figcaption></figure>
+<blockquote>
+<p><strong>Schnellprinzip:</strong> <strong>Eine konkrete Nachricht → Transportereignis → Filter-/Postfachaktion → geprüfte Ursache → autorisierte Maßnahme → Zustellnachweis.</strong> Keinen Spam- oder Phishingschutz auf Verdacht ausschalten.</p>
+</blockquote>
+<h2 id="1-ticket-triage-und-reproduzierbares-fehlerbild">1. Ticket-Triage und reproduzierbares Fehlerbild</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Störungsmeldung: <strong>Junk, Quarantäne, NDR, verzögert, „verschwunden“, Ablehnung durch Empfänger?</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtung <strong>eingehend, ausgehend oder intern</strong>; betroffene Benutzer, Konten, Gruppen und externe Partner.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Konkrete einzelne Nachricht</strong>: Sender, Empfänger, Zeitpunkt <strong>mit Zeitzone</strong>, ggf. Message-ID und NDR-Code.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche vergleichbare Nachricht funktioniert? Eine oder mehrere Personen betroffen? Seit welcher Änderung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Auswirkung: Frist, geschäftskritischer Vorgang, erhöhte Phishinggefahr oder mögliche Tenant-Störung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur nötige Metadaten speichern; keine sensiblen Inhalte/Anhänge in ungesicherte Tickets aufnehmen.</li>
+</ul>
+<p><strong>L1-Ziel:</strong> „Die Nachricht von [Sender] an [Empfänger] vom [Zeitpunkt] ist [konkreter Zustand] – geprüft werden [definierte Gegenprobe/Transportpfad].“</p>
+<h2 id="2-sicherheits-und-berechtigungsgate-vor-jeder-anderung">2. Sicherheits- und Berechtigungsgate – <strong>vor jeder Änderung</strong></h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Rollen für Message Trace, Quarantäne, Defender und Mailflow sind vorhanden; Zugriff nachvollziehbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein Öffnen verdächtiger Anhänge/URLs zur „Schnellprüfung“; Header/Metadaten bevorzugen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Hohe Phishing-Einstufung / Malware / möglicher Accountmissbrauch</strong> → Security-/SOC-Prüfung, keine ungeprüfte Freigabe.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine pauschale Domain-Allowlist, kein Setzen von SCL <code>-1</code>, keine Abschaltung von ZAP, DMARC oder Anti-Phishing-Policies auf Verdacht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Header-, Nachrichten- und Personendaten außerhalb der freigegebenen Diagnoseumgebung verbreiten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Änderungen an Quarantäne, Transportregeln, Connectoren, Senderlisten und DNS nur durch autorisierte Zuständige mit Change-Freigabe.</li>
+</ul>
+<p><strong>Stoppregel:</strong> Wenn die Legitimationsprüfung fehlt, dokumentieren und an Security/Messaging eskalieren – nicht „damit es endlich funktioniert“ freigeben.</p>
+<h2 id="3-l1-schnellprufung-benutzer-und-clientseite">3. L1-Schnellprüfung – Benutzer- und Clientseite</h2>
+<ol>
+<li>Im <strong>Outlook im Web</strong> und im ursprünglichen Client nach derselben Nachricht suchen (Posteingang, Junk, andere Ordner, Suche/Filter).</li>
+<li>Hinweise zu Postfachregeln, Weiterleitung, blockierten Absendern und gegebenenfalls Löschaktionen erfassen.</li>
+<li>Hat der Absender einen <strong>NDR</strong>? Exakten SMTP-Code und den <strong>ablehnenden Server</strong> erfragen.</li>
+<li>Liegt eine Quarantänebenachrichtigung vor? <strong>Keine</strong> automatische Freigabe; Befund an autorisierte Stelle geben.</li>
+<li>Benutzeridentität, Mailadresse, Alias und ggf. Verteiler-/Gemeinschaftspostfach unterscheiden.</li>
+<li>Ergebnisse als Vergleich erfassen: <strong>OWA / Client / NDR / Quarantäne / Trace</strong>.</li>
+</ol>
+<p><strong>Weiche:</strong> „Junk“ → Abschnitt 5A; „Quarantäne“ → 5B; „NDR“ → 5C; „keine Spur“ → 4/5D; „Delivered, aber nicht sichtbar“ → 5E.</p>
+<h2 id="4-l2-message-trace-und-zustellbefund-sichern">4. L2 – Message Trace und Zustellbefund sichern</h2>
+<p><strong>Exchange Admin Center → Mail flow → Message trace:</strong> <code>https://admin.exchange.microsoft.com/#/messagetrace</code> [Q1].</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sender, Empfänger, Zeitfenster (inkl. Zeitzone) und gegebenenfalls Nachrichten-ID verwenden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Relevanten <strong>einzelnen Treffer</strong> und zugehörige <strong>Detailereignisse</strong> betrachten; nicht nur letzte Statusspalte.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Status <strong>zugestellt / fehlgeschlagen / zurückgestellt / quarantänisiert / anders behandelt</strong> sachlich beschreiben.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Kein Treffer?</strong> Such-/Historiengrenzen, vorgeschaltete Mailgateway-Filter, fremden sendenden Server, MX-/Routingpfad prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein Trace-Status <code>Delivered</code> bestätigt nicht zwingend die aktuelle Sichtbarkeit im Posteingang – Junk, Regeln oder nachträgliche Aktionen getrennt prüfen.</li>
+</ul>
+<p><strong>Dokumentationsmuster:</strong> „Trace-ID [gekürzt], Zeitpunkt [UTC/MEZ], Aktion [X], Detail [Y], Folgetest [Z]“. Vertrauliche Metadaten nicht vollständig in offene Ticketkommentare übernehmen.</p>
+<h2 id="5-vier-primare-diagnosepfade-a-d-plus-postfachpfad-e">5. Vier primäre Diagnosepfade (A–D) plus Postfachpfad (E)</h2>
+<h3 id="a-im-junk-ordner">A – Im Junk-Ordner</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nachricht im OWA-Ordner sichtbar? Filter-/Inbox-Regeln und blockierte Absender vergleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Header (falls verfügbar) auf <strong>SCL/SFV/BCL</strong> und Authentifizierung prüfen [Q3/Q8].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist Nachricht nach unabhängiger Prüfung legitim? „Kein Junk“ melden und ggf. Microsoft-Submission für Fehlklassifizierung auslösen [Q7].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Neuen kontrollierten Test statt Rückschluss aus altem Klassifizierungszustand.</li>
+</ul>
+<h3 id="b-in-quarantane">B – In Quarantäne</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Defender Quarantäne: <code>https://security.microsoft.com/quarantine</code> [Q4].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Quarantänegrund, Richtlinie, betroffene Empfänger, Zeit und Freigabeberechtigung identifizieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>High confidence phishing / Malware</strong>: Security prüft; keine ungeprüfte Freigabe.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bestätigter False Positive? Über vorgesehenen Admin-Submission-/Freigabeprozess entscheiden; gezielte statt generelle Ausnahmen [Q7/Q12].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach Freigabe Zustellung <strong>erneut</strong> per Trace und beim Originalempfänger bestätigen.</li>
+</ul>
+<h3 id="c-ndr-smtp-ablehnung-ausgehender-block">C – NDR / SMTP-Ablehnung / ausgehender Block</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vollständigen <strong>Fehlercode und Kontext</strong> betrachten, z. B. 550 5.7.1 [Q6].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zieladresse, Zielsystem, Empfängerrichtlinie, Connector, Verteiler-/Moderationsregeln eingrenzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>4xx = typischerweise temporär</strong>, <strong>5xx = typischerweise dauerhaft</strong>; Ausnahmen und Text beachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei externem Reject zuständige <strong>Empfängerorganisation</strong> mit NDR-Befund kontaktieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Spam-Ausgangssperre/Accountverdacht Security Incident untersuchen; kein Shortcut über Freigabe.</li>
+</ul>
+<h3 id="d-kein-trace-treffer">D – Kein Trace-Treffer</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sender/Empfänger, Alias, Zeitfenster, Message-ID und Suchgrenze korrigieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Eingangs- und Ausgangsrichtung, Hybrid, Drittanbieter-Gateway und vorgeschalteten Filter prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Senderseite um autorisierte SMTP-/Versanddiagnose bitten; nicht behaupten, die Nachricht sei „nie gesendet“ worden.</li>
+</ul>
+<h3 id="e-trace-zugestellt-benutzer-sieht-nichts">E – Trace zugestellt, Benutzer sieht nichts</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>OWA- und Desktopansicht / Suchfilter / Junk / andere Ordner vergleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Postfachregel, Weiterleitung, mobil synchronisierte Aktionen, ggf. <strong>ZAP nach Zustellung</strong> mit L2 bewerten [Q3].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Mailbox-/Profilneuanlage oder Regeländerung ohne gesicherten Befund.</li>
+</ul>
+<h2 id="6-richtlinien-spf-dkim-dmarc-und-header-nur-nach-befund-auswerten">6. Richtlinien, SPF/DKIM/DMARC und Header nur nach Befund auswerten</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nachricht einer betroffenen <strong>Anti-Spam-, Anti-Phishing- oder Mailflow-Regel</strong> zuordnen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Headerdaten SCL, SFV, BCL, <code>Authentication-Results</code> und passende Zustellaktion <strong>im Zusammenhang</strong> interpretieren [Q8/Q9].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>SPF, DKIM und DMARC sowie <strong>Alignment zur From-Domain</strong> unterscheiden [Q5].</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Drittanbieterrelay / Forwarding prüfen, ob Versandweg, DNS, ARC und Absenderreputation plausibel sind.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur fachlich nachgewiesene Fehlkonfiguration mit Genehmigung korrigieren; <strong>kein globales Allow von Domains/IPs</strong>.</li>
+</ul>
+<h2 id="7-optionale-lesende-exchange-online-powershell-abfragen-l2">7. Optionale <strong>lesende</strong> Exchange-Online-PowerShell-Abfragen (L2)</h2>
+<p><strong>Voraussetzungen:</strong> ExchangeOnlineManagement, ausreichende Rollen, abgegrenztes Untersuchungsfenster. Beispieladressen sind fiktiv. Cmdlets nur in genehmigter Umgebung verwenden [Q10/Q13].</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Import-Module ExchangeOnlineManagement
+Connect-ExchangeOnline
+
+$sender    = 'rechnung@partner.example'
+$recipient = 'lea@contoso.example'
+$start     = (Get-Date).AddDays(-2)
+$end       = Get-Date
+
+$trace = Get-MessageTraceV2 -SenderAddress $sender `
+    -RecipientAddress $recipient -StartDate $start -EndDate $end
+$trace | Select-Object Received, SenderAddress, RecipientAddress, Status, MessageTraceId
+
+# Erst eindeutigen Treffer identifizieren, DANN dessen Details lesen:
+$one = $trace | Select-Object -First 1
+if ($null -ne $one) {
+    Get-MessageTraceDetailV2 -MessageTraceId $one.MessageTraceId `
+        -RecipientAddress $one.RecipientAddress |
+        Select-Object Date, Event, Action, Detail
+}
+
+Get-QuarantineMessage -RecipientAddress $recipient |
+    Select-Object ReceivedTime, SenderAddress, RecipientAddress, Type, ReleaseStatus
+Get-HostedContentFilterPolicy | Select-Object Name, SpamAction, HighConfidenceSpamAction
+Get-TransportRule | Select-Object Name, State, Mode, Priority
+
+Disconnect-ExchangeOnline -Confirm:$false
+</code></pre></div>
+<p><strong>Keine Änderungsbefehle in diesem Runbook.</strong> Output kann sensible Informationen enthalten. Bei mehreren Treffern keinesfalls per <code>-First 1</code> automatisch als „den Fall“ werten: Vor dem Detailschritt Zeit, Nachricht und ID kontrollieren.</p>
+<h2 id="8-freigegebene-losung-und-kontrollierter-retest">8. Freigegebene Lösung und kontrollierter Retest</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache als <strong>nachgewiesen / plausibel / noch unklar</strong> einstufen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kleinste mögliche Maßnahme mit Zuständigkeit und Freigabe dokumentieren: z. B. Junk-Klassifizierung melden, bestätigten Quarantäne-Fehlalarm einreichen, einzelne fehlerhafte Transportregel korrigieren, Senderauthentifizierung vom Partner reparieren lassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nie Phishing-/Malware-Schutz ausschalten, nur um einen Test „grün“ zu bekommen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Neue</strong> berechtigte Testnachricht gleicher Richtung und gleicher Empfängergruppe, soweit gefahrlos möglich, auslösen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Trace + Empfängerbestätigung + korrekter Zielordner + unveränderte Sicherheitskontrolle</strong> prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Quarantäne: mögliche spätere Freigabezeit nicht mit ursprünglicher Versandzeit verwechseln [Q4].</li>
+</ul>
+<h2 id="9-stopp-eskalation-und-ubergabe-an-l2-soc">9. Stopp, Eskalation und Übergabe an L2/SOC</h2>
+<p><strong>Sofortige Security-Eskalation:</strong> Malware/Phishing, verdächtige Anhänge, Kontoübernahmeverdacht, ungewöhnliche ausgehende Massenmails, mögliche Datenexfiltration oder unautorisierte Ausnahmen.</p>
+<p><strong>Exchange-/Messaging-Eskalation:</strong> Kein konsistenter Message-Trace, Hybrid-/Gateway-Route, 4xx-Retry-Kaskade, NDR mit fremder Serverentscheidung, Connector-/Mailflow-Konfiguration, SPF/DKIM/DMARC-Konflikt oder großflächige Zustellstörung.</p>
+<p><strong>Übergabedaten:</strong> Ticket-ID, betroffene Richtung und Anzahl, minimierte Sender-/Empfänger-Metadaten, Zeitfenster/Zeitzone, Message-ID/Trace-ID, Status und konkrete Ereignisse, Richtlinie/Erkennungsgrund, sichere Vergleichstests, bereits genehmigte Änderungen und noch offene Hypothesen.</p>
+<h2 id="10-muster-ticketkommentar-und-abschlusskriterien">10. Muster-Ticketkommentar und Abschlusskriterien</h2>
+<p><strong>Fiktives Beispiel – bestätigter Fehlalarm, ohne produktive Änderung:</strong></p>
+<blockquote>
+<p><strong>Befund:</strong> Die Nachricht des externen Partners vom 22.11.2026, 14:10 MEZ, wurde in EOP verarbeitet und aufgrund einer Spam-Klassifizierung in Quarantäne gehalten; der reguläre Posteingang blieb daher leer. <strong>Vorgehen:</strong> Die Security-Administration bewertet die Metadaten und die Absenderauthentifizierung; eine Freigabe oder Ausnahme wurde bislang nicht vorgenommen. <strong>Nächster Schritt:</strong> Nach Security-Entscheid den zulässigen Submission-/Freigabeprozess durchführen und Zustellung beim Originalempfänger sowie im Message Trace bestätigen.</p>
+</blockquote>
+<p><strong>Abschluss nur, wenn:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Der nachgewiesene Nachrichtenpfad im Ticket steht und der konkrete Fehlergrund korrekt differenziert wurde.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Abhilfe ist genehmigt, sicherheitskonform und minimal wirksam.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Originalbenutzer und Microsoft-365-Nachrichtenablaufverfolgung bestätigen das vereinbarte Ergebnis.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine ungewollte Schutzabschwächung entstanden; bei Restunsicherheit Ticket offen/eskaliert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache, Handlung, Wirksamkeit und Datenschutzgrenzen knapp dokumentiert.</li>
+</ul>
+<hr/>
+<p><strong>Herstellerquellen (Stand 22.11.2026):</strong> <a href="https://learn.microsoft.com/en-us/exchange/monitoring/trace-an-email-message/message-trace-modern-eac" rel="noopener noreferrer" target="_blank">Q1 Message Trace</a> · <a href="https://learn.microsoft.com/en-us/defender-office-365/anti-spam-protection-about" rel="noopener noreferrer" target="_blank">Q3 Anti-Spam</a> · <a href="https://learn.microsoft.com/en-us/defender-office-365/quarantine-admin-manage-messages-files" rel="noopener noreferrer" target="_blank">Q4 Quarantäne</a> · <a href="https://learn.microsoft.com/en-us/defender-office-365/email-authentication-about" rel="noopener noreferrer" target="_blank">Q5 Authentifizierung</a> · <a href="https://learn.microsoft.com/en-us/troubleshoot/exchange/email-delivery/ndr/fix-error-code-550-5-7-1-in-exchange-online" rel="noopener noreferrer" target="_blank">Q6 NDR 5.7.1</a> · <a href="https://learn.microsoft.com/en-us/defender-office-365/step-by-step-guides/how-to-handle-false-positives-in-microsoft-defender-for-office-365" rel="noopener noreferrer" target="_blank">Q7 False Positives</a> · <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-messagetracev2" rel="noopener noreferrer" target="_blank">Q10 Get-MessageTraceV2</a>.</p>
+<p><strong>Transparenz:</strong> Fachlich recherchiert, nicht praktisch getestet. Das Runbook ist eine Diagnosevorlage, kein Freibrief für Änderungen produktiver Sicherheitsregeln. Bildnachweis: „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-033_Praxis-Runbook.md">RB-033_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-032/index.html">← Ticket 32</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-034/index.html">Ticket 34 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

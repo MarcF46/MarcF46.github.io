@@ -1,0 +1,307 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 46: Softwaredeployment schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 46: Softwaredeployment schlägt fehl. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 46: Softwaredeployment schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</a></li><li><a href="#2-architektur-die-sechs-stationen-einer-app-bereitstellung">2. Architektur – die sechs Stationen einer App-Bereitstellung</a></li><li><a href="#3-storungsklassen-prazise-unterscheiden">3. Störungsklassen präzise unterscheiden</a></li><li><a href="#4-ticketaufnahme-reproduzierbarkeit-statt-vermutungen">4. Ticketaufnahme: Reproduzierbarkeit statt Vermutungen</a></li><li><a href="#5-sicherheits-und-freigabecheck-vor-jedem-eingriff">5. Sicherheits- und Freigabecheck vor jedem Eingriff</a></li><li><a href="#6-diagnose-a-richtige-zuweisung-und-requirements-verifizieren">6. Diagnose A – Richtige Zuweisung und Requirements verifizieren</a></li><li><a href="#7-diagnose-b-ime-und-check-in-lesend-prufen">7. Diagnose B – IME und Check-in lesend prüfen</a></li><li><a href="#8-diagnose-c-content-abhangigkeiten-und-installation-voneinander-trennen">8. Diagnose C – Content, Abhängigkeiten und Installation voneinander trennen</a></li><li><a href="#9-diagnose-d-msi-exe-fehlercodes-und-installer-logs">9. Diagnose D – MSI-/EXE-Fehlercodes und Installer-Logs</a></li><li><a href="#10-diagnose-e-detection-rules-registry-sicht-und-versionsprufung">10. Diagnose E – Detection Rules, Registry-Sicht und Versionsprüfung</a></li><li><a href="#11-fehlermatrix-befund-statt-universellem-fix">11. Fehlermatrix – Befund statt universellem Fix</a></li><li><a href="#12-gezielte-massnahmen-nur-nach-befund-und-freigabe">12. Gezielte Maßnahmen – nur nach Befund und Freigabe</a></li><li><a href="#13-zwei-realitatsnahe-ausdrucklich-fiktive-ubungsfalle">13. Zwei realitätsnahe, ausdrücklich fiktive Übungsfälle</a></li><li><a href="#14-abschluss-und-nachweis-vier-kontrollen">14. Abschluss und Nachweis – vier Kontrollen</a></li><li><a href="#15-active-recall-self-explanation-und-labortransfer">15. Active Recall, Self-Explanation und Labortransfer</a></li><li><a href="#offizielle-microsoft-quellen-abgerufen-am-23-11-2026">Offizielle Microsoft-Quellen (abgerufen am 23.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0 · <strong>Systeme:</strong> Windows 11, Microsoft Intune / Intune Management Extension (IME), ergänzend Microsoft Configuration Manager (ConfigMgr) und Windows Installer<br/>
+<strong>Status:</strong> Recherche anhand offizieller Microsoft-Dokumentation; <strong>noch nicht praktisch validiert</strong>. Alle Personen, Geräte, Pakete, IDs und Störungsbeispiele sind <strong>fiktiv</strong>. Es wurde keine produktive Software installiert oder verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb046_henne_ei_softwaredeployment.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-046 – Henne-und-Ei-Infografik zu Softwaredeployment und Fehlerdiagnose" decoding="async" loading="lazy" src="assets/rb046_henne_ei_softwaredeployment.webp"/></a></div><figcaption>RB-046 – Henne-und-Ei-Infografik zu Softwaredeployment und Fehlerdiagnose</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>Zugewiesen ≠ heruntergeladen ≠ Installer erfolgreich ≠ als installiert erkannt ≠ Anwendung funktioniert.</strong> Für jedes „≠“ gibt es eigene Prüfungen und Protokolle.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</h2>
+<p><strong>Fiktives Eingangsticket:</strong> „Die neue Fachanwendung wurde gestern zugewiesen, ist aber auf meinem Windows-11-PC nicht verfügbar. Im Company Portal steht ‚Fehlgeschlagen‘.“</p>
+<p><strong>Lernziel:</strong> Den <strong>ersten nachweisbar fehlgeschlagenen Schritt</strong> der Bereitstellungskette finden, statt nach einem beliebigen Fehlercode auf Verdacht App-Pakete oder Caches zu löschen. Belege mit Zeitstempeln, Zielgeräten und Versionsangaben sammeln, die tatsächlich betroffene Ebene korrigieren und danach <strong>Erkennung und reale Funktion</strong> bestätigen.</p>
+<p><strong>Abgrenzung zu anderen Tickets:</strong> RB-045 behandelt den allgemeinen Geräteverwaltungszustand in Intune; RB-046 beginnt bei einer <strong>konkreten Softwarezuweisung</strong> und geht bis zum überprüfbaren Anwendungsstart. RB-013 behandelt allgemein Softwareinstallation auf Einzelgeräten. Bei Problemen mit Windows Update siehe RB-027.</p>
+<p><strong>Vorrangiger Praxisfall:</strong> Intune-Win32-Anwendung als <code>.intunewin</code> mit IME. Ergänzend verweisen wir auf ConfigMgr, weil dort das Deployment-Modell ähnlich, aber die Clientprotokolle anders heißen. MSI und EXE unterscheiden sich bei Exit-Codes und Installer-Logs; für EXE-Pakete gelten primär die Herstellerangaben.</p>
+<h2 id="2-architektur-die-sechs-stationen-einer-app-bereitstellung">2. Architektur – die sechs Stationen einer App-Bereitstellung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Station</th>
+<th>Erwarteter Zustand</th>
+<th>Denkbare Störung</th>
+<th>Prüfquelle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Zuweisung</td>
+<td>Benutzer/Gerät im vorgesehenen Required-/Available-Ziel</td>
+<td>Falsche Gruppe, Ausschluss, Zuweisung erst neu erfolgt</td>
+<td>Intune-App-Zuweisungen, Gerätestatus</td>
+</tr>
+<tr>
+<td>2. Agent/Check-in</td>
+<td>IME erhält die App-Richtlinie und ist erreichbar</td>
+<td>Agent fehlt, kein Check-in, Proxy-/Netzproblem</td>
+<td>Intune-Gerätedetails, <code>IntuneManagementExtension.log</code></td>
+</tr>
+<tr>
+<td>3. Voraussetzungen/Content</td>
+<td>Requirement-/Dependency-Regeln erfüllt, Paket verfügbar und geladen</td>
+<td>OS/Architektur unpassend, Abhängigkeit fehlgeschlagen, Contentzugang</td>
+<td><code>AppWorkload.log</code>, <code>AppActionProcessor.log</code></td>
+</tr>
+<tr>
+<td>4. Installation</td>
+<td>Installationsbefehl läuft im richtigen Kontext und liefert auswertbaren Exit-Code</td>
+<td>SYSTEM/USER-Kontext, Parameter, Platz, MSI/EXE-Fehler</td>
+<td>IME-App-Logs, Installer-Log, Ereignisprotokoll</td>
+</tr>
+<tr>
+<td>5. Detection</td>
+<td>Erkennungsregel bestätigt die installierte App</td>
+<td>Falscher Pfad, HKCU/HKLM, 32-/64-Bit-Registry, Version, Skriptausgabe</td>
+<td>Detection Rule, <code>AppActionProcessor.log</code></td>
+</tr>
+<tr>
+<td>6. Funktion</td>
+<td>App startet, Version passt, benötigte Funktion läuft</td>
+<td>App startet nicht, fehlende Lizenz, Dienst oder Konfiguration</td>
+<td>Funktionstest mit berechtigtem Benutzer</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Portalstatus und lokaler Befund können zeitlich auseinanderliegen. Ein einzelner Statuswert ist daher nur ein Hinweis; die Diagnose muss zum Zeitpunkt der Installation und zu den Client-Logs passen. [Q1][Q2]</p>
+<h2 id="3-storungsklassen-prazise-unterscheiden">3. Störungsklassen präzise unterscheiden</h2>
+<ul>
+<li><strong>Nicht angeboten / nicht zugewiesen:</strong> Im Portal fehlt die App; die Zuweisung oder Anforderung passt nicht.</li>
+<li><strong>Nicht anwendbar:</strong> Eine Requirement Rule lehnt OS-Version, Architektur, Speicher oder eine eigene Bedingung ab.</li>
+<li><strong>Download-/Contentproblem:</strong> Die App-Richtlinie wurde erkannt, aber Inhalt kann nicht bezogen werden; Netz, Proxy, DNS, Content-Endpunkte und Sicherheitsprodukte überprüfen.</li>
+<li><strong>Installerfehler:</strong> Paket geladen, Installer gestartet, Rückgabecode ungleich dem als Erfolg eingestuften Code; Kontext, Parameter und Installer-Log korrelieren.</li>
+<li><strong>Detectionfehler:</strong> Installer endet aus Sicht der Plattform erfolgreich, Detection meldet trotzdem „nicht vorhanden“ (z. B. Intune <code>0x87D1041C</code>).</li>
+<li><strong>Anwendung funktioniert nicht:</strong> Detection erfolgreich, aber Start, Anmeldung oder Fachfunktion defekt. Kein reines Deploymentproblem mehr; je nach Fall L2/Applikationssupport.</li>
+<li><strong>Ausstehend / Neustart erforderlich:</strong> Noch nicht gescheitert; Status, Retry- und Neustartlogik sowie Zeitfenster prüfen.</li>
+</ul>
+<h2 id="4-ticketaufnahme-reproduzierbarkeit-statt-vermutungen">4. Ticketaufnahme: Reproduzierbarkeit statt Vermutungen</h2>
+<p>Vor Befehlen folgende Felder erfassen:</p>
+<ol>
+<li><strong>Identität:</strong> App-Name, Paket-/App-ID (ggf. intern), Version, Deployment-Typ (Win32, Store, MSI/LOB, ConfigMgr), Zuweisung <code>Required</code> oder <code>Available</code>, Installationskontext.</li>
+<li><strong>Betroffene Systeme:</strong> Hostname, Geräte-ID, Entra-/Intune-Verwaltungsstatus, Windows-Version und Architektur, einzelner PC oder viele PCs; Standort/VPN/Proxy.</li>
+<li><strong>Befund:</strong> Exakter Portal-/Company-Portal-Status, Code in Hex und ggf. Dezimal, Uhrzeit mit Zeitzone, letzte erfolgreiche App-Installation.</li>
+<li><strong>Änderungen:</strong> Neue Paketversion, neue Gruppe, geänderte Requirements/Detection/Abhängigkeiten, Sicherheitsrichtlinie, Netz-/Proxywechsel.</li>
+<li><strong>Auswirkung:</strong> Wer kann wegen der fehlenden Software nicht arbeiten? Rollout in Wellen? Gibt es einen genehmigten Workaround?</li>
+</ol>
+<p>Erst die betroffene <strong>App auf genau dem richtigen Client</strong> bestimmen; nicht von einem ähnlichen Programmnamen auf dieselbe Paketversion schließen.</p>
+<h2 id="5-sicherheits-und-freigabecheck-vor-jedem-eingriff">5. Sicherheits- und Freigabecheck vor jedem Eingriff</h2>
+<p><strong>Zuerst ausschließlich lesend prüfen.</strong> Bei zentral verwalteten Geräten dürfen <strong>Zuweisungen, Detection Rules, Pakete, Abhängigkeiten, Sicherheitsausnahmen, Cacheverzeichnisse und IME-Dienstzustände</strong> nicht auf Verdacht geändert werden. Ebenso keine ungeprüften Skripte, keine eigenmächtigen lokalen Adminrechte und keine ungeplanten Neustarts.</p>
+<p>Vor einer Änderung klären: zuständige App-/Endpoint-Administration, Rollout-Ring und Freigabe, Benutzerunterbrechung, Backup der Anwendungskonfiguration, Rollback/Deinstallation, Abhängigkeiten, möglicher Neustart, Auswirkung auf andere Geräte. Bei Cloud-Logs personenbezogene und vertrauliche Felder minimieren; Export nach Unternehmensvorgaben.</p>
+<p><strong>STOP:</strong> Sicherheitssoftware blockiert Installationsdatei; digitale Signatur/Quelle ist fragwürdig; Nutzer hat nur eine Fernverbindung, die durch Neustart oder Netzwerkänderung verloren gehen kann; App ist unternehmensweit betroffen und Change-Fenster fehlt. Nicht eigenmächtig Schutzmechanismen abschalten.</p>
+<h2 id="6-diagnose-a-richtige-zuweisung-und-requirements-verifizieren">6. Diagnose A – Richtige Zuweisung und Requirements verifizieren</h2>
+<p>Im <strong>Intune Admin Center</strong> die betroffene Anwendung und deren Zuweisungen öffnen, den <strong>tatsächlichen Benutzer- oder Gerätekontext</strong> prüfen: Zielgruppe, Ausschlüsse, Required/Available, OS- und Architekturvoraussetzungen, Requirements und Supersedence/Dependencies. Für <code>Available</code> prüfen, ob die Installation überhaupt vom Nutzer im Company Portal ausgelöst wurde. Bei Wechsel von Gruppenmitgliedschaften die Richtlinienaktualisierung berücksichtigen.</p>
+<p><strong>Hypothesentest:</strong> App nicht installiert und im Portal für diesen Benutzer nicht verfügbar → wahrscheinlich vor dem Installer in Zuweisung/Requirements suchen. <strong>Gegenprobe:</strong> Identische Zuweisung auf einem bekannten funktionierenden Testclient; dabei OS und Gruppenzugehörigkeit vergleichen.</p>
+<p>Dokumentation: Zeitpunkt der Zuweisung, Status auf dem Gerät, erfüllte bzw. nicht erfüllte Requirement Rules. Nicht bloß „Intune kaputt“ ins Ticket schreiben. [Q2][Q3]</p>
+<h2 id="7-diagnose-b-ime-und-check-in-lesend-prufen">7. Diagnose B – IME und Check-in lesend prüfen</h2>
+<p>Für Intune-Win32-Apps erfolgt die Verarbeitung über die <strong>Intune Management Extension (IME)</strong>. Die lokalen Protokolle liegen typischerweise unter:</p>
+<p><code>C:\ProgramData\Microsoft\IntuneManagementExtension\Logs</code></p>
+<p>Relevante Dateien: <code>IntuneManagementExtension.log</code> (Agent, Richtlinien, Check-in), <code>AppWorkload.log</code> (App-Verarbeitung, Installation, Detection) und <code>AppActionProcessor.log</code> (Anwendungsaktionen, Anwendbarkeit, Erkennung). Logs sind je nach Agentversion unterschiedlich umfangreich. [Q1][Q4]</p>
+<p><strong>Lesende PowerShell-Abfragen am betroffenen, autorisierten Client:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – IME-Dienststatus; verändert den Dienst nicht:
+Get-Service -Name IntuneManagementExtension -ErrorAction SilentlyContinue |
+  Select-Object Name, Status, StartType
+
+# LESEND – Logdateien, Größe und Änderungszeit:
+$logPath = Join-Path $env:ProgramData 'Microsoft\IntuneManagementExtension\Logs'
+Get-ChildItem -LiteralPath $logPath -Filter '*.log' -File -ErrorAction SilentlyContinue |
+  Select-Object Name, Length, LastWriteTime | Sort-Object LastWriteTime -Descending
+
+# LESEND – nur aktuelle Zeilen für lokale Sichtprüfung; enthält ggf. sensible Daten:
+Get-Content -LiteralPath (Join-Path $logPath 'AppWorkload.log') -Tail 100 -ErrorAction SilentlyContinue
+</code></pre></div>
+<p><strong>Interpretation:</strong> Ein Dienst im Status „Running“ garantiert <strong>keinen erfolgreichen Check-in</strong>; fehlende frische Logeinträge sind ein Befund, kein alleiniger Beweis für einen bestimmten Netzwerkfehler. Zeitstempel, Portalstatus und Logeinträge korrelieren.</p>
+<h2 id="8-diagnose-c-content-abhangigkeiten-und-installation-voneinander-trennen">8. Diagnose C – Content, Abhängigkeiten und Installation voneinander trennen</h2>
+<p>Im App-Log gezielt suchen nach <strong>App-ID/Name</strong>, Downloadstart, Status des Content-Bezugs, Requirement- und Dependency-Ergebnis, tatsächlichem Installationsbefehl, <strong>RunAs-Kontext</strong> und Exit-Code. Keine produktive Installation nur zur Diagnose erneut starten.</p>
+<p><strong>Kausalkette:</strong></p>
+<ul>
+<li>Kein Downloadstart trotz App-Richtlinie → Requirements/Dependencies/Zuweisung prüfen.</li>
+<li>Download startet, bleibt stehen → Netzwerk/Proxy/Contentzugriff; Verlauf und Uhrzeit dokumentieren.</li>
+<li>Download erfolgreich, Installer startet nicht → Kontext, Befehl, Paketpfad, Security-Blockierung, Requirements erneut bewerten.</li>
+<li>Installer läuft, meldet Fehler → Exit-Code <strong>zusammen</strong> mit Hersteller-/MSI-Log deuten.</li>
+<li>Exit-Code als Erfolg klassifiziert, Detection negativ → Detection Rule getrennt untersuchen.</li>
+</ul>
+<p><strong>Nicht jedes Installationspaket ist MSI.</strong> Bei EXE/Vendor-Installern sind Silent-Switches und Exit-Code-Semantik produktspezifisch. Ein fälschlich interaktiv wartendes Setup kann in einem unbeaufsichtigten Deployment scheitern. Bei <code>System</code>-Kontext unterscheiden sich Benutzerprofile und HKCU-Verhalten vom angemeldeten Nutzerkontext. [Q2][Q5]</p>
+<h2 id="9-diagnose-d-msi-exe-fehlercodes-und-installer-logs">9. Diagnose D – MSI-/EXE-Fehlercodes und Installer-Logs</h2>
+<p><strong>Häufige Windows-Installer-Rückgaben (nicht auf jede EXE anwendbar):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Allgemeine Bedeutung</th>
+<th>Konsequenz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Installer meldet Erfolg</td>
+<td>Detection und Anwendung trotzdem separat überprüfen</td>
+</tr>
+<tr>
+<td><code>1603</code></td>
+<td>Schwerwiegender MSI-Installationsfehler</td>
+<td>MSI-Log nach <em>konkreter</em> fehlgeschlagener Aktion und Kontext durchsuchen; nicht allein aus Code reparieren</td>
+</tr>
+<tr>
+<td><code>1618</code></td>
+<td>Andere Installation läuft</td>
+<td>Windows-Installer-Konkurrenz anhand Ereignissen und Zeitpunkt bewerten</td>
+</tr>
+<tr>
+<td><code>3010</code></td>
+<td>Erfolg, Neustart erforderlich</td>
+<td>In Deployment-Rückgabecodes/Neustartstrategie korrekt abbilden; kein ungeplanter Neustart</td>
+</tr>
+<tr>
+<td><code>0x87D1041C</code></td>
+<td>Intune: App nach erfolgreicher Installation nicht erkannt</td>
+<td>Detection-Pfad/Skript/Version/Benutzerkontext untersuchen, nicht automatisch neu installieren</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die MSI-Codes stammen aus der offiziellen Windows-Installer-Referenz; der Intune-Code beschreibt eine <strong>nachgelagerte Erkennungsbewertung</strong>, nicht einen MSI-Prozesscode. [Q6][Q7]</p>
+<p><strong>Lesende Windows-Ereignisprüfung:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – jüngste Windows-Installer-Einträge; keine Veränderung am System:
+Get-WinEvent -FilterHashtable @{
+  LogName='Application'; ProviderName='MsiInstaller';
+  StartTime=(Get-Date).AddDays(-2)
+} -MaxEvents 35 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<p><strong>Nur im freigegebenen Test/Lab bzw. nach Change-Freigabe</strong> ein MSI mit vollständiger Protokollierung <strong>aktiv installieren</strong> (dieser Befehl ist eine Änderung und gehört nicht in die lesende Erstdiagnose):</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># AENDERND – NUR FREIGEGEBENES TESTPAKET, Test-VM, Wartungsfenster:
+# msiexec.exe /i 'C:\Lab\FreigegebeneTestApp.msi' /qn /norestart /L*V 'C:\Lab\install.log'
+</code></pre></div>
+<p>Im MSI-Log bei Problemen um den Eintrag <code>Return value 3</code> nach dem ursächlichen Fehlerkontext suchen. Nicht blind jede Zeile vor <code>Return value 3</code> als Ursache interpretieren. [Q8]</p>
+<h2 id="10-diagnose-e-detection-rules-registry-sicht-und-versionsprufung">10. Diagnose E – Detection Rules, Registry-Sicht und Versionsprüfung</h2>
+<p>Nach erfolgreichem Installeraufruf wertet Intune die <strong>Detection Rule</strong> aus. Mögliche Kriterien: MSI-Product-Code, Dateipfad und Version, Registry-Pfad/Wert, eigenes PowerShell-Erkennungsskript.</p>
+<p><strong>Lesend an einem Beispielpfad:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Beispielpfad an die tatsaechliche App anpassen:
+Get-Item -LiteralPath 'C:\Program Files\Contoso\FachApp\FachApp.exe' -ErrorAction SilentlyContinue |
+  Select-Object FullName, Length, LastWriteTime
+
+# LESEND – installierte Dateiversion prüfen (falls Datei vorhanden):
+[System.Diagnostics.FileVersionInfo]::GetVersionInfo(
+  'C:\Program Files\Contoso\FachApp\FachApp.exe'
+).FileVersion
+
+# LESEND – 64-Bit- und 32-Bit-Uninstall-Registry vergleichen:
+$uninstall = @(
+  'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+  'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+Get-ItemProperty -Path $uninstall -ErrorAction SilentlyContinue |
+  Where-Object DisplayName -like '*FachApp*' |
+  Select-Object DisplayName, DisplayVersion, Publisher, InstallLocation
+</code></pre></div>
+<p>Der Beispielpfad ist <strong>fiktiv</strong>; wenn die Datei fehlt, kann der zweite Befehl einen Fehler melden – das ist kein Hinweis auf einen echten Produktnamen. Lesende Prüfungen auf lokalen Pfaden nur mit erforderlicher Berechtigung durchführen. Kein pauschales <code>Win32_Product</code>-Inventar verwenden, da diese WMI-Klasse unerwünschte Windows-Installer-Konsistenzprüfungen auslösen kann.</p>
+<p><strong>Eigene Detection-Skripte in Intune:</strong> Microsoft verlangt für „erkannt“ <code>Exit-Code 0</code> <strong>und</strong> eine Ausgabe auf <strong>STDOUT</strong>; eine Ausgabe auf <strong>STDERR</strong> kann „nicht installiert“ bewirken. 32-/64-Bit-Ausführung und SYSTEM-/USER-Kontext müssen zur erwarteten Installationsart passen. [Q2]</p>
+<h2 id="11-fehlermatrix-befund-statt-universellem-fix">11. Fehlermatrix – Befund statt universellem Fix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Plausibler Prüfzweig</th>
+<th>Gegenprobe / Nachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App für User nicht sichtbar</td>
+<td>Zuweisung, Ausschluss, Required/Available, Requirements</td>
+<td>Portal-Zielgruppe + Vergleichsuser</td>
+</tr>
+<tr>
+<td>IME ohne neue App-Aktionen</td>
+<td>Check-in, Agent, MDM-Gerätestatus, Proxy</td>
+<td>IME-Log-Zeitstempel, andere zugewiesene App</td>
+</tr>
+<tr>
+<td>Download schlägt fehl</td>
+<td>Content, Netzwerk, Proxy, Security</td>
+<td>Gleiches Netz vs. Vergleichsnetz/Client, Logfehler</td>
+</tr>
+<tr>
+<td>Installationscode <code>1618</code></td>
+<td>Installer-Konkurrenz</td>
+<td>Windows-Installer-Logs und laufende Installation</td>
+</tr>
+<tr>
+<td>Exit <code>0</code>, Erkennung negativ</td>
+<td>Detection Rule falsch oder App anders installiert</td>
+<td>Datei/Version/Registry <strong>gegen</strong> Regel und Kontext</td>
+</tr>
+<tr>
+<td>Portal „Installiert“, App startet nicht</td>
+<td>Applikation oder Abhängigkeit nach Installation</td>
+<td>Start mit Testbenutzer, App-/System-Logs</td>
+</tr>
+<tr>
+<td>Viele Geräte gleichzeitig betroffen</td>
+<td>Paketversion, Zuweisung, gemeinsamer Downloadpfad</td>
+<td>Verteilung nach App-Version, Ring, Standort, Uhrzeit</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sonderfall ConfigMgr:</strong> Hier sind für Anwendungen insbesondere <code>AppIntentEval.log</code> (Anforderungen und Zielzustand), <code>AppDiscovery.log</code> (Erkennung) und <code>AppEnforce.log</code> (Installationsdurchführung) zu verwenden – <strong>nicht</strong> die Intune-IME-Logs. [Q9]</p>
+<h2 id="12-gezielte-massnahmen-nur-nach-befund-und-freigabe">12. Gezielte Maßnahmen – nur nach Befund und Freigabe</h2>
+<ol>
+<li><strong>Zuweisung fehlt:</strong> Zielgruppe/Assignment und Ausschlüsse vom Endpoint-Team prüfen und genehmigt anpassen; Wirkung beim richtigen Gerät nachweisen.</li>
+<li><strong>Requirement/Dependency falsch:</strong> Betroffene Regel oder Paketabhängigkeit in einem Test-Ring anpassen; Kompatibilitäts-/Architekturdaten dokumentieren.</li>
+<li><strong>Download scheitert:</strong> Betroffene Netz-/Proxy-/Sicherheitskomponente mit verantwortlichem Team untersuchen; keine universelle Endpoint-Protection-Ausnahme.</li>
+<li><strong>Installerparameter fehlerhaft:</strong> Installerhersteller-Silent-Optionen, System-/User-Context, Signatur, Pfade und Reboot-Codes korrigieren; nur im isolierten Test-Ring erneut verteilen.</li>
+<li><strong>Detection falsch:</strong> Regel mit dem <em>tatsächlichen</em> Installationszustand abgleichen und korrigieren, ohne die Erkennung absichtlich zu umgehen.</li>
+<li><strong>App läuft, Funktion fehlt:</strong> Fachanwendungssupport einbeziehen, End-to-End-Funktion und Rechte testen.</li>
+</ol>
+<p><strong>Dokumentationspflicht:</strong> Alte/neue Regel, Change-/Freigabe-ID, betroffene Zielgeräte, Testergebnis, Rollback-Möglichkeit, Uhrzeit und eventuell erforderlicher Neustart. Ein Startskript mit „exit 0“ ohne Installation wäre keine Lösung, sondern ein verfälschter Erfolgsnachweis.</p>
+<h2 id="13-zwei-realitatsnahe-ausdrucklich-fiktive-ubungsfalle">13. Zwei realitätsnahe, ausdrücklich fiktive Übungsfälle</h2>
+<h3 id="fall-a-installation-erfolgreich-intune-meldet-fehler-0x87d1041c">Fall A – Installation erfolgreich, Intune meldet Fehler <code>0x87D1041C</code></h3>
+<p><strong>Ticket:</strong> „Die Fachanwendung ist auf <code>CLIENT-046A</code> im Startmenü, aber Intune zeigt ‚Fehlgeschlagen‘.“</p>
+<p><strong>Befund (erfunden):</strong> <code>AppWorkload.log</code> zeigt einen als Erfolg gewerteten Installer-Exit. Die exe befindet sich unter <code>C:\Program Files\Contoso\FachApp\FachApp.exe</code>; die zugewiesene Detection Rule prüft jedoch die Datei unter <code>C:\Program Files (x86)\Contoso\FachApp\FachApp.exe</code>.</p>
+<p><strong>Hypothese:</strong> Deployment bis einschließlich Installation erfolgreich, aber Pfad der Detection Rule falsch. <strong>Kontrolltest:</strong> Tatsächlichen Pfad und Dateiversion mit Regel vergleichen; in einem genehmigten Test-Ring Regel korrigieren; Check-in und erneute Erkennung beobachten; Anwendung <strong>tatsächlich starten</strong>. <strong>Ergebnis:</strong> In einem fiktiven Test-Ring wird die App anschließend korrekt erkannt und gestartet. Keine produktive Änderung ist belegt.</p>
+<h3 id="fall-b-installation-startet-kehrt-mit-1618-zuruck">Fall B – Installation startet, kehrt mit <code>1618</code> zurück</h3>
+<p><strong>Ticket:</strong> „Neue App auf mehreren Geräten in der Onboarding-Welle nicht installiert.“</p>
+<p><strong>Befund (erfunden):</strong> Intune-Download abgeschlossen; Installer-Log zeigt Rückgabecode <code>1618</code>. Im Zeitfenster läuft auf den betroffenen PCs eine zweite MSI-Installation.</p>
+<p><strong>Hypothese:</strong> Gleichzeitige Windows-Installer-Aktionen kollidieren. <strong>Kontrolltest:</strong> MSI-/IME-Zeitstempel korrelieren, laufende Installation identifizieren, Change-Freigabe einholen, geordnetes Installationszeitfenster planen; keinen Installerprozess willkürlich beenden. <strong>Ergebnis:</strong> Im fiktiven Labor läuft eine freigegebene Testinstallation danach erfolgreich; Status, Detection und Anwendung werden getrennt geprüft.</p>
+<p><strong>Transferfrage:</strong> Was wäre anders, wenn beide Fälle denselben sichtbaren Company-Portal-Fehler zeigen, aber in unterschiedlichen Logs ihre erste Abweichung hätten?</p>
+<h2 id="14-abschluss-und-nachweis-vier-kontrollen">14. Abschluss und Nachweis – vier Kontrollen</h2>
+<p>Ein Ticket ist erst nach <strong>vier separaten Prüfungen</strong> abgeschlossen:</p>
+<ul>
+<li><strong>Installation:</strong> Wurde das korrekte Paket mit plausibler Version ausgeführt? Exit-Code und Installer-Log gesichert?</li>
+<li><strong>Erkennung:</strong> Stimmt der Deployment-Status nach Aktualisierung mit Datei/Version/Registry überein?</li>
+<li><strong>Funktion:</strong> Startet die Anwendung und erfüllt die geprüfte Mindestfunktion für den berechtigten Testbenutzer?</li>
+<li><strong>Betrieb:</strong> Sind andere Zielgeräte, Abhängigkeiten, Reboot-Anforderungen und vorhandene Einstellungen unbeschädigt? Ist die Änderung genehmigt und dokumentiert?</li>
+</ul>
+<p><strong>Beispiel-Ticketkommentar (fiktiv):</strong> „App <code>FachApp 3.2</code>, betroffen <code>CLIENT-046A</code>, Intune <code>0x87D1041C</code> um 10:34. Installation laut IME-Log abgeschlossen; ausführbare Datei unter <code>Program Files</code>, Detection Rule jedoch auf <code>Program Files (x86)</code> konfiguriert. Ursache anhand Dateipfadvergleich nachgewiesen; Änderungsantrag an App-Administration übergeben. Funktionstest und Status nach genehmigter Korrektur noch offen.“</p>
+<p><strong>Eskalation:</strong> Paketmanagement bei fehlerhafter App/Installer; Netzwerkteam bei Proxy-/Contentpfad; Security bei Blockierung; Endpoint-/Intune-Administration bei Assignments/Detection/IME; Applikationsverantwortliche bei Start-/Lizenzfehlern. Ohne Abgleich keine pauschale Aussage „App erfolgreich installiert“.</p>
+<h2 id="15-active-recall-self-explanation-und-labortransfer">15. Active Recall, Self-Explanation und Labortransfer</h2>
+<p><strong>Wissensfragen:</strong></p>
+<ol>
+<li>Welche sechs Stationen liegen zwischen Zuweisung und nachgewiesener Funktion?</li>
+<li>Was bedeutet Intune-Code <code>0x87D1041C</code> – und was <strong>beweist</strong> er ausdrücklich nicht?</li>
+<li>Welche drei IME-Protokolle sind für die Appdiagnose besonders relevant?</li>
+<li>Wofür stehen MSI-Exit-Codes <code>1603</code>, <code>1618</code> und <code>3010</code>?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong>
+5. Warum reicht ein Installer-Exit-Code <code>0</code> zur Ticketfreigabe nicht aus?
+6. Warum kann eine 32-/64-Bit-Abweichung eine Detection Rule scheitern lassen?
+7. Wodurch unterscheidet sich <code>AppEnforce.log</code> von <code>AppWorkload.log</code>?</p>
+<p><strong>Diagnose-/Transferfragen (ohne Lösungsvorgabe):</strong>
+8. Ein Benutzer sieht die App nicht, sein Kollege in derselben Abteilung schon. Welche <strong>drei Befunde</strong> erhebst du zuerst?
+9. Die App wird erkannt, kann aber keine Verbindung zum Backend aufbauen. Wo ziehst du die Grenze zwischen Deployment- und Anwendungsfehler?
+10. Intune zeigt Fehler, die App lässt sich starten. Welche Tests beweisen, ob wirklich nur die Erkennung betroffen ist?</p>
+<p><strong>Lab-Idee, noch nicht ausgeführt:</strong> In einer isolierten Windows-Test-VM mit autorisiertem Intune-Testtenant und einer harmlosen eigenen Testanwendung zunächst eine funktionierende Win32-App verteilen; dann in einer Testkopie <strong>gezielt</strong> einen falschen Detection-Pfad konfigurieren, Zustände und IME-Logs vergleichen, Ursache belegen und Korrektur dokumentieren. Keine Veränderungen an Produktionsgruppen. Die Verfügbarkeit eines Testtenants darf nicht vorausgesetzt werden. Eine Offline-Alternative ist ein dokumentierter MSI-Test mit eigens erstelltem Installations-/Erkennungsskript in einer VM, <strong>ohne Intune-spezifische Schritte als praktisch validiert auszugeben</strong>.</p>
+<hr/>
+<h2 id="offizielle-microsoft-quellen-abgerufen-am-23-11-2026">Offizielle Microsoft-Quellen (abgerufen am 23.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> Problembehandlung bei Win32-Apps in Intune – IME-Logs, Diagnose: <a href="https://learn.microsoft.com/de-de/intune/app-management/deployment/troubleshoot-win32" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/app-management/deployment/troubleshoot-win32</a></li>
+<li><strong>[Q2]</strong> Win32-Apps zu Intune hinzufügen und zuweisen – Kontext, Detection, Requirements, Rückgabecodes: <a href="https://learn.microsoft.com/en-us/intune/app-management/deployment/add-win32" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/app-management/deployment/add-win32</a></li>
+<li><strong>[Q3]</strong> Intune: Allgemeine Fehlerbehandlung bei App-Installationen: <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/troubleshoot-app-install" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/troubleshoot-app-install</a></li>
+<li><strong>[Q4]</strong> Microsoft Intune Management Extension – Ablauf und Logs: <a href="https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/device-management/tools/management-extension-windows</a></li>
+<li><strong>[Q5]</strong> Intune: Technischer Ablauf der Win32-App-Zustellung: <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/develop-deliver-working-win32-app-via-intune" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/develop-deliver-working-win32-app-via-intune</a></li>
+<li><strong>[Q6]</strong> Intune: App-Installationsfehlercodes: <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/app-install-error-codes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/app-management/app-install-error-codes</a></li>
+<li><strong>[Q7]</strong> Windows Installer Fehlercodes: <a href="https://learn.microsoft.com/de-de/windows/win32/msi/error-codes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/win32/msi/error-codes</a></li>
+<li><strong>[Q8]</strong> msiexec /L*V: <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/msiexec" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/msiexec</a></li>
+<li><strong>[Q9]</strong> Configuration Manager – Protokolldateien für Anwendungen: <a href="https://learn.microsoft.com/de-de/intune/configmgr/core/plan-design/hierarchy/log-files" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/configmgr/core/plan-design/hierarchy/log-files</a></li>
+<li><strong>[Q10]</strong> Configuration Manager – Technische Referenz der Anwendungsinstallation: <a href="https://learn.microsoft.com/de-de/troubleshoot/mem/configmgr/app-management/understand/deployment-install-technical-reference" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/mem/configmgr/app-management/understand/deployment-install-technical-reference</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Die vollständige praktische Validierung der beschriebenen Maßnahmen ist <strong>nicht belegt</strong>. Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-046_Lernartikel.md">RB-046_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-045/index.html">← Ticket 45</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-047/index.html">Ticket 47 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

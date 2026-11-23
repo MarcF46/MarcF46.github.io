@@ -1,0 +1,396 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 23: Dockingstation funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 23: Dockingstation funktioniert nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 23: Dockingstation funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</a></li><li><a href="#2-grundlagen-warum-ein-einzelner-stecker-vier-probleme-verbergen-kann">2. Grundlagen: Warum ein einzelner Stecker vier Probleme verbergen kann</a></li><li><a href="#3-henne-und-ei-prinzip-die-abhangigkeiten-verstehen">3. Henne-und-Ei-Prinzip: Die Abhängigkeiten verstehen</a></li><li><a href="#4-fehlerbild-matrix-und-hypothesen">4. Fehlerbild-Matrix und Hypothesen</a></li><li><a href="#5-die-zentrale-diagnosemethode-kontrollierter-a-b-vergleich">5. Die zentrale Diagnosemethode: Kontrollierter A/B-Vergleich</a></li><li><a href="#6-praxisdiagnose-schritt-1-annahme-und-sichere-ausgangsaufnahme">6. Praxisdiagnose – Schritt 1: Annahme und sichere Ausgangsaufnahme</a></li><li><a href="#7-praxisdiagnose-schritt-2-versorgung-hostkabel-reset">7. Praxisdiagnose – Schritt 2: Versorgung, Hostkabel, Reset</a></li><li><a href="#8-praxisdiagnose-schritt-3-windows-11-untersuchen-lesend">8. Praxisdiagnose – Schritt 3: Windows 11 untersuchen (lesend)</a></li><li><a href="#9-teilfunktion-a-externe-monitore-ausgefallen">9. Teilfunktion A: Externe Monitore ausgefallen</a></li><li><a href="#10-teilfunktion-b-usb-eingabegerate-oder-speicher-fehlen">10. Teilfunktion B: USB-Eingabegeräte oder Speicher fehlen</a></li><li><a href="#11-teilfunktion-c-ethernet-uber-dock-ausgefallen">11. Teilfunktion C: Ethernet über Dock ausgefallen</a></li><li><a href="#12-teilfunktion-d-notebook-ladt-nicht-leistungswarnung">12. Teilfunktion D: Notebook lädt nicht / Leistungswarnung</a></li><li><a href="#13-priorisierung-freigaben-und-l2-eskalation">13. Priorisierung, Freigaben und L2-Eskalation</a></li><li><a href="#14-zwei-fiktive-diagnosefalle-und-active-recall">14. Zwei fiktive Diagnosefälle und Active Recall</a></li><li><a href="#15-technischer-diagnosebaum-quellen-und-validierungsplan">15. Technischer Diagnosebaum, Quellen und Validierungsplan</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Hardware / Windows 11 / USB-C, Thunderbolt, USB4 und Dockingstationen<br/>
+<strong>Support-Level:</strong> L1/L2; L1 für symptomorientierte Eingrenzung und reversible Tests, L2 für Treiber-, Firmware-, Richtlinien- und Hardwareentscheidungen<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Mit offiziellen Quellen von Microsoft, Dell, Lenovo und DisplayLink recherchiert. <strong>Keine praktische Validierung durchgeführt.</strong> Fallbeispiele sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb023_henne_ei_dockingstation.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-und-Ei-Infografik: Dockingstation funktioniert nicht" decoding="async" loading="lazy" src="assets/rb023_henne_ei_dockingstation.webp"/></a></div><figcaption>Henne-und-Ei-Infografik: Dockingstation funktioniert nicht</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Eine Dockingstation ist keine einzelne Funktion, sondern ein Knotenpunkt für <strong>Stromversorgung, USB-Daten, Video und gegebenenfalls Ethernet/Audio</strong>. Funktioniert das Laden, beweist das <strong>nicht</strong>, dass die USB- oder Videoverbindung funktioniert. Umgekehrt kann eine nicht geladene Batterie mit funktionierenden USB-Geräten ein <strong>separates Power-Delivery-Problem</strong> bedeuten. Zuerst das Fehlerbild zerlegen – danach kontrolliert vergleichen.</p>
+</blockquote>
+<h2 id="1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</h2>
+<p><strong>INC-023 – fiktive Meldung:</strong> „Ich komme morgens ins Büro, verbinde mein Windows-11-Notebook wie immer per USB-C mit der Dockingstation. Der zweite Bildschirm bleibt aus, die Maus funktioniert nicht und über LAN komme ich auch nicht ins Netz. Das Notebook scheint aber noch zu laden.“</p>
+<p><strong>Auftrag:</strong> Die ausgefallenen Funktionen ohne Datenverlust und ohne unkontrollierte Treiber- oder Firmwareeingriffe wiederherstellen. Die betroffene Fehlerdomäne durch reproduzierbare Tests bestimmen und die Ursache sowie das Ergebnis benutzerbestätigt dokumentieren.</p>
+<h3 id="fragen-beim-erstkontakt">Fragen beim Erstkontakt</h3>
+<ol>
+<li><strong>Was genau fällt aus?</strong> Laden, USB-Maus/Tastatur, externe Anzeige(n), Ethernet, Headset oder alles gleichzeitig?</li>
+<li><strong>Was funktioniert noch?</strong> Die Ladestatus-Anzeige, die Dock-LED, eine USB-Maus, ein Monitor oder ein Netzwerkadapter?</li>
+<li><strong>Seit wann?</strong> Nach Gerätewechsel, Umstecken, Windows-Update, Standby, Docktausch oder Wechsel des Arbeitsplatzes?</li>
+<li><strong>Welche Kombination?</strong> Notebook- und Dockmodell, Netzteil, Hostkabel, Anschluss am Notebook, Bildschirmzahl, USB-Geräte, verwendete Netzwerkdose?</li>
+<li><strong>Reproduzierbarkeit?</strong> Immer oder sporadisch, bei Bewegung am Kabel, nach Standby oder erst unter mehreren angeschlossenen Monitoren?</li>
+<li><strong>Betrieblicher Kontext?</strong> Laufende Dateiübertragungen, verschlüsselte Datenträger, virtuelle Desktops, Meetings, eingeschränkte Ausfallzeit?</li>
+</ol>
+<p><strong>Abgrenzung:</strong> Bei isoliertem Videoausfall auf das Monitor-Runbook <strong>RB-022</strong> verweisen, bei isolierten Eingabegeräten auf <strong>RB-024</strong>. Bei Netzwerkproblemen trotz korrekt arbeitender Dock-Hardware in die Netzwerkdiagnose (z. B. RB-010) wechseln.</p>
+<h2 id="2-grundlagen-warum-ein-einzelner-stecker-vier-probleme-verbergen-kann">2. Grundlagen: Warum ein einzelner Stecker vier Probleme verbergen kann</h2>
+<p>Eine typische Dock-Verbindung enthält mehrere, technisch teilweise unabhängige Pfade:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Pfad</th>
+<th>Aufgabe</th>
+<th>Typisches Symptom bei Störung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Versorgung / USB Power Delivery (PD)</strong></td>
+<td>Dock mit Netzteil versorgen und ggf. Notebook laden</td>
+<td>Dock ohne LED oder Notebook lädt nicht / langsam</td>
+</tr>
+<tr>
+<td><strong>USB-Daten / Hub</strong></td>
+<td>USB-Geräte, Audio, manchmal Netzwerk intern anbinden</td>
+<td>Maus, Tastatur, USB-Speicher oder Dock-LAN fehlen</td>
+</tr>
+<tr>
+<td><strong>Video</strong></td>
+<td>GPU-DisplayPort über geeigneten USB-C-/Thunderbolt-/USB4-Pfad oder USB-Grafik via DisplayLink</td>
+<td>Externe Monitore ohne Bild bzw. nicht erkannt</td>
+</tr>
+<tr>
+<td><strong>Ethernet</strong></td>
+<td>Netzwerkcontroller im Dock mit RJ45-Anschluss</td>
+<td>Ethernetadapter fehlt, Link ist down oder IP-Kommunikation gestört</td>
+</tr>
+</tbody>
+</table></div>
+<p>Vereinfacht: <strong>Notebook ↔ Hostport/Kabel ↔ Dock ↔ jeweilige Funktion</strong>. Die Dock-Funktion bestimmt, <strong>welcher Teil</strong> der Kette verwendet wird. Ein leuchtendes LED-Signal beweist nur den jeweils <strong>modellabhängig</strong> beschriebenen Status, nicht sämtliche Pfade. Eine USB-C-Buchse ist eine Steckerform; sie garantiert <strong>weder eine bestimmte Videoauflösung noch Laden noch Thunderbolt-Kompatibilität</strong>.</p>
+<h3 id="drei-technologisch-unterschiedliche-dock-arten">Drei technologisch unterschiedliche Dock-Arten</h3>
+<p><strong>A. Klassische USB-C-Docks mit DisplayPort Alternate Mode (DP Alt Mode):</strong> Video wird über einen vom Host unterstützten DisplayPort-Pfad übertragen. USB-Daten laufen daneben über USB. Voraussetzung sind passende Hostport-, Kabel- und Dock-Funktionen; maximale Zahl/Auflösung von Monitoren ist modell- und hostabhängig.</p>
+<p><strong>B. Thunderbolt-/USB4-Docks:</strong> Sie verwenden die vom jeweiligen Host und Zubehör unterstützten Protokolle und Tunnel. Ein äußerlich identischer USB-C-Stecker bedeutet nicht, dass ein beliebiger USB-C-Anschluss die erforderliche Hostfunktion bietet. USB4-Geräte und Funktionen können auf kompatiblen Windows-11-Systemen in den USB4-Einstellungen sichtbar sein; die Seite ist nicht auf jedem Gerät vorhanden.</p>
+<p><strong>C. DisplayLink-basierte Universal-Docks:</strong> Ein integrierter USB-Grafikchip stellt Bildausgänge über USB-Daten bereit; kompatible DisplayLink-Software kann nötig sein. Das ist <strong>nicht</strong> identisch mit einer direkten DisplayPort-Alt-Mode-Verbindung. Außerdem laufen nicht automatisch alle USB-Anschlüsse des Docks über den DisplayLink-Chip – die Dock-USB-Hub-Funktion ist getrennt zu diagnostizieren.</p>
+<p>Quellen zur Einordnung: Microsoft „USB-C-Probleme“, „USB4-Einstellungen“; Dell „Guide to Dell Docking Stations“; DisplayLink „First Step Troubleshooting“ (Links in Kapitel 15).</p>
+<h2 id="3-henne-und-ei-prinzip-die-abhangigkeiten-verstehen">3. Henne-und-Ei-Prinzip: Die Abhängigkeiten verstehen</h2>
+<p>Die typische Fehlannahme lautet: <strong>„Das Notebook lädt – also kann die Dockingstation nicht defekt sein.“</strong> Eine weitere: <strong>„Windows erkennt keinen zweiten Bildschirm – also ist Windows defekt.“</strong> Beide Schlussfolgerungen sind logisch unzulässig.</p>
+<p>Ein Bild setzt beispielsweise voraus, dass (a) der konkrete Host-Ausgang und der Dock-Typ eine passende Grafikübertragung unterstützen, (b) die Verbindung und Aushandlung funktionieren, (c) der Monitor mit Strom, Kabel und Eingang arbeitet und (d) Windows einen passenden Anzeigemodus nutzt. Die USB-Maus braucht teilweise <strong>andere</strong> Voraussetzungen als der Videoausgang; die Notebook-Ladung wieder andere.</p>
+<p><strong>Merksatz:</strong> <em>Eine funktionierende Teilfunktion bestätigt keine andere Teilfunktion.</em> Statt der unspezifischen Aussage „Dock geht nicht“ wird aus jedem Symptom eine eigene Prüffrage. Die Kombination der Befunde reduziert die Zahl plausibler Ursachen.</p>
+<h2 id="4-fehlerbild-matrix-und-hypothesen">4. Fehlerbild-Matrix und Hypothesen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste plausible Ursachen</th>
+<th>Aussagekräftiger Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Alle Dockfunktionen fehlen</strong>, Dock-LED aus</td>
+<td>Netzteil, Steckdose, Dock-Elektronik; LED-Modellverhalten beachten</td>
+<td>Originalnetzteil und Dockanzeige nach Handbuch, kontrollierte Neuverbindung</td>
+</tr>
+<tr>
+<td><strong>Laden funktioniert, USB/Video/LAN fehlen</strong></td>
+<td>Datenpfad Hostkabel/-port, Hub/Controller, Dockinitialisierung</td>
+<td>USB-Gerät direkt am Notebook, Hostkabel/Port und Dockgegenprobe</td>
+</tr>
+<tr>
+<td><strong>USB und LAN funktionieren, Monitore nicht</strong></td>
+<td>Host-/Dock-Video-Protokoll, DisplayLink-Software, Monitoreingang, Bandbreite</td>
+<td>Monitor direkt, Dock-Typ und unterstützte Displaywege überprüfen</td>
+</tr>
+<tr>
+<td><strong>Bild funktioniert, USB fehlt</strong></td>
+<td>Dock-USB-Hub/USB-Port, Gerät, Host-USB-Pfad</td>
+<td>Dasselbe USB-Gerät direkt und an anderem Dockport testen</td>
+</tr>
+<tr>
+<td><strong>Nur Ethernet fehlt</strong></td>
+<td>Kabel, RJ45-Port, Dock-NIC, Switchport, IP/DHCP/DNS, Richtlinie</td>
+<td>Dock-Adapter sichtbar? Link up? Kabel/Gegenport/IP prüfen</td>
+</tr>
+<tr>
+<td><strong>Nur Notebook lädt nicht</strong></td>
+<td>PD-Kompatibilität, Docknetzteil, Leistungsbedarf, Host-Port, Kabel</td>
+<td>Ladeanzeige / Netzteil- und Leistungsdaten gegen Handbuch</td>
+</tr>
+<tr>
+<td><strong>Dock nach Sleep/Resume unzuverlässig</strong></td>
+<td>Neu-Aushandlung oder Energieverwaltung; Zusammenhang erst testen</td>
+<td>Verhalten vor/nach Standby und kontrollierter Neuverbindung dokumentieren</td>
+</tr>
+<tr>
+<td><strong>Nur der zweite/dritte externe Monitor fehlt</strong></td>
+<td>Host-/Dock-Grafikgrenzen, Auflösung/Frequenz, MST/DisplayLink-Typ</td>
+<td>Mit einem Monitor beginnen, Anzahl und Modus stufenweise erhöhen</td>
+</tr>
+<tr>
+<td><strong>An anderem Notebook funktioniert alles</strong></td>
+<td>Ursprünglicher Hostport, Treiber, Richtlinie, Kompatibilität</td>
+<td>Testaufbau gleich halten; Geräte-/Versionsdaten vergleichen</td>
+</tr>
+<tr>
+<td><strong>An zwei kompatiblen Notebooks reproduzierbar defekt</strong></td>
+<td>Dock, Netzteil oder Kabel wahrscheinlicher</td>
+<td>Bekannt funktionierendes, <strong>kompatibles</strong> Vergleichsdock/Kabel verwenden</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die Hypothesen sind <strong>keine Ursachenfeststellung</strong>. Es gibt kein pauschales „Dock-Reset behebt alles“ und keinen universellen Firmwarefix.</p>
+<h2 id="5-die-zentrale-diagnosemethode-kontrollierter-a-b-vergleich">5. Die zentrale Diagnosemethode: Kontrollierter A/B-Vergleich</h2>
+<p><strong>A/B-Test:</strong> Man verändert <strong>nur eine Komponente oder eine relevante Bedingung</strong> und beobachtet den Effekt. Erst dadurch gewinnt der Test diagnostischen Wert.</p>
+<ol>
+<li><strong>Ausgangsaufbau notieren:</strong> Notebookmodell, Dockmodell, Originalnetzteil, Hostport und Hostkabel, externe Geräte, Fehlerstatus.</li>
+<li><strong>Ein konkretes Funktionsmerkmal auswählen:</strong> beispielsweise USB-Maus reagiert nicht; die Maus selbst darf nicht bereits unzuverlässig sein.</li>
+<li><strong>Direkt am Notebook prüfen:</strong> Maus (sofern geeigneter Port/Adapter vorhanden) oder Monitor an einem bekannten unterstützten Videoausgang anschließen; keine exotische Kette aus neuen Adaptern aufbauen.</li>
+<li><strong>Wieder über die Dockingstation prüfen:</strong> dasselbe Gerät und möglichst dasselbe Zubehör, mit kontrollierter Änderung des Signalwegs.</li>
+<li><strong>Nur einen Faktor austauschen:</strong> z. B. ein <strong>für das Dock zertifiziertes</strong> Hostkabel, einen freigegebenen alternativen Hostport oder eine kompatible Vergleichsdock.</li>
+<li><strong>Befund protokollieren:</strong> Direkt funktioniert / Dock funktioniert nicht / anderes Hostkabel funktioniert – das ist stärker als „Treiber vielleicht kaputt“.</li>
+</ol>
+<p><strong>Vorsicht beim Direktvergleich:</strong> Ein DisplayPort-Monitor lässt sich nicht allein durch beliebiges USB-C-Kabel direkt testen. Ein Desktop-PC oder Notebook-Port muss die erforderliche Video-Funktion unterstützen. Sonst wäre ein fehlgeschlagener Test nicht aussagekräftig.</p>
+<h3 id="vier-kurze-testbeispiele">Vier kurze Testbeispiele</h3>
+<ul>
+<li><strong>USB-Maus direkt funktioniert, über zwei Dock-USB-Ports nicht:</strong> USB-Hub-/Hostpfad am Dock wahrscheinlicher; kein Beweis für Dock-Hardwaredefekt.</li>
+<li><strong>Monitor direkt funktioniert, USB und LAN am Dock funktionieren, nur Dock-Monitor nicht:</strong> Video-Dockpfad/Protokoll/Software gezielt prüfen; nicht zuerst globale Windows-Netzwerkprobleme untersuchen.</li>
+<li><strong>LAN-Adapter im Windows-Gerätemanager sichtbar, Link „Disconnected“:</strong> zuerst Kabel, RJ45 und Gegenport/Link prüfen; nicht direkt DNS ändern.</li>
+<li><strong>Notebook lädt nicht, Dock-USB-Geräte funktionieren:</strong> PD, Adapter-Leistung, Kompatibilität und Ladezustand getrennt prüfen.</li>
+</ul>
+<h2 id="6-praxisdiagnose-schritt-1-annahme-und-sichere-ausgangsaufnahme">6. Praxisdiagnose – Schritt 1: Annahme und sichere Ausgangsaufnahme</h2>
+<p><strong>L1 am Arbeitsplatz</strong>, abgestimmt mit dem Anwender:</p>
+<ul>
+<li>Sind die betroffenen Geräte geschäftskritisch? Ein geplantes Abstecken kann externen Bildschirm, Netzwerk, Audio, laufende Dateiübertragung und Meetings unterbrechen. Erst Einverständnis und sicheren Zeitpunkt klären.</li>
+<li><strong>Kabelkette skizzieren:</strong> Steckdose → Docknetzteil → Dock → Hostkabel → Notebook; Abgänge zu Monitor(en), USB und LAN.</li>
+<li><strong>Beschädigungen</strong> an Port, Stecker, Netzteil und Kabel? Bei Hitze, Brandgeruch, Funken, beschädigter Isolierung oder Flüssigkeit <strong>nicht weiter testen</strong>; stromlos sichern und Hardware-/Sicherheitsprozess auslösen.</li>
+<li>Dock-LED/Leistungsanzeige gemäß <strong>Modellhandbuch</strong> interpretieren, nicht allgemeingültig.</li>
+<li>Bei kabelgebundenen Monitoren die Videoeingänge, bei LAN den Linkzustand und bei USB einen einfachen bekannten Testgegenstand prüfen.</li>
+<li><strong>Kompatibilität</strong> konkret nach Hersteller und Modell feststellen: PC-Host-Port mit Video/PD/Thunderbolt/USB4? Dock-Anforderung und Zubehör?</li>
+</ul>
+<h2 id="7-praxisdiagnose-schritt-2-versorgung-hostkabel-reset">7. Praxisdiagnose – Schritt 2: Versorgung, Hostkabel, Reset</h2>
+<p><strong>Reihenfolge nach geringer Eingriffstiefe:</strong></p>
+<ol>
+<li>Ist das <strong>richtige Original-/freigegebene Netzteil</strong> mit spezifizierter Leistung am Dock angeschlossen? Steckdosenleiste und Anschluss prüfen; Netzteile nicht aufgrund passender Stecker eigenmächtig vertauschen.</li>
+<li>Sitzt das <strong>Hostkabel</strong> ordnungsgemäß? Keine Kraftanwendung an beschädigten Buchsen. Wenn abnehmbar: unterstützt das Kabel die benötigten <strong>Daten-, Video- und PD-Funktionen</strong>?</li>
+<li>Beim Modell mit mehreren USB-C-Buchsen: Ist das Kabel im <strong>richtigen Host-Port</strong> des Docks und im <strong>geeigneten Host-Port</strong> des Notebooks?</li>
+<li>Wenn der Fehler fortbesteht: geplanter <strong>Power-Cycle</strong> nach Anwenderfreigabe und <strong>genau dem Herstellerverfahren</strong> für das Dock. Beispielsweise beschreibt Dell für bestimmte Modelle: Hostverbindung und Dock-Netzteil lösen, Peripherie abziehen, Dock-Powerbutton eine modellabhängig beschriebene Zeit halten, dann Netzteil und Host wieder anschließen. <strong>Die Dell-Tasten-/LED-Sequenz darf nicht als universelle Prozedur auf jedes Dock übertragen werden.</strong></li>
+<li>Erfolg <strong>vorher/nachher</strong> testen. War die Reinitialisierung erfolgreich, den genauen Befund vermerken; ohne weitergehende Evidenz keine definitive Aussage „Ursache war Firmware“ ableiten.</li>
+</ol>
+<p><strong>Nicht machen:</strong> Produktivnetzwerk ungefragt unterbrechen; nicht im laufenden Dock-Firmwareupdate abziehen; unbekannte Netzteile oder beschädigte Kabel ausprobieren.</p>
+<h2 id="8-praxisdiagnose-schritt-3-windows-11-untersuchen-lesend">8. Praxisdiagnose – Schritt 3: Windows 11 untersuchen (lesend)</h2>
+<p>Windows kann <strong>Teilgeräte</strong> einer Dockingstation einzeln auflisten – etwa USB-Hub, Ethernetadapter, Audio-/Grafikeinheit. Die Dockingstation muss dabei <strong>nicht</strong> als einziges Gerät mit dem Namen „Dock“ sichtbar sein. Aus der Existenz eines Geräteeintrags folgt noch <strong>keine</strong> funktionierende Endanwendung.</p>
+<h3 id="8-1-gerate-manager">8.1 Geräte-Manager</h3>
+<ul>
+<li><strong>USB-Controller / USB-Hubs:</strong> relevante Einträge und Fehlercode/Warnsymbol notieren.</li>
+<li><strong>Netzwerkadapter:</strong> taucht das Dock-Ethernetinterface auf? Welche Verbindungsanzeige?</li>
+<li><strong>Grafikkarten / Monitore:</strong> direkte Grafik- und gegebenenfalls DisplayLink-Komponenten unterscheiden.</li>
+<li><strong>USB4-/Thunderbolt-Geräte:</strong> nur bei entsprechend unterstützten Plattformen sichtbar; Herstellerdokumentation und ggf. unter Windows 11 die vorhandene <strong>USB4-Einstellungsseite</strong> nutzen.</li>
+<li><strong>Unbekannte Geräte:</strong> Hardware-IDs/Status als Hinweis dokumentieren, nichts ungezielt deaktivieren oder deinstallieren.</li>
+</ul>
+<h3 id="8-2-lesende-powershell-befehle">8.2 Lesende PowerShell-Befehle</h3>
+<p>Die folgenden Befehle lesen Zustände aus; sie <strong>ändern keine</strong> Geräte, Treiber, Netzwerkkonfigurationen oder Firmware:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Aktuell angeschlossene USB-PnP-Geräte und deren Status.
+Get-PnpDevice -Class USB -PresentOnly |
+    Select-Object Status, FriendlyName, InstanceId
+
+# Vorhandene Monitorinstanzen; ein PnP-Eintrag beweist kein sichtbares Bild.
+Get-PnpDevice -Class Monitor -PresentOnly |
+    Select-Object Status, FriendlyName, InstanceId
+
+# Sichtbare physische bzw. virtuelle Netzadapter mit Linkstatus.
+Get-NetAdapter |
+    Select-Object Name, InterfaceDescription, Status, LinkSpeed, MacAddress
+
+# IP-Konfiguration (IP, Gateway, DNS) ohne Änderungen.
+Get-NetIPConfiguration |
+    Select-Object InterfaceAlias, InterfaceDescription, IPv4Address, IPv4DefaultGateway, DNSServer
+
+# Fehlerhafte/unklare PnP-Geräte zum gezielten Nachsehen.
+Get-PnpDevice -PresentOnly -Status ERROR,DEGRADED,UNKNOWN |
+    Select-Object Class, Status, FriendlyName, InstanceId
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>Status = Up</code> beim Ethernetadapter bedeutet primär, dass ein Link gemeldet wird; <strong>nicht</strong>, dass DNS, DHCP, Routing, Internet oder eine interne Anwendung funktionieren. <code>Get-PnpDevice -PresentOnly</code> zeigt aktuell präsente Geräte – nicht automatisch den Zustand aller internen Dock-Funktionen. <code>MacAddress</code>/<code>InstanceId</code> sind Gerätekennungen: vor externer Weitergabe nach Unternehmensvorgaben reduzieren.</p>
+<p><strong>Option für einen spezifisch ausgewählten LAN-Port:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Beispiel: InterfaceAlias muss aus Get-NetAdapter übernommen werden.
+# Eine reine Anzeige, keine Neukonfiguration.
+Get-NetIPConfiguration -InterfaceAlias 'Ethernet 2'
+</code></pre></div>
+<p>Der Alias <code>Ethernet 2</code> ist nur ein <strong>Beispiel</strong>. Nur mit tatsächlich ermitteltem Alias ausführen. Vor und nach einem kontrollierten Dock-Anschluss kann ein Unterschied in der Netzadapterliste hilfreich sein; keine einheitliche Namenskonvention voraussetzen.</p>
+<h2 id="9-teilfunktion-a-externe-monitore-ausgefallen">9. Teilfunktion A: Externe Monitore ausgefallen</h2>
+<p><strong>Muster:</strong> USB-Maus und Dock-LAN arbeiten, aber externe Monitore bleiben schwarz.</p>
+<ol>
+<li>Monitorversorgung und Monitoreingang prüfen; zeigt das OSD „Kein Signal“?</li>
+<li>Windows: <strong>Einstellungen → System → Anzeige</strong>, <code>Windows + P</code> und erkannte Anzeige(n) kontrollieren.</li>
+<li>Monitor <strong>direkt</strong> an einen <em>geeigneten</em> Notebookvideoausgang anschließen: funktioniert er dort?</li>
+<li>Dock-Typ bestimmen: <strong>DP Alt Mode</strong>, <strong>Thunderbolt/USB4</strong> oder <strong>DisplayLink</strong>. Nur letzterer Typ benötigt typischerweise entsprechende DisplayLink-Grafiksoftware für seine USB-Grafikpfade.</li>
+<li>Unterstützt die konkrete Host/Dock-Kombination die <strong>Anzahl, Auflösung und Bildwiederholrate</strong> der Monitore? Ein Monitor als Basistest, danach stufenweise erweitern.</li>
+<li>Falls nur der Dockvideopfad ausfällt: Treiber-/Firmwarestand, DisplayLink-Status bzw. Hostfreigabe durch <strong>L2</strong> nach betrieblichem Verfahren prüfen.</li>
+</ol>
+<p><strong>Konsequenz:</strong> Ein nur am Dock ausfallender Monitor gehört zwar als Teilfunktion zum Dockticket, der tiefe Monitor- und GPU-Diagnosepfad steht in <strong>RB-022</strong>. Nicht „Windows neu installieren“ und nicht pauschal alle Monitore/Adapter aus dem Geräte-Manager entfernen.</p>
+<h2 id="10-teilfunktion-b-usb-eingabegerate-oder-speicher-fehlen">10. Teilfunktion B: USB-Eingabegeräte oder Speicher fehlen</h2>
+<p><strong>Muster:</strong> Die Dock-Monitore funktionieren, die USB-Maus aber nicht.</p>
+<ul>
+<li>Dasselbe Gerät <strong>direkt am Notebook</strong> testen (ggf. mit freigegebenem Adapter). Funktioniert es auch direkt nicht, ist das Dock nicht als einzige Hypothese plausibel.</li>
+<li>Anderen passenden <strong>USB-Port am Dock</strong> testen, ohne die übrige Konfiguration unnötig zu ändern.</li>
+<li>Für kabellose Eingabegeräte prüfen, ob ihr <strong>USB-Funkempfänger</strong> am Dock hängt. Ein Bluetooth-Headset nutzt dagegen keine automatische „Dock-Bluetooth-Funktion“.</li>
+<li>Andere USB-Geräte vorübergehend <strong>nach Rücksprache</strong> entfernen, wenn Strom-/Hubbelastung plausibel ist.</li>
+<li>Gerätetyp und Fehlercode im Geräte-Manager lesen, nicht ohne Befund Controller/Treiber deaktivieren.</li>
+<li>Bei eingeschränkten USB- oder Datenträgerrichtlinien wird <strong>nichts umgangen</strong>; bei Unternehmensgeräten an Endpoint-/Security-Team eskalieren.</li>
+</ul>
+<h2 id="11-teilfunktion-c-ethernet-uber-dock-ausgefallen">11. Teilfunktion C: Ethernet über Dock ausgefallen</h2>
+<p><strong>Muster:</strong> USB und Video arbeiten, aber LAN am Dock nicht.</p>
+<p><strong>Ebene 1 – physisch / Gerät:</strong> Ethernetkabel korrekt im RJ45-Port? Link-LED (falls vorhanden) / Switchport? Dock-USB-LAN-Adapter im Geräte-Manager und <code>Get-NetAdapter</code> sichtbar? Meldung <code>Disconnected</code> vs. <code>Up</code>?</p>
+<p><strong>Ebene 2 – IP-Konfiguration:</strong> Für den tatsächlichen Dock-Adapter IP-Adresse, Gateway, DNS ermitteln. Keine Beispiel-IP als Sollwert behaupten; mit Unternehmens-Netzkonzept und Vergleichsgerät abgleichen. DHCP-/Adress- oder VLAN-/Portauthentifizierungsprobleme an Netzwerkteam geben.</p>
+<p><strong>Ebene 3 – Dienst:</strong> Wenn Link und IP stimmen, getrennt DNS-Auflösung, Zielerreichbarkeit und Anwendung gemäß Netz-Runbook diagnostizieren. <strong>„Ethernet steckt im Dock“ ≠ „Internet muss gehen“</strong>.</p>
+<p><strong>Wichtig:</strong> Wenn nur Dock-LAN fehlschlägt, kann der Fehler am Netzwerk-Switchport, Kabel, Dock-NIC, Treiber, Netzwerkzugang (z. B. 802.1X) oder an IP/DNS liegen. Niemals Sicherheitsmechanismen oder Unternehmensrichtlinien als „Test“ abschalten.</p>
+<h2 id="12-teilfunktion-d-notebook-ladt-nicht-leistungswarnung">12. Teilfunktion D: Notebook lädt nicht / Leistungswarnung</h2>
+<p><strong>Muster:</strong> USB und Bild über Dock arbeiten, Notebook meldet aber „Langsames Ladegerät“ oder lädt nicht.</p>
+<ul>
+<li>Dock und Notebook unterstützen <strong>Power Delivery</strong> in der benötigten Richtung und Höhe? Nicht jedes Notebook kann über jeden USB-C-Port geladen werden.</li>
+<li>Docknetzteil, Dockmodell und Notebook-Leistungsbedarf anhand offizieller Spezifikationen vergleichen; das Netzteil muss auch Dock und Peripherie versorgen.</li>
+<li>Der Hostkabeltyp kann die zulässige Leistung begrenzen; keine Vermutung allein aus Steckeroptik.</li>
+<li>Netzteil/Stecker auf sicheren Zustand prüfen; nur <strong>kompatible und freigegebene</strong> Vergleichskomponenten verwenden.</li>
+<li>Laden am eigenen Hersteller-Netzteil direkt funktioniert, am Dock nicht: engerer PD-/Dockpfad, aber noch kein zweifelsfreier Hardwaredefekt.</li>
+<li>Bei Überhitzung oder wiederholten Schutzabschaltungen <strong>nicht experimentieren</strong>; Gerät zur Hardwareprüfung aussondern.</li>
+</ul>
+<p><strong>Keine einfache Gleichsetzung:</strong> „Dock lädt nicht“ ist nicht zwingend „Dock meldet sich nicht am USB-Bus“ – Strom- und Datenverbindungen werden getrennt ausgehandelt.</p>
+<h2 id="13-priorisierung-freigaben-und-l2-eskalation">13. Priorisierung, Freigaben und L2-Eskalation</h2>
+<p><strong>L1 – üblicher, risikoarmer Rahmen:</strong> Sichtprüfung, Herstellerkompatibilität nachlesen, Symptommatrix, kontrolliertes Wiedereinstecken, zulässiges Kabel-/Port-A/B-Testing, Windows-Anzeige, Geräte-Manager, lesende PowerShell, dokumentierte Abschlussprüfung. Power-Cycle nur nach Anwenderzustimmung und Herstellerhandbuch.</p>
+<p><strong>L2 / Client Management / Hardware:</strong> Dock-/Thunderbolt-/USB4-/DisplayLink-Treiber, BIOS-/UEFI-Einstellungen, Firmwareupdate, kontrollierter Treiber-Rollback, zentrale Gerätesperren, kompatible Ersatzgeräte, Hardwaregarantie. Maßnahmen nur mit Change-/Freigaberegel, bekanntem Modell und kompatiblem Paket. <strong>Keine Firmwareaktualisierung während instabiler Stromversorgung.</strong></p>
+<h3 id="ubergabepaket-an-l2-mindestdaten">Übergabepaket an L2 (Mindestdaten)</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Feld</th>
+<th>Beispielinhalt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Betroffenheit</td>
+<td>Dock USB + Monitor + LAN; Notebook lädt weiterhin</td>
+</tr>
+<tr>
+<td>Hardware</td>
+<td>Notebook-/Dockmodell, Netzteil-Leistung und Hostkabeltyp laut Hersteller</td>
+</tr>
+<tr>
+<td>Versionen / Änderungen</td>
+<td>OS-Build, Treiber-/Dockversion (falls verfügbar), Zeitpunkt / kürzliches Update</td>
+</tr>
+<tr>
+<td>Signalpfade</td>
+<td>Hostport → Dock → betroffene Anschlüsse; Direkt-/Gegenproben</td>
+</tr>
+<tr>
+<td>Windowsbefund</td>
+<td>USB-PnP, Netzwerkadapterstatus, Monitoranzeige; relevante Codes</td>
+</tr>
+<tr>
+<td>Reproduktion</td>
+<td>Nach neuem Anstecken erneut? anderes freigegebenes Kabel/Notebook?</td>
+</tr>
+<tr>
+<td>Durchgeführte Maßnahmen</td>
+<td>Nur tatsächlich ausgeführte Schritte samt Ergebnis</td>
+</tr>
+<tr>
+<td>Offen / Risiko</td>
+<td>Welche Hypothesen bleiben, welche Freigabe wird benötigt?</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="14-zwei-fiktive-diagnosefalle-und-active-recall">14. Zwei fiktive Diagnosefälle und Active Recall</h2>
+<h3 id="fall-a-dock-ladt-aber-keine-usb-gerate">Fall A – Dock lädt, aber keine USB-Geräte</h3>
+<p><strong>Meldung:</strong> Dock liefert nach Anzeige des Notebook-Akkus Strom; USB-Maus am Dock funktioniert nicht, ebenso die Dock-Ethernetbuchse. Externer Monitor wird nicht erkannt. Die Maus funktioniert direkt am Notebook. Ein freigegebenes, nach Dock-Spezifikation geeignetes Hostkabel aus einem funktionierenden Arbeitsplatz sorgt nach Austausch für funktionierende USB-, LAN- und Videoverbindungen.</p>
+<p><strong>Interpretation:</strong> Der Vergleich spricht <strong>stark</strong> für das ursprüngliche Hostkabel bzw. dessen Daten-/Videofunktion; die verfügbare Evidenz legt keine Windows-Neuinstallation nahe. Erst mit reproduzierbarer Wiederholung und Kontrolle der Kabel-/Portbelegung lässt sich die Ursache belastbar festhalten. <strong>Fiktiver Schulungsfall, nicht real durchgeführt.</strong></p>
+<h3 id="fall-b-dock-maus-und-lan-funktionieren-bild-bleibt-schwarz">Fall B – Dock-Maus und LAN funktionieren, Bild bleibt schwarz</h3>
+<p><strong>Meldung:</strong> Windows-11-Notebook, universelles DisplayLink-Dock. USB-Maus und LAN gehen, der Monitor funktioniert direkt am Notebook. In der dokumentierten Modellanleitung ist für die Dock-Videoausgänge DisplayLink-Software vorgesehen. Auf dem verwalteten Client ist die nötige Software nicht vorhanden. Nach genehmigter Bereitstellung über das Endpoint-Team funktioniert der Monitor am Dock.</p>
+<p><strong>Interpretation:</strong> Kein Anlass, einen USB-C-Hostport allein aufgrund fehlenden Bildes als defekt zu klassifizieren. Die abweichende <strong>Videotechnologie</strong> ist die zielführende Hypothese. <strong>Fiktiver Schulungsfall, nicht real durchgeführt.</strong></p>
+<h3 id="selbsttest-erst-beantworten-dann-nachlesen">Selbsttest – erst beantworten, dann nachlesen</h3>
+<ol>
+<li><strong>Wissen:</strong> Nenne die vier getrennten Dock-Funktionspfade.</li>
+<li><strong>Verständnis:</strong> Warum beweist „Notebook lädt am Dock“ kein funktionierendes Videosignal?</li>
+<li><strong>Diagnose:</strong> USB-Maus geht direkt am Notebook, nicht über zwei Dockports – welche <em>zwei</em> Komponenten testest du als Nächstes und warum?</li>
+<li><strong>Diagnose:</strong> Ethernetadapter ist <code>Up</code>, Benutzer erreicht aber keine interne Anwendung. Welche Ebene prüfst du als Nächstes?</li>
+<li><strong>Transfer:</strong> Worin unterscheiden sich DisplayLink und DisplayPort Alt Mode bei der Fehleranalyse?</li>
+<li><strong>Risikobewertung:</strong> Wann darf ein Dock-Power-Cycle nicht ohne Rücksprache erfolgen?</li>
+<li><strong>Self-Explanation:</strong> Erkläre einem Anwender in drei Sätzen, warum du zuerst die Geräte direkt anschließt und erst später Treiber ansiehst.</li>
+</ol>
+<p>&lt;details&gt;
+&lt;summary&gt;Kontrollantworten (erst nach eigener Bearbeitung öffnen)&lt;/summary&gt;</p>
+<ol>
+<li>Versorgung/PD, USB-Daten, Video, Ethernet (Audio ist ein weiterer möglicher Pfad).</li>
+<li>Aushandlung und Hardwarevoraussetzungen sind teilweise unabhängig.</li>
+<li>Hostkabel/Hostport und Dock-USB-Hub/Port; jeweils nur eine Komponente variieren.</li>
+<li>IP-/DNS-/Routing- und anschließend Anwendungs-/Richtlinienebene; Link „Up“ genügt nicht.</li>
+<li>DisplayLink verwendet USB-Grafik mit zugehöriger Software; DP Alt Mode nutzt einen Host-Grafikpfad. Der genaue Dock-Typ entscheidet.</li>
+<li>Bei laufender Arbeit, Dateiübertragungen, aktiven Meetings, unklarer Hardware- oder Firmwarelage; erst Arbeit sichern und Freigabe einholen.</li>
+<li>Ein sauberer Direktvergleich trennt Peripherieprobleme vom Dockpfad und vermeidet unnötige Änderungen.<p>&lt;/details&gt;</p>
+</li>
+</ol>
+<h3 id="wiederholung-mit-fsrs-anki-vorschlag-keine-automatischen-karten">Wiederholung mit FSRS/Anki (Vorschlag, keine automatischen Karten)</h3>
+<ul>
+<li><strong>Wissenskarte:</strong> „Welche vier Hauptpfade hat eine Dockingstation?“ → „Strom/PD, USB-Daten, Video, LAN.“</li>
+<li><strong>Verständniskarte:</strong> „Warum kein Video trotz Laden?“ → „PD und Video sind getrennte Funktionen mit eigenen Voraussetzungen.“</li>
+<li><strong>Diagnosekarte:</strong> „USB direkt ok, über Dock nicht: nächster Test?“ → „Hostkabel/Port und Dock-USB-Pfad isolieren.“</li>
+<li><strong>Diagnosekarte:</strong> „Link Up, aber kein Zugriff?“ → „IP, Gateway, DNS, Routing, Richtlinie und Ziel testen.“</li>
+</ul>
+<h2 id="15-technischer-diagnosebaum-quellen-und-validierungsplan">15. Technischer Diagnosebaum, Quellen und Validierungsplan</h2>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb023_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-023: Technischer Diagnose-Entscheidungsbaum" decoding="async" loading="lazy" src="assets/rb023_diagnosebaum.svg"/></a></div><figcaption>RB-023: Technischer Diagnose-Entscheidungsbaum</figcaption></figure>
+<h3 id="offizielle-quellen-abruf-und-abgleich-22-11-2026">Offizielle Quellen (Abruf und Abgleich: 22.11.2026)</h3>
+<ol>
+<li><strong>Microsoft Support – USB-C-Probleme in Windows beheben:</strong> <a href="https://support.microsoft.com/de-de/windows/hardware/usb/fix-usb-c-problems-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/usb/fix-usb-c-problems-in-windows</a><br/>
+<em>Unterstützte Alternativmodi, Kabel/Portfunktionen, eingeschränkte Lademöglichkeiten und Fehlermeldungen.</em></li>
+<li><strong>Microsoft Support – Probleme mit externen Monitorverbindungen:</strong> <a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/troubleshoot-external-monitor-connections-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/display-graphics/troubleshoot-external-monitor-connections-in-windows</a><br/>
+<em>Projektionsmodus und externe Anzeigeprobleme.</em></li>
+<li><strong>Microsoft Learn – USB4-Einstellungsseite in Windows 11:</strong> <a href="https://learn.microsoft.com/de-de/windows-hardware/design/component-guidelines/usb4-settings-enablement" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/design/component-guidelines/usb4-settings-enablement</a><br/>
+<em>Wann USB4-Einstellungen und Gerätefähigkeiten sichtbar sein können.</em></li>
+<li><strong>Dell – Guide to Dell Docking Stations:</strong> <a href="https://www.dell.com/support/kbdoc/en-us/000124295/guide-to-dell-docking-stations" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/kbdoc/en-us/000124295/guide-to-dell-docking-stations</a><br/>
+<em>Dock-Typen, Power-Cycle, häufige Symptomgruppen, Modell- und Treiberbezug.</em></li>
+<li><strong>Dell – WD19 Benutzerhandbuch (Deutsch):</strong> <a href="https://dl.dell.com/topicspdf/dell-wd19-130w-dock_users-guide_de.pdf" rel="noopener noreferrer" target="_blank">https://dl.dell.com/topicspdf/dell-wd19-130w-dock_users-guide_de.pdf</a><br/>
+<em>Modellbezogene Strom- und USB-C-Verbindung, Fehlersuche.</em></li>
+<li><strong>Lenovo Support – Dock Guidelines and Troubleshooting:</strong> <a href="https://support.lenovo.com/uu/en/solutions/ht510459-dock-guidelines-and-troubleshooting" rel="noopener noreferrer" target="_blank">https://support.lenovo.com/uu/en/solutions/ht510459-dock-guidelines-and-troubleshooting</a><br/>
+<em>Kompatibilität, unterstützte Video-Konfiguration und Herstellerfirmware.</em></li>
+<li><strong>DisplayLink Support – First Step Troubleshooting:</strong> <a href="https://support.displaylink.com/knowledgebase/articles/1179748-first-step-troubleshooting-for-devices-powered-by" rel="noopener noreferrer" target="_blank">https://support.displaylink.com/knowledgebase/articles/1179748-first-step-troubleshooting-for-devices-powered-by</a><br/>
+<em>Trennung zwischen USB-Hub, Dock-Video, Ethernet und Audio.</em></li>
+<li><strong>DisplayLink Support – My DisplayLink device does not work at all:</strong> <a href="https://support.displaylink.com/knowledgebase/articles/544834-how-to-install-displaylink-software-on-windows" rel="noopener noreferrer" target="_blank">https://support.displaylink.com/knowledgebase/articles/544834-how-to-install-displaylink-software-on-windows</a><br/>
+<em>USB-Erkennung und Unterscheidung von Hardware-/Treiberproblemen bei DisplayLink-Docks.</em></li>
+<li><strong>Microsoft Learn – Get-PnpDevice:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice?view=windowsserver2025-ps</a></li>
+<li><strong>Microsoft Learn – Get-NetAdapter:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapter?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapter?view=windowsserver2025-ps</a></li>
+<li><strong>Microsoft Learn – Get-NetIPConfiguration:</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration?view=windowsserver2025-ps</a></li>
+</ol>
+<h3 id="geplante-laborvalidierung-noch-offen">Geplante Laborvalidierung (noch offen)</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Labortest</th>
+<th>Kontrolliertes Setup</th>
+<th>Erwarteter Lernnachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>Funktionierendes, kompatibles Dock mit USB-Maus, Monitor, Ethernet</td>
+<td>Baseline pro Teilfunktion dokumentiert</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>USB-Maus direkt vs. über Dock anstecken</td>
+<td>Fehlerort USB-Gerät vs. Dock-Pfad unterscheidbar</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>HDMI-/DP-Monitor direkt vs. über Dock</td>
+<td>Video-Pfad von Windows-Projektionsmodus differenziert</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>Dock-LAN mit/ohne Netzwerkverbindung</td>
+<td><code>Get-NetAdapter</code> und IP-/Linkdiagnose korrekt eingeordnet</td>
+</tr>
+<tr>
+<td>T5</td>
+<td><strong>Nur freigegebener</strong> Dock-Power-Cycle laut Handbuch</td>
+<td>Vorher/Nachher-Befunde reproduzierbar</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>Zwei <strong>freigegebene, kompatible</strong> Hostkabel nacheinander</td>
+<td>Aussagekräftiger A/B-Test ohne Protokollvermischung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Erfolgskriterium:</strong> Nicht „alle Knöpfe ausprobiert“, sondern dokumentiert, <em>welcher</em> Einzeltest welche Hypothese stützt oder widerlegt. Eine Maßnahme gilt erst nach <strong>erneutem Test sämtlicher benötigter Dockfunktionen</strong> als erfolgreich.</p>
+<p><strong>Transparenz:</strong> Dies ist eine recherchierte Fallanalyse zur Vorbereitung eigenständiger Diagnose. Es wurden <strong>keine realen Dockingstationen geprüft, keine Befehle an einem Client ausgeführt und keine produktiven Systeme verändert</strong>. Oberflächen, Treiberpakete und Herstellerverfahren sind modellabhängig. Auf einer Website bitte den Status <strong>„recherchiert – Praxisvalidierung ausstehend“</strong> beibehalten.</p>
+<p><strong>Grafiknachweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-023_Lernartikel.md">RB-023_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-022/index.html">← Ticket 22</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-024/index.html">Ticket 24 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

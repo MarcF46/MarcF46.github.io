@@ -1,0 +1,124 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 49: Onboarding: Arbeitsplatz und Zugänge bereitstellen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingangsticket-und-scope">1. Eingangsticket und Scope</a></li><li><a href="#2-quellsystem-und-identitat-prufen">2. Quellsystem und Identität prüfen</a></li><li><a href="#3-gruppen-und-ressourcenrechte-prufen">3. Gruppen und Ressourcenrechte prüfen</a></li><li><a href="#4-lizenzen-und-dienste-nachweisen">4. Lizenzen und Dienste nachweisen</a></li><li><a href="#5-mfa-und-sichere-erstanmeldung-vorbereiten">5. MFA und sichere Erstanmeldung vorbereiten</a></li><li><a href="#6-gerat-inventarisieren-und-verwalten">6. Gerät inventarisieren und verwalten</a></li><li><a href="#7-lesende-stichproben-nur-berechtigte-admins">7. Lesende Stichproben (nur berechtigte Admins)</a></li><li><a href="#8-entscheidungs-eskalationsmatrix">8. Entscheidungs-/Eskalationsmatrix</a></li><li><a href="#9-abnahme-end-to-end-funktionstest-mit-anwender">9. Abnahme: End-to-End-Funktionstest mit Anwender</a></li><li><a href="#10-muster-ticketkommentar-abschluss-und-validierungsstatus">10. Muster-Ticketkommentar, Abschluss und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Stand:</strong> 23.11.2026 · <strong>Version 1.0</strong> · <strong>Status:</strong> Recherchierte Arbeitsanweisung, <strong>nicht praktisch validiert</strong>. Keine Benutzer- oder Gerätekonfiguration wurde produktiv verändert.</p>
+<h2 id="1-eingangsticket-und-scope">1. Eingangsticket und Scope</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>HR-/Fachauftrag und Eintrittstermin verifiziert; HR-Referenz und Genehmigung im Ticket.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Eindeutige Person/Benutzerkennung, Rolle, Vorgesetzter, Standort und Ansprechpartner erfasst.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Soll: Benutzerkonto, Fach-/M365-Gruppen, Lizenzen, MFA, Gerät, Teams, Exchange, OneDrive, Fachapp, Netzfreigaben klar definiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verantwortliche für Zugriffsgenehmigung und Assetübergabe benannt; unklare Forderungen zurückgestellt.</li>
+</ul>
+<p><strong>STOP:</strong> Keine Konto-/Rechtevergabe ohne verifizierten Auftrag; keine Kennwörter/MFA-Codes in Tickets.</p>
+<h2 id="2-quellsystem-und-identitat-prufen">2. Quellsystem und Identität prüfen</h2>
+<p><strong>Cloud-only oder Hybrid?</strong> Bei lokalem AD als maßgeblicher Quelle das Konto dort gemäß Prozess anlegen/prüfen; keine parallelen Doppelkonten in der Cloud erzeugen. Eindeutigen UPN, Anzeigenamen, Status, Nutzungsstandort und ggf. Manager abgleichen. Existierendes Konto/Wiederanstellung prüfen.</p>
+<p><strong>Lesender Nachweis (mit Berechtigung):</strong> Entra-Benutzerübersicht, On-prem-Sync-Status, AD-Benutzerobjekt und ggf. Synchronisationsprotokoll.</p>
+<h2 id="3-gruppen-und-ressourcenrechte-prufen">3. Gruppen und Ressourcenrechte prüfen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sollrollenmatrix des Fachbereichs mit Gruppen/Anwendungsrollen verknüpft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur <strong>genehmigte</strong> Gruppen (Entra, AD, M365) und App-spezifische Berechtigungen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Übernahme aller Rechte eines Vergleichskollegen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Adminrollen ohne Sonderfreigabe; effektive Zugriffe an Zielressource später testen.</li>
+</ul>
+<p><strong>L1:</strong> Auftrag/Soll vergleichen, Vorgänge anberechtigte Stellen routen. <strong>L2:</strong> Gruppen-/ACL-/Rollenstatus im genehmigten Zuständigkeitsbereich prüfen.</p>
+<h2 id="4-lizenzen-und-dienste-nachweisen">4. Lizenzen und Dienste nachweisen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtige SKU und Nutzungsstandort, verfügbares Kontingent und zugewiesene Servicepläne.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Direkte oder gruppenbasierte Zuweisung und deren <strong>Status/Fehler</strong> geprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exchange-Postfach, Teams- und weitere tatsächlich benötigte Dienste erschienen/nutzbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Verzögerung Provisionierung/Service Health prüfen; nicht blind Lizenz entziehen/neu zuweisen.</li>
+</ul>
+<p><strong>Achtung:</strong> Lizenz-Status im Portal ist noch kein bestandener Mail-/Teams-Funktionstest.</p>
+<h2 id="5-mfa-und-sichere-erstanmeldung-vorbereiten">5. MFA und sichere Erstanmeldung vorbereiten</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vorgesehene Authentifizierungsmethode und CA-Richtlinien geklärt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sichere Übergabe mit verifizierter Identität vereinbart.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Freigabe Temporary Access Pass zeitlich begrenzt zur Registrierung zugelassener Methoden; niemals im Ticket dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Registrierung gemeinsam mit <strong>Benutzer</strong>, nicht stellvertretend mit Support-Gerät/MFA.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Anmeldung gesperrt: Entra-Sign-in-Log, Fehlercode, CA-Entscheidung prüfen; Security einschalten.</li>
+</ul>
+<h2 id="6-gerat-inventarisieren-und-verwalten">6. Gerät inventarisieren und verwalten</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtiges Gerät, Seriennummer, Zubehör, Standort und Übergabe protokolliert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows bereitgestellt, Gerät registriert/MDM-eingeschrieben (wenn vorgesehen), letzter Intune-Check-in plausibel.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Compliance und Sicherheitsstatus (Verschlüsselung, Recovery-Schlüssel-Hinterlegung gemäß Policy, Schutzsoftware) bestätigt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unternehmensanwendungen und ggf. VPN, Drucker, Peripherie eingerichtet.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein Reset, Reenrollment oder Policy-Bypass auf Verdacht (siehe RB-045/RB-046).</li>
+</ul>
+<h2 id="7-lesende-stichproben-nur-berechtigte-admins">7. Lesende Stichproben (nur berechtigte Admins)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Graph-Modul und Leserechte erforderlich. Keine geheimen Daten ins Ticket.
+Connect-MgGraph -Scopes 'User.Read.All','Directory.Read.All'
+$upn = 'jana.weber@firma.example'  # fiktiv
+Get-MgUser -UserId $upn -Property 'DisplayName,UserPrincipalName,AccountEnabled,UsageLocation,OnPremisesSyncEnabled' |
+  Select-Object DisplayName,UserPrincipalName,AccountEnabled,UsageLocation,OnPremisesSyncEnabled
+Get-MgUserLicenseDetail -UserId $upn | Select-Object SkuPartNumber,ServicePlans
+
+# Am Windows-Gerät, keine Änderungen:
+dsregcmd /status
+Get-BitLockerVolume -MountPoint 'C:' | Select-Object MountPoint,ProtectionStatus
+</code></pre></div>
+<p><strong>Nachweisgrenze:</strong> AD/Entra-Abfragen sind Statushinweise; sie ersetzen <strong>keine bestätigten Zugriffsrechte am Fachsystem</strong> und keinen Anwenderfunktionstest.</p>
+<h2 id="8-entscheidungs-eskalationsmatrix">8. Entscheidungs-/Eskalationsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Prüfpfad</th>
+<th>Zuständig</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auftrag unvollständig / nicht genehmigt</td>
+<td>STOP, HR-/Fachfreigabe einholen</td>
+<td>HR/Teamleitung</td>
+</tr>
+<tr>
+<td>Konto fehlt / Dublette / Hybrid-Sync</td>
+<td>Quellsystem, Identitätsobjekt, Syncstatus</td>
+<td>Identity/AD</td>
+</tr>
+<tr>
+<td>Mail fehlt trotz Benutzer</td>
+<td>SKU/Serviceplan/Provisionierung/Exchange</td>
+<td>Lizenz-/Exchange-Team</td>
+</tr>
+<tr>
+<td>MFA scheitert / CA blockiert</td>
+<td>Methode, User, Gerätezustand, Sign-in-Logs</td>
+<td>Identity/Security</td>
+</tr>
+<tr>
+<td>Laptop nicht bereit/compliant</td>
+<td>Enrollment/Intune-Check-in/Policies/Apps</td>
+<td>Endpoint/Intune</td>
+</tr>
+<tr>
+<td>Fachapp verweigert Zugriff</td>
+<td>Genehmigte Rolle, Gruppe, App-ACL, Token</td>
+<td>App-Owner/L2</td>
+</tr>
+<tr>
+<td>Nur ein Teilschritt offen</td>
+<td>Teilstatus und Owner/Termin dokumentieren, nicht vollständig abschließen</td>
+<td>Ticketverantwortlicher</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-abnahme-end-to-end-funktionstest-mit-anwender">9. Abnahme: End-to-End-Funktionstest mit Anwender</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Benutzer meldet sich selbst am übergebenen Gerät an; MFA/CA erfolgreich.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Outlook: Testmail senden/empfangen; Teams: Anmeldung und erforderlicher Teamzugriff.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>OneDrive/SharePoint: genehmigte Testdatei öffnen; Netzfreigabe bei Bedarf.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fachapp: erlaubte Aufgabe ausführen; unberechtigte Bereiche bleiben geschlossen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erforderliche Peripherie/VPN/Drucker getestet; Ergebnis und Abweichungen festgehalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät, Zubehör und Erstinformationen sicher übergeben; Empfang bestätigt.</li>
+</ul>
+<p><strong>Keine</strong> echte Berechtigung durch Admin-Impersonation oder Abfrage des MFA-Codes ersetzen. Wenn Nutzer beim Test nicht anwesend ist, „ausstehender Anwender-Endtest“ dokumentieren.</p>
+<h2 id="10-muster-ticketkommentar-abschluss-und-validierungsstatus">10. Muster-Ticketkommentar, Abschluss und Validierungsstatus</h2>
+<blockquote>
+<p><strong>Fiktiver Ticketkommentar:</strong> „Onboarding auf Basis HR-ONB-1049 durchgeführt/vorbereitet. Quellsystem und Konto eindeutig verifiziert; freigegebene Rollen und Gruppen abgeglichen; benötigte M365-Lizenzen/Servicepläne geprüft; MFA-Ersteinrichtung begleitet. Gerät LT-049 inventarisiert, Intune-/Compliance-Status kontrolliert und benötigte Anwendungen bereitgestellt. End-to-End-Prüfung: Windows [Ergebnis], Mail [Ergebnis], Teams [Ergebnis], Dateiablage [Ergebnis], Fachapp [Ergebnis]. Offene Punkte [Status/Owner/Termin]. Übergabe durch [berechtigte Person] bestätigt. Keine Zugangsdaten und keine übermäßigen Rechte im Ticket.“</p>
+</blockquote>
+<p><strong>Abschluss nur dann</strong>, wenn genehmigter Sollzustand und Endtest erfüllt sind. Sonst Teilstatus offen lassen und Zieltermin/Verantwortlichen festhalten. Erneute Tests nach den dokumentierten Nacharbeiten.</p>
+<p><strong>Sicherheitsregel:</strong> Keine geheimen Erstzugangsdaten, kein TAP, keine Recovery-Schlüssel, keine unnötigen personenbezogenen Daten ins Ticket; keine Administratorrechte ohne separate Freigabe.</p>
+<p><strong>Quellen:</strong> siehe [Q1]–[Q15] im Lernartikel und in der README.<br/>
+<strong>Validierung:</strong> Recherchiert; <strong>praktische Durchführung und Fehlerreproduktion ausstehend</strong>. Keine produktiven Änderungen erfolgt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-049_Praxis-Runbook.md">RB-049_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-048/index.html">← Ticket 48</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-050/index.html">Ticket 50 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

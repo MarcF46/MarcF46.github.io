@@ -1,0 +1,236 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 40: Gruppenrichtlinie wird nicht angewendet | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 40: Gruppenrichtlinie wird nicht angewendet. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 40: Gruppenrichtlinie wird nicht angewendet</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-lernziel-und-zustandigkeit">1. Störungsbild, Lernziel und Zuständigkeit</a></li><li><a href="#2-grundlagen-gpo-gpc-gpt-und-rsop">2. Grundlagen: GPO, GPC, GPT und RSoP</a></li><li><a href="#3-verarbeitungsweg-vom-zielobjekt-zur-konkreten-einstellung">3. Verarbeitungsweg: vom Zielobjekt zur konkreten Einstellung</a></li><li><a href="#4-fehlermeldung-strukturieren-bevor-du-prufst">4. Fehlermeldung strukturieren, bevor du prüfst</a></li><li><a href="#5-sicherheitsgate-beweise-vor-anderungen">5. Sicherheitsgate: Beweise vor Änderungen</a></li><li><a href="#6-client-effektive-richtlinien-lesend-nachweisen-gpresult">6. Client: effektive Richtlinien lesend nachweisen ( gpresult )</a></li><li><a href="#7-geltungsbereich-ou-link-vererbung-und-prioritat">7. Geltungsbereich: OU, Link, Vererbung und Priorität</a></li><li><a href="#8-security-filtering-und-wmi-filter-kontrollieren">8. Security Filtering und WMI-Filter kontrollieren</a></li><li><a href="#9-dc-dns-und-sysvol-verarbeitung-kann-vor-dem-inhalt-scheitern">9. DC, DNS und SYSVOL: Verarbeitung kann vor dem Inhalt scheitern</a></li><li><a href="#10-grouppolicy-ereignisse-zeitpunkt-und-fehlercode-korrelieren">10. GroupPolicy-Ereignisse: Zeitpunkt und Fehlercode korrelieren</a></li><li><a href="#11-gpo-ist-angewendet-aber-eine-einstellung-wirkt-nicht">11. GPO ist angewendet, aber eine Einstellung wirkt nicht</a></li><li><a href="#12-freigegebene-reparaturmassnahmen-und-retest">12. Freigegebene Reparaturmaßnahmen und Retest</a></li><li><a href="#13-fiktiver-praxisfall-a-gpo-durch-wmi-filter-ausgeschlossen">13. Fiktiver Praxisfall A – GPO durch WMI-Filter ausgeschlossen</a></li><li><a href="#14-fiktiver-praxisfall-b-gpo-angewendet-gpp-laufwerkszuordnung-fehlt">14. Fiktiver Praxisfall B – GPO angewendet, GPP-Laufwerkszuordnung fehlt</a></li><li><a href="#15-active-recall-diagnosekarten-und-transfer">15. Active Recall, Diagnosekarten und Transfer</a></li><li><a href="#herstellerquellen-recherchebelege">Herstellerquellen / Recherchebelege</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Bereich:</strong> Active Directory Domain Services (AD DS), Windows 11, Windows Server, Gruppenrichtlinien (GPO)<br/>
+<strong>Support-Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Anhand offizieller Microsoft-Quellen recherchiert; <strong>noch nicht praktisch validiert</strong>. Alle Beispiele, Namen, Ereignisse und Ticketdaten sind <strong>fiktiv</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb040_henne_ei_gruppenrichtlinie.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-040 – Gruppenrichtlinienpfad von Geltungsbereich bis tatsächlicher Wirkung" decoding="async" loading="lazy" src="assets/rb040_henne_ei_gruppenrichtlinie.webp"/></a></div><figcaption>RB-040 – Gruppenrichtlinienpfad von Geltungsbereich bis tatsächlicher Wirkung</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> Eine GPO kann in Active Directory existieren, ohne für einen Benutzer oder Computer relevant zu sein. Sie kann relevant, aber gefiltert sein. Sie kann als angewendet erscheinen, ohne dass die erwartete Einzeleinstellung wirkt. Erst <strong>Geltungsbereich → Filter → Verarbeitung → wirksame Einstellung</strong> unterscheiden.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-lernziel-und-zustandigkeit">1. Störungsbild, Lernziel und Zuständigkeit</h2>
+<p><strong>Beispielmeldungen:</strong></p>
+<ul>
+<li>„Die Laufwerkszuordnung erscheint bei einem Mitarbeiter nicht.“</li>
+<li>„Die neue Bildschirmsperrrichtlinie gilt nur auf einigen PCs.“</li>
+<li>„<code>gpupdate /force</code> ist durchgelaufen, aber die Einstellung bleibt unverändert.“</li>
+</ul>
+<p><strong>Lernziel:</strong> Die Fehlerquelle präzise einer von vier Klassen zuordnen: <strong>(A) nicht verknüpft/nicht im Scope, (B) durch Filter ausgeschlossen, (C) Verarbeitung/Erreichbarkeit gestört, (D) GPO angewendet, einzelne Einstellung wirkungslos</strong>.</p>
+<p><strong>L1:</strong> Objektname, Benutzer, PC, Zeitpunkt, Fehlermeldung, Umfang, Sollwert, Vergleichsgerät erfassen und lesende Basisinformationen sammeln. <strong>L2:</strong> RSoP/gpresult, GPMC, AD-Objektpfade, GPO-Link/Security/WMI, GroupPolicy-Protokoll und SYSVOL-Befund korrelieren. <strong>AD-/Security-Owner:</strong> Änderungen an Links, Berechtigungen, Filter, OU, Replikation und Sicherheitsvorgaben nach Freigabe. [Q1–Q5]</p>
+<p><strong>Abgrenzung:</strong> RB-040 ist nicht identisch mit RB-041 „AD-Gruppenmitgliedschaft greift nicht“. Gruppenmitgliedschaften können aber eine Ursache der GPO-Sicherheitsfilterung darstellen. DNS-/Servererreichbarkeit werden in RB-034/RB-038 vertieft.</p>
+<h2 id="2-grundlagen-gpo-gpc-gpt-und-rsop">2. Grundlagen: GPO, GPC, GPT und RSoP</h2>
+<p>Eine Gruppenrichtlinie besteht aus einem <strong>Group Policy Container (GPC)</strong> in <strong>Active Directory</strong> und dem <strong>Group Policy Template (GPT)</strong> im <strong>SYSVOL</strong> eines Domänencontrollers. Vereinfacht gesagt liegen GPO-Metadaten und Verknüpfungsbeziehungen in AD, Dateien/Policy-Inhalte werden unter SYSVOL verwaltet. AD-Replikation und DFSR-Replikation von SYSVOL sind zwei getrennte Mechanismen; unterschiedliche Stände können die Verarbeitung erschweren. [Q1, Q2, Q6]</p>
+<ul>
+<li><strong>GPO:</strong> Regelwerk mit Benutzer- und/oder Computereinstellungen.</li>
+<li><strong>GPO-Link:</strong> Verknüpfung mit <strong>Site, Domäne oder OU</strong>. Eine GPO im Ordner „Gruppenrichtlinienobjekte“ ohne wirksame Verknüpfung kann leer ausgehen.</li>
+<li><strong>RSoP (Resultant Set of Policy):</strong> Tatsächlich resultierende Richtlinien für einen bestimmten Computer/Benutzer unter seinen Bedingungen.</li>
+<li><strong>GPMC:</strong> Gruppenrichtlinienverwaltung; zeigt Objekte, Links, Vererbung, Filter, GPO-Ergebnisse und Modellierung.</li>
+<li><strong>CSE (Client Side Extension):</strong> Windows-Komponente, die die Einstellungen einer bestimmten Richtlinienkategorie verarbeitet.</li>
+</ul>
+<p><strong>Entscheidender Unterschied:</strong> <strong>Group Policy Modeling</strong> berechnet eine <em>Simulation</em>; <strong>Group Policy Results</strong> beziehungsweise <code>gpresult</code> erfasst <em>tatsächliche</em> Richtlinienergebnisse auf einem Client. Modellierung ist deshalb kein Ersatz für den Befund auf dem betroffenen System. [Q1, Q4]</p>
+<h2 id="3-verarbeitungsweg-vom-zielobjekt-zur-konkreten-einstellung">3. Verarbeitungsweg: vom Zielobjekt zur konkreten Einstellung</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Benutzer- oder Computerobjekt
+    ↓  OU / Domäne / Site und GPO-Link
+Geltungsbereich + Vererbung + Linkreihenfolge
+    ↓  Security Filtering / WMI-Filter
+GPO grundsätzlich anwendbar?
+    ↓  DC erreichbar, AD-Informationen &amp; SYSVOL lesbar?
+Client-Side-Extensions verarbeiten die Einstellungen
+    ↓  CSE-spezifisch: Konflikte, GPP-Targeting, Zeitpunkt
+Erwarteter Wert / Verhalten tatsächlich wirksam?
+</code></pre></div>
+<p><strong>Computer-Konfiguration</strong> gilt auf das Computerobjekt und wird primär beim Start sowie in Hintergrundaktualisierungen verarbeitet. <strong>Benutzer-Konfiguration</strong> gilt auf das Benutzerobjekt und wird primär bei der Anmeldung sowie in Hintergrundaktualisierungen verarbeitet. Im Sonderfall <strong>Loopback</strong> ändern Computer-GPOs die Zusammenstellung der Benutzerrichtlinien (Merge/Replace), häufig an Terminalservern/Kiosken. [Q1, Q2]</p>
+<h2 id="4-fehlermeldung-strukturieren-bevor-du-prufst">4. Fehlermeldung strukturieren, bevor du prüfst</h2>
+<p>Erfasse in einem Ticket:</p>
+<ol>
+<li><strong>Welcher Sollwert?</strong> Pfad und exakte Einstellung innerhalb welcher GPO, z. B. Netzlaufwerkszuordnung oder Sperrbildschirm-Timeout.</li>
+<li><strong>Wer/Wo?</strong> Benutzerkonto, Computername, Domäne, OU des <strong>Benutzers</strong> und OU des <strong>Computers</strong>, Standort/VPN.</li>
+<li><strong>Was fehlt?</strong> GPO erscheint nicht in <code>gpresult</code>? Wird sie explizit gefiltert? Wird sie angewendet, aber der Sollwert fehlt?</li>
+<li><strong>Seit wann?</strong> Letzte funktionierende Anmeldung, letzte Änderung, Uhrzeit, Client-Neustart, Replikationszeitfenster.</li>
+<li><strong>Vergleich:</strong> Wirkt dieselbe GPO bei einem anderen Benutzer/Computer? Im gleichen OU-Zweig? An anderem Standort/DC?</li>
+</ol>
+<p>Dokumentiere die <strong>exakte GPO-ID</strong> und den Pfad der Einstellung statt nur eines ähnlich klingenden Anzeigenamens. Sammle so wenig personenbezogene Informationen wie nötig.</p>
+<h2 id="5-sicherheitsgate-beweise-vor-anderungen">5. Sicherheitsgate: Beweise vor Änderungen</h2>
+<p><strong>Zunächst nur lesende Diagnose:</strong> GPMC anschauen, RSoP-Bericht erstellen, DNS/DC-Zugang und Logs lesen. <strong>Nicht</strong> ohne Belege GPO-Links, <code>Authenticated Users</code>, „Apply Group Policy“, WMI-Filter, OU-Zuordnung, SYSVOL-Inhalte oder Replikation ändern. In produktiven Umgebungen können fehlerhafte GPO-Änderungen viele Endgeräte betreffen.</p>
+<p><code>gpupdate /force</code> ist eine <strong>zustandsändernde Aktualisierung</strong>, kein reiner Lesetest und kein Ursachenbeweis. Manche Einstellungen benötigen Neuanmeldung/Neustart; bei einem Remote-Arbeitsplatz nur nach Absprache und mit gesichertem Rückweg ausführen. Kein pauschales „alles zurücksetzen“.</p>
+<p><strong>Datenschutz:</strong> <code>gpresult</code> und Ereignislogs können Benutzer-, Computer- und Domäneninformationen enthalten. Nur zweckgebunden speichern; keine Anmeldekennwörter, Tickets oder Geheimnisse in Dokumentationen kopieren.</p>
+<h2 id="6-client-effektive-richtlinien-lesend-nachweisen-gpresult">6. Client: effektive Richtlinien lesend nachweisen (<code>gpresult</code>)</h2>
+<p><strong>Auf dem betroffenen Windows-Client, möglichst in der betroffenen Benutzersitzung; bei Computerdaten ggf. erhöhten Zugriff verwenden:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Ausgabe aktueller RSoP-Zusammenfassung (CMD-Tool aus PowerShell):
+gpresult /r
+
+# Nur Computerbereich ausgeben (erfordert passende Berechtigung):
+gpresult /scope computer /r
+
+# Nur Benutzerbereich ausgeben (im betroffenen Benutzerkontext):
+gpresult /scope user /r
+
+# HTML-Bericht im TEMP-Verzeichnis, nur lesender Berichtsexport:
+gpresult /h "$env:TEMP\RB040-gpresult.html" /f
+</code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li>GPO unter <strong>„Angewendete Gruppenrichtlinienobjekte“</strong>: Verarbeitung als GPO grundsätzlich berichtet, aber nicht automatisch Erfolg jeder einzelnen Einstellung.</li>
+<li>GPO unter <strong>„Abgelehnte/ausgefilterte GPOs“</strong>: Filtergrund beachten, z. B. Sicherheitsfilter oder WMI-Filter.</li>
+<li>GPO im Bericht <strong>nicht vorhanden</strong>: Link/Scope, Objekt-OU, GPO-/Linkstatus und ggf. fehlende Domänenkommunikation prüfen.</li>
+<li>Bericht enthält falschen <strong>Benutzerkontext</strong>: Keine Aussage zur betroffenen Anmeldung ableiten. Auch RSoP-Daten können unvollständig sein; den Befund mit tatsächlicher Einstellung und Ereignissen abgleichen. [Q3, Q4]</li>
+</ul>
+<p><strong>Wichtig:</strong> <code>gpresult</code> wird nicht auf einem beliebigen Admin-PC ausgeführt, um automatisch die Richtlinien eines anderen betroffenen PCs zu beweisen; bei Remote-Verwendung explizite Zielparameter und Berechtigungen beachten.</p>
+<h2 id="7-geltungsbereich-ou-link-vererbung-und-prioritat">7. Geltungsbereich: OU, Link, Vererbung und Priorität</h2>
+<p>In der <strong>GPMC</strong> kontrollieren:</p>
+<ul>
+<li>Liegt das <strong>richtige Benutzer- beziehungsweise Computerobjekt</strong> tatsächlich in der erwarteten OU? Benutzer-GPOs wirken normalerweise nicht auf beliebige Computer-OUs, Computer-GPOs nicht auf beliebige Benutzer-OUs.</li>
+<li>Ist die GPO <strong>wirksam mit Site/Domäne/OU verknüpft</strong>? Link aktiviert? GPO selbst aktiviert? Entsprechender Benutzer-/Computerteil aktiviert?</li>
+<li>Blockiert eine OU die Vererbung? Ist ein übergeordneter GPO-Link <strong>Erzwungen (Enforced)</strong>? Welche <strong>Link-Reihenfolge/Priorität</strong> gilt?</li>
+<li>Gibt es eine andere GPO mit derselben Einstellung und höherer effektiver Priorität?</li>
+</ul>
+<p><strong>Korrekte Fachsprache:</strong> <strong>LSDOU</strong> bezeichnet vereinfacht die Verarbeitung Lokal → Site → Domäne → OU. <strong>Erzwungene</strong> Verknüpfungen und Vererbungsblockierung verändern diese einfache Betrachtung. Ein niedrigere numerische Linkreihenfolge innerhalb desselben Containers bedeutet normalerweise höhere Priorität; ohne die tatsächliche Effektivreihenfolge ist ein bloßer Name in GPMC kein Beweis. [Q1, Q2]</p>
+<h2 id="8-security-filtering-und-wmi-filter-kontrollieren">8. Security Filtering und WMI-Filter kontrollieren</h2>
+<p>Sicherheitsfilterung setzt eine passende <strong>Read-</strong> und <strong>Apply Group Policy</strong>-Berechtigung für die betreffenden Sicherheitsprinzipale voraus. GPO-Anwendbarkeit basiert auf <strong>wirksamen</strong> Berechtigungen, Gruppenmitgliedschaften und ggf. Deny-ACEs. <strong>Deny</strong>-Regeln und spezielle Computerleserechte bei Benutzer-GPOs können Sonderfälle erzeugen.</p>
+<ul>
+<li>In GPMC die Register <strong>Bereich (Scope)</strong> und <strong>Delegierung → Erweitert</strong> ansehen.</li>
+<li>Prüfen, ob Benutzer oder <strong>Computer</strong> bzw. ihre relevanten Gruppen von der Filterung abgedeckt sind.</li>
+<li><code>whoami /groups</code> in der Sitzung des betroffenen Benutzers dokumentiert den <strong>aktuellen Token</strong>, nicht einen beliebigen früheren/nächsten Gruppenstand.</li>
+<li>Falls WMI-Filter hinterlegt: Prüfen, ob seine Bedingung am <strong>Zielcomputer</strong> erfüllt ist; nicht ohne Analyse löschen.</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># In der betroffenen Benutzersitzung: aktuell wirksame Token-Gruppen:
+whoami /groups
+
+# Betriebssysteminformationen, z. B. zum Abgleich mit WMI-Filtern:
+Get-CimInstance -ClassName Win32_OperatingSystem |
+  Select-Object Caption, Version, BuildNumber
+</code></pre></div>
+<p><strong>Wichtig:</strong> Eine neu hinzugefügte AD-Gruppenmitgliedschaft ist nicht zwingend unmittelbar im vorhandenen Benutzer-Token sichtbar. Neuanmeldung und ggf. Computeranmeldung im Freigabe-/Sicherheitsrahmen prüfen; keine willkürliche Gruppenänderung ausführen. [Q2, Q5]</p>
+<h2 id="9-dc-dns-und-sysvol-verarbeitung-kann-vor-dem-inhalt-scheitern">9. DC, DNS und SYSVOL: Verarbeitung kann vor dem Inhalt scheitern</h2>
+<p>Wenn mehrere GPOs betroffen sind, <code>gpresult</code> unvollständig ist oder GroupPolicy-Events auf Domänenkommunikation hinweisen, auf dem Client <strong>lesend</strong> prüfen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># IP-Konfiguration mit DNS-Servern (Ausgabe enthält interne Daten):
+Get-DnsClientServerAddress -AddressFamily IPv4 |
+  Select-Object InterfaceAlias, ServerAddresses
+
+# Erreichbaren Domänencontroller ermitteln; Domainname anpassen:
+nltest /dsgetdc:corp.example
+
+# Freigegebenen SYSVOL-Pfad auf Namensauflösung/Zugriff testen:
+Test-Path '\\corp.example\SYSVOL'
+
+# DNS-Name eines bereits bekannten DC (Beispiel) prüfen:
+Resolve-DnsName -Name 'dc01.corp.example' -Type A
+</code></pre></div>
+<p><strong>Befundgrenze:</strong> <code>Test-Path</code> meldet einen Erfolg oder Fehler des Zugriffs <em>aus diesem Kontext</em>. Ein <code>False</code> ist nicht automatisch eine Diagnose von DFSR-Replikation; DNS, Authentifizierung, SMB-Filter und Berechtigungen können ebenfalls beteiligt sein. <code>nltest</code> zeigt eine DC-Auswahl, beweist aber nicht, dass alle benötigten Dienste und SYSVOL-Dateien funktionsfähig sind.</p>
+<p><strong>L2/AD-Eskalation:</strong> Bei standortabhängigen Unterschieden die DC-Version der GPO (AD/GPC und SYSVOL/GPT), SYSVOL-Verfügbarkeit, DFSR-/AD-Replikationsstatus und relevante DC-Events durch den Domain-Owner prüfen lassen. <strong>Keine SYSVOL-Dateien manuell ersetzen oder DFSR neu initialisieren.</strong> [Q1, Q6]</p>
+<h2 id="10-grouppolicy-ereignisse-zeitpunkt-und-fehlercode-korrelieren">10. GroupPolicy-Ereignisse: Zeitpunkt und Fehlercode korrelieren</h2>
+<p>Windows-Protokoll: <strong>Anwendungs- und Dienstprotokolle → Microsoft → Windows → GroupPolicy → Operational</strong>. Anwendungs-/Systemereignisse können ergänzend relevant sein.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Lesende Sicht auf Ereignisse der letzten acht Stunden:
+$since = (Get-Date).AddHours(-8)
+Get-WinEvent -FilterHashtable @{
+    LogName   = 'Microsoft-Windows-GroupPolicy/Operational'
+    StartTime = $since
+} -ErrorAction SilentlyContinue |
+  Select-Object -First 35 TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<ul>
+<li><strong>Zeitstempel und Aktivitätskorrelation</strong>: Welcher Anmelde-/Refresh-Durchlauf gehört zum gemeldeten Problem?</li>
+<li><strong>Fehlercodes/Event-ID</strong>: Text und Kontext lesen; Event-ID <strong>1129</strong> kann auf Netzwerkprobleme zum DC hindeuten, <strong>1058</strong> auf ein Problem beim Lesen einer Policy-Datei. Eine ID ohne Text und Umgebungsbefund reicht nicht für eine eindeutige Ursache. [Q1]</li>
+<li><strong>CSE-Status</strong>: Ist die relevante Erweiterung gelaufen, fehlgeschlagen oder war die Verarbeitung nur zeitlich verschoben?</li>
+</ul>
+<p><strong>Erweitertes GPSvc-Debuglogging</strong> verändert Registrierung und Logvolumen; nur durch berechtigte Administration nach Freigabe und mit Rückbauplan aktivieren. Die Microsoft-Anleitung beschreibt dieses Verfahren, es gehört <strong>nicht</strong> zum standardmäßigen Ersttest.</p>
+<h2 id="11-gpo-ist-angewendet-aber-eine-einstellung-wirkt-nicht">11. GPO ist angewendet, aber eine Einstellung wirkt nicht</h2>
+<p>Dieser Fall wird häufig falsch diagnostiziert. Für eine GPO in der angewendeten Liste prüfen:</p>
+<ol>
+<li><strong>Winning GPO/effektiver Wert:</strong> Eine andere Richtlinie kann dieselbe Einstellung überschreiben.</li>
+<li><strong>Passende CSE:</strong> Administrative Vorlagen, Skripte, Netzlaufwerke, Softwareinstallation oder Ordnerumleitung haben unterschiedliche Verarbeitungseigenschaften.</li>
+<li><strong>Hintergrund vs. Vordergrund:</strong> Manche Einstellungen werden erst beim Start oder bei der Anmeldung wirksam, nicht sofort nach einem Hintergrundrefresh.</li>
+<li><strong>Group Policy Preferences (GPP):</strong> Item-Level-Targeting, Aktion Create/Update/Replace/Delete, „Apply once“, Run-in-user-context und Fehler einer einzelnen Preference-Position.</li>
+<li><strong>Aufrufkontext:</strong> Ein Netzlaufwerk als Benutzer-Preference ist etwas anderes als eine Einstellung im Computerkontext.</li>
+</ol>
+<p>Einzelne Preference-Elemente können trotz angewandter GPO nicht wirken, wenn <strong>Item-Level-Targeting</strong> false liefert; das ist kein GPO-Linkfehler. Bei „Remove this item when it is no longer applied“ können Auswirkungen auf bestehende Einstellungen entstehen – niemals ohne Prüfung aktivieren. [Q2, Q5]</p>
+<h2 id="12-freigegebene-reparaturmassnahmen-und-retest">12. Freigegebene Reparaturmaßnahmen und Retest</h2>
+<p><strong>Erst wenn Befund + Owner + Changefreigabe + Rollback feststehen:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Belegter Befund</th>
+<th>Eigentümer / begrenzte Maßnahme</th>
+<th>Was anschließend zu testen ist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPO-Link fehlt/ist deaktiviert</td>
+<td>AD-Owner setzt korrigierten Link nach Abgleich</td>
+<td>RSoP auf ursprünglich betroffenem Client und konkrete Einstellung</td>
+</tr>
+<tr>
+<td>Security-/WMI-Filter schließt das Ziel aus</td>
+<td>AD-/Security-Owner korrigiert ausschließlich den erforderlichen Scope</td>
+<td>Erfasster Filterstatus, Wirkung und Negativtest bei nicht berechtigten Zielen</td>
+</tr>
+<tr>
+<td>SYSVOL/DFSR oder DC-Kontakt fehlerhaft</td>
+<td>AD-/Netzwerk-Team behebt Ursache nach Replikations-/Netzbefund</td>
+<td>Richtlinien- und SYSVOL-Stände, GroupPolicy-Events, Clientfunktion</td>
+</tr>
+<tr>
+<td>CSE/Timing/Item-Level-Targeting</td>
+<td>Verantwortlicher GPO-Owner korrigiert konkrete Einstellung oder verarbeitet sie zum erforderlichen Zeitpunkt</td>
+<td>Sichtbarer Nutzereffekt statt bloß <code>gpupdate</code>-Erfolg</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>gpupdate /force</code> nur als <strong>gezielten, genehmigten</strong> Folgetest verwenden (ggf. <code>/target:user</code> oder <code>/target:computer</code>) und berücksichtigen, dass An-/Abmeldung oder Neustart erforderlich sein kann. Der Befehl beweist <strong>nicht</strong>, weshalb die Richtlinie zuvor fehlte. [Q1, Q2]</p>
+<h2 id="13-fiktiver-praxisfall-a-gpo-durch-wmi-filter-ausgeschlossen">13. Fiktiver Praxisfall A – GPO durch WMI-Filter ausgeschlossen</h2>
+<p><strong>Meldung:</strong> „Die Computer-GPO für eine Desktop-Einstellung greift bei Notebook N-023 nicht.“</p>
+<p><strong>Fiktive Befunde:</strong></p>
+<ol>
+<li>Betroffen ist nur N-023; Vergleichsgerät N-018 in derselben OU erhält die Richtlinie.</li>
+<li><code>gpresult /h</code> nennt die GPO als <strong>gefiltert (WMI)</strong>. DC-Kommunikation und SYSVOL sind nach Vergleichstests erreichbar.</li>
+<li>Der WMI-Filter wurde für eine bestimmte Windows-Version erstellt. N-023 erfüllt die Filterbedingung nicht, obwohl er laut Sollkonzept dazugehören soll.</li>
+<li>GPMC und dokumentierte Sollvorgabe bestätigen, dass die WMI-Bedingung zu eng ist.</li>
+</ol>
+<p><strong>Hypothese im Fall bestätigt:</strong> GPO wird wegen nicht passendem WMI-Filter ausgeschlossen; ein <code>gpupdate</code> ändert daran nichts. <strong>Geplante, nicht durchgeführte Maßnahme:</strong> Berechtigter GPO-Owner korrigiert nach Freigabe ausschließlich den WMI-Filter, testet zuerst am Pilotgerät, prüft <code>gpresult</code> und tatsächlichen Wert und kontrolliert unbeabsichtigte Ziele.</p>
+<p><strong>Transferfrage:</strong> Wäre dieselbe GPO nicht einmal im Geltungsbereich, wäre der WMI-Filter nicht der erste Diagnosezweig.</p>
+<h2 id="14-fiktiver-praxisfall-b-gpo-angewendet-gpp-laufwerkszuordnung-fehlt">14. Fiktiver Praxisfall B – GPO angewendet, GPP-Laufwerkszuordnung fehlt</h2>
+<p><strong>Meldung:</strong> „Der Netzlaufwerksbuchstabe X: fehlt nur bei einem Benutzer, obwohl die GPO angewendet wird.“</p>
+<p><strong>Fiktive Befunde:</strong></p>
+<ol>
+<li><code>gpresult</code> führt die zugehörige Benutzer-GPO unter <strong>Angewendet</strong> auf.</li>
+<li>Die betroffene Benutzeranmeldung wurde mit einem funktionierenden Vergleichsbenutzer auf demselben PC getestet (autorisierter Vergleich).</li>
+<li>In GPMC ist eine <strong>Drive Map Group Policy Preference</strong> mit <strong>Item-Level-Targeting auf eine spezielle Sicherheitsgruppe</strong> konfiguriert.</li>
+<li>Der betroffene Benutzer gehört laut aktuellem Token nicht zur Zielgruppe; der Vergleichsbenutzer schon. Der Fachbereich bestätigt, dass nur diese Gruppe das Laufwerk erhalten soll.</li>
+</ol>
+<p><strong>Belegte Ursache im fiktiven Fall:</strong> <strong>Korrektes Ausschließen</strong> der einzelnen GPP-Position durch Item-Level-Targeting – <em>kein Fehler des GPO-Links</em>. <strong>Ergebnis:</strong> Keine Freigabe zur Berechtigungsänderung erforderlich; dem Nutzer wird der beabsichtigte Rechteumfang erklärt und ein fachlicher Antrag vorgeschlagen. Kein Löschen oder Neuaufbau von Windows-Profilen.</p>
+<p><strong>Transferfrage:</strong> Was wäre anders, wenn <code>gpresult</code> die ganze GPO bereits als „Sicherheitsfilterung: ausgeschlossen“ ausweist?</p>
+<h2 id="15-active-recall-diagnosekarten-und-transfer">15. Active Recall, Diagnosekarten und Transfer</h2>
+<p><strong>Wissenskarten (kurze Antworten):</strong></p>
+<ol>
+<li><strong>Frage:</strong> Was unterscheidet GPO von GPO-Link? <strong>Antwort:</strong> GPO = Regelwerk; Link = Zuweisung zu Site/Domäne/OU.</li>
+<li><strong>Frage:</strong> Welcher Befehl zeigt RSoP am Client? <strong>Antwort:</strong> <code>gpresult /r</code> oder <code>gpresult /h</code>.</li>
+<li><strong>Frage:</strong> Was bedeutet CSE? <strong>Antwort:</strong> Client Side Extension – verarbeitet spezifische Richtlinieneinstellungen.</li>
+<li><strong>Frage:</strong> Wo liegen GPO-Dateien? <strong>Antwort:</strong> In SYSVOL (GPT); Metadaten in AD (GPC).</li>
+</ol>
+<p><strong>Verständniskarten:</strong></p>
+<ol start="5">
+<li><strong>Frage:</strong> Warum beweist „GPO angewendet“ keine wirksame Laufwerkszuordnung? <strong>Antwort:</strong> Ein einzelnes GPP-Element kann gefiltert sein oder scheitern.</li>
+<li><strong>Frage:</strong> Warum ist <code>gpupdate /force</code> kein Ursachenbeweis? <strong>Antwort:</strong> Es startet die Verarbeitung neu, isoliert aber weder Filter noch GPO-/CSE-Fehler.</li>
+<li><strong>Frage:</strong> Warum liefert Group Policy Modeling nicht immer das reale Ergebnis? <strong>Antwort:</strong> Es simuliert und kennt nicht alle lokalen und Laufzeiteffekte.</li>
+</ol>
+<p><strong>Diagnosekarten:</strong></p>
+<ol start="8">
+<li><strong>Frage:</strong> GPO erscheint „abgelehnt – WMI“, was prüfen? <strong>Antwort:</strong> Filterbedingung auf dem Ziel-PC und Soll-Scope.</li>
+<li><strong>Frage:</strong> Viele Clients melden 1058 beim Lesen einer GPO-Datei, was nun? <strong>Antwort:</strong> Eventtext, DC/DNS, SYSVOL, AD-/DFSR-Status korrelieren.</li>
+<li><strong>Frage:</strong> GPO ist angewendet, aber GPP-Laufwerk fehlt nur bei einer Person. <strong>Antwort:</strong> Item-Level-Targeting, Gruppen-Token, CSE-Events und Sollberechtigung.</li>
+</ol>
+<p><strong>Eigenständige Übung:</strong> Beschreibe ohne Runbook erst dein Testdesign für die Meldung „Die Bildschirmsperre greift nicht“: Welchen GPO-Bereich, welche OU, welche Filter und welches Ergebnis würdest du jeweils nachweisen? Danach mit Kapitel 4–12 vergleichen. Für eine längerfristige Überprüfung nach etwa 7 und 21 Tagen dieselben Prinzipien an einem <strong>anderen</strong> Fehlerbild abrufen.</p>
+<hr/>
+<h2 id="herstellerquellen-recherchebelege">Herstellerquellen / Recherchebelege</h2>
+<p>Die Quellen beschreiben reale Microsoft-Technik; die Fälle und Tabellen dieser Dokumentation sind eigens entworfene Lernbeispiele, <strong>keine dokumentierten Labortests</strong>.</p>
+<ul>
+<li><strong>[Q1] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/applying-group-policy-troubleshooting-guidance" rel="noopener noreferrer" target="_blank">Applying Group Policy troubleshooting guidance</a> – Diagnose auf Client, Ereignisse, GPResult, DC-/SYSVOL-Probleme.</li>
+<li><strong>[Q2] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing" rel="noopener noreferrer" target="_blank">Group Policy processing for Windows</a> – Scope, Vererbung, Loopback, Refresh, getrennte Replikation AD/SYSVOL.</li>
+<li><strong>[Q3] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpresult" rel="noopener noreferrer" target="_blank">gpresult</a> – Parameter und RSoP-Auswertung.</li>
+<li><strong>[Q4] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-modeling-results" rel="noopener noreferrer" target="_blank">Group Policy Modeling and Results</a> – Simulation versus Ist-Zustand.</li>
+<li><strong>[Q5] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-preferences" rel="noopener noreferrer" target="_blank">Group Policy preferences in Windows</a> – Item-Level-Targeting und CSE-Eigenschaften.</li>
+<li><strong>[Q6] Microsoft Learn:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-missing-sysvol-and-netlogon-shares" rel="noopener noreferrer" target="_blank">Troubleshoot missing SYSVOL and Netlogon shares for DFS Replication</a> – SYSVOL-/DFSR-Probleme und Eskalation.</li>
+</ul>
+<p><strong>Transparenz:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Ohne Freigabe keine produktiven GPO-Änderungen. Alle Tests sind vor Veröffentlichung unter den konkreten Berechtigungen, Versionen und Rahmenbedingungen der Laborumgebung nachzuprüfen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-040_Lernartikel.md">RB-040_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-039/index.html">← Ticket 39</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-041/index.html">Ticket 41 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

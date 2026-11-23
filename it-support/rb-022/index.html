@@ -1,0 +1,482 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 22: Monitor wird nicht erkannt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 22: Monitor wird nicht erkannt. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 22: Monitor wird nicht erkannt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket-und-die-zielsetzung">1. Das Supportticket und die Zielsetzung</a></li><li><a href="#2-grundlagen-vom-grafikchip-zum-sichtbaren-bild">2. Grundlagen: Vom Grafikchip zum sichtbaren Bild</a></li><li><a href="#3-fehlerbilder-statt-vorschneller-ursachenfestlegung">3. Fehlerbilder statt vorschneller Ursachenfestlegung</a></li><li><a href="#4-wo-wird-gepruft-und-mit-welchen-rechten">4. Wo wird geprüft – und mit welchen Rechten?</a></li><li><a href="#5-diagnose-entscheidungsbaum-uberblick">5. Diagnose-Entscheidungsbaum – Überblick</a></li><li><a href="#6-diagnose-a-strom-osd-eingang-kabel-und-port-l1">6. Diagnose A – Strom, OSD, Eingang, Kabel und Port (L1)</a></li><li><a href="#7-diagnose-b-a-b-test-direktverbindung-statt-fehlerkette-l1">7. Diagnose B – A/B-Test: Direktverbindung statt Fehlerkette (L1)</a></li><li><a href="#8-diagnose-c-windows-11-erkannt-aktiviert-oder-tatsachlich-nicht-gefunden-l1">8. Diagnose C – Windows 11: erkannt, aktiviert oder tatsächlich nicht gefunden? (L1)</a></li><li><a href="#9-diagnose-d-lesende-powershell-und-gerate-manager-prufung-l1-l2">9. Diagnose D – Lesende PowerShell- und Geräte-Manager-Prüfung (L1/L2)</a></li><li><a href="#10-diagnose-e-treiber-windows-update-und-plotzliche-anderungen-l1-l2">10. Diagnose E – Treiber, Windows-Update und plötzliche Änderungen (L1 → L2)</a></li><li><a href="#11-diagnose-f-usb-c-dock-displaylink-mst-und-dritte-monitore-l1-l2">11. Diagnose F – USB-C, Dock, DisplayLink, MST und dritte Monitore (L1 → L2)</a></li><li><a href="#12-von-der-diagnose-zur-gezielten-behebung">12. Von der Diagnose zur gezielten Behebung</a></li><li><a href="#13-funktionsprufung-ticketabschluss-und-l2-ubergabe">13. Funktionsprüfung, Ticketabschluss und L2-Übergabe</a></li><li><a href="#14-zwei-musterfalle-und-lernkontrolle">14. Zwei Musterfälle und Lernkontrolle</a></li><li><a href="#15-herstellerquellen-methodik-und-transparenz">15. Herstellerquellen, Methodik und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Hardware / Windows 11 / Monitor und Signalweg<br/>
+<strong>Support-Level:</strong> L1 – mit klarer L2-Eskalationsgrenze bei Treibern, Firmware, BIOS/UEFI, zentral verwalteten Geräten und Hardwaredefekten<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Anhand von Microsoft- und Dell-Herstellerquellen recherchiert; <strong>noch nicht praktisch validiert</strong>. Alle Musterfälle sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb022_henne_ei_monitor_nicht_erkannt.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-Ei-Infografik: Zweiter Monitor wird nicht erkannt" decoding="async" loading="lazy" src="assets/rb022_henne_ei_monitor_nicht_erkannt.webp"/></a></div><figcaption>Henne-Ei-Infografik: Zweiter Monitor wird nicht erkannt</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Ein schwarzer Monitor, die Meldung „Kein Signal“ und ein von Windows nicht erkannter Monitor sind <strong>unterschiedliche Befunde</strong>. Erst unterscheiden, <strong>wo</strong> die Signalkette unterbrochen ist; dann genau dort prüfen. Ein Austausch von Kabeln, die Änderung des Projektionsmodus oder eine Treiberaktualisierung ohne Befund ist keine systematische Diagnose.</p>
+</blockquote>
+<h2 id="1-das-supportticket-und-die-zielsetzung">1. Das Supportticket und die Zielsetzung</h2>
+<p><strong>INC-022 – fiktive Meldung:</strong> „Seit heute Morgen bleibt mein zweiter Bildschirm schwarz. Gestern hat er am Notebook noch funktioniert. Auf dem Monitor steht ‚Kein Signal‘. Ich arbeite mit Windows 11 und gelegentlich an einer Dockingstation.“</p>
+<p><strong>Auftrag:</strong> Einen zweiten Bildschirm am vorhandenen Arbeitsgerät wieder betriebsbereit machen, ohne unnötige Eingriffe in Treiber, Firmware oder Geräteverwaltung. Die <strong>tatsächlich nachgewiesene Ursache</strong> und den <strong>erfolgreichen End-to-End-Test</strong> dokumentieren.</p>
+<h3 id="unmittelbare-fragen-beim-erstkontakt">Unmittelbare Fragen beim Erstkontakt</h3>
+<ul>
+<li>Ist der betroffene Monitor <strong>ausgeschaltet</strong>, zeigt er sein <strong>Bildschirmmenü (OSD)</strong> oder meldet er <strong>„Kein Signal“</strong>? Ist die Bildschirmbeleuchtung an?</li>
+<li>Zeigt Windows unter <strong>Einstellungen → System → Anzeige</strong> ein Rechteck für den zweiten Bildschirm? Mit welcher Nummer? Oder taucht er dort überhaupt nicht auf?</li>
+<li>Gibt es <strong>kein Bild</strong>, ein <strong>flackerndes Bild</strong>, eine „Out of range“-Meldung oder nur einen nicht erweiterten Desktop?</li>
+<li>Gerätetyp: Notebook/PC, Windows-Version, Monitormodell, genutzter <strong>HDMI-/DisplayPort-/USB-C-/Thunderbolt</strong>-Weg, Adapter, Dock oder Monitor-Daisy-Chain?</li>
+<li>Betrifft es <strong>nur einen Monitor</strong>, beide externen Monitore oder auch das integrierte Notebookdisplay? Seit wann? Nach Umstecken, Update, Sleep/Wakeup, Schreibtischwechsel?</li>
+<li>Ist ein Ersatzkabel, anderer freigegebener Anschluss oder bekanntermaßen funktionierender Monitor zur <strong>kontrollierten Gegenprobe</strong> verfügbar?</li>
+<li>Ist eine kurzfristige Ausweichlösung für einen zeitkritischen Termin nötig? Änderungen und Testunterbrechungen abstimmen.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-022 behandelt den Monitor und den Videopfad als Supportfall. Wenn zusätzlich USB, Netzwerk und Stromversorgung <strong>über die Dockingstation</strong> ausfallen, auf <strong>RB-023 – Dockingstation funktioniert nicht</strong> erweitern. Ein völlig nicht startender PC gehört eher zu RB-025/026.</p>
+<h2 id="2-grundlagen-vom-grafikchip-zum-sichtbaren-bild">2. Grundlagen: Vom Grafikchip zum sichtbaren Bild</h2>
+<p>Die Anzeige ist eine <strong>Abhängigkeitskette</strong>:</p>
+<ol>
+<li><strong>Grafikausgabe des PCs:</strong> Grafikadapter, Treiber, aktiver Videoausgang und unterstützte Anzeigeanzahl.</li>
+<li><strong>Signalweg:</strong> HDMI, DisplayPort, USB-C mit Video-Unterstützung, Adapter, ggf. Dock oder MST-Verkettung; Kabel und Stecker müssen elektrisch und logisch funktionieren.</li>
+<li><strong>Monitor:</strong> Stromversorgung, aktiver Eingang und Gerätestatus. Das interne Monitor-Menü kann noch funktionieren, obwohl kein PC-Signal anliegt.</li>
+<li><strong>Aushandlung/Erkennung:</strong> Monitor und Rechner tauschen Anzeigeninformationen und Verbindungssignale aus (vereinfacht: EDID/Hot-Plug-Detection). Ein gestörter Handshake kann die Erkennung verhindern.</li>
+<li><strong>Windows-Anzeigeverwaltung:</strong> Erkennung, Anzeigeaktivierung, Projektionsmodus und bei sichtbarem Gerät passende Auflösung und Aktualisierungsrate.</li>
+</ol>
+<p><strong>Wichtig:</strong> „Monitor ist im Geräte-Manager vorhanden“ ist noch kein Beweis für ein sichtbares Bild. Umgekehrt kann „Kein Signal“ nur den <strong>aktuell gewählten Monitoreingang</strong> beschreiben und nicht zwingend einen Windows-Treiberdefekt.</p>
+<h3 id="begriffe-auf-einen-blick">Begriffe auf einen Blick</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung</th>
+<th>Typischer Diagnosebezug</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OSD</td>
+<td>On-Screen-Display, Monitormenü</td>
+<td>Belegt Bedienbarkeit des Monitors, nicht funktionierendes PC-Videosignal</td>
+</tr>
+<tr>
+<td>HDMI / DP</td>
+<td>Digitaler Videoanschluss / DisplayPort</td>
+<td>Richtiger Port, korrekte Signalquelle, Kabeltest</td>
+</tr>
+<tr>
+<td>USB-C</td>
+<td>Steckerform und Schnittstellenfamilie</td>
+<td><strong>USB-C allein garantiert keinen Videoausgang</strong></td>
+</tr>
+<tr>
+<td>DP Alt Mode</td>
+<td>DisplayPort-Signal über USB-C</td>
+<td>Muss vom betreffenden PC-Port und Zubehör unterstützt werden</td>
+</tr>
+<tr>
+<td>Thunderbolt</td>
+<td>Multifunktionsschnittstelle (modellabhängig)</td>
+<td>Unterstützte Anzeigewege/Kabel/Modi laut Gerätespezifikation prüfen</td>
+</tr>
+<tr>
+<td>DisplayLink</td>
+<td>USB-basierte Grafiklösung mit Softwaretreiber</td>
+<td>Bei bestimmten Universal-Docks relevant, nicht mit DP Alt Mode verwechseln</td>
+</tr>
+<tr>
+<td>MST</td>
+<td>Multi-Stream Transport</td>
+<td>Mehrere getrennte Videostreams über geeigneten DP-Pfad</td>
+</tr>
+<tr>
+<td>EDID</td>
+<td>Extended Display Identification Data</td>
+<td>Der Monitor teilt unterstützte Anzeigemodi mit; Fehler sind nicht allein daraus beweisbar</td>
+</tr>
+<tr>
+<td>PnP</td>
+<td>Plug and Play</td>
+<td>Windows-Gerätestatus als <strong>Indiz</strong>, nicht als vollständiger Videotest</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>Graphics Processing Unit</td>
+<td>Grafikadapter/Grafiktreiber</td>
+</tr>
+<tr>
+<td>L1 / L2</td>
+<td>First-/Second-Level-Support</td>
+<td>L1: Sichtprüfung und reversible Tests; L2: tiefe Eingriffe nach Freigabe</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Henne-Ei-Merksatz:</strong> Bevor Windows ein Bild auf dem zweiten Monitor anzeigen kann, muss überhaupt ein <strong>kompatibler, durchgängiger Videopfad</strong> vorhanden sein. Eine Windows-Einstellung repariert kein ungeeignetes USB-C-Portprofil oder defektes Kabel.</p>
+<h2 id="3-fehlerbilder-statt-vorschneller-ursachenfestlegung">3. Fehlerbilder statt vorschneller Ursachenfestlegung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtetes Symptom</th>
+<th>Plausible Hypothesen</th>
+<th>Aussagekräftige Gegenprobe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monitor völlig aus, kein OSD</td>
+<td>Stromversorgung, Netzteil, Steckdose, Gerätefehler</td>
+<td>Strom, LED und OSD unabhängig vom PC prüfen</td>
+</tr>
+<tr>
+<td>OSD funktioniert, „Kein Signal“</td>
+<td>Falscher Eingang, Kabel/Port, PC-Ausgabe, Adapter/Dock</td>
+<td>Eingang kontrollieren; direkter Anschluss mit geeignetem Kabel</td>
+</tr>
+<tr>
+<td>Windows zeigt <strong>nur Monitor 1</strong>, Monitor 2 fehlt</td>
+<td>Erkennung/Signalweg, Dock/USB-C, GPU/Treiber</td>
+<td>Direktanschluss und <strong>Erkennen</strong> in Anzeigeeinstellungen</td>
+</tr>
+<tr>
+<td>Windows zeigt <strong>1 und 2</strong>, zweiter bleibt schwarz</td>
+<td>Projektionsmodus, deaktivierte Anzeige, Signalübertragung, inkompatibler Modus</td>
+<td><code>Win + P</code> und für Monitor 2 Anzeigeeinstellungen prüfen</td>
+</tr>
+<tr>
+<td>Nur <strong>Duplizieren</strong>, kein unabhängiger Desktop</td>
+<td>Windows-Modus oder Hardware-Splitter, der nur dupliziert</td>
+<td><code>Erweitern</code> wählen; tatsächlichen Verbindungsaufbau prüfen</td>
+</tr>
+<tr>
+<td>Bildschirm nur <strong>über Dock</strong> ohne Bild</td>
+<td>Dock-Typ, Portfähigkeit, Kabel, Grafikbandbreite, Docktreiber/Firmware</td>
+<td>Derselbe Monitor am PC <strong>direkt</strong> mit geeigneter Schnittstelle testen</td>
+</tr>
+<tr>
+<td>Nur der <strong>dritte Monitor</strong> fehlt</td>
+<td>GPU-/Dock-/Bandbreiten- oder MST-Grenze</td>
+<td>Ein externer Monitor, dann zwei, dann drei; Spezifikationen vergleichen</td>
+</tr>
+<tr>
+<td>Funktion nach Update/Standby gestört</td>
+<td>Anzeigeinitialisierung, Treiberversion, Dock/Monitor-Handshake</td>
+<td>Zeitpunkt dokumentieren; reversible Reinitialisierung, anschließend freigegebene Treiberdiagnose</td>
+</tr>
+<tr>
+<td>Bild erscheint, flackert oder zeigt „Out of range“</td>
+<td>Auflösung/Bildwiederholrate, Signalqualität, Bandbreite</td>
+<td>Empfohlene Auflösung/unterstützte Frequenz testen (bei erkannter Anzeige)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Diagnostische Vorsicht:</strong> Die Tabelle enthält <strong>Hypothesen, keine Beweise</strong>. „Seit dem Update“ ist eine zeitliche Korrelation, noch keine bestätigte Kausalität.</p>
+<h2 id="4-wo-wird-gepruft-und-mit-welchen-rechten">4. Wo wird geprüft – und mit welchen Rechten?</h2>
+<p><strong>Am Arbeitsplatz des Benutzers (L1):</strong> Monitor-LED/OSD, Stromversorgung, Input-Taste, Kabel/Steckverbindungen, nur freigegebene andere Ports/Kabel und gegebenenfalls Direktanschluss. Nach Freigabe des Benutzers Windows-Anzeigeeinstellungen prüfen. Nicht ungefragt den Arbeitsplatz abstecken oder einen laufenden Bildschirminhalt unterbrechen.</p>
+<p><strong>Am Windows-Client (L1):</strong> <code>Win + P</code>, <code>Einstellungen → System → Anzeige</code>, „Mehrere Bildschirme → Erkennen“, Geräte-Manager und <strong>lesende</strong> PowerShell-Befehle. Sichtprüfung nach dem Test mit dem Anwender. Ein gezielter Neustart nur nach Einverständnis und Sicherung offener Arbeit.</p>
+<p><strong>Bei L2 oder Client-/Endpoint-Team:</strong> GPU-/Docktreiber zurücksetzen/aktualisieren, Gerätemanagement-/Sicherheitsrichtlinien untersuchen, Firmware oder BIOS/UEFI ändern und Hardware austauschen. Solche Schritte können administrative Rechte, Downtime und genehmigte Prozesse erfordern.</p>
+<p><strong>Nicht Teil einer sicheren Erstdiagnose:</strong> Registry-/EDID-Manipulation, pauschale Treiberdeinstallation, Firmware-Flash, unkontrolliertes Entfernen „versteckter“ Monitore oder Sicherheits-/MDM-Richtlinien deaktivieren.</p>
+<h2 id="5-diagnose-entscheidungsbaum-uberblick">5. Diagnose-Entscheidungsbaum – Überblick</h2>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb022_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-022: Technischer Diagnosebaum" decoding="async" loading="lazy" src="assets/rb022_diagnosebaum.svg"/></a></div><figcaption>RB-022: Technischer Diagnosebaum</figcaption></figure>
+<p><strong>Leseregel:</strong> Eine Entscheidung wird mit einem beobachtbaren Test beantwortet. Danach nur dem entsprechenden Pfad folgen.</p>
+<ol>
+<li><strong>Monitor mit eigenem OSD erreichbar?</strong> Nein: zunächst Strom/Monitor-Hardware. Ja: Signalquelle und Videopfad untersuchen.</li>
+<li><strong>Bekanntermaßen geeignete Direktverbindung liefert ein Bild?</strong> Ja: Zwischenkomponenten (Dock/Adapter/Port/Kabel) eingrenzen. Nein: Windows/GPU/Monitor mit Gegengerät weiter differenzieren.</li>
+<li><strong>Windows erkennt eine zweite Anzeige?</strong> Ja: <code>Win + P</code> und Aktivierung prüfen. Nein: <code>Erkennen</code>, Kabel/Port und lesende PnP-Diagnose; ggf. L2.</li>
+<li><strong>Funktioniert der betroffene Monitor an einem anderen freigegebenen Gerät bzw. anderes Display am PC?</strong> A/B-Test begrenzt Monitordefekt gegen PC-Ausgang; keine Einzelbeobachtung ist allein immer eindeutig.</li>
+<li><strong>Nach gezielter Korrektur:</strong> Erkennung, sichtbares Bild, Erweiterung, Auflösung und Stabilität mit dem Benutzer prüfen.</li>
+</ol>
+<h2 id="6-diagnose-a-strom-osd-eingang-kabel-und-port-l1">6. Diagnose A – Strom, OSD, Eingang, Kabel und Port (L1)</h2>
+<p><strong>Vor Änderung:</strong> Foto/Beschreibung des bestehenden Anschlusswegs und des Fehlers erfassen, damit später der gleiche Sollzustand wiederhergestellt werden kann.</p>
+<ol>
+<li>Monitor-Led, Stromversorgung und wenn möglich <strong>Monitormenü über dessen eigene Taste</strong> prüfen. Reagiert das OSD? Wenn nicht: Netzanschluss und Hardware nach Arbeitssicherheits- und Betriebsregeln prüfen; keine Netzteilöffnung.</li>
+<li>Am Monitor den <strong>tatsächlich angeschlossenen Eingang</strong> auswählen: etwa <code>HDMI 1</code>, <code>HDMI 2</code>, <code>DisplayPort</code> oder <code>USB-C</code>. Auto-Select ist nicht immer zuverlässig.</li>
+<li>Kabel an <strong>beiden Enden</strong> auf festen Sitz und sichtbare Schäden kontrollieren. Beschädigte Kabel nicht weiter betreiben.</li>
+<li>Falls vorhanden: <strong>ein</strong> bekannt funktionsfähiges, technisch geeignetes Kabel testen. Bei DisplayPort Verriegelung vor dem Abziehen lösen; Stecker nicht mit Gewalt einstecken.</li>
+<li>Einen anderen kompatiblen Videoausgang oder Eingang als <strong>kontrollierten</strong> Vergleich nutzen; am Desktop-PC darauf achten, ob der Anschluss an der dedizierten GPU oder am Mainboard liegt. Ein Mainboard-Ausgang kann modell- bzw. konfigurationsbedingt deaktiviert sein.</li>
+<li>Befunde notieren: Monitor-OSD ja/nein, gewählter Eingang, Kabel/Port alt/neu, Anzeigeverhalten nach <strong>jedem</strong> Test.</li>
+</ol>
+<p><strong>Interpretation:</strong> Ein leuchtender Monitor mit OSD und „Kein Signal“ beweist nur, dass kein <strong>nutzbares Signal an diesem gewählten Eingang angezeigt wird</strong>. Es beweist weder einen kaputten Monitor noch einen kaputten Grafiktreiber.</p>
+<h2 id="7-diagnose-b-a-b-test-direktverbindung-statt-fehlerkette-l1">7. Diagnose B – A/B-Test: Direktverbindung statt Fehlerkette (L1)</h2>
+<p>Bei Dock, KVM, USB-C-Adapter oder HDMI-Umsetzer gibt es mehrere Glieder. <strong>Isoliere sie.</strong></p>
+<ul>
+<li>Test 1: <strong>Monitor A – Kabel A – PC-Port A</strong> (bisheriger Aufbau): Fehler reproduzieren.</li>
+<li>Test 2: <strong>Monitor A – geeignetes Kabel B – gleicher PC-Port A</strong>: Ändert sich das Verhalten? → Kabel als Variable.</li>
+<li>Test 3: <strong>Monitor A – passender PC-Port B</strong> oder <strong>Monitor B – Kabel A – Port A</strong>: Nur wenn die Alternativen elektrisch/technisch kompatibel sind; sonst ist der Vergleich wertlos.</li>
+<li>Test 4: Bei Dockfehler: <strong>Monitor A direkt am kompatiblen PC-Videoausgang</strong> (ohne Dock/Adapter), möglichst mit derselben Auflösung und Anzeigeart.</li>
+</ul>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Aussage</th>
+<th>Nicht vorschnell schließen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mit Ersatzkabel funktioniert es</td>
+<td>Ursprüngliches Kabel oder dessen Kontaktweg verdächtig</td>
+<td>Nicht jeder Monitorfehler ist damit erklärt</td>
+</tr>
+<tr>
+<td>Direkt funktioniert, über Dock nicht</td>
+<td>Dock-/Adapter-/Hostport-Zweig ist verdächtig</td>
+<td>Dock ist nicht zwingend kaputt; kann inkompatibel konfiguriert sein</td>
+</tr>
+<tr>
+<td>Monitor A an zweitem PC ebenfalls ohne Bild, Monitor B am ersten PC ok</td>
+<td>Monitor A oder seine Eingangs-/Kabelkombination verdächtig</td>
+<td>Unterschiedliche Auflösungs-/Portfähigkeiten mitdenken</td>
+</tr>
+<tr>
+<td>Monitor B ebenfalls am PC ohne Signal</td>
+<td>PC-Ausgang, Modus oder gemeinsame Verbindung verdächtig</td>
+<td>Noch kein eindeutiger GPU-Defekt</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ein-Test-eine-Variable-Prinzip:</strong> Wenn gleichzeitig Kabel, Dock, Eingang und Treiber geändert werden, verliert das Ergebnis seinen diagnostischen Wert.</p>
+<h2 id="8-diagnose-c-windows-11-erkannt-aktiviert-oder-tatsachlich-nicht-gefunden-l1">8. Diagnose C – Windows 11: erkannt, aktiviert oder tatsächlich nicht gefunden? (L1)</h2>
+<h3 id="8-1-projektionsmodus-kontrollieren">8.1 Projektionsmodus kontrollieren</h3>
+<ol>
+<li>Auf dem funktionsfähigen Display <strong><code>Windows + P</code></strong> drücken.</li>
+<li>Die gewünschte Betriebsart wählen: <strong>Duplizieren</strong> (gleiches Bild) oder <strong>Erweitern</strong> (getrennte Desktopfläche). „Nur PC-Bildschirm“ deaktiviert die externe Darstellung und kann einen vermeintlichen Defekt vortäuschen.</li>
+<li>Wenn sichtbar: Anzeige wirklich erweitern; Fenster/Maus über Bildschirmgrenze bewegen. Dass Windows nur einen Desktop auf beiden Anzeigen zeigt, kann ein <strong>gewolltes Duplizieren</strong> sein.</li>
+</ol>
+<h3 id="8-2-anzeige-in-windows-erkennen">8.2 Anzeige in Windows erkennen</h3>
+<ol>
+<li><strong>Einstellungen → System → Anzeige</strong> öffnen (alternativ Desktop-Rechtsklick → Anzeigeeinstellungen).</li>
+<li>Wenn zwei Monitorrechtecke sichtbar: <strong>Identifizieren</strong>, die Zuordnung und den aktuellen Projektionsmodus kontrollieren. Falls nötig die zweite Anzeige wieder aktivieren.</li>
+<li>Wenn die externe Anzeige <strong>nicht</strong> aufgeführt ist: unter <strong>Mehrere Bildschirme → Erkennen</strong> suchen lassen.</li>
+<li>Dokumentieren: Gibt es ein zweites Rechteck? Ein OSD-Bild? Wurde durch <code>Erkennen</code> etwas neu hinzugefügt? Das sind unterschiedliche Beobachtungen.</li>
+</ol>
+<p><strong>Grenze:</strong> „Erkennen“ repariert keine unterbrochene Hardwareverbindung. Wenn Windows keinen zweiten Bildschirm findet, geht die Diagnose <strong>zurück zum Signalweg</strong> und gegebenenfalls zu PnP/Treiber, nicht direkt zu einer Treiberdeinstallation.</p>
+<h3 id="8-3-wenn-der-monitor-sichtbar-aber-das-bild-unbrauchbar-ist">8.3 Wenn der Monitor sichtbar, aber das Bild unbrauchbar ist</h3>
+<p>Bei erkanntem Gerät, „Out of range“, Flackern oder unbrauchbarer Darstellung nach Hardware-/Herstellerprüfung <strong>unterstützte</strong> Auflösung und Frequenz testen: <strong>Einstellungen → System → Anzeige → [Monitor] → Erweiterte Anzeige</strong>. Vor Änderungen den Ausgangswert dokumentieren; kein blindes Übertakten von Frequenzen.</p>
+<h3 id="8-4-reinitialisierung-bei-plotzlich-ausgefallenem-bestehenden-setup">8.4 Reinitialisierung bei plötzlich ausgefallenem bestehenden Setup</h3>
+<p>Microsoft nennt <strong><code>Windows + Strg + Umschalt + B</code></strong> zur Reinitialisierung des Grafiktreibers in bestimmten Fällen. Möglich sind ein kurzes Flackern oder ein Signalton. Das ist <strong>kein Beweis</strong> für eine Treiberursache. Erst nach Rücksprache einsetzen und den Erfolg mit derselben Verbindung kontrollieren. Ein geplanter Neustart kann ebenfalls helfen; offene Arbeit vorher sichern.</p>
+<h2 id="9-diagnose-d-lesende-powershell-und-gerate-manager-prufung-l1-l2">9. Diagnose D – Lesende PowerShell- und Geräte-Manager-Prüfung (L1/L2)</h2>
+<p><strong>Ausführungsort:</strong> Windows 11, Windows PowerShell auf dem betroffenen PC. Die folgenden Kommandos <strong>lesen nur</strong>; sie ändern keine Treiber- oder Monitoreinstellungen.</p>
+<h3 id="9-1-aktuell-vorhandene-monitor-gerateklassen">9.1 Aktuell vorhandene Monitor-Geräteklassen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Listet momentan als vorhanden gemeldete PnP-Monitore.
+# Der Status ist ein Indiz, KEIN Beweis für ein sichtbares Bild.
+Get-PnpDevice -Class Monitor -PresentOnly |
+    Select-Object Status, Class, FriendlyName, InstanceId |
+    Format-Table -AutoSize
+</code></pre></div>
+<p><strong>Interpretation:</strong> Ein Gerät mit <code>Status = OK</code> muss nicht das gerade erwartete Display sein; die Anzeige kann trotzdem ausgeschaltet oder über den falschen Eingang verbunden sein. Die Ausgabe eignet sich zum <strong>Vergleich vor/nach einem physikalischen Test</strong>.</p>
+<h3 id="9-2-grafikadapterstatus-anzeigen">9.2 Grafikadapterstatus anzeigen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Windows-PnP-Grafikadapter als derzeit vorhandene Geräte lesen.
+# Auf manchen Systemen gibt es integrierte und dedizierte Adapter.
+Get-PnpDevice -Class Display -PresentOnly |
+    Select-Object Status, FriendlyName, InstanceId |
+    Format-Table -AutoSize
+
+# Bei Bedarf geräteübergreifend nach der Klasse filtern:
+Get-PnpDevice -PresentOnly |
+    Where-Object { $_.Class -in @('Monitor', 'Display') } |
+    Select-Object Class, Status, FriendlyName |
+    Sort-Object Class, FriendlyName
+</code></pre></div>
+<p><strong>Interpretation:</strong> Der GPU-Gerätestatus grenzt Treiber-/Initialisierungsprobleme ein, beweist aber weder Portfunktion noch eine funktionierende HDMI-/DisplayPort-Leitung.</p>
+<h3 id="9-3-grafikkartendetails-lesend-ermitteln">9.3 Grafikkartendetails lesend ermitteln</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Liest vom System gemeldete Grafikadapterinformationen über CIM/WMI.
+# Vorher/Nachher auf demselben Gerät vergleichen.
+Get-CimInstance -ClassName Win32_VideoController |
+    Select-Object Name, DriverVersion, VideoModeDescription
+</code></pre></div>
+<p><strong>Interpretation:</strong> Fehlende oder unplausible Werte sind kein alleiniger Ausfallbeweis; Werte können je nach Treibermodell/Adaptertyp variieren. Den <strong>Treiberstand</strong> stets mit Herstellerangaben und dem verwalteten Softwarestandard abgleichen.</p>
+<h3 id="9-4-gerate-manager-als-erganzung">9.4 Geräte-Manager als Ergänzung</h3>
+<ul>
+<li><strong>Geräte-Manager → Monitore</strong> sowie <strong>Grafikkarten</strong> öffnen.</li>
+<li>Fehlersymbole, Fehlercodes, installierte Grafikadapter und ggf. Eigenschaften → Treiber notieren.</li>
+<li>Bei nicht angeschlossenen Monitoren können gespeicherte Geräteeinträge vorhanden sein. <strong>Nicht ohne Anlass „ausgeblendete Geräte“ löschen</strong>.</li>
+</ul>
+<p><strong>Datenschutz:</strong> Seriennummern/<code>InstanceId</code>, Rechnernamen und Screenshots nur in zulässigem Umfang ins Ticketsystem übernehmen, nicht in öffentlich zugängliche Lernbeispiele.</p>
+<h2 id="10-diagnose-e-treiber-windows-update-und-plotzliche-anderungen-l1-l2">10. Diagnose E – Treiber, Windows-Update und plötzliche Änderungen (L1 → L2)</h2>
+<p>Wenn Verbindung, Eingang und Anzeigeeinstellungen plausibel sind, kann der Grafiktreiber-/Initialisierungszweig relevant werden.</p>
+<ol>
+<li>Prüfen, <strong>ob der Fehler zeitlich nach einem konkreten Windows-, GPU- oder Dock-Update</strong> entstand. Kein „Update war gestern, also ist es schuld“-Fehlschluss.</li>
+<li>Einmalige Reinitialisierung mit <strong><code>Windows + Strg + Umschalt + B</code></strong> oder geplanter Neustart als reversibler Test nach Absprache.</li>
+<li><strong>Geräte-Manager → Grafikkarten → Eigenschaften → Treiber</strong>: Modell, Version, Datum, Fehlercode dokumentieren.</li>
+<li>Erst bei geeignetem Befund: <strong>Treiber-Rollback, freigegebene Herstelleraktualisierung oder Neuinstallation</strong> durch L2/Endpoint-Team nach Unternehmensprozess. Microsoft dokumentiert diese Wege, aber sie sind <strong>keine automatischen L1-Sofortmaßnahmen</strong>.</li>
+<li>Nach jedem Eingriff ursprünglichen Bildaufbau reproduzieren und mehrere Anzeigewechsel testen.</li>
+</ol>
+<p><strong>Warnung:</strong> Ein Treiberwechsel kann lokal oder remote die Anzeige temporär unterbrechen; bei nur einem funktionierenden Display oder Fernwartung besonders vorsichtig sein. Keine beliebigen „Driver Updater“ aus dem Internet installieren.</p>
+<h2 id="11-diagnose-f-usb-c-dock-displaylink-mst-und-dritte-monitore-l1-l2">11. Diagnose F – USB-C, Dock, DisplayLink, MST und dritte Monitore (L1 → L2)</h2>
+<p>Diese Fälle verdienen einen eigenen Entscheidungszweig, weil <strong>passende Stecker noch keine passenden Protokolle garantieren</strong>.</p>
+<h3 id="usb-c-daten-strom-und-video-sind-verschiedene-eigenschaften">USB-C: Daten, Strom und Video sind verschiedene Eigenschaften</h3>
+<p>Ein USB-C-Port kann beispielsweise Daten und Ladeleistung bereitstellen, ohne <strong>DisplayPort Alt Mode</strong> oder den benötigten Videoausgang zu unterstützen. Dell nennt solche Fehlkonfigurationen ausdrücklich. Ebenso muss das <strong>Kabel/der Adapter</strong> für den jeweiligen Videopfad geeignet sein.</p>
+<p><strong>Prüfung:</strong> Exakte Hersteller-/Modellangaben von Notebook, Hostport, Kabel und Monitor nachlesen. Nicht von der Steckerform auf die Fähigkeit schließen. Ein bereits funktionierender USB-Stick am Port ist <strong>kein Videofunktionstest</strong>.</p>
+<h3 id="dockingstation-typ-klaren">Dockingstation: Typ klären</h3>
+<ul>
+<li><strong>Native DP-/Thunderbolt-Docks:</strong> Anforderungen an Hostport, Protokoll, Dock und Bandbreite unterscheiden sich je nach Modell.</li>
+<li><strong>Universal-Docks mit DisplayLink:</strong> Bildausgabe kann einen <strong>spezifischen DisplayLink-Treiber</strong> benötigen. Dell nennt die Modelle D6000/D6000S/UD22 als Beispiele; diese Aussage ist <strong>nicht auf alle Docks übertragbar</strong>.</li>
+<li><strong>Firmware/BIOS/Treiber:</strong> Nur nach Herstellerleitfaden und Freigabe; zunächst die direkte PC-Verbindung testen. Ein Dock kann ohne Defekt inkompatibel oder falsch initialisiert sein.</li>
+</ul>
+<h3 id="mehrere-displays-mst-und-splitter">Mehrere Displays, MST und Splitter</h3>
+<ul>
+<li><strong>DP-MST/Daisy-Chain</strong> funktioniert nur mit unterstützten DP-/USB-C-/Thunderbolt-Konstellationen und konfigurierten Monitoren; bei mehreren Geräten die dokumentierte unterstützte Kombination prüfen.</li>
+<li>Ein einfacher <strong>HDMI-Splitter</strong> zeigt typischerweise dasselbe Signal auf mehreren Displays und stellt <strong>keine unabhängige Windows-Erweiterung</strong> bereit.</li>
+<li>Die Anzahl gleichzeitig nutzbarer Bildschirme hängt unter anderem von <strong>GPU, Dock, Portbandbreite, Auflösung und Bildrate</strong> ab. Dass ein einzelner Monitor funktioniert, beweist nicht, dass drei hochauflösende Displays unterstützt sind.</li>
+</ul>
+<p><strong>Hinweis auf das Folgeticket:</strong> Wenn Tastatur, Netzwerk und Monitor <strong>gemeinsam</strong> über dieselbe Dockingstation ausfallen, ist RB-023 das passendere Hauptproblem.</p>
+<h2 id="12-von-der-diagnose-zur-gezielten-behebung">12. Von der Diagnose zur gezielten Behebung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener oder gut isolierter Befund</th>
+<th>Zulässige, zielgerichtete Maßnahme</th>
+<th>Kontrolle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Monitor ohne Strom/OSD</td>
+<td>Stromanschluss bzw. freigegebenes Ersatzgerät prüfen</td>
+<td>OSD und Bild nach Verbindung</td>
+</tr>
+<tr>
+<td>Falscher aktiver Eingang</td>
+<td>Korrekten OSD-Eingang auswählen</td>
+<td>PC-Bild sichtbar, Windows erkennt Display</td>
+</tr>
+<tr>
+<td>Kabel als Ursache durch A/B-Test isoliert</td>
+<td>Kabel durch geeignetes freigegebenes ersetzen</td>
+<td>Kalt-/Warmstart bzw. Reconnect prüfen</td>
+</tr>
+<tr>
+<td>Windows zeigt 2 Monitore, externer ist deaktiviert</td>
+<td><code>Win + P</code> → <strong>Erweitern</strong> oder gewünschte Betriebsart</td>
+<td>Fenster zwischen den Monitoren verschieben</td>
+</tr>
+<tr>
+<td>Gerät nach Direktanschluss erkannt, über Dock nicht</td>
+<td>Dock-/Adapter-/Hostport-Zweig untersuchen; ggf. RB-023</td>
+<td>Beide Wege protokollieren, keine vorschnelle Dock-Defektdiagnose</td>
+</tr>
+<tr>
+<td>USB-C-Port ohne Videounterstützung</td>
+<td>Unterstützten Videoausgang und passendes Kabel/Adapter verwenden</td>
+<td>Gleiches Display über geeigneten Weg testen</td>
+</tr>
+<tr>
+<td>Auflösung/Frequenz nicht unterstützt</td>
+<td>Nur dokumentierte unterstützte Werte verwenden</td>
+<td>Stabiles Bild und gewünschte Auflösung</td>
+</tr>
+<tr>
+<td>Konkretes GPU-/Docktreiberproblem</td>
+<td>L2: genehmigter Rollback oder Hersteller-/Endpoint-Update</td>
+<td>Nach Reboot/Dockwechsel erneut prüfen</td>
+</tr>
+<tr>
+<td>Verdacht auf defekten Videoport/Monitor</td>
+<td>Gezielter Ersatz-/Kreuztausch, dann Hardwareeskalation</td>
+<td>Gegenprobe an kompatiblen Geräten</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht tun:</strong> Wild Treiber löschen, EDID-Dateien überschreiben, Registry-Patches aus Foren übernehmen, Herstellerfirmware ohne Freigabe flashen, den Nutzer pauschal auf einen Monitor festlegen.</p>
+<h2 id="13-funktionsprufung-ticketabschluss-und-l2-ubergabe">13. Funktionsprüfung, Ticketabschluss und L2-Übergabe</h2>
+<h3 id="abnahmekriterien-gemeinsam-mit-der-betroffenen-person">Abnahmekriterien – gemeinsam mit der betroffenen Person</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Das <strong>gewünschte</strong> externe Display zeigt Bild am vorgesehenen Eingang; kein „Kein Signal“.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows erkennt die vorgesehenen Anzeigen; <strong>Identifizieren</strong> ordnet die Geräte korrekt zu.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Der vereinbarte Modus funktioniert: <strong>Erweitern</strong> oder ausdrücklich gewünschtes Duplizieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendungen können zwischen Anzeigen verschoben werden; Auflösung und Frequenz liegen im unterstützten Bereich.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach einer erneuten Verbindung (bei Dock/Hotplug) funktioniert die Ausgabe weiterhin; bei Bedarf Sleep/Wakeup nur nach Abstimmung testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache und veränderte Komponente <strong>konkret</strong> dokumentiert, plus Restunsicherheit und Nutzerbestätigung.</li>
+</ul>
+<h3 id="eskalationsgrenzen">Eskalationsgrenzen</h3>
+<p>L2/Endpoint/Hardware-Support einbinden, wenn ein <strong>reproduzierbares Problem</strong> trotz geeigneter Kabel-/Port-/Monitor-Gegenprobe besteht, USB-C-/MST-Kompatibilität unklar ist, mehrere Arbeitsplätze gleichzeitig ausfallen, ein Treiber-/Firmware-/BIOS-Eingriff nötig scheint oder die gemeinsame Dockfunktion gestört ist.</p>
+<p><strong>Minimaler L2-Datensatz:</strong> Windows-Build; Gerätetyp, GPU und ggf. Dockmodell; Monitor- und Portmodell; Anschlusskette; OSD-Text; <code>Win + P</code>-Modus; Anzahl Windows-Anzeigen; ursprünglicher vs. geänderter Kabel-/Portweg; Ergebnisse der A/B-Tests; Treiberstand; seit wann; freigegebene Maßnahmen samt Wirkung; Priorität und Nutzererreichbarkeit.</p>
+<h3 id="ticketabschluss-fiktive-formulierung">Ticketabschluss – fiktive Formulierung</h3>
+<blockquote>
+<p><strong>INC-022 (Schulungsbeispiel):</strong> Notebookdisplay funktionsfähig, externer Monitor meldete „Kein Signal“. Windows zeigte nur eine Anzeige. Am Monitor war HDMI 2 gewählt, das Kabel steckte an HDMI 1. Nach Auswahl von HDMI 1 zeigte der Monitor Bild; Windows erkannte das Gerät. Mit <code>Win + P → Erweitern</code> die gewünschte Desktop-Erweiterung eingestellt und mit dem Benutzer geprüft. Ursache: falscher Monitoreingang. Keine Treiber-/Firmwareänderung. <strong>Fiktiv, nicht praktisch durchgeführt.</strong></p>
+</blockquote>
+<h2 id="14-zwei-musterfalle-und-lernkontrolle">14. Zwei Musterfälle und Lernkontrolle</h2>
+<h3 id="14-1-fall-a-monitor-defekt-fiktiv-mit-auflosung">14.1 Fall A – „Monitor defekt?“ (fiktiv, mit Auflösung)</h3>
+<p><strong>Meldung:</strong> Zweiter Bildschirm meldet „No Signal“, OSD reagiert; Notebookdisplay funktioniert. Windows zeigt eine Anzeige. Der Mitarbeiter hat den Arbeitsplatz am Morgen umgebaut.</p>
+<p><strong>Hypothesen:</strong> Eingang falsch, Stecker lose, Kabel inkompatibel oder defekt, Port nicht aktiv, GPU-/Windows-Problem.</p>
+<p><strong>Kontrollierter Test:</strong> Aktiven Monitoreingang mit tatsächlich verwendeter Buchse abgleichen. Bei Abweichung <strong>nur</strong> den Eingang korrigieren und Windows erneut prüfen.</p>
+<p><strong>Fiktiver Befund:</strong> HDMI 2 eingestellt, Kabel an HDMI 1. Nach OSD-Änderung Bild vorhanden und Anzeige erkannt. <strong>Abschlussgrund:</strong> Falsche Signalquelle, keine pauschale Treiberursache.</p>
+<h3 id="14-2-fall-b-usb-c-passt-doch-fiktiv-mit-auflosung">14.2 Fall B – „USB-C passt doch!“ (fiktiv, mit Auflösung)</h3>
+<p><strong>Meldung:</strong> Neuer externer USB-C-Monitor erhält Strom; Bild bleibt schwarz. Notebook-Port nimmt USB-C-Sticks problemlos an. Windows findet keine zweite Anzeige.</p>
+<p><strong>Hypothesen:</strong> Hostport ohne Video, ungeeignetes Kabel, falscher Monitoreingang, nicht kompatibler Monitor, Defekt.</p>
+<p><strong>Kontrollierter Test:</strong> Die <strong>konkrete Notebook-Port-Spezifikation</strong> und Monitor-Dokumentation vergleichen; zugelassenen HDMI-/DP-Alternativpfad mit einem geeigneten Kabel nutzen.</p>
+<p><strong>Fiktiver Befund:</strong> Der benutzte USB-C-Port bietet nur Daten, nicht die erforderliche DisplayPort-Alt-Mode-Funktion. Über den geeigneten Videoausgang Bild vorhanden. <strong>Abschlussgrund:</strong> Schnittstellenfähigkeit fehlte. Eine Treiberneuinstallation wäre hier keine Lösung.</p>
+<h3 id="14-3-transferaufgabe-erst-selbst-eine-diagnosehypothese-bilden">14.3 Transferaufgabe – erst selbst eine Diagnosehypothese bilden</h3>
+<p><strong>Neuer Fall ohne vorweggenommene Lösung:</strong> Ein Notebook erkennt den zweiten Monitor <strong>direkt per HDMI</strong>, aber über eine USB-C-Dockingstation bleibt er schwarz. Die angeschlossene Maus an derselben Dock funktioniert. Bei zwei externen Monitoren bleibt zudem manchmal nur einer aktiv. Seit einem Umbau des Arbeitsplatzes ist die Störung reproduzierbar.</p>
+<p><strong>Deine Aufgabe (ohne Hilfestellung):</strong> Formuliere <strong>drei</strong> voneinander unabhängige Hypothesen. Nenne für jede <strong>einen Test, der sie widerlegen kann</strong>, und priorisiere die Tests nach Risiko und Informationsgewinn. Erkläre anschließend in einer professionellen <strong>Drei-Satz-Ticketnotiz</strong>, was schon bewiesen ist, was offen bleibt und was als Nächstes geprüft wird.</p>
+<h3 id="14-4-active-recall-ohne-den-artikel-nachzulesen">14.4 Active Recall – ohne den Artikel nachzulesen</h3>
+<ol>
+<li>Was beweist ein funktionierendes Monitormenü trotz „Kein Signal“ – und was <strong>nicht</strong>?</li>
+<li>Worin unterscheiden sich Windows <strong>Identifizieren</strong> und <strong>Erkennen</strong>?</li>
+<li>Warum kann ein Gerät per USB-C <strong>laden</strong>, aber kein Bild liefern?</li>
+<li>Welchen Nachweis liefert ein Direktanschluss mit Bild, wenn die Dock-Verbindung fehlschlägt?</li>
+<li>Warum ist ein <code>Get-PnpDevice</code>-Status <code>OK</code> kein End-to-End-Nachweis?</li>
+<li>In welchem Fall ist <code>Win + P</code> zielführender als ein Grafiktreiber-Rollback?</li>
+<li>Warum lösen einfache HDMI-Splitter kein echtes Dual-Monitor-Erweitern?</li>
+<li>Welche Beobachtungen müssen vor einer L2-Übergabe zwingend dokumentiert werden?</li>
+</ol>
+<p><strong>Lernprinzip:</strong> Die Lösung nicht nur lesen, sondern den <strong>nächsten Test aus dem aktuellen Befund</strong> ableiten. Nach ungefähr 7 und 21 Tagen dieselben Diagnoseregeln an veränderten Szenarien abrufen.</p>
+<h3 id="14-5-optionale-anki-kandidaten-noch-keine-importdatei">14.5 Optionale Anki-Kandidaten – noch <strong>keine</strong> Importdatei</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Kartentyp</th>
+<th>Vorderseite</th>
+<th>Knappe Rückseite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wissen</td>
+<td>Wofür steht OSD?</td>
+<td>Monitoreigenes Bildschirmmenü.</td>
+</tr>
+<tr>
+<td>Wissen</td>
+<td>Was bedeutet DP Alt Mode?</td>
+<td>DisplayPort-Videosignal über geeignete USB-C-Verbindung.</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Warum beweist „USB-C lädt“ keinen Videoausgang?</td>
+<td>Laden/Daten und Video sind getrennte Anschlussfähigkeiten.</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Warum erst einen Monitor direkt testen?</td>
+<td>Dock/Adapter als Fehlerkomponente isolieren.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>OSD „Kein Signal“, Windows 1 Anzeige: erster lokaler Prüfschritt?</td>
+<td>Eingang und physische Signalkette prüfen.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Windows zeigt zwei Anzeigen, zweite schwarz: welche Erstprüfung?</td>
+<td>Projektionsmodus/Aktivierung mit <code>Win + P</code>.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>Direkt HDMI ok, Dock USB-C ohne Bild: nächste Hypothesen?</td>
+<td>Portfähigkeit, Docktyp/Adapter, Bandbreite, Treiber.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="15-herstellerquellen-methodik-und-transparenz">15. Herstellerquellen, Methodik und Transparenz</h2>
+<p><strong>Offizielle Dokumentation (abgerufen/recherchiert am 22.11.2026):</strong></p>
+<ol>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/troubleshoot-external-monitor-connections-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Problembehandlung bei Verbindungen von externen Monitoren in Windows</a> – Kabel, Ausgänge, Grafiktreiber, <code>Win + Strg + Umschalt + B</code>, mehrere Monitore.</li>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/how-to-use-multiple-monitors-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – So verwenden Sie mehrere Monitore in Windows</a> – <strong>Erkennen/Identifizieren</strong>, <code>Win + P</code>, Erweitern/Duplizieren.</li>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/usb/fix-usb-c-problems-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Beheben von USB-C-Problemen in Windows</a> – Video über DisplayPort-Alt-Mode und unterstützte Geräte/Kabel.</li>
+<li><a href="https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Microsoft Learn – Get-PnpDevice</a> – Lesende Abfrage von PnP-Geräten.</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-desktopmonitor" rel="noopener noreferrer" target="_blank">Microsoft Learn – Win32_DesktopMonitor</a> – Grenzen bestimmter WMI-Anzeigeninformationen.</li>
+<li><a href="https://www.dell.com/support/kbdoc/de-de/000139468/hdmi-anschl%C3%BCsse-an-dell-ger%C3%A4ten-vollst%C3%A4ndiger-leitfaden" rel="noopener noreferrer" target="_blank">Dell – HDMI Ports: Complete Guide</a> – praktische Anschluss-, Kabel- und Monitortests (herstellerspezifisch).</li>
+<li><a href="https://www.dell.com/support/kbdoc/en-us/000326500/dell-monitor-usb-c-port-displays-no-video" rel="noopener noreferrer" target="_blank">Dell – USB-C monitor displays no video</a> – DP Alt Mode/Thunderbolt als Voraussetzung bestimmter USB-C-Monitore; <strong>modellgebundene Aussage</strong>.</li>
+<li><a href="https://www.dell.com/support/kbdoc/en-us/000124295/guide-to-dell-docking-stations" rel="noopener noreferrer" target="_blank">Dell – Guide to Dell Docking Stations</a> – Dock-Erkennung, Eingangsquelle, DisplayLink bei ausgewählten Geräten und Firmware-/Treiberpfad.</li>
+<li><a href="https://www.dell.com/support/contents/en-us/article/product-support/self-support-knowledgebase/monitor-screen-video/guide-daisy-chain-monitors" rel="noopener noreferrer" target="_blank">Dell – How to Daisy Chain Monitors</a> – MST-/DP-/USB-C-Grenzen und fehlende HDMI-Daisy-Chain-Funktion.</li>
+<li><a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/change-your-screen-resolution-and-layout-in-windows" rel="noopener noreferrer" target="_blank">Microsoft Support – Auflösung und Layout ändern</a> – Bildschirmauflösung bei erkanntem Display.</li>
+</ol>
+<h3 id="methodik-und-grenzen">Methodik und Grenzen</h3>
+<ul>
+<li><strong>Herstellerfakten</strong> wurden aus Microsoft- und Dell-Supportdokumentation entnommen. Die Reihenfolge der L1-Diagnose, die A/B-Test-Tabelle und die Mustertickets sind <strong>eigene didaktische Ableitungen</strong>, keine wörtlichen Hersteller-Runbooks.</li>
+<li><strong>Keine praktische Validierung:</strong> Kommandos sind auf dokumentierte Syntax und lesenden Charakter überprüft, <strong>nicht</strong> an einem realen betroffenen Windows-11-Arbeitsplatz in diesem Fall ausgeführt worden.</li>
+<li>Herstelleroberflächen, Gerätedetails und Richtlinien können abweichen. Vor produktiver Durchführung aktuelle interne Standards und Gerätespezifikationen heranziehen.</li>
+<li><strong>Bildkennzeichnung:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Grafik ist kein Produktscreenshot.</li>
+<li><strong>Nicht automatisiert veröffentlicht:</strong> Dieses Paket ist zur späteren Prüfung, Laborvalidierung und manuellen Website-Einbindung vorbereitet.</li>
+</ul>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-022_Lernartikel.md">RB-022_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-021/index.html">← Ticket 21</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-023/index.html">Ticket 23 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

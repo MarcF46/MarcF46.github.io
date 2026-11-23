@@ -1,0 +1,390 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 27: Windows Update schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 27: Windows Update schlägt fehl. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 27: Windows Update schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-supportfall-ziel-und-abgrenzung">1. Supportfall, Ziel und Abgrenzung</a></li><li><a href="#2-die-update-abhangigkeitskette-verstehen">2. Die Update-Abhängigkeitskette verstehen</a></li><li><a href="#3-welcher-update-typ-ist-betroffen">3. Welcher Update-Typ ist betroffen?</a></li><li><a href="#4-die-sieben-wichtigsten-fragen-bei-der-erstaufnahme">4. Die sieben wichtigsten Fragen bei der Erstaufnahme</a></li><li><a href="#5-schutzmassnahmen-vor-anderungen">5. Schutzmaßnahmen vor Änderungen</a></li><li><a href="#6-sichere-l1-basisdiagnose-ohne-reparatur">6. Sichere L1-Basisdiagnose – ohne Reparatur</a></li><li><a href="#7-windowsupdateclient-ereignisse-update-log-und-cbs-verstehen">7. WindowsUpdateClient-Ereignisse, Update-Log und CBS verstehen</a></li><li><a href="#8-lesende-powershell-prufungen-kommentiert">8. Lesende PowerShell-Prüfungen, kommentiert</a></li><li><a href="#9-fehlercodes-interpretieren-keine-ein-code-eine-losung-regel">9. Fehlercodes interpretieren – keine Ein-Code-eine-Lösung-Regel</a></li><li><a href="#10-diagnosepfad-a-suche-oder-download-scheitert">10. Diagnosepfad A: Suche oder Download scheitert</a></li><li><a href="#11-diagnosepfad-b-installation-komponentenstatus-scheitert">11. Diagnosepfad B: Installation / Komponentenstatus scheitert</a></li><li><a href="#12-diagnosepfad-c-neustart-rollback-oder-funktionsupdate-scheitert">12. Diagnosepfad C: Neustart, Rollback oder Funktionsupdate scheitert</a></li><li><a href="#13-verwaltete-gerate-gpo-wsus-intune-configuration-manager">13. Verwaltete Geräte: GPO, WSUS, Intune, Configuration Manager</a></li><li><a href="#14-zwei-fiktive-diagnosefalle-losung-belegen-statt-raten">14. Zwei fiktive Diagnosefälle: Lösung belegen statt raten</a></li><li><a href="#15-diagnosekompetenz-active-recall-transfer-und-quellen">15. Diagnosekompetenz, Active Recall, Transfer und Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Windows 11 · Updateverwaltung · Fehlerdiagnose · Enterprise-Betrieb<br/>
+<strong>Support-Level:</strong> L1/L2 (L1: Aufnahme, sichere Prüfungen, dokumentierte Standardmaßnahmen; L2: Protokollanalyse, Komponentenspeicher, Updatequellen und genehmigte Reparatur)<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Offizielle Microsoft-Quellen recherchiert und didaktisch aufbereitet. <strong>Keine praktische Validierung an einem gestörten System.</strong> Musterfälle, Ticketdaten und Testergebnisse sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb027_henne_ei_windows_update.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-027 – Henne-und-Ei-Infografik: Windows Update schlägt fehl" decoding="async" loading="lazy" src="assets/rb027_henne_ei_windows_update.webp"/></a></div><figcaption>RB-027 – Henne-und-Ei-Infografik: Windows Update schlägt fehl</figcaption></figure>
+<blockquote>
+<p><strong>Leitidee:</strong> „Windows Update fehlgeschlagen“ ist eine Symptombeschreibung, keine Ursache. <strong>Zuerst den genauen Aktualisierungstyp, die Fehlerphase und den Code erfassen; dann passende Abhängigkeiten und Protokolle prüfen; erst anschließend gezielt eingreifen.</strong></p>
+</blockquote>
+<h2 id="1-supportfall-ziel-und-abgrenzung">1. Supportfall, Ziel und Abgrenzung</h2>
+<p><strong>INC-027 (fiktiv):</strong> „Das Windows-11-Sicherheitsupdate wird heruntergeladen, bricht aber bei der Installation ab. Nach einem Neustart steht wieder derselbe Fehler im Updateverlauf.“</p>
+<p><strong>Auftrag:</strong> Einen fehlgeschlagenen Windows-Update-Vorgang reproduzierbar eingrenzen, eine technisch begründete, autorisierte Maßnahme auswählen, den Installationsstatus nachvollziehbar prüfen und die Bearbeitung dokumentieren.</p>
+<p><strong>Unterscheidung von RB-026:</strong> Hier startet Windows noch und lässt die Diagnose im laufenden System zu. Führt ein Update zum fehlenden Systemstart, zu BitLocker-Recovery oder einer Startschleife, gilt das Sicherheits-/Wiederherstellungsverfahren aus <strong>RB-026</strong>, bevor weitere Updateversuche stattfinden.</p>
+<p><strong>Service-Desk-Sicht:</strong> Ein Einzelplatzfehler und eine flächendeckende Störung nach einer zentralen Update-Richtlinienänderung sind unterschiedliche Incidents. Priorität, Kommunikation und Eskalation richten sich nach der Auswirkung.</p>
+<h2 id="2-die-update-abhangigkeitskette-verstehen">2. Die Update-Abhängigkeitskette verstehen</h2>
+<p>Vereinfacht läuft Windows Update über diese Schritte:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Updatequelle / Freigabe / Richtlinie
+                ↓
+Suche und Anwendbarkeitsprüfung
+                ↓
+Download / Inhaltsübermittlung
+                ↓
+Paketverarbeitung und Installation (z. B. CBS)
+                ↓
+Neustart, Abschluss und Erfolgsmeldung
+</code></pre></div>
+<p><strong>Die Henne fragt:</strong> „Es steht ›Fehler bei Windows Update‹ – muss der Updatedienst kaputt sein?“<br/>
+<strong>Das Ei antwortet:</strong> „Nicht unbedingt. Bereits die Quelle, die Netzwerkverbindung, die Anwendbarkeit, der Download, der Komponentenspeicher oder der Neustart können scheitern. Bestimme den fehlerhaften Schritt.“</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Typische Frage</th>
+<th>Hilfreiche Belege</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Suche / Scan</strong></td>
+<td>Sieht der Client das Update und die zuständige Quelle?</td>
+<td>Updateverlauf, WindowsUpdateClient-Ereignisse, Richtlinien und WindowsUpdate.log</td>
+</tr>
+<tr>
+<td><strong>Download</strong></td>
+<td>Kann der Client erforderliche Inhalte aus der vorgesehenen Quelle abrufen?</td>
+<td>Netzwerk-/Proxybefund, BITS/Delivery Optimization, WindowsUpdate.log</td>
+</tr>
+<tr>
+<td><strong>Installation</strong></td>
+<td>Kann das heruntergeladene Paket angewendet werden?</td>
+<td>Exakter Fehlercode, <code>CBS.log</code>, Komponentenstatus</td>
+</tr>
+<tr>
+<td><strong>Neustart / Abschluss</strong></td>
+<td>Ist die Installation noch ausstehend oder wird sie zurückgerollt?</td>
+<td>Wiederanmeldung, Updateverlauf, Ereignisprotokolle; bei Featureupgrade Setup-Logs</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Ein Prozentwert wie „100 %“ belegt weder die abgeschlossene Installation noch die Ursache eines Stillstands.</em></p>
+<p><strong>Microsoft-Grundlage:</strong> <a href="https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works" rel="noopener noreferrer" target="_blank">Funktionsweise von Windows Update</a>.</p>
+<h2 id="3-welcher-update-typ-ist-betroffen">3. Welcher Update-Typ ist betroffen?</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Update-Typ</th>
+<th>Beispiel</th>
+<th>Besonderheit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Qualitäts-/Sicherheitsupdate</strong></td>
+<td>Kumulatives Update (KB)</td>
+<td>Häufig CBS-/Servicing-Diagnose; ggf. Neustart erforderlich</td>
+</tr>
+<tr>
+<td><strong>Funktionsupdate</strong></td>
+<td>Upgrade auf eine andere Windows-11-Version</td>
+<td>Kompatibilitäts- und Setup-Phasen; ggf. Rollback, <code>setupact.log</code>, <code>SetupDiag</code></td>
+</tr>
+<tr>
+<td><strong>Treiberupdate</strong></td>
+<td>Grafik-/Netzwerk-/Gerätetreiber</td>
+<td>Gerät, Herstellerfreigabe, Richtlinie und Treiberkompatibilität prüfen</td>
+</tr>
+<tr>
+<td><strong>Definitionen / weitere Microsoft-Produkte</strong></td>
+<td>Sicherheitsdefinitionen, zusätzliche Produkte</td>
+<td>Eigene Updatequelle und besondere Zuständigkeit möglich</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht verwechseln:</strong> Ein Patch mit KB-Nummer und ein Featureupgrade haben nicht dieselben Diagnosepfade. Vor jeder Reparatur muss feststehen, <strong>welches Update</strong>, <strong>welche Windows-Version</strong> und <strong>welcher genaue Fehlercode</strong> betroffen sind.</p>
+<h2 id="4-die-sieben-wichtigsten-fragen-bei-der-erstaufnahme">4. Die sieben wichtigsten Fragen bei der Erstaufnahme</h2>
+<ol>
+<li><strong>Welche KB-Nummer bzw. welcher Update-Name?</strong> Qualitäts-, Treiber- oder Funktionsupdate?</li>
+<li><strong>Exakter Fehlercode</strong> (<code>0x...</code>), Meldung, Zeitpunkt und Screenshot aus <code>Einstellungen → Windows Update → Updateverlauf</code>?</li>
+<li><strong>In welcher Phase</strong> tritt das Problem auf: Suche, Download, Installation, Neustart oder Rollback?</li>
+<li><strong>Seit wann?</strong> Welche Änderungen gab es vorher: VPN/Proxy, Speichermangel, neue Securitysoftware, Update-Ring, Gruppenrichtlinie?</li>
+<li><strong>Wie viele Geräte betroffen?</strong> Nur dieser PC, mehrere Geräte einer OU/Intune-Gruppe, alle am Standort?</li>
+<li><strong>Wie wird das Gerät verwaltet?</strong> Privat/Standalone oder Unternehmensgerät mit WSUS, Intune, Configuration Manager, Autopatch oder anderen Regeln?</li>
+<li><strong>Besteht bereits ein Sicherheits- oder Betriebsrisiko?</strong> Wiederholt gescheiterte Sicherheitsupdates, aktive Softwareverteilung, mangelnde Backups, Arbeiten mit sensiblen Daten?</li>
+</ol>
+<p><strong>Ticket-Mindestbefund:</strong> Gerätekennung, Build, KB, Code, Phase, Zeit, Verteilungskanal, Umfang, bereits versuchte Maßnahmen.</p>
+<h2 id="5-schutzmassnahmen-vor-anderungen">5. Schutzmaßnahmen vor Änderungen</h2>
+<p>Vor jedem Eingriff mit Änderungen:</p>
+<ul>
+<li><strong>Freigabe/Zuständigkeit klären:</strong> Im Unternehmensbetrieb Updatequellen, GPO/MDM, Endpoint-Schutz und Wartungsfenster nicht eigenmächtig ändern.</li>
+<li><strong>Daten/Recovery klären:</strong> Aktuelles Backup, Wiederherstellbarkeit, bei Recovery-Risiken BitLocker-Schlüsselzugriff über autorisierte Stelle; Schlüssel nie im Ticket speichern.</li>
+<li><strong>Updateprozess nicht blind unterbrechen:</strong> Keine erzwungenen Neustarts während laufender Paketinstallation, kein Herunterfahren auf Verdacht und keine „Reset-Skripte“ ohne Befund.</li>
+<li><strong>Änderungen begrenzen:</strong> Eine Maßnahme nach dokumentiertem Beleg, danach Statusprüfung. Nicht mehrere Reparaturen gleichzeitig ausführen.</li>
+<li><strong>Logdaten schützen:</strong> Protokolle können Identifikatoren, Pfade, Servernamen und Infrastrukturhinweise enthalten. Nur autorisiert ablegen und teilen.</li>
+</ul>
+<p><strong>Besonderer Hinweis:</strong> <code>SoftwareDistribution</code> oder <code>catroot2</code> pauschal zu löschen/umzubenennen kann Diagnosedaten und Aktualisierungszustände beeinflussen. Das ist <strong>kein L1-Standardschritt</strong>, selbst wenn allgemeine Internet-Tipps es empfehlen.</p>
+<h2 id="6-sichere-l1-basisdiagnose-ohne-reparatur">6. Sichere L1-Basisdiagnose – ohne Reparatur</h2>
+<p><strong>A. Status und Verlauf</strong></p>
+<ul>
+<li><code>Einstellungen → Windows Update</code>: Fehlertext, ausstehender Neustart, Installationsfortschritt, ggf. Updates pausiert.</li>
+<li><code>Windows Update → Updateverlauf</code>: KB, fehlerhafte Installation, genauer Code; ggf. <code>winver</code> für Version/Build.</li>
+<li>Stimmt die <strong>Datum-/Zeiteinstellung</strong>, besteht eine <strong>stabile Verbindung</strong>, ist das Gerät an Strom angeschlossen?</li>
+<li><strong>Speicherplatz</strong> des Systemlaufwerks kontrollieren und mit den Updateanforderungen abgleichen. Keine pauschale Mindest-GB-Zahl ohne Versions-/Updatebezug.</li>
+<li>Bei nicht verwalteten Windows-11-Geräten kann die integrierte <strong>Windows Update-Problembehandlung über „Hilfe anfordern“</strong> ein geeigneter erster geführter Schritt sein; sie kann Einstellungen ändern. Deshalb im Betrieb nur freigegeben nutzen und Ergebnis dokumentieren.</li>
+</ul>
+<p><strong>B. Vergleichstest</strong></p>
+<ul>
+<li>Ist <strong>nur ein PC</strong> betroffen, obwohl dieselbe KB in der gleichen Gerätegruppe erfolgreich installiert wurde?</li>
+<li>Gibt es eine <strong>vergleichbare Maschine</strong> mit derselben Build-/Gerätekonfiguration und Updatequelle?</li>
+<li>Haben mehrere betroffene Geräte <strong>denselben Fehlercode und Zeitpunkt</strong>, kann eine zentrale Ursache vorliegen. Eine Gleichzeitigkeit ist aber noch kein Beweis.</li>
+</ul>
+<p><strong>C. Nicht voreilig:</strong> Fehler beim Herunterladen nicht mit <code>sfc /scannow</code> „behandeln“, solange Netzwerk-/Updatequelle noch nicht geprüft wurden.</p>
+<p>Quellen: <a href="https://support.microsoft.com/de-de/windows/experience/windows-update-troubleshooter" rel="noopener noreferrer" target="_blank">Windows Update-Problembehandlung</a>, <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/free-up-space-for-windows-updates" rel="noopener noreferrer" target="_blank">Speicherplatz für Updates</a>.</p>
+<h2 id="7-windowsupdateclient-ereignisse-update-log-und-cbs-verstehen">7. WindowsUpdateClient-Ereignisse, Update-Log und CBS verstehen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Informationsquelle</th>
+<th>Was sie zeigt</th>
+<th>Typischer Nutzen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Updateverlauf</strong></td>
+<td>Installationsstatus und oft KB/Fehlercode</td>
+<td>Erster Anker für Zeitpunkt und betroffenen Patch</td>
+</tr>
+<tr>
+<td><strong>Ereignisanzeige</strong> <code>Microsoft → Windows → WindowsUpdateClient → Operational</code></td>
+<td>Ereignisse des Windows-Update-Clients</td>
+<td>Zeitfenster der Suche/Installation und Fehlertext</td>
+</tr>
+<tr>
+<td><strong><code>Get-WindowsUpdateLog</code></strong></td>
+<td>Übersetzt ETW-/ETL-Traces in eine lesbare Datei</td>
+<td>Suche, Kommunikation, Download, Clientablauf analysieren</td>
+</tr>
+<tr>
+<td><strong><code>%windir%\Logs\CBS\CBS.log</code></strong></td>
+<td>Servicing-/Komponenteninstallation</td>
+<td>Bei Installationsfehlern/Komponentenspeicherproblemen</td>
+</tr>
+<tr>
+<td><strong><code>%windir%\Logs\DISM\dism.log</code></strong></td>
+<td>DISM-Diagnose-/Reparaturlauf</td>
+<td>Bei untersuchten DISM-Aktionen</td>
+</tr>
+<tr>
+<td><strong>Featureupdate: Panther/SetupDiag</strong></td>
+<td>Setup-Phasen, Treiberblocker, Rollbackregeln</td>
+<td>Nur für Windows-Version-Upgrades relevant</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> <code>Get-WindowsUpdateLog</code> erzeugt eine <strong>statische</strong> neue Textdatei. Wenn danach weitere Versuche gemacht werden, muss das Cmdlet erneut ausgeführt werden. Der Ursprung sind ETL-Traces, nicht eine automatisch live fortgeschriebene Textdatei.</p>
+<p>Offizielle Quellen: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/windows-update-logs" rel="noopener noreferrer" target="_blank">Windows-Update-Protokolle</a>, <a href="https://learn.microsoft.com/de-de/powershell/module/windowsupdate/get-windowsupdatelog" rel="noopener noreferrer" target="_blank">Get-WindowsUpdateLog</a>, <a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag" rel="noopener noreferrer" target="_blank">SetupDiag</a>.</p>
+<h2 id="8-lesende-powershell-prufungen-kommentiert">8. Lesende PowerShell-Prüfungen, kommentiert</h2>
+<p><strong>Arbeitsumgebung:</strong> Diese Befehle sind für <strong>laufendes Windows 11 / Windows PowerShell</strong> vorgesehen, nicht für WinRE. Berechtigungen können im Unternehmen eingeschränkt sein. Für manche Systemlogs sind erhöhte Rechte erforderlich. Die Abfragen verändern keine Update-Richtlinien.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Windows-Version, Build und letzter Systemstart – nur Informationen
+Get-CimInstance Win32_OperatingSystem |
+    Select-Object Caption, Version, BuildNumber, LastBootUpTime
+
+# Platz auf dem Systemlaufwerk in GiB (Anzeige, keine Bereinigung)
+Get-CimInstance Win32_LogicalDisk -Filter "DeviceID='C:'" |
+    Select-Object DeviceID, @{Name='FreeGiB';Expression={[math]::Round($_.FreeSpace / 1GB, 1)}},
+                           @{Name='SizeGiB';Expression={[math]::Round($_.Size / 1GB, 1)}}
+
+# Updatebezogene Dienste ansehen; 'Stopped' allein ist nicht der Fehlerbeweis:
+# Triggerstart und bedarfsgesteuerter Betrieb sind möglich.
+Get-Service wuauserv, bits, cryptsvc, usosvc -ErrorAction SilentlyContinue |
+    Select-Object Name, Status, StartType
+
+# Prüfen, ob dieses Ereignisprotokoll vorhanden / zugänglich ist
+Get-WinEvent -ListLog 'Microsoft-Windows-WindowsUpdateClient/Operational'
+
+# Letzte Ereignisse, keine Filterung auf vermeintlich eindeutige Ereignis-ID
+Get-WinEvent -FilterHashtable @{
+    LogName='Microsoft-Windows-WindowsUpdateClient/Operational'
+    StartTime=(Get-Date).AddDays(-14)
+} -MaxEvents 80 -ErrorAction SilentlyContinue |
+    Select-Object TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<p><strong>Lesende Enterprise-/Netzwerkprüfungen:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur lesen: wirksame Windows-Update-Richtlinien können aus GPO/MDM stammen
+Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate' `
+    -ErrorAction SilentlyContinue
+Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' `
+    -ErrorAction SilentlyContinue
+Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Update' `
+    -ErrorAction SilentlyContinue
+
+# WinHTTP-Proxy nur ansehen. Browserzugriff beweist nicht automatisch
+# die Erreichbarkeit des Updateendpunkts aus dem Systemkontext.
+netsh winhttp show proxy
+</code></pre></div>
+<p><strong>Neue Protokolldatei erzeugen – dokumentierter Diagnoseexport, nicht strikt lesend auf Dateisystemebene:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Erzeugt eine neue Datei; vorhandene Zieldatei nicht überschreiben!
+# Nur auf freigegebenem Speicherort und ohne -ForceFlush ausführen.
+Get-WindowsUpdateLog -LogPath "$env:USERPROFILE\Desktop\RB027-WindowsUpdate.log"
+</code></pre></div>
+<p><code>-ForceFlush</code> bewusst <strong>nicht</strong> verwenden: Laut Microsoft kann es Update-Orchestrator- und Windows-Update-Dienste anhalten. Logexport und Ereignisabfrage belegen die Ursache nicht automatisch; Ergebnisse müssen zeitlich mit dem konkreten Fehler zusammengeführt werden.</p>
+<h2 id="9-fehlercodes-interpretieren-keine-ein-code-eine-losung-regel">9. Fehlercodes interpretieren – keine Ein-Code-eine-Lösung-Regel</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beispielcode</th>
+<th>Dokumentierte Bedeutung / Hinweis</th>
+<th>Nächste gezielte Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x80070002</code></td>
+<td>Eine erforderliche Datei wurde nicht gefunden; Windows-Update-Kontext beachten</td>
+<td>Zeitpunkt/Phase, Client- und CBS-Logs</td>
+</tr>
+<tr>
+<td><code>0x80070005</code></td>
+<td>Zugriff verweigert / Berechtigung</td>
+<td>Autorisierung, Richtlinien, Security-Konflikt nachweisen</td>
+</tr>
+<tr>
+<td><code>0x8007000D</code></td>
+<td>Ungültige Daten bzw. beschädigte Updatedaten</td>
+<td>Paket/Cache-/Servicing-Ereignisse eingrenzen</td>
+</tr>
+<tr>
+<td><code>0x80073712</code></td>
+<td>Beschädigter Komponentenspeicher</td>
+<td>CBS, genehmigte DISM-Analyse</td>
+</tr>
+<tr>
+<td><code>0x800F081F</code></td>
+<td>Erforderliche Reparatur-/Paketquelle fehlt</td>
+<td>CBS/DISM und passende Reparaturquelle analysieren</td>
+</tr>
+<tr>
+<td><code>0x8024002E</code></td>
+<td>Windows Update-Client laut Code deaktiviert</td>
+<td>Richtlinie, Dienstkonfiguration, Unternehmensvorgabe</td>
+</tr>
+<tr>
+<td><code>0x80248014</code></td>
+<td>Hinweis auf Updatedatenbank oder Updatedienst</td>
+<td>Ereignisprotokolle und Dienst-/Datenbankstatus</td>
+</tr>
+<tr>
+<td><code>0xC1900101</code></td>
+<td>Bei Funktionsupdates häufig treiberbezogener Rollback</td>
+<td>Panther/SetupDiag, Treiber-/Kompatibilitätsbefund</td>
+</tr>
+<tr>
+<td><code>0x80070070</code> (bei Upgrades)</td>
+<td>Häufig nicht ausreichend Speicherplatz</td>
+<td>Freier Speicher und Updateanforderungen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Interpretationsregel:</strong> Ein Code ist eine <strong>Hypothese</strong>, keine eindeutige Wurzelursache. Wichtig sind <strong>der komplette Code einschließlich Zusatzcode</strong>, betroffene KB, Aktualisierungsphase, Build und der dazugehörige Logeintrag. <code>0x800F081F</code> kann z. B. auf fehlende Reparaturquellen verweisen, nicht pauschal auf einen „defekten Windows Update-Dienst“.</p>
+<p>Quellen: <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows" rel="noopener noreferrer" target="_blank">Microsoft – Updatefehler</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors" rel="noopener noreferrer" target="_blank">Komponentenfehler</a>, <a href="https://support.microsoft.com/de-de/windows/deployment/install-upgrade/get-help-with-windows-upgrade-and-installation-errors" rel="noopener noreferrer" target="_blank">Windows-Upgrade-Fehler</a>.</p>
+<h2 id="10-diagnosepfad-a-suche-oder-download-scheitert">10. Diagnosepfad A: Suche oder Download scheitert</h2>
+<p><strong>Mögliche Bereiche:</strong> Updatequelle/Policy, Internet/VPN, Proxy/TLS/DNS, Firewall-Endpunkte, verfügbare Downloads, BITS/Delivery Optimization oder verfügbare Kapazität.</p>
+<p><strong>Vorgehen:</strong></p>
+<ol>
+<li>Wird das Update überhaupt <strong>angeboten</strong>? Passt das Gerät zur freigegebenen Zielgruppe und zur Updatequelle?</li>
+<li><strong>Einzelgerät oder viele?</strong> Beim Masseneffekt zuerst WSUS/Intune/Configuration Manager und Verbindungsstrecke prüfen lassen.</li>
+<li>Update- und Network-Logs zeitlich korrelieren. <strong>Nicht</strong> anhand eines erfolgreichen Browseraufrufs folgern, dass der Update-Client seine Ziele erreichen kann.</li>
+<li>Dienststatus erfassen; <code>Stopped</code> bei einem bedarfsgesteuert gestarteten Dienst ist <strong>für sich genommen kein Defekt</strong>.</li>
+<li>Erst nach belegter Ursache: DNS-/Proxy-/WSUS-Korrektur durch zuständiges Team, freigegebene Netzwerkfreischaltung oder geeignete Standard-Problembehandlung. <strong>Keine eigenmächtige Änderung der Updatequelle.</strong></li>
+</ol>
+<p><strong>Wichtig für Unternehmen:</strong> Ein Gerät kann bei WSUS nach Updates suchen und dennoch nichts installieren, wenn keine Updates genehmigt bzw. passend zugewiesen sind. Der Scan ist nicht dasselbe wie eine Installationsanweisung.</p>
+<p>Quellen: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works" rel="noopener noreferrer" target="_blank">Windows Update im Betrieb</a>, <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/installing-updates-features-roles/windows-update-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Windows Update Client Troubleshooting</a>.</p>
+<h2 id="11-diagnosepfad-b-installation-komponentenstatus-scheitert">11. Diagnosepfad B: Installation / Komponentenstatus scheitert</h2>
+<p><strong>Mögliche Bereiche:</strong> Komponentenstore (<code>WinSxS</code>/CBS), beschädigtes Paket, unzureichende Berechtigungen, Speicherplatz, Konflikte mit Sicherheitssoftware, Richtlinien, Wartungsstapel, inkompatible Drittanbieterkomponenten.</p>
+<ol>
+<li>Fehlercode aus Updateverlauf mit <strong><code>CBS.log</code></strong> und WindowsUpdateClient-Zeitfenster korrelieren.</li>
+<li>Speicherplatz und mögliche ausstehende Neustarts prüfen. Ein geplanter <strong>normaler</strong> Neustart ist nur nach Freigabe und wenn keine laufende Installation unterbrochen wird vertretbar.</li>
+<li><strong>Falls CBS-Beschädigung als Hypothese gestützt ist:</strong> L2 darf mit geeigneter Berechtigung zunächst <code>DISM /Online /Cleanup-Image /CheckHealth</code> oder <code>/ScanHealth</code> untersuchen. Die Befehle dienen der Zustandsdiagnose; <code>/ScanHealth</code> kann länger laufen.</li>
+<li>Eine schreibende Reparatur mit <code>DISM /Online /Cleanup-Image /RestoreHealth</code> und anschließend ggf. <code>sfc /scannow</code> ist <strong>kein automatischer L1-Standard</strong>: Genehmigung, Backup, Reparaturquelle und Abbruchkriterien vorher klären.</li>
+<li><code>0x800F081F</code> bei <code>RestoreHealth</code> bedeutet häufig: Die nötige Quelle ist nicht verfügbar. Dann muss die <strong>kompatible Reparaturquelle passend zum Betriebssystem</strong> bestimmt werden. Keinen beliebigen <code>/Source</code>-Pfad verwenden.</li>
+<li>Nach genau einer begründeten Maßnahme: KB erneut in der <strong>vorgesehenen Updatequelle</strong> prüfen, Ergebnis dokumentieren.</li>
+</ol>
+<p>Offizielle Anleitungen: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors" rel="noopener noreferrer" target="_blank">Beheben von Windows-Update-Beschädigungen</a>, <a href="https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/repair-a-windows-image?view=windows-11" rel="noopener noreferrer" target="_blank">Windows-Image reparieren</a>.</p>
+<h2 id="12-diagnosepfad-c-neustart-rollback-oder-funktionsupdate-scheitert">12. Diagnosepfad C: Neustart, Rollback oder Funktionsupdate scheitert</h2>
+<ul>
+<li><strong>Neustart erforderlich?</strong> Status und geplantes Wartungsfenster beachten; ein erneuter Scan allein schließt die Installation nicht ab.</li>
+<li><strong>Abschluss mit Rücknahme/Rollback?</strong> Zeitpunkt, Screenshots und Codes sichern; <strong>bei einem Funktionsupdate</strong> <code>SetupDiag</code>, <code>setupact.log</code>/<code>setuperr.log</code> sowie Panther-/Rollback-Pfade auswerten.</li>
+<li><strong>Treiberhinweis / <code>0xC1900101</code>?</strong> Geräte- und Treiberversion plus Hersteller-Kompatibilität gegen SetupDiag-/Setup-Logs abgleichen.</li>
+<li><strong>Windows startet nicht mehr?</strong> Sofort auf RB-026-/Recovery-Vorgehen wechseln. Keine improvisierte Neuinstallation.</li>
+<li><strong>Updatequalität/Servicingproblem auf vielen PCs?</strong> Deployment-Team und Security einschalten; ggf. aktuelles Hersteller-Known-Issues-Dokument prüfen. Nicht selbst flächendeckend deinstallieren.</li>
+</ul>
+<p>Quellen: <a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag" rel="noopener noreferrer" target="_blank">SetupDiag</a>, <a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/log-files" rel="noopener noreferrer" target="_blank">Upgrade-Protokollpfade</a>.</p>
+<h2 id="13-verwaltete-gerate-gpo-wsus-intune-configuration-manager">13. Verwaltete Geräte: GPO, WSUS, Intune, Configuration Manager</h2>
+<p>Bei verwalteten Geräten kann der „Updates suchen“-Knopf durchaus funktionieren, obwohl eine Richtlinie die Quelle oder Zielversion festlegt.</p>
+<p><strong>Prüfpfad (nur lesen):</strong></p>
+<ul>
+<li>Ist die <strong>Updatequelle</strong> WSUS, Windows Update oder nach Updateklasse getrennt? Quelle im Client bzw. in zugewiesenen Policies und Logs prüfen.</li>
+<li>Sind Updates von der zuständigen Stelle genehmigt und für das Gerät freigegeben (WSUS/Zuweisungen/Ringe)?</li>
+<li>Liegt ein <strong>GPO-/MDM-Konflikt</strong> vor? Die Registry-Pfade in Abschnitt 8 sind Indizien, aber keine vollständige Richtlinienauswertung.</li>
+<li>Besteht ein bekanntes <strong>Netzwerk-/Proxyproblem</strong> in der konkreten Updatekommunikation?</li>
+<li>Stimmt die Gerätegruppenzuordnung mit dem beabsichtigten Ausrollring überein?</li>
+</ul>
+<p><strong>Nicht tun:</strong> WSUS-Schlüssel löschen, GPO-Einstellungen umgehen, Intune-Ringe verändern, Firewallregeln deaktivieren oder direkt Microsoft-Updates installieren, obwohl ein Unternehmen die Freigabe zentral steuert.</p>
+<p><strong>Eskalationsweg:</strong> L1 → Client-/Endpoint-Admin → bei Quelle/Zuweisung: zuständiges WSUS-/Intune-/Configuration-Management-Team.</p>
+<p>Quellen: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/wufb-wsus" rel="noopener noreferrer" target="_blank">WSUS und Windows Update Clientrichtlinien</a>, <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-protection/troubleshoot-update-rings" rel="noopener noreferrer" target="_blank">Update-Ringe in Intune</a>.</p>
+<h2 id="14-zwei-fiktive-diagnosefalle-losung-belegen-statt-raten">14. Zwei fiktive Diagnosefälle: Lösung belegen statt raten</h2>
+<h3 id="fall-a-qualitatsupdate-mit-0x80073712">Fall A – Qualitätsupdate mit <code>0x80073712</code></h3>
+<p><strong>Meldung:</strong> „KB-Update lädt, Installation scheitert.“</p>
+<ul>
+<li><strong>Hypothese 1:</strong> Netzwerkproblem beim Download. <strong>Gegenindiz:</strong> Download als abgeschlossen dokumentiert; Scheitern erst beim Installationsversuch.</li>
+<li><strong>Hypothese 2:</strong> Servicing-/Komponentenspeicherproblem. <strong>Dafür spricht:</strong> <code>CBS.log</code> enthält passende Zeitstempel und Komponentenfehler; ggf. DISM-Status signalisiert Beschädigung.</li>
+<li><strong>L2-Maßnahme (nur nach Backup/Freigabe):</strong> Ggf. DISM-Reparatur mit geeigneter Quelle, danach Ergebnis und Fehlerfreiheit prüfen.</li>
+<li><strong>Erfolg:</strong> KB ist tatsächlich installiert, kein gleichartiger Fehler im Verlauf, Neustart abgeschlossen und ein erneuter Updatecheck liefert keinen identischen Fehlschlag.</li>
+</ul>
+<p><strong>Lerneffekt:</strong> Das fehlerhafte Glied lag in der <strong>Installation</strong>, nicht im Netzwerk.</p>
+<h3 id="fall-b-17-verwaltete-notebooks-finden-keine-qualitatsupdates">Fall B – 17 verwaltete Notebooks finden keine Qualitätsupdates</h3>
+<p><strong>Meldung:</strong> „Im Büro aktualisieren etliche Notebooks nicht, Zuhause meldet die Update-App ›auf neuestem Stand‹.“</p>
+<ul>
+<li><strong>Hypothese 1:</strong> Geräte ohne Internet. <strong>Gegenindiz:</strong> Andere betriebliche Webdienste funktionieren; kein Beweis für Updatequellenzugang.</li>
+<li><strong>Hypothese 2:</strong> Zentrale Updatequelle/Zuweisung fehlerhaft. <strong>Dafür spricht:</strong> Betroffene Geräte in derselben Richtlinien-/WSUS-Gruppe; Updateclient scannt denselben konfigurierten Endpoint; Freigabe/Zuweisung für konkrete KB fehlt (fiktiver bestätigter Administrationsbefund).</li>
+<li><strong>Maßnahme:</strong> Nur das zuständige Update-Team korrigiert die KB-Freigabe/Zuweisung. L1/L2 ändert <strong>keine</strong> Clientschlüssel.</li>
+<li><strong>Erfolg:</strong> Betroffene Referenzgeräte finden und installieren die genehmigte KB; zentraler Status wird nach der üblichen Meldelatenz überprüft.</li>
+</ul>
+<p><strong>Lerneffekt:</strong> „Keine Updates verfügbar“ bedeutet nicht automatisch „Computer ist aktuell“; eine Verwaltungsrichtlinie kann das Ergebnis begrenzen.</p>
+<p><em>Alle Personen, Fehler, Log- und Testergebnisse in diesen Fällen sind erfunden. Keine praktische Durchführung wird behauptet.</em></p>
+<h2 id="15-diagnosekompetenz-active-recall-transfer-und-quellen">15. Diagnosekompetenz, Active Recall, Transfer und Quellen</h2>
+<h3 id="wissensabruf-ohne-unterlagen">Wissensabruf ohne Unterlagen</h3>
+<ol>
+<li>Nenne die vier Updatephasen und ordne jeder ein Diagnoseartefakt zu.</li>
+<li>Worin unterscheiden sich <code>WindowsUpdate.log</code> und <code>CBS.log</code>?</li>
+<li>Warum beweist <code>Stopped</code> bei <code>wuauserv</code> nicht sofort einen Dienstfehler?</li>
+<li>Was ändert sich fachlich, wenn ein PC durch <strong>WSUS/Intune</strong> verwaltet wird?</li>
+<li>Welche Bedeutung hat eine statische mit <code>Get-WindowsUpdateLog</code> erstellte Datei?</li>
+</ol>
+<h3 id="verstandnisfragen">Verständnisfragen</h3>
+<ol start="6">
+<li>Ein Download ist abgeschlossen, <code>CBS.log</code> zeigt einen Fehler. Welche Hypothese wird dadurch schwächer und welche stärker?</li>
+<li>Warum ist ein pauschales Löschen von <code>SoftwareDistribution</code> vor der Logauswertung problematisch?</li>
+<li>Weshalb muss nach erfolgreicher Reparatur die <strong>exakte KB</strong>, nicht nur „Windows Update zeigt keinen Fehler“, kontrolliert werden?</li>
+</ol>
+<h3 id="diagnose-und-transferfalle">Diagnose- und Transferfälle</h3>
+<ol start="9">
+<li>Ein Featureupgrade rollt mit <code>0xC1900101</code> zurück. Welche speziellen Quellen ziehst du zusätzlich heran?</li>
+<li>Ein Einzelplatz scheitert beim Download, 40 identische Geräte sind erfolgreich. Wie gestaltest du deinen A/B-Test?</li>
+<li>Nach einem Betriebssystemupdate startet Windows gar nicht. Wo verläuft die Grenze zwischen RB-027 und RB-026?</li>
+<li>Du darfst wegen fehlender Freigabe keine Richtlinie ändern. Formuliere einen <strong>technisch präzisen L2-Eskalationskommentar</strong> mit den gesicherten Befunden.</li>
+</ol>
+<p><strong>Lernziel:</strong> Nicht Reparaturbefehle auswendig anklicken, sondern den <strong>richtigen Fehlerpfad</strong> erkennen und Befunde verständlich kommunizieren. Wiederholung nach ca. 7 und 21 Tagen anhand eines neuen Falls.</p>
+<h3 id="offizielle-recherchequellen-22-11-2026">Offizielle Recherchequellen (22.11.2026)</h3>
+<ul>
+<li>Microsoft Support – Behandeln von Problemen beim Aktualisieren von Windows: <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/troubleshoot-problems-updating-windows</a></li>
+<li>Microsoft Support – Windows Update-Problembehandlung: <a href="https://support.microsoft.com/de-de/windows/experience/windows-update-troubleshooter" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/windows-update-troubleshooter</a></li>
+<li>Microsoft Learn – Funktionsweise von Windows Update: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/how-windows-update-works</a></li>
+<li>Microsoft Learn – Windows Update-Protokolldateien: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/windows-update-logs" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/windows-update-logs</a></li>
+<li>Microsoft Learn – Get-WindowsUpdateLog: <a href="https://learn.microsoft.com/de-de/powershell/module/windowsupdate/get-windowsupdatelog" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/powershell/module/windowsupdate/get-windowsupdatelog</a></li>
+<li>Microsoft Learn – Windows Update issues troubleshooting: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/installing-updates-features-roles/windows-update-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/installing-updates-features-roles/windows-update-issues-troubleshooting</a></li>
+<li>Microsoft Learn – Beheben von Windows-Update-Beschädigungen: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/installing-updates-features-roles/fix-windows-update-errors</a></li>
+<li>Microsoft Learn – Reparieren eines Windows-Images: <a href="https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/repair-a-windows-image?view=windows-11" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/repair-a-windows-image?view=windows-11</a></li>
+<li>Microsoft Learn – WSUS und Windows Update Clientrichtlinien: <a href="https://learn.microsoft.com/de-de/windows/deployment/update/wufb-wsus" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/update/wufb-wsus</a></li>
+<li>Microsoft Learn – Intune Update-Ring Troubleshooting: <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-protection/troubleshoot-update-rings" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-protection/troubleshoot-update-rings</a></li>
+<li>Microsoft Learn – SetupDiag: <a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/upgrade/setupdiag</a></li>
+<li>Microsoft Learn – Upgrade-Protokolle: <a href="https://learn.microsoft.com/de-de/windows/deployment/upgrade/log-files" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/deployment/upgrade/log-files</a></li>
+<li>Microsoft Support – Reparatur durch erneute Installation derselben Windows-Version: <a href="https://support.microsoft.com/en-gb/windows/deployment/install-upgrade/fix-issues-by-reinstalling-the-current-version-of-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/en-gb/windows/deployment/install-upgrade/fix-issues-by-reinstalling-the-current-version-of-windows</a></li>
+</ul>
+<blockquote>
+<p><strong>Hinweis zu Recovery-Reparaturen:</strong> Die Windows-11-Funktion „Probleme mithilfe von Windows Update beheben“ installiert die aktuelle Version erneut und erhält nach Microsoft-Angaben Apps, Einstellungen und Dateien. Sie ist <strong>keine erste Diagnosemaßnahme</strong>, erfordert geeignete Voraussetzungen und ist auf verwalteten Unternehmensgeräten unter Umständen nicht verfügbar. Ein separater Änderungs-/Backupprozess bleibt erforderlich.</p>
+</blockquote>
+<p><strong>Transparenz:</strong> Dieser Artikel ist ein sorgfältig strukturierter <strong>recherchierter Lernfall</strong>. Weder die Kommandos noch die Reparaturen oder Muster-Ergebnisse wurden im Rahmen dieses Tickets auf einer gestörten Windows-11-Maschine praktisch getestet. Die Grafik wurde KI-gestützt erstellt; technische Prüfbehauptungen stammen aus den verlinkten Herstellerquellen und sind bei der späteren Laborvalidierung zu prüfen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-027_Lernartikel.md">RB-027_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-026/index.html">← Ticket 26</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-028/index.html">Ticket 28 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,163 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 31: Gemeinsames Postfach fehlt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 31: Gemeinsames Postfach fehlt. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 31: Gemeinsames Postfach fehlt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-auswirkung-und-prioritat-l1">1. Ticketannahme, Auswirkung und Priorität (L1)</a></li><li><a href="#2-sicherheits-und-freigabe-gate">2. Sicherheits- und Freigabe-Gate</a></li><li><a href="#3-l1-triage-drei-vergleiche-ohne-systemanderung">3. L1-Triage – drei Vergleiche ohne Systemänderung</a></li><li><a href="#4-pfad-a-webzugriff-verweigert-postfach-nicht-gefunden-l2">4. Pfad A – Webzugriff verweigert / Postfach nicht gefunden (L2)</a></li><li><a href="#5-pfad-b-outlook-im-web-geht-klassisches-outlook-zeigt-postfach-nicht">5. Pfad B – Outlook im Web geht, klassisches Outlook zeigt Postfach nicht</a></li><li><a href="#6-pfad-c-neues-outlook-oder-outlook-im-web">6. Pfad C – Neues Outlook oder Outlook im Web</a></li><li><a href="#7-pfad-d-lesen-funktioniert-senden-als-postfach-nicht">7. Pfad D – Lesen funktioniert, Senden als Postfach nicht</a></li><li><a href="#8-optionale-lesende-exchange-online-powershell-diagnose-l2">8. Optionale lesende Exchange-Online-PowerShell-Diagnose (L2)</a></li><li><a href="#9-erfolgskontrolle-stopp-und-eskalation">9. Erfolgskontrolle, Stopp und Eskalation</a></li><li><a href="#10-muster-ticketkommentar-status-und-mini-kompetenzcheck">10. Muster-Ticketkommentar, Status und Mini-Kompetenzcheck</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-recherchiert-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (recherchiert 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Version:</strong> 1.0 · <strong>22.11.2026</strong><br/>
+<strong>Fachstatus:</strong> Offizielle Microsoft-Quellen ausgewertet, <strong>praktisch noch nicht validiert</strong>. Adressen, Nutzer und Beispielkommentare sind fiktiv.</p>
+<blockquote>
+<p><strong>Arbeitsregel:</strong> <strong>Nicht sichtbar ≠ kein Full Access. Full Access ≠ Send As.</strong> Zuerst Postfach, Identität und Webzugriff prüfen, dann Zuweisungsweg und Outlook-Client – keine Rechte-/Profiländerung auf Verdacht.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb031_henne_ei_shared_mailbox.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-031 – Henne und Ei untersuchen fehlendes Shared Mailbox" decoding="async" loading="lazy" src="assets/rb031_henne_ei_shared_mailbox.webp"/></a></div><figcaption>RB-031 – Henne und Ei untersuchen fehlendes Shared Mailbox</figcaption></figure>
+<p>Technischer Entscheidungsbaum: <a href="assets/rb031_diagnosebaum.svg">SVG</a> · <a href="assets/rb031_diagnosebaum.svg">PNG-Vorschau</a></p>
+<hr/>
+<h2 id="1-ticketannahme-auswirkung-und-prioritat-l1">1. Ticketannahme, Auswirkung und Priorität (L1)</h2>
+<p><strong>Erfassen:</strong> Ticket-ID; betroffener Benutzer und sein Geschäfts-/Schulkonto; <strong>SMTP-Adresse</strong> des gemeinsamen Postfachs; Zeitpunkt des erstmaligen Fehlers; konkreter Wortlaut; betroffenes Gerät; Outlook-Typ (<strong>klassisch / neu / Web / mobil</strong>), Version und erwartete Aufgabe (nur Lesen, auch Senden); andere betroffene Benutzer; kürzliche Delegations-, Gruppen- oder Geräteänderungen.</p>
+<p><strong>Erstfrage:</strong> „Ist das Postfach aus der linken Ordnerliste verschwunden, oder erhalten Sie beim gezielten Öffnen die Meldung <em>Zugriff verweigert</em>?“</p>
+<p><strong>Priorisieren:</strong> Ein Benutzer / ein Shared Mailbox ist oft regulärer Incident. Mehrere Teams, zentrale Hotline oder organisationsweiter Ausfall erfordern Eskalation nach Unternehmensprozess und gegebenenfalls Service-Health-Kontrolle. Keine fiktiven SLA-Zeiten festlegen.</p>
+<h2 id="2-sicherheits-und-freigabe-gate">2. Sicherheits- und Freigabe-Gate</h2>
+<ul>
+<li>Zugriff ausschließlich mit <strong>eigener Firmenidentität</strong>; kein Shared-Mailbox-Passwort erfragen oder teilen.</li>
+<li>Fachliche <strong>Sollberechtigung</strong> vom verantwortlichen Postfach-/Prozesseigentümer bestätigen lassen: Full Access? Send As? Send on Behalf? Wer darf sie vergeben?</li>
+<li>Keine Änderung von Mitgliedschaften, Gruppen- und Mailboxrechten allein auf Basis einer Fehlermeldung. Keine generelle Freigabe an Abteilungen.</li>
+<li><strong>Nicht ohne Vorbereitung:</strong> Outlook-Profil löschen, persönliche OST/PST-Dateien entfernen, Shared Mailbox als zweites Konto mit eigenem Passwort konfigurieren, <code>Remove-MailboxPermission</code> ausführen.</li>
+<li>Keine Mailinhalte, Tokens, MFA-Codes oder Zugangsdaten in offenen Tickets speichern; nötige Screenshots redigieren.</li>
+<li>Exchange-Online-Admin- und PowerShell-Prüfungen nur mit angemessener Rolle und im richtigen Tenant. Bei Hybridbereitstellung an zuständige L2-/Exchange-Teams übergeben.</li>
+</ul>
+<h2 id="3-l1-triage-drei-vergleiche-ohne-systemanderung">3. L1-Triage – drei Vergleiche ohne Systemänderung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Befund</th>
+<th>Konsequenz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong>: Postfach in Outlook auf dem PC sichtbar?</td>
+<td>Nein</td>
+<td>Webtest zum Trennen von Anzeige und Zugriff</td>
+</tr>
+<tr>
+<td><strong>B</strong>: Mit <em>demselben Konto</em> in Outlook im Web über „Weiteres Postfach öffnen“ oder „Freigegebenen Ordner oder Postfach hinzufügen“ erreichbar?</td>
+<td><strong>Ja</strong></td>
+<td>Effektiver Zugriff besteht über Web → Outlook-/Automapping-Pfad prüfen</td>
+</tr>
+<tr>
+<td><strong>B</strong>: Webzugriff verweigert oder Postfach unbekannt?</td>
+<td><strong>Nein</strong></td>
+<td>Identität, Postfachobjekt, Full Access durch L2 prüfen</td>
+</tr>
+<tr>
+<td><strong>C</strong>: Können andere dafür berechtigte Mitarbeiter das Postfach öffnen?</td>
+<td>Ja/Nein</td>
+<td>Einzelclient vs. zentraler Umfang eingrenzen</td>
+</tr>
+<tr>
+<td><strong>D</strong>: Öffnen geht, Senden scheitert?</td>
+<td>Ja</td>
+<td>Separates Send As / Send on Behalf prüfen, kein Sichtbarkeitsproblem</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Webtest konkret:</strong> <code>https://outlook.office.com</code> → richtige Firmenanmeldung → je nach Oberfläche <strong>Ordner → Freigegebenen Ordner oder Postfach hinzufügen</strong> oder Profilmenü → <strong>Weiteres Postfach öffnen</strong>. Die genaue Postfachadresse eingeben. Kein direkter Login mit einem Shared-Mailbox-Kennwort [Q1].</p>
+<p><strong>Protokollieren:</strong> Zeitpunkt, App, Postfachadresse, Nutzerkonto, Ergebnis, Fehlermeldung. Ohne Webtest bleibt die Ursache meist zu breit.</p>
+<h2 id="4-pfad-a-webzugriff-verweigert-postfach-nicht-gefunden-l2">4. Pfad A – Webzugriff verweigert / Postfach nicht gefunden (L2)</h2>
+<ol>
+<li><strong>Falsche Adresse oder falscher Tenant?</strong> SMTP-Adresse und UPN mit internem Sollbestand abgleichen.</li>
+<li><strong>Exchange-Objekt vorhanden?</strong> Im Exchange Admin Center (<strong>Empfänger → Postfächer</strong>; Oberfläche kann abweichen) <code>RecipientTypeDetails</code> bzw. Postfachtyp prüfen.</li>
+<li><strong>Delegation vorhanden?</strong> Unter <strong>Postfachdelegierung</strong> / <strong>Read and manage (Full Access)</strong> die richtige Person oder die zugewiesene Gruppe prüfen [Q2, Q3].</li>
+<li><strong>Gruppenweg:</strong> Bei Berechtigung über mailaktivierte Sicherheitsgruppe zusätzlich die tatsächliche <strong>Mitgliedschaft</strong> prüfen. Allein die ACL-Zeile der Gruppe beweist keine Mitgliedschaft des Betroffenen.</li>
+<li><strong>Zeitpunkt:</strong> Wurde das Postfach gerade angelegt oder der Zugriff gerade geändert? Replikations-/Clientsynchronisierung berücksichtigen; ohne Erfolg nicht unbegrenzt warten [Q4].</li>
+<li><strong>Sollrecht vorhanden, aber technisch nicht wirksam:</strong> Fehler und Zeiten sichern; Exchange-/Identitätsadministration, Policy/Hybrid und gegebenenfalls Service Health überprüfen lassen.</li>
+<li><strong>Sollrecht fehlt nachweislich:</strong> Erst mit dokumentierter Freigabe die <strong>kleinstmögliche</strong> passende Delegation durch berechtigten Admin setzen; danach mit ursprünglichem Benutzerkonto im Web prüfen.</li>
+</ol>
+<p><strong>STOPP:</strong> Weder Identität noch Postfachobjekt/Sollrecht bestätigt → nicht weiter Berechtigungen vergeben.</p>
+<h2 id="5-pfad-b-outlook-im-web-geht-klassisches-outlook-zeigt-postfach-nicht">5. Pfad B – Outlook im Web geht, klassisches Outlook zeigt Postfach nicht</h2>
+<ol>
+<li>Kontrollieren, dass der Nutzer das <strong>klassische Outlook</strong> verwendet und das richtige primäre Konto aktiv ist.</li>
+<li>Outlook nach kürzlicher Delegationsänderung <strong>geordnet beenden und neu starten</strong> [Q2].</li>
+<li><strong>Zuweisungsweg bestimmen:</strong> direktes Full Access oder über Sicherheitsgruppe?</li>
+<li><strong>Über Gruppe:</strong> Automapping erfolgt im klassischen Outlook üblicherweise <strong>nicht</strong> für die Gruppenmitglieder. Bei bestätigtem Full Access das Postfach nach Unternehmensstandard <strong>manuell als zusätzliches Postfach</strong> anbinden [Q3, Q5].</li>
+<li><strong>Direkt:</strong> Automapping ist im Standardfall möglich; bei weiterhin fehlender Anzeige bereits vorhandene Einbindung prüfen, dann Autodiscover-/Outlook-Profil-Diagnose durch Endpoint-L2.</li>
+<li><strong>Doppelkonfiguration vermeiden:</strong> Postfach nicht zusätzlich ein zweites Mal einhängen, wenn bereits automatisch vorhanden; nicht blind als unabhängiges Exchange-Hauptkonto anlegen [Q6].</li>
+<li>Postfachordner öffnen, zulässige Nachrichtenliste prüfen, Outlook neu starten und Sichtbarkeit erneut testen.</li>
+</ol>
+<p><strong>Einordnen:</strong> Vorhandene Webrechte + fehlende Desktop-Anzeige rechtfertigen <strong>nicht automatisch</strong> einen Rechte-Reset.</p>
+<h2 id="6-pfad-c-neues-outlook-oder-outlook-im-web">6. Pfad C – Neues Outlook oder Outlook im Web</h2>
+<p><strong>Neues Outlook für Windows:</strong> Aktuelle Microsoft-Anleitung: <strong>Einstellungen → Konten → Für mich freigegeben</strong> (<em>Shared with me</em>), bei Bedarf <strong>Hinzufügen</strong> bzw. eine bereits automapped/freigegebene Mailbox in geeigneter Form einbinden [Q7]. Die UI hängt von Version und Funktionsumfang ab; das konkrete Produkt prüfen.</p>
+<p><strong>Outlook im Web:</strong> Postfach als <strong>freigegebenen Ordner/Postfach</strong> zur Liste hinzufügen oder über <strong>Weiteres Postfach öffnen</strong> in separatem Fenster öffnen [Q1]. Weboberfläche muss nicht stets automatisch alle delegierten Postfächer anzeigen.</p>
+<p><strong>Test:</strong> Richtiges Benutzerkonto, korrekte SMTP-Adresse, Postfach öffnet, zu erwartender Ordner sichtbar. Bei Verweigerung auf Pfad A zurück; bei funktionierendem Web und nur einem Desktopclient auf Clientdiagnose konzentrieren.</p>
+<h2 id="7-pfad-d-lesen-funktioniert-senden-als-postfach-nicht">7. Pfad D – Lesen funktioniert, Senden als Postfach nicht</h2>
+<ol>
+<li><strong>Ticketinhalt korrigieren:</strong> Es handelt sich nicht mehr um „Postfach fehlt“, sondern um <strong>Sendeberechtigung/Absenderwahl</strong>.</li>
+<li>Erwarteten Versandmodus klären: <strong>Send As</strong> („von Team“) oder <strong>Send on Behalf</strong> („im Auftrag von Team“).</li>
+<li>Exchange-Admin prüft diese Rechte <strong>getrennt</strong> von Full Access [Q2, Q3].</li>
+<li>Im Mailclient <strong>Von:</strong>-Adresse prüfen, bevor Rechte geändert werden.</li>
+<li>Bei fehlendem genehmigtem Senderecht L2 zur gezielten Vergabe; bei neuer Änderung mögliche Replikationsverzögerung beachten [Q4].</li>
+<li>Autorisierte Testmail und sichtbaren Absender beim Empfänger prüfen. Keine vertraulichen Geschäftsinhalte für einen Test versenden.</li>
+</ol>
+<p><strong>Merksatz:</strong> <strong>Full Access erlaubt Lesen/Verwalten, aber nicht automatisch Senden.</strong></p>
+<h2 id="8-optionale-lesende-exchange-online-powershell-diagnose-l2">8. Optionale lesende Exchange-Online-PowerShell-Diagnose (L2)</h2>
+<p><strong>Voraussetzung:</strong> ExchangeOnlineManagement-Modul, passende Rolle, korrekter Tenant, interaktive Authentifizierung und zugelassene Nutzung. Fiktive Beispieladressen durch echte Unternehmensidentitäten ersetzen. <strong>Alle <code>Get-</code>-Cmdlets sind lesend.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Verbindung mit einem zugelassenen Administratorkonto:
+Connect-ExchangeOnline -UserPrincipalName 'admin@beispiel.de'
+
+# Ist ein Exchange-Shared-Mailbox-Objekt unter dieser Adresse vorhanden?
+Get-EXOMailbox -Identity 'service@beispiel.de' |
+  Select-Object DisplayName, PrimarySmtpAddress, RecipientTypeDetails
+
+# ACL einschließlich explizit gesetzter Delegation lesen:
+Get-EXOMailboxPermission -Identity 'service@beispiel.de' |
+  Where-Object { -not $_.IsInherited } |
+  Select-Object User, AccessRights, Deny, IsInherited
+
+# Separater Send-As-Pfad (wenn erforderlich):
+Get-EXORecipientPermission -Identity 'service@beispiel.de' |
+  Select-Object Trustee, AccessRights, IsInherited
+
+Disconnect-ExchangeOnline -Confirm:$false
+</code></pre></div>
+<p><strong>Grenze der Aussagekraft:</strong> Gruppenmitgliedschaft, effektiver Benutzerzugriff und <strong>Automapping im spezifischen Outlook-Client</strong> ergeben sich daraus nicht automatisch. Sie sind gesondert zu testen. <code>Get-EXORecipientPermission</code> ersetzt nicht die Prüfung von Send on Behalf [Q8, Q9].</p>
+<p><strong>Keine ungeprüften Schreibbefehle:</strong> Das Neusetzen von Full Access mit AutoMapping-Parameter erfordert bei bereits bestehender Delegation ggf. Entfernen und erneutes Hinzufügen. Das kann den Produktivzugriff unterbrechen und ist <strong>keine</strong> L1-Routine [Q3].</p>
+<h2 id="9-erfolgskontrolle-stopp-und-eskalation">9. Erfolgskontrolle, Stopp und Eskalation</h2>
+<p><strong>Als gelöst markieren, wenn:</strong></p>
+<ul>
+<li>Der ursprüngliche Mitarbeiter öffnet mit eigenem Firmenkonto das <strong>richtige gemeinsame Postfach</strong>.</li>
+<li>Der <strong>ursprünglich betroffene Outlook-Client</strong> zeigt es nach der vereinbarten Einbindung und erneutem Start.</li>
+<li>Ordner und Nachrichten sind im erlaubten Umfang sichtbar; keine unnötigen Rechte vergeben.</li>
+<li>Falls Versand Teil des Auftrags ist: <strong>separate</strong> Sendeberechtigung und korrekte Von-Adresse nachgewiesen.</li>
+<li>Ticket enthält exakten Ausgangsfehler, Trenn-Tests, freigegebene Änderung und Retest.</li>
+</ul>
+<p><strong>An L2/Exchange-/Security-Team eskalieren bei:</strong> fehlendem genehmigtem Sollrecht; Rechte trotz ACL und Webtest nicht wirksam; unbekanntem Postfachtyp; Hybrid-/Mandantenkonflikt; verdächtiger Mehrfachauswirkung; nicht nachvollziehbarer Rechteänderung; Compliance-/Sicherheitsbedenken; Profil-/Autodiscover-Anomalien, die L1 nicht risikolos prüfen kann.</p>
+<p><strong>Schutzkriterium:</strong> Kein Herunterfahren der Sicherheitsprüfung zugunsten schneller Sichtbarkeit; keine Aktion allein nach einem kosmetischen Anzeigeproblem.</p>
+<h2 id="10-muster-ticketkommentar-status-und-mini-kompetenzcheck">10. Muster-Ticketkommentar, Status und Mini-Kompetenzcheck</h2>
+<h3 id="muster-ticketkommentar-ausdrucklich-fiktiv">Muster-Ticketkommentar – ausdrücklich fiktiv</h3>
+<blockquote>
+<p><strong>Problem:</strong> Der Benutzer konnte das gemeinsame Postfach <code>team@beispiel.de</code> im klassischen Outlook nach einem PC-Wechsel nicht mehr sehen. <strong>Diagnose/Maßnahme:</strong> Der Zugriff war im Outlook im Web mit dem ursprünglichen Nutzerkonto möglich. Das Postfach war per mailaktivierter Sicherheitsgruppe mit Full Access berechtigt und wurde deshalb nicht automatisch in das klassische Outlook eingebunden; nach bestätigtem Unternehmensstandard wurde es manuell als zusätzliches Postfach hinzugefügt. <strong>Ergebnis:</strong> Der Benutzer konnte Ordner öffnen; die Anzeige blieb nach Outlook-Neustart erhalten. Keine Berechtigungsänderung notwendig.</p>
+</blockquote>
+<h3 id="kurzer-l1-status-in-drei-satzen">Kurzer L1-Status in drei Sätzen</h3>
+<blockquote>
+<p>„Das gemeinsame Postfach fehlt derzeit in Ihrer Outlook-Ansicht. Ich prüfe zuerst, ob der Zugriff im Browser funktioniert, und gleiche anschließend die Berechtigung und die Einbindemethode mit dem zuständigen Team ab. Danach testen wir das Postfach gemeinsam erneut in der betroffenen Outlook-Version.“</p>
+</blockquote>
+<h3 id="active-recall-drei-fragen">Active Recall – drei Fragen</h3>
+<ol>
+<li>Warum ist „In Outlook nicht sichtbar“ <strong>kein Beweis</strong> für fehlende Exchange-Berechtigung?</li>
+<li>Weshalb kann gruppenbasiertes Full Access den <strong>Webzugriff erlauben</strong>, aber <strong>kein Automapping</strong> erzeugen?</li>
+<li>Welchen zusätzlichen Nachweis benötigst du, wenn Lesen geht, <strong>Senden als Postfach</strong> aber scheitert?</li>
+</ol>
+<h3 id="transfertraining-fur-spater">Transfertraining für später</h3>
+<p>Drei Testfälle in einem <strong>autorisierten</strong> Exchange-Online-Lab vergleichen: (A) direkte Delegation und Automapping; (B) Gruppenberechtigung und manuelle Einbindung; (C) Full Access ohne Send As. <strong>Vor dem Test</strong> eigene Hypothese, Trenn-Test und Erfolgsdefinition schreiben; <strong>nach dem Test</strong> tatsächlich beobachteten Zustand dokumentieren. Später ohne diese Vorlage erneut diagnostizieren.</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-recherchiert-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (recherchiert 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://support.microsoft.com/en-us/outlook/sharing/open-and-use-a-shared-mailbox-in-outlook" rel="noopener noreferrer" target="_blank">Open and use a shared mailbox in Outlook</a></li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/email/create-a-shared-mailbox?view=o365-worldwide" rel="noopener noreferrer" target="_blank">Create a shared mailbox – Microsoft 365 admin</a></li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/en-us/exchange/recipients-in-exchange-online/manage-permissions-for-recipients" rel="noopener noreferrer" target="_blank">Manage permissions for recipients in Exchange Online</a></li>
+<li><strong>[Q4]</strong> <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/email/about-shared-mailboxes?view=o365-worldwide" rel="noopener noreferrer" target="_blank">About shared mailboxes in Microsoft 365</a></li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/exchange/troubleshoot/administration/full-access-mailbox-not-automapped-outlook-profile" rel="noopener noreferrer" target="_blank">Mailboxes aren't automapped to Outlook profile</a></li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/outlook/profiles-and-accounts/issues-that-occur-when-adding-multiple-exchange-accounts" rel="noopener noreferrer" target="_blank">Issues when adding multiple Exchange accounts to an Outlook profile</a></li>
+<li><strong>[Q7]</strong> <a href="https://support.microsoft.com/en-us/outlook/sharing/manage-shared-mailbox-settings-in-new-outlook" rel="noopener noreferrer" target="_blank">Manage shared mailbox settings in new Outlook</a></li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-exomailboxpermission?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-EXOMailboxPermission</a></li>
+<li><strong>[Q9]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/get-exorecipientpermission?view=exchange-ps" rel="noopener noreferrer" target="_blank">Get-EXORecipientPermission</a></li>
+</ul>
+<p><strong>Validierungsstatus:</strong> Recherche, kein Zugriff auf einen produktiven Tenant, kein ausgeführter administrativer Eingriff und kein praktisch überprüfter Fehlerfall. Alle Prozeduren vor Umsetzung mit der konkreten Umgebung und dem aktuellen Produktstand abgleichen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-031_Praxis-Runbook.md">RB-031_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-030/index.html">← Ticket 30</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-032/index.html">Ticket 32 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

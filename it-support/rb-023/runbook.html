@@ -1,0 +1,235 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 23: Dockingstation funktioniert nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 23: Dockingstation funktioniert nicht. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 23: Dockingstation funktioniert nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-und-risikoprufung-l1">1. Ticketaufnahme und Risikoprüfung (L1)</a></li><li><a href="#2-aufstellort-stromversorgung-und-hostverbindung-prufen-l1">2. Aufstellort, Stromversorgung und Hostverbindung prüfen (L1)</a></li><li><a href="#3-direktvergleich-durchfuhren-l1">3. Direktvergleich durchführen (L1)</a></li><li><a href="#4-welche-funktion-ist-ausgefallen-l1">4. Welche Funktion ist ausgefallen? (L1)</a></li><li><a href="#5-windows-status-und-powershell-lesend-l1-l2">5. Windows-Status und PowerShell (lesend, L1/L2)</a></li><li><a href="#6-gezielt-beheben-ausschliesslich-nach-befund-l1-l2">6. Gezielt beheben – ausschließlich nach Befund (L1 → L2)</a></li><li><a href="#7-abschlussprufung-alle-benotigten-funktionen-testen-l1">7. Abschlussprüfung: Alle benötigten Funktionen testen (L1)</a></li><li><a href="#8-l2-eskalation-weitergeben-statt-blind-experimentieren">8. L2-Eskalation – weitergeben statt blind experimentieren</a></li><li><a href="#9-beispiel-ticketkommentar-rein-fiktiv">9. Beispiel-Ticketkommentar (rein fiktiv)</a></li><li><a href="#10-referenzen-lerncheck-und-transparenz">10. Referenzen, Lerncheck und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Umgebung:</strong> Windows 11, Notebook + kabelgebundene USB-C-, Thunderbolt-/USB4- oder DisplayLink-Dockingstation<br/>
+<strong>Level:</strong> L1 (Erstdiagnose) / L2 (vertiefte Diagnose, freigegebene Änderungen)<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026 · <strong>Status:</strong> recherchiert; Praxisvalidierung ausstehend</p>
+<blockquote>
+<p><strong>Einsatzregel:</strong> Nur das tatsächlich ausgefallene Funktionsmerkmal diagnostizieren. Vor Kabeltrennung, Dock-Power-Cycle und Netzwerkunterbrechung erst Nutzerzustimmung, gespeicherte Arbeit und nötige Freigaben prüfen. Herstelleranleitung für das <strong>konkrete Modell</strong> hat Vorrang.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb023_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-023 – Technischer Diagnosebaum" decoding="async" loading="lazy" src="assets/rb023_diagnosebaum.svg"/></a></div><figcaption>RB-023 – Technischer Diagnosebaum</figcaption></figure>
+<h2 id="1-ticketaufnahme-und-risikoprufung-l1">1. Ticketaufnahme und Risikoprüfung (L1)</h2>
+<p><strong>Meldung:</strong> „Dockingstation funktioniert nicht.“ <strong>Diese Meldung reicht für keine Ursachenfeststellung.</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffene Person/Arbeitsplatz, Gerätetyp, Dockhersteller und Modell aufnehmen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zeitpunkt und letztes funktionierendes Setup notieren (seit wann, was geändert?).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche Funktionen fallen aus: <strong>Laden/PD</strong>, <strong>USB</strong>, <strong>Video</strong>, <strong>LAN</strong>, <strong>Audio</strong>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche Funktionen sind <strong>nachweislich intakt</strong>? Nicht nur „Dock-LED leuchtet“.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind laufende Netzverbindungen/Dateiübertragungen/Meetings betroffen? Testunterbrechung erlauben lassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Visuelle Sicherheitsprüfung: Stecker-/Kabelbruch, Hitze, Brandgeruch, Flüssigkeit, Verformung? <strong>Bei Gefahr abbrechen und Hardwareprozess auslösen.</strong></li>
+</ul>
+<h3 id="erste-bestandsmatrix-ausfullen">Erste Bestandsmatrix (ausfüllen)</h3>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Funktion</th>
+<th>Direkt am Notebook</th>
+<th>Über Dock</th>
+<th>Bemerkung / Beobachtung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Notebook laden</td>
+<td>☐ Ja ☐ Nein ☐ N. a.</td>
+<td>☐ Ja ☐ Nein</td>
+<td>Akkuanzeige/PD-Hinweis</td>
+</tr>
+<tr>
+<td>USB-Maus/Tastatur</td>
+<td>☐ Ja ☐ Nein</td>
+<td>☐ Ja ☐ Nein</td>
+<td>USB-Port / Funkempfänger</td>
+</tr>
+<tr>
+<td>Externer Monitor</td>
+<td>☐ Ja ☐ Nein ☐ N. a.</td>
+<td>☐ Ja ☐ Nein</td>
+<td>Monitor-Eingang, <code>Win + P</code></td>
+</tr>
+<tr>
+<td>Ethernet/LAN</td>
+<td>☐ Ja ☐ Nein ☐ N. a.</td>
+<td>☐ Ja ☐ Nein</td>
+<td>Link + IP nicht gleich Anwendung</td>
+</tr>
+<tr>
+<td>Dock-Audio</td>
+<td>☐ Ja ☐ Nein ☐ N. a.</td>
+<td>☐ Ja ☐ Nein</td>
+<td>Nur falls betroffen</td>
+</tr>
+</tbody>
+</table></div>
+<p>„N. a.“ nur bei fehlender kompatibler Direktanschlussmöglichkeit; <strong>kein erzwungener Adaptertest</strong>.</p>
+<h2 id="2-aufstellort-stromversorgung-und-hostverbindung-prufen-l1">2. Aufstellort, Stromversorgung und Hostverbindung prüfen (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dock <strong>Originalnetzteil/freigegebenes kompatibles Netzteil</strong> angeschlossen? Stromzufuhr intakt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dock-Leistungsanzeige <strong>laut jeweiligem Modellhandbuch</strong> interpretieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hostkabel sitzt an der richtigen Buchse <strong>des Docks</strong> und an einem <strong>geeigneten Hostport</strong> des Notebooks.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>USB-C-Steckerform nicht mit DP-Alt-Mode-, Thunderbolt-, USB4- oder Power-Delivery-Unterstützung gleichsetzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hostkabel ist für die jeweilige Funktion geeignet (nicht jedes USB-C-Kabel überträgt Video bzw. jede Leistung).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sichtbaren Kabel-/Portschaden dokumentieren; beschädigte Komponenten <strong>nicht weiterverwenden</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn nachgefragt: Dock-/Notebook-Kompatibilität in den <strong>konkreten Hersteller-Spezifikationen</strong> bestätigen.</li>
+</ul>
+<p><strong>Befundregel:</strong> „Notebook lädt“ belegt allein weder USB-Daten noch externe Monitore oder LAN. „Dock-LED an“ bestätigt je nach Modell nicht alle Teilkomponenten.</p>
+<h2 id="3-direktvergleich-durchfuhren-l1">3. Direktvergleich durchführen (L1)</h2>
+<ol>
+<li><strong>Genau eine ausgefallene Funktion</strong> auswählen, z. B. USB-Maus oder Display.</li>
+<li>Dieselbe Peripherie <strong>direkt am Notebook</strong> und am Dock vergleichen (wenn ein kompatibler Direktanschluss möglich ist).</li>
+<li>Wenn direkt <strong>nicht</strong> funktionsfähig: zuerst Gerät, direkten Hostanschluss oder das zuständige Spezial-Runbook prüfen; Dock bleibt nur eine von mehreren Hypothesen.</li>
+<li>Wenn direkt <strong>funktionsfähig</strong>, über Dock <strong>nicht</strong>: Dock-/Hostkabel-/Dock-Port-/Protokollpfad eingrenzen.</li>
+<li>Nächstes A/B nur mit <strong>einem</strong> veränderten Faktor: anderer geeigneter Hostport, freigegebenes kompatibles Hostkabel, anderer Dockport oder kompatibles Vergleichsdock.</li>
+<li>Vorher/Nachher-Zustand und <strong>genaue</strong> Änderung dokumentieren.</li>
+</ol>
+<p><strong>Keine Beweiskraft:</strong> „Mit einem beliebigen USB-C-Kabel klappt Video nicht“ ohne Nachweis, dass das Kabel und der Port Video unterstützen.</p>
+<h2 id="4-welche-funktion-ist-ausgefallen-l1">4. Welche Funktion ist ausgefallen? (L1)</h2>
+<h3 id="a-alles-oder-fast-alles-ausgefallen">A. Alles oder fast alles ausgefallen</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Strom/Netzteil, Hostverbindung und Sicherheitszustand nach Abschnitt 2 geprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls freigegeben: Dock <strong>nach modellbezogener Herstellerprozedur</strong> kontrolliert stromlos schalten und neu verbinden; vorher laufende Arbeit sichern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>A/B mit geeignetem Hostkabel, passendem Port oder bekannt kompatiblem Vergleichsdock.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn weiterhin komplett ohne Funktion oder gefährlicher Zustand: <strong>L2/Hardwaretausch</strong>.</li>
+</ul>
+<h3 id="b-nur-externe-monitore-betroffen">B. Nur externe Monitore betroffen</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Monitor OSD/Strom/Input; funktioniert derselbe Monitor direkt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows <code>Win + P</code> und <strong>Einstellungen → System → Anzeige</strong>, Erkennen/Erweitern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dock-Technik identifiziert: <strong>DP Alt Mode</strong>, <strong>Thunderbolt/USB4</strong>, <strong>DisplayLink</strong>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei DisplayLink-Dock: Ist die <strong>herstellerseitig vorgesehene Software</strong> auf dem verwalteten Client vorhanden? <strong>L2/Endpoint</strong> für Installation.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unterstützte Monitoranzahl, Auflösung und Frequenz im Modellhandbuch prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Tiefendiagnose nach <strong>RB-022 – Monitor wird nicht erkannt</strong>.</li>
+</ul>
+<h3 id="c-nur-usb-gerate-betroffen">C. Nur USB-Geräte betroffen</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät direkt am Notebook: Ja/Nein? Anderen geeigneten Dock-USB-Port testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>USB-Hub/USB-Controller im Geräte-Manager auf Warnungen prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Bedarf andere Peripherie <strong>nach Freigabe</strong> vorübergehend trennen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Keine</strong> Treiberdeinstallation oder Sperrrichtlinien-Änderung auf Verdacht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Einzelfall nach <strong>RB-024 – USB-Gerät, Maus oder Tastatur ausgefallen</strong>.</li>
+</ul>
+<h3 id="d-nur-lan-uber-dock-betroffen">D. Nur LAN über Dock betroffen</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kabel, Dock-RJ45, Netzwerkdose/Switchport, Linkanzeige.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dock-Ethernetadapter in <code>Get-NetAdapter</code> bzw. Geräte-Manager sichtbar? <code>Up</code> oder <code>Disconnected</code>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn Link vorhanden: <strong>Get-NetIPConfiguration</strong>, IP/Gateway/DNS und passende Netzvorgaben prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Link/IP ok, Ziel nicht: Netzwerk-/DNS-/Authentifizierungsdiagnose, ggf. <strong>RB-010</strong> und Netzwerkteam.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Niemals</strong> Portauthentifizierung, VLAN- oder Sicherheitsrichtlinien unkoordiniert umgehen.</li>
+</ul>
+<h3 id="e-nur-laden-pd-betroffen">E. Nur Laden/PD betroffen</h3>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unterstützt der Notebook-Hostport Laden über die Dock-Schnittstelle?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Netzteil und Dock leisten die vom Hersteller vorgesehenen Leistungen; Kabel passend?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Laden mit freigegebenem Original-Notebooknetzteil als Vergleich.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Temperaturwarnung oder Schäden <strong>Hardwareprozess</strong>.</li>
+</ul>
+<h2 id="5-windows-status-und-powershell-lesend-l1-l2">5. Windows-Status und PowerShell (lesend, L1/L2)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Aktuell präsente USB-Geräte inkl. Status. Keine Änderungen.
+Get-PnpDevice -Class USB -PresentOnly |
+  Select-Object Status, FriendlyName, InstanceId
+
+# Monitorinstanzen – bestätigt noch kein sichtbares Bild!
+Get-PnpDevice -Class Monitor -PresentOnly |
+  Select-Object Status, FriendlyName, InstanceId
+
+# Netzwerkadapter und Linkstatus ansehen.
+Get-NetAdapter |
+  Select-Object Name, InterfaceDescription, Status, LinkSpeed
+
+# IP-/Gateway-/DNS-Konfiguration ansehen.
+Get-NetIPConfiguration
+
+# Gerätetypen mit PnP-Fehler-/Warnstatus erfassen.
+Get-PnpDevice -PresentOnly -Status ERROR,DEGRADED,UNKNOWN |
+  Select-Object Class, Status, FriendlyName, InstanceId
+</code></pre></div>
+<p><strong>Interpretationshinweise:</strong></p>
+<ul>
+<li><code>Up</code> für den Netzwerkadapter bedeutet <strong>nicht</strong> automatisch funktionierendes DHCP/DNS/Routing oder Anwendungserreichbarkeit.</li>
+<li>Keine eindeutige Dock-„Gesamtinstanz“ voraussetzen; manche Funktionen sind einzelne USB-/Grafik-/Netzwerkgeräte.</li>
+<li><code>Get-PnpDevice</code> kann je nach Plattform/Windows-Version unterschiedliche Klasseneinträge anzeigen. Fehlende Klassen nicht als definitive Hardwarediagnose verkaufen.</li>
+<li>In Tickets <strong>nur notwendige</strong> Gerätekennungen übernehmen und personenbezogene Identifikatoren vermeiden.</li>
+</ul>
+<h2 id="6-gezielt-beheben-ausschliesslich-nach-befund-l1-l2">6. Gezielt beheben – ausschließlich nach Befund (L1 → L2)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Belastbarer Befund</th>
+<th>Maßnahme / verantwortliche Stelle</th>
+<th>Beweis für Erfolg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hostkabel beschädigt oder A/B-Test reproduzierbar negativ</td>
+<td>Geeignetes freigegebenes Kabel tauschen (L1 nach Vorgabe)</td>
+<td>Alle benötigten Funktionen stabil</td>
+</tr>
+<tr>
+<td>Falscher Hostport ohne erforderliche Funktionen</td>
+<td>Geeigneten kompatiblen Port nutzen (L1)</td>
+<td>Video/USB/PD je nach Soll-Anforderung</td>
+</tr>
+<tr>
+<td>Netzteil/Leistung unpassend</td>
+<td>Richtiges freigegebenes Netzteil (Hardware/IT)</td>
+<td>Ladeverhalten ohne Warnung; übrige Pfade geprüft</td>
+</tr>
+<tr>
+<td>Dock-Initialisierung nach Standby plausibel</td>
+<td>Freigegebener Dock-Power-Cycle nach Handbuch</td>
+<td>Reproduzierbarer Re-Test</td>
+</tr>
+<tr>
+<td>DisplayLink-Dock, erforderliche Software fehlt</td>
+<td>Endpoint/L2: genehmigt bereitstellen</td>
+<td>Display erkannt und nutzbar</td>
+</tr>
+<tr>
+<td>Treiber-/Firmwarefehler durch Befunde gestützt</td>
+<td>L2: versionierter Change / OEM-Paket</td>
+<td>Vorher-/Nachher-Test, ggf. Rollbackplan</td>
+</tr>
+<tr>
+<td>Dock-LAN ohne Link bei intaktem Notebook</td>
+<td>Kabel/Port/Switch und Dock-NIC isolieren</td>
+<td>Link + IP + Unternehmensziel erreichbar</td>
+</tr>
+<tr>
+<td>Dock an mehreren kompatiblen Hosts reproduzierbar defekt</td>
+<td>L2/Hardware: Ersatz/Austausch</td>
+<td>Mit Ersatzdock End-to-End-Betrieb</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Sicherheitslinie:</strong> Keine BIOS-/Firmware-Aktualisierung und keine pauschale Treiberentfernung im L1-Standardpfad. Kein Abziehen während laufender Firmwareupdates.</p>
+<h2 id="7-abschlussprufung-alle-benotigten-funktionen-testen-l1">7. Abschlussprüfung: Alle benötigten Funktionen testen (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Notebook lädt wie vorgesehen <strong>oder</strong> Nichtladefähigkeit ist laut Hersteller für dieses Setup erwartbar/dokumentiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>USB-Maus/Tastatur funktional (Bewegung, Klick, Texteingabe) – nicht nur PnP-Eintrag.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gewünschte externe Monitore zeigen ein nutzbares, stabiles Bild; Displaymodus stimmt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ethernet hat Link, korrekte IP-Konfiguration und erreicht einen <strong>freigegebenen internen Testdienst</strong> (nur falls LAN vorgesehen).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls genutzt: Audio funktioniert über den gewünschten Ausgang / Eingang.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach einem <strong>vereinbarten</strong> Ab-/Anstecken bzw. Wiederverbinden weiterhin funktionsfähig; keine unnötigen Stress-/Dauertests.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwender bestätigt den funktionalen Soll-Zustand.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache, A/B-Befunde und konkrete Maßnahme im Ticket stehen; keine erfundene „Ursache“.</li>
+</ul>
+<h2 id="8-l2-eskalation-weitergeben-statt-blind-experimentieren">8. L2-Eskalation – weitergeben statt blind experimentieren</h2>
+<p><strong>Pflichtangaben:</strong> Notebookmodell, Dockmodell, Netzteil-/Kabelkennung (soweit zulässig), Hostport, Monitoranzahl/Art, betroffene Pfade, Zeitpunkt/Änderungsbezug, LED-Verhalten laut Handbuch, Direkt-/Dock-/Kabel-Gegenproben, Windows-Gerätestatus, Netzwerkstatus, ausgeführte Maßnahmen und offene Hypothesen.</p>
+<p><strong>L2-Fragen:</strong> Ist Host-/Dockkompatibilität dokumentiert? Gibt es das passende OEM-Treiber-/Firmwarepaket und einen genehmigten Rollback-/Recoveryweg? Ist der Fehler an anderen kompatiblen Systemen reproduzierbar? Liegt eine Endpointrichtlinie oder Netzwerkportkontrolle vor? Ist Hardwaretausch effizienter und risikoärmer?</p>
+<h2 id="9-beispiel-ticketkommentar-rein-fiktiv">9. Beispiel-Ticketkommentar (rein fiktiv)</h2>
+<blockquote>
+<p><strong>INC-023 | Situation:</strong> Windows-11-Notebook lädt über Dock, aber USB-Maus, externe Anzeige und Dock-Ethernet fehlen. <strong>Diagnose:</strong> Maus und Monitor direkt am Notebook funktionsfähig. Docknetzteil und Modellkompatibilität geprüft. Mit freigegebenem Referenz-Hostkabel arbeiten die drei Dock-Datenfunktionen; mit dem bisherigen Hostkabel reproduzierbar nicht. <strong>Maßnahme:</strong> beschädigtes/ungeeignetes Hostkabel gegen spezifikationskonformes freigegebenes Kabel ersetzt. <strong>Kontrolle:</strong> USB-Eingabe, Bild im erweiterten Desktop, Dock-LAN und Ladefunktion mit Nutzer geprüft. <strong>Status:</strong> Beispielhaft gelöst; keine Treiber-/Firmwareänderung; fiktiver Schulungsfall, nicht real ausgeführt.</p>
+</blockquote>
+<h2 id="10-referenzen-lerncheck-und-transparenz">10. Referenzen, Lerncheck und Transparenz</h2>
+<p><strong>Herstellerdokumentation:</strong></p>
+<ul>
+<li>Microsoft: <a href="https://support.microsoft.com/de-de/windows/hardware/usb/fix-usb-c-problems-in-windows" rel="noopener noreferrer" target="_blank">USB-C-Probleme in Windows</a></li>
+<li>Microsoft: <a href="https://support.microsoft.com/de-de/windows/hardware/display-graphics/troubleshoot-external-monitor-connections-in-windows" rel="noopener noreferrer" target="_blank">Externe Monitore in Windows</a></li>
+<li>Dell: <a href="https://www.dell.com/support/kbdoc/en-us/000124295/guide-to-dell-docking-stations" rel="noopener noreferrer" target="_blank">Guide to Dell Docking Stations</a></li>
+<li>Lenovo: <a href="https://support.lenovo.com/uu/en/solutions/ht510459-dock-guidelines-and-troubleshooting" rel="noopener noreferrer" target="_blank">Dock Guidelines and Troubleshooting</a></li>
+<li>DisplayLink: <a href="https://support.displaylink.com/knowledgebase/articles/1179748-first-step-troubleshooting-for-devices-powered-by" rel="noopener noreferrer" target="_blank">First Step Troubleshooting</a></li>
+<li>Microsoft Learn: <a href="https://learn.microsoft.com/en-us/powershell/module/pnpdevice/get-pnpdevice?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-PnpDevice</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapter?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-NetAdapter</a>, <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-netipconfiguration?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">Get-NetIPConfiguration</a></li>
+</ul>
+<p><strong>Mini-Selbsttest:</strong> „Dock lädt, aber kein Bild“ – warum ist das <strong>kein Beweis für einen defekten Grafiktreiber</strong>? „Nur Dock-LAN fehlt“ – welche drei Befunde brauchst du vor der DNS-Diagnose? „Der Austausch des Hostkabels behebt den Ausfall“ – wie stellst du sicher, dass der A/B-Test valide war?</p>
+<p><strong>Status:</strong> Recherchierte, noch <strong>nicht praktisch validierte</strong> Arbeitsanweisung. Modellhandbücher und Betriebsrichtlinien gehen vor. Keine realen Nutzer-/Clientdaten, keine tatsächlichen Supportmaßnahmen. Grafiken: Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-023_Praxis-Runbook.md">RB-023_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-022/index.html">← Ticket 22</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-024/index.html">Ticket 24 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,296 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 36: APIPA-Adresse 169.254.x.x | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 36: APIPA-Adresse 169.254.x.x. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 36: APIPA-Adresse 169.254.x.x</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsmeldung-ziele-und-zustandigkeit">1. Störungsmeldung, Ziele und Zuständigkeit</a></li><li><a href="#2-was-ist-apipa-und-was-nicht">2. Was ist APIPA – und was nicht?</a></li><li><a href="#3-reichweite-und-grenzen-von-169-254-16">3. Reichweite und Grenzen von 169.254/16</a></li><li><a href="#4-erste-denkaufgabe-drei-hypothesen-formulieren">4. Erste Denkaufgabe: Drei Hypothesen formulieren</a></li><li><a href="#5-ticketaufnahme-exakten-soll-und-istzustand-ermitteln">5. Ticketaufnahme: Exakten Soll- und Istzustand ermitteln</a></li><li><a href="#6-sichere-ausschliesslich-lesende-windows-diagnose">6. Sichere, ausschließlich lesende Windows-Diagnose</a></li><li><a href="#7-windows-ereignisprotokolle-und-befundsicherung">7. Windows-Ereignisprotokolle und Befundsicherung</a></li><li><a href="#8-fehlerpfad-durch-vergleichstests-eingrenzen">8. Fehlerpfad durch Vergleichstests eingrenzen</a></li><li><a href="#9-dhcp-verkehr-und-apipa-korrekt-zusammen-interpretieren">9. DHCP-Verkehr und APIPA korrekt zusammen interpretieren</a></li><li><a href="#10-apipa-arp-und-adresskonflikte">10. APIPA, ARP und Adresskonflikte</a></li><li><a href="#11-sicherheitsgate-und-abgestufte-massnahmen">11. Sicherheitsgate und abgestufte Maßnahmen</a></li><li><a href="#12-erfolgskontrolle-technische-ursache-statt-bloss-netz-geht-wieder">12. Erfolgskontrolle – technische Ursache statt bloß „Netz geht wieder“</a></li><li><a href="#13-zwei-fiktive-praxisfalle-zum-transfer">13. Zwei fiktive Praxisfälle zum Transfer</a></li><li><a href="#14-active-recall-self-explanation-und-diagnosekarten">14. Active Recall, Self-Explanation und Diagnosekarten</a></li><li><a href="#15-quellen-fachstand-und-validierungsplan">15. Quellen, Fachstand und Validierungsplan</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Windows 11 / IPv4 Link-Local / DHCP-Client / Ethernet &amp; WLAN / VLAN &amp; Relay<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Recherchierte und fachlich abgeleitete Diagnoseverfahren auf Basis von Microsoft Learn und RFC 3927. <strong>Keine praktische Validierung durchgeführt.</strong> Alle Fälle, Personen und Adressen sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb036_henne_ei_apipa.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-036 – Henne-und-Ei-Infografik zu APIPA" decoding="async" loading="lazy" src="assets/rb036_henne_ei_apipa.webp"/></a></div><figcaption>RB-036 – Henne-und-Ei-Infografik zu APIPA</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> Eine <code>169.254.x.x</code>-Adresse zeigt einen <strong>IPv4-Link-Local-Zustand</strong> an. Sie zeigt <strong>nicht</strong>, an welcher Stelle eine erwartete DHCP-Vergabe fehlgeschlagen ist. Erst den Adapter und Sollzustand identifizieren; dann die Beweiskette aufbauen.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsmeldung-ziele-und-zustandigkeit">1. Störungsmeldung, Ziele und Zuständigkeit</h2>
+<p><strong>Typische Meldung:</strong> „Mein PC zeigt <code>169.254.83.42</code>, aber ich komme nicht auf den Fileserver“, „Nach dem Andocken habe ich keine Firmen-IP“, „Nur Geräte in einem Besprechungsraum bekommen 169.254“, „WLAN verbunden – aber keine Verbindung zu internen IPv4-Diensten“.</p>
+<p><strong>Lernziel:</strong> Die Bedeutung einer APIPA-Adresse erklären und anhand <strong>unabhängiger Tests</strong> zwischen physikalischem Anschluss/SSID, DHCP-Clientkonfiguration, VLAN/NAC, DHCP-Pfad, Relay und DHCP-Server unterscheiden. Nicht nur den Normalzustand herstellen, sondern <strong>nachweisen</strong>, weshalb er zuvor fehlte.</p>
+<ul>
+<li><strong>L1:</strong> Betroffenheit, Adapter, Sollnetz, <code>ipconfig /all</code>, Link- und WLAN-Status, Vergleichsgerät erfassen; keine unkontrollierten Adaptereingriffe.</li>
+<li><strong>L2:</strong> Ereignisprotokolle und DHCP-Verkehr auswerten; Paketpfad, VLAN, Relay, Scope, Richtlinien und mögliche IP-Konflikte prüfen.</li>
+<li><strong>Netzwerk-/DHCP-Owner:</strong> Konfigurationsänderungen an Switch, WLAN/NAC, Relay, DHCP-Server und Scopes nur nach dokumentierter Freigabe.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-035 erklärt die DHCP-Vergabe über den ganzen DORA-Ablauf. <strong>RB-036 beginnt beim beobachteten Zustand <code>169.254/16</code> und dessen korrekter Interpretation.</strong> RB-034 behandelt DNS-Probleme bei grundsätzlich vorhandener IP-Konnektivität.</p>
+<h2 id="2-was-ist-apipa-und-was-nicht">2. Was ist APIPA – und was nicht?</h2>
+<p><strong>APIPA</strong> bedeutet <em>Automatic Private IP Addressing</em>. Wenn ein Windows-Netzwerkadapter für automatische IPv4-Vergabe konfiguriert ist und keine brauchbare DHCP-Konfiguration erhält, kann Windows ihm automatisch eine <strong>IPv4-Link-Local-Adresse</strong> aus <code>169.254.0.0/16</code> zuweisen. Typische Maske: <strong>255.255.0.0</strong>. <code>ipconfig /all</code> zeigt beispielsweise <strong>„Autokonfigurations-IPv4-Adresse“</strong> an. [Q1, Q2]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Gewünschter Unternehmensbetrieb        Möglicher Fallback
+    DHCP → 192.168.120.35/24           kein nutzbarer DHCP-Lease
+    Gateway/DNS/Sollnetz               ↓
+                                       APIPA 169.254.83.42/16
+                                       nur Link-Local IPv4
+</code></pre></div>
+<p><strong>Wichtig:</strong> APIPA ist eine regulär definierte Link-Local-Technik, nicht per se ein Softwaredefekt. Für ein bewusst isoliertes kleines Netz ohne DHCP kann Link-Local-Kommunikation sinnvoll sein. In einem Firmennetz, in dem ein routbares IPv4-Netz vorgesehen ist, deutet APIPA hingegen auf einen <strong>Soll-Ist-Unterschied</strong> hin. [Q1, Q3]</p>
+<p><strong>Kein Schuldbeweis:</strong> Eine APIPA-Adresse beweist <strong>nicht</strong>, dass der DHCP-Server ausgefallen ist, dass überhaupt ein <code>DHCPDISCOVER</code> beim Server ankam oder dass der letzte Fehler zwingend „kein Offer“ war. Die Ursache kann auf Client, Link, VLAN/802.1X/NAC, Relay, Server, Filter oder im Übernahmeprozess einer Konfiguration liegen. [Q2, Q4]</p>
+<h2 id="3-reichweite-und-grenzen-von-169-254-16">3. Reichweite und Grenzen von 169.254/16</h2>
+<p>Nach <strong>RFC 3927</strong> dürfen IPv4-Link-Local-Pakete nicht von Routern weitergeleitet werden. APIPA ermöglicht lokale IPv4-Kommunikation <strong>auf demselben Link</strong>, sofern Gegenstelle, Netz und lokale Firewall dies zulassen. Die häufige Aussage „Mit APIPA geht überhaupt kein Netzwerk“ ist daher technisch falsch. [Q3]</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Merkmal</th>
+<th>APIPA / IPv4 Link-Local</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IPv4-Bereich</td>
+<td><code>169.254.0.0/16</code> (Link-Local)</td>
+</tr>
+<tr>
+<td>Windows-Maske im Normalfall</td>
+<td><code>255.255.0.0</code> (Präfix <code>/16</code>)</td>
+</tr>
+<tr>
+<td>Auswahl</td>
+<td>Automatische Auswahl, ARP-Prüfung gegen Adresskonflikte</td>
+</tr>
+<tr>
+<td>Verkehr im selben Link</td>
+<td>Möglich, aber nicht garantiert</td>
+</tr>
+<tr>
+<td>Routing zu anderen IPv4-Subnetzen</td>
+<td>Nicht zulässig für Link-Local-Pakete</td>
+</tr>
+<tr>
+<td>Internet-/Firmennetz über diesen IPv4-Pfad</td>
+<td>Nicht möglich, solange nur diese Adresse als Quelladresse verfügbar ist</td>
+</tr>
+<tr>
+<td>Adresse bewusst als statisches Firmennetz verteilen</td>
+<td>Nicht als regulären Ersatz konfigurieren [Q3]</td>
+</tr>
+</tbody>
+</table></div>
+<p>RFC 3927 spezifiziert für die dynamische Auswahl den Bereich <strong>169.254.1.0 bis 169.254.254.255</strong>; Anfangs- und Endbereich sind für diese automatische Auswahl reserviert. Der Host prüft über <strong>ARP Probes</strong>, ob eine Adresse bereits beansprucht wird. Eine Kollision wird erkannt und die Adresswahl angepasst. [Q3]</p>
+<p><strong>Mehrere Adapter beachten:</strong> Ein Laptop kann auf einem Adapter APIPA haben und über einen <strong>anderen</strong> Adapter, VPN oder IPv6 weiterhin Zugriff besitzen. Eine angezeigte IPv6-Link-Local-Adresse <code>fe80::/10</code> ist <strong>nicht</strong> dasselbe wie APIPA für IPv4. Deshalb stets den <strong>konkret betroffenen Adapter</strong> untersuchen und nicht aus einer einzelnen Adresse auf die gesamte Konnektivität schließen.</p>
+<h2 id="4-erste-denkaufgabe-drei-hypothesen-formulieren">4. Erste Denkaufgabe: Drei Hypothesen formulieren</h2>
+<p><strong>Ohne direkt zu reparieren:</strong> Ein Windows-Notebook hat per Ethernet <code>169.254.83.42/16</code>. WLAN kann weiterhin funktionieren.</p>
+<ol>
+<li><strong>Hypothese A (Client):</strong> Ethernet ist statisch falsch konfiguriert, der DHCP-Client oder die Schnittstelle arbeitet nicht erwartungsgemäß.</li>
+<li><strong>Hypothese B (Zugangsnetz):</strong> Link/Port, Dock oder 802.1X/NAC ordnen den Client dem falschen oder keinem produktiven VLAN zu.</li>
+<li><strong>Hypothese C (DHCP-Pfad):</strong> Discover erreicht DHCP/Relay nicht, die Antwort erreicht den Client nicht oder der Server kann keine gültige Lease bereitstellen.</li>
+</ol>
+<p><strong>Trennender Test:</strong> Funktioniert ein bekannt intaktes Gerät am <strong>selben freigegebenen Port</strong>? Bekommt das betroffene Gerät an einem <strong>freigegebenen Vergleichsport</strong> eine korrekte Adresse? Sind andere Geräte <strong>im selben VLAN/SSID</strong> betroffen? Ein einziger Test kann mehrere Hypothesen entkräften, ersetzt aber keine Beweisführung.</p>
+<h2 id="5-ticketaufnahme-exakten-soll-und-istzustand-ermitteln">5. Ticketaufnahme: Exakten Soll- und Istzustand ermitteln</h2>
+<p>Vor Maßnahmen möglichst erfassen:</p>
+<ul>
+<li><strong>Zeitpunkt</strong>, Benutzerwirkung, Host, Ethernet- oder WLAN-Interface, Adaptername/InterfaceIndex, physischer Standort, verwendetes Dock, SSID oder dokumentierter Switchport.</li>
+<li>Angezeigte IPv4-Adresse, Subnetzmaske, Status <strong>„DHCP aktiviert“</strong>, Gateway, DNS, DHCP-Server, etwaige Lease-Zeitstempel und andere aktive Adapter.</li>
+<li>Sollnetz aus autorisierter Netzwerkdokumentation und <strong>Anzahl betroffener Geräte</strong>.</li>
+<li>Auftreten nach Gerätewechsel, Umzug, Patchfeldarbeit, Dock-Wechsel, WLAN-Rekonfiguration, Sicherheitsrichtlinienänderung oder Netzstörung.</li>
+<li>Fernzugriff: Erfolgt die aktuelle Administrationssitzung <strong>über das betroffene Interface</strong>? Ohne gesicherten Rückweg keinerlei trennende Tests.</li>
+</ul>
+<p><strong>Fiktiver Ausgangsbefund:</strong> Ethernet → <code>169.254.83.42 / 255.255.0.0</code>; DHCP aktiviert „Ja“; kein sinnvoller IPv4-Standardgateway auf dem betroffenen Adapter; Sollnetz: <code>192.168.120.0/24</code> (Lernbeispiel). <strong>Zuerst prüfen, ob Ethernet tatsächlich die Schnittstelle ist, die den Ausfall verursacht.</strong></p>
+<h2 id="6-sichere-ausschliesslich-lesende-windows-diagnose">6. Sichere, ausschließlich lesende Windows-Diagnose</h2>
+<p>Alle folgenden Befehle <strong>lesen</strong>, sie lösen keinen Lease-Neubezug aus und ändern keine Netzwerkkonfiguration. Einige Details können vom Betriebssystemstand und den Berechtigungen abhängen. [Q4, Q5]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Windows-11-Client, vorerst nur beobachten
+ipconfig /all
+Get-NetAdapter |
+  Format-Table Name,InterfaceIndex,Status,LinkSpeed -AutoSize
+Get-NetIPInterface -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,InterfaceIndex,ConnectionState,Dhcp
+Get-NetIPAddress -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,IPAddress,PrefixLength,PrefixOrigin,AddressState
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,DestinationPrefix,NextHop,RouteMetric
+Get-Service -Name Dhcp
+</code></pre></div>
+<p><strong>Interpretation – nicht verwechseln:</strong></p>
+<ul>
+<li><code>169.254.x.x</code> mit Maske <code>/16</code> und Anzeige „Autokonfigurations-IPv4-Adresse“ → APIPA-Befund dokumentieren.</li>
+<li><code>Dhcp=Disabled</code> auf <strong>diesem</strong> Interface → zunächst Sollkonfiguration/Alternative Configuration prüfen; nicht behaupten, hier müsse ein normaler DHCP-Ablauf stattfinden.</li>
+<li><code>Status=Disconnected</code> → Link/Assoziation vor DHCP-Diagnose überprüfen.</li>
+<li>Kein Default Gateway <strong>auf diesem Interface</strong> bedeutet nicht, dass auf dem Rechner insgesamt keine Route vorhanden ist; Tabelle pro Interface prüfen.</li>
+<li>Eine IPv6-Konnektivität oder andere funktionierende Netzkarte beweist <strong>nicht</strong>, dass DHCPv4 auf Ethernet funktioniert.</li>
+<li>Eine <code>169.254</code>-Adresse allein belegt noch <strong>keine</strong> konkrete DORA-Paketfolge.</li>
+</ul>
+<p><strong>Bewusst keine „Ein-Klick-Lösung“:</strong> <code>ipconfig /flushdns</code> ändert DNS-Cache, aber <strong>beseitigt nicht</strong> die Ursache einer APIPA-Vergabe. <code>netsh int ip reset</code> oder Treiberdeinstallation sind keine Erstdiagnose.</p>
+<h2 id="7-windows-ereignisprotokolle-und-befundsicherung">7. Windows-Ereignisprotokolle und Befundsicherung</h2>
+<p>Microsoft empfiehlt, DHCP-Clientereignisse unter <strong>Anwendungs- und Dienstprotokolle → Microsoft → Windows → DHCP-Client</strong> in den Kanälen <strong>Admin/Operational</strong> zu untersuchen. Kanalverfügbarkeit und Bezeichnung am Zielsystem prüfen. [Q4]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Vorhandene DHCP-Clientkanäle feststellen (lesend)
+Get-WinEvent -ListLog '*DHCP*' -ErrorAction SilentlyContinue |
+  Select-Object LogName,IsEnabled,RecordCount
+
+# Beispiel nach vorheriger Prüfung des Kanalnamens
+Get-WinEvent -LogName 'Microsoft-Windows-Dhcp-Client/Admin' -MaxEvents 30 |
+  Select-Object TimeCreated,Id,LevelDisplayName,Message
+</code></pre></div>
+<p><strong>Hinweise:</strong> Fehlt der Kanal, nichts erfinden; im Event Viewer die verfügbaren Kanäle prüfen. Fehlermeldung <strong>zeitlich</strong> mit <code>ipconfig</code>-Befund und Netzadapter-ID abgleichen; historische Ereignisse ohne Zeitbezug belegen keine aktuelle Ursache. Für Zuordnung von Adapter-GUID/MAC kann ein berechtigtes L2 zusätzlich <code>Get-NetAdapter -IncludeHidden</code> einsetzen. [Q4]</p>
+<p><strong>Datensparsamkeit:</strong> Hostnamen, interne Adressen, Nutzerkennung, MAC, VLAN und Netzwerktopologie nur in geschützten Tickets erfassen. Öffentlich nur fiktive Daten verwenden.</p>
+<h2 id="8-fehlerpfad-durch-vergleichstests-eingrenzen">8. Fehlerpfad durch Vergleichstests eingrenzen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Messung</th>
+<th>Befund</th>
+<th>Nächster sinnvoller Prüfpunkt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur ein Gerät betroffen</td>
+<td>Vergleichsclient im selben Netz hat Lease</td>
+<td>Adapter, Treiber, lokale DHCP-Einstellung, MAC/NAC, Port</td>
+</tr>
+<tr>
+<td>Nur ein Port oder Dock betroffen</td>
+<td>Direkter Anschluss/anderer Port funktioniert</td>
+<td>Patchung, Portprofil, Dock, USB-Ethernet</td>
+</tr>
+<tr>
+<td>Alle Geräte einer SSID betroffen</td>
+<td>Andere SSID funktioniert</td>
+<td>WLAN-VLAN, NAC-Rolle, DHCP-Relay, Scope</td>
+</tr>
+<tr>
+<td>Alle Geräte eines VLANs betroffen</td>
+<td>Nachbar-VLAN funktioniert</td>
+<td>Relay/IP-Helper, Scope, ACL, DHCP-Snooping</td>
+</tr>
+<tr>
+<td>Viele Segmente betroffen</td>
+<td>Zentrale DHCP-Fehler</td>
+<td>Dienst, Erreichbarkeit, Policy, HA</td>
+</tr>
+<tr>
+<td>APIPA nur auf ungenutztem Adapter</td>
+<td>Produktivinterface hat reguläre IPv4</td>
+<td>Eventuell kein Anwenderproblem; Sollkonfiguration prüfen</td>
+</tr>
+<tr>
+<td>Direkt am lokalen Link ist ein anderes <code>169.254</code>-Gerät erreichbar</td>
+<td>Link-Local-Verkehr möglich</td>
+<td>Kein Nachweis für DHCP- oder routbares Netzwerk</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>A/B-Tests nur im autorisierten Segment:</strong> Ein Gerätewechsel kann 802.1X-, NAC- oder Port-Security-Effekte auslösen. Kein Umstecken zwischen Sicherheitszonen und keine Portanpassung ohne Erlaubnis.</p>
+<h2 id="9-dhcp-verkehr-und-apipa-korrekt-zusammen-interpretieren">9. DHCP-Verkehr und APIPA korrekt zusammen interpretieren</h2>
+<p>Bei <strong>typischer DHCPv4-Neuzuweisung</strong> ist der Austausch:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Client                   VLAN / ggf. DHCP-Relay                DHCP-Server
+  |---- DISCOVER -------------------------------&gt;|
+  |&lt;--- OFFER -----------------------------------|
+  |---- REQUEST --------------------------------&gt;|
+  |&lt;--- ACK -------------------------------------|
+  |      → routbare IPv4-Konfiguration
+
+Fehlschlag: keine nutzbare DHCP-Konfiguration → ggf. APIPA
+</code></pre></div>
+<p><strong>Wichtig:</strong> Das Diagramm ist eine vereinfachte Neubezugsskizze; eine Lease-Verlängerung kann anders ablaufen. Ein APIPA-Befund beweist <strong>nicht</strong>, bei welcher Nachricht die Kommunikation abgebrochen ist. [Q4, Q6]</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Paketbefund (zugelassener Mitschnitt)</th>
+<th>Interpretation / Nachfolgeprüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Discover vom betroffenen Client</td>
+<td>Capturesetup, richtiger Adapter, Schnittstellenstatus, DHCP-Konfiguration/Clientdienst</td>
+</tr>
+<tr>
+<td>Discover am Client, nicht am Server/Relay</td>
+<td>L2-VLAN, NAC, DHCP-Snooping, Relay, ACL, Erfassungsposition</td>
+</tr>
+<tr>
+<td>Discover am Server, kein Offer</td>
+<td>Scope, Dienst, Policy, Bindings, Leases, Serverlogs</td>
+</tr>
+<tr>
+<td>Offer am Server, nicht am Client</td>
+<td>Rückweg, Relay, Filterung, Switch/WLAN</td>
+</tr>
+<tr>
+<td>Request und DHCPNAK</td>
+<td>Serverlog, Subnetz/Leasekonflikt, DHCP-Policy</td>
+</tr>
+<tr>
+<td>ACK am Client, trotzdem APIPA</td>
+<td>Adapter/IP-Konfiguration, DHCP-Clientereignisse, Konfliktmeldungen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wireshark-Filter:</strong> <code>dhcp</code> oder <code>udp.port == 67 || udp.port == 68</code> (nur mit Genehmigung). Vertrauliche Daten im Mitschnitt gemäß betrieblicher Richtlinie behandeln. Microsoft empfiehlt bei komplexen DHCP-Störungen zeitgleiche Client-/Server-Traces. [Q4, Q6]</p>
+<h2 id="10-apipa-arp-und-adresskonflikte">10. APIPA, ARP und Adresskonflikte</h2>
+<p>Link-Local-Adressen werden <strong>nicht</strong> durch einen regulären DHCP-Scope vergeben. Nach RFC 3927 wählt der Host eine Adresse und <strong>prüft mit ARP-Probes</strong>, ob diese bereits verwendet wird. Er muss Konflikte auch während der Verwendung erkennen und angemessen darauf reagieren. [Q3]</p>
+<ul>
+<li>APIPA auf mehreren Geräten heißt nicht, dass sie alle <strong>dieselbe</strong> Adresse verwenden sollen.</li>
+<li>Ein <strong>Ping</strong> zu einer Link-Local-Gegenstelle kann eine begrenzte lokale Verbindung testen, ist aber weder DHCP-Server-Test noch Beweis für korrektes VLAN/DNS/Gateway.</li>
+<li>Ein APIPA-Client kann mit passenden anderen Link-Local-Geräten desselben Links sprechen. <strong>169.254/16 darf nicht geroutet werden.</strong></li>
+<li>Adresskonfliktmeldungen im Clientlog oder ARP-Probes können relevant sein. Blindes Setzen einer statischen <code>169.254</code>-Adresse ist <strong>keine Standardreparatur</strong>.</li>
+</ul>
+<h2 id="11-sicherheitsgate-und-abgestufte-massnahmen">11. Sicherheitsgate und abgestufte Maßnahmen</h2>
+<p><strong>Stufe A – keine Konfigurationsänderung:</strong> Sollnetz/Berechtigungen prüfen, <code>ipconfig /all</code>, Adapter- und Logzustand auswerten, freigegebene Vergleichstests durchführen, DHCP-Paketpfad belegen.</p>
+<p><strong>Stufe B – begrenzte Clientkorrektur nach Freigabe:</strong> Ausgewähltes Gerät/Interface, dokumentierte DHCP-Einstellung, genehmigte Kabel-/Port-/Dock-Korrektur. <code>ipconfig /renew "Ethernet"</code> ist <strong>aktiv</strong>, nicht lesend; es kann die Netzverbindung verändern. <code>ipconfig /release</code> kann einen bestehenden Lease aufheben und <strong>den einzigen Fernzugang unterbrechen</strong>. [Q5]</p>
+<p><strong>Stufe C – Infrastrukturmaßnahmen durch Owner:</strong> VLAN-/SSID-/NAC-Rolle, Relay, DHCP-Scope/-Bindung, Reservierung, Serverrichtlinien und Filter nach Change-Verfahren korrigieren. Keine pauschale Abschaltung von Sicherheitsmechanismen, keine ungeprüften statischen Ersatzadressen.</p>
+<p><strong>Stoppkriterien:</strong> einziger Fernzugang, fehlende Freigabe, produktionskritische Systeme, nicht dokumentierte VLAN-Änderung, sensible Netzsegmente oder Risiko eines größeren Ausfalls. An zuständigen Owner eskalieren.</p>
+<h2 id="12-erfolgskontrolle-technische-ursache-statt-bloss-netz-geht-wieder">12. Erfolgskontrolle – technische Ursache statt bloß „Netz geht wieder“</h2>
+<p>Nach genehmigter Korrektur am <strong>ursprünglichen</strong> Anschluss und mit dem <strong>ursprünglichen</strong> Benutzer-/Geräteprofil:</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffener Adapter hat nun die <strong>erwartete IPv4-Adresse</strong> aus dem dokumentierten DHCP-Scope, nicht nur irgendeine andere Adresse.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Präfix/Netzmaske, Gateway, DNS-Server, DHCP-Server und Lease-Zeit sind plausibel.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>DHCP-Clientereignisse beziehungsweise Mitschnitt passen zur belegten Ursache; keine neue Fehlerserie.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gateway/Netzpfad, interne DNS-Auflösung (RB-034) und die <strong>ursprünglich betroffene Anwendung</strong> funktionieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Der Effekt ist reproduzierbar, bei Bedarf auch nach erlaubtem Neustart oder erneuter Verbindung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Im Ticket stehen <strong>Vorher/Nachher</strong>, Testergebnis, verantwortlicher Owner, Freigabe und Benutzerbestätigung.</li>
+</ul>
+<p><strong>Achtung:</strong> Wenn ein Laptop über WLAN erreichbar ist, obwohl Ethernet auf APIPA steht, ist ein allgemeiner Internet-Ping <strong>kein</strong> Beleg, dass Ethernet repariert wurde. Die Tests gezielt am richtigen Interface und mit dem richtigen Pfad ausführen.</p>
+<h2 id="13-zwei-fiktive-praxisfalle-zum-transfer">13. Zwei fiktive Praxisfälle zum Transfer</h2>
+<h3 id="musterfall-a-nur-ein-arbeitsplatz-betroffen">Musterfall A – Nur ein Arbeitsplatz betroffen</h3>
+<p><strong>Meldung:</strong> Ein PC am freigegebenen Arbeitsplatzport hat <code>169.254.83.42</code>; zwei andere Geräte im selben VLAN erhalten reguläre DHCP-Leases.</p>
+<p><strong>Hypothesen:</strong> (1) Kabel/Dock/USB-Ethernet, (2) Clientkonfiguration, (3) Port-/NAC-Profil. <strong>Test:</strong> Ein bekannt intaktes Clientgerät wird nach Freigabe am gleichen Port geprüft, der betroffene PC am genehmigten Vergleichsport. <strong>Fiktiver Befund:</strong> Vergleichsgerät funktioniert am Originalport; betroffener PC bleibt auf APIPA, auch am Vergleichsport. Die lesende Kontrolle zeigt einen fehlerhaften lokalen Netzwerkadapterzustand. <strong>Korrektur:</strong> IT-Administration führt nach Freigabe gerätespezifische Maßnahme aus. <strong>Retest:</strong> Erwartete DHCP-Lease sowie Anwendungszugriff werden nachgewiesen.</p>
+<p><strong>Lernfrage:</strong> Weshalb beweist die Beobachtung „Andere Clients im VLAN funktionieren“ nicht automatisch, dass am betroffenen Port alles korrekt ist?</p>
+<h3 id="musterfall-b-alle-gerate-in-einem-vlan-betroffen">Musterfall B – Alle Geräte in einem VLAN betroffen</h3>
+<p><strong>Meldung:</strong> Nach einem dokumentierten Netzumbau erhalten alle Windows-Clients in VLAN 120 APIPA; VLAN 110 funktioniert.</p>
+<p><strong>Hypothesen:</strong> (1) DHCP-Relay fehlt, (2) Scope unbrauchbar, (3) DHCP-Snooping/ACL blockiert. <strong>Test:</strong> Zeitgleicher Client-/Relay-/Servermitschnitt nach Genehmigung. <strong>Fiktiver Befund:</strong> Discover erreicht das VLAN-Gateway, wird aber mangels dokumentiertem IP-Helper nicht an den DHCP-Server weitergeleitet. <strong>Korrektur:</strong> Netzwerk-Owner korrigiert Relay mit Change. <strong>Retest:</strong> Client erhält Lease aus <code>192.168.120.0/24</code>, interne Verbindung und DNS werden bestätigt.</p>
+<p><strong>Lernfrage:</strong> Was wäre anders zu prüfen, wenn der Server <em>sehr wohl</em> ein Offer sendet, der Client es jedoch nicht empfängt?</p>
+<p><strong>Alle Musterbefunde sind ausdrücklich erfunden und keine durchgeführten Labortests.</strong></p>
+<h2 id="14-active-recall-self-explanation-und-diagnosekarten">14. Active Recall, Self-Explanation und Diagnosekarten</h2>
+<p><strong>Wissenskarten (kurze Antworten):</strong></p>
+<ol>
+<li><strong>Was bedeutet APIPA?</strong> — Automatische IPv4-Link-Local-Adressierung ohne brauchbare reguläre IPv4-Konfiguration.</li>
+<li><strong>Welcher Adressbereich?</strong> — <code>169.254.0.0/16</code>.</li>
+<li><strong>Welche Maske?</strong> — Typischerweise <code>255.255.0.0</code>.</li>
+<li><strong>Dürfen Router Link-Local-Pakete weiterleiten?</strong> — Nein.</li>
+<li><strong>Welcher Windows-Befehl zeigt die Autokonfigurationsadresse?</strong> — <code>ipconfig /all</code>.</li>
+</ol>
+<p><strong>Verständniskarten:</strong></p>
+<ol start="6">
+<li><strong>Warum ist APIPA nicht automatisch „DHCP-Server defekt“?</strong> — Client, VLAN/Relay, Filter und Rückweg können ebenfalls ursächlich sein.</li>
+<li><strong>Warum kann WLAN funktionieren, Ethernet aber APIPA zeigen?</strong> — Getrennte Interfaces/Adressvergaben.</li>
+<li><strong>Wozu dienen ARP-Probes?</strong> — Konfliktprüfung einer ausgewählten Link-Local-Adresse.</li>
+<li><strong>Wieso reicht ein Internet-Ping nicht als Ethernet-Retest?</strong> — Der Ping kann über eine andere Schnittstelle laufen.</li>
+</ol>
+<p><strong>Diagnosekarten:</strong></p>
+<ol start="10">
+<li><strong>Nur ein Client APIPA, andere im VLAN okay: erster trennender Test?</strong> — Adapter/Port-Vergleich im genehmigten Segment.</li>
+<li><strong>Alle Clients eines VLANs APIPA: nächster Prüfpunkt?</strong> — Relay/IP-Helper, Scope und Netzwerkfilter.</li>
+<li><strong>Discover am Server sichtbar, Offer bleibt aus: wo suchen?</strong> — DHCP-Serverdienst, Scope, Policy, Bindung und Logs.</li>
+<li><strong>Offer am Server, nicht am Client: was prüfen?</strong> — Rückweg, Relay/VLAN, ACL/DHCP-Snooping.</li>
+<li><strong>Welcher Schritt ist vor <code>ipconfig /release</code> über Fernzugriff nötig?</strong> — Alternativen Rückweg/Freigabe sichern.</li>
+</ol>
+<p><strong>Self-Explanation (90 Sekunden):</strong> Erkläre ohne Spickzettel: „Was bedeutet <code>169.254/16</code>, was bedeutet es <strong>nicht</strong> und welche zwei Tests trennen Client- von Infrastrukturfehlern?“ Danach erst mit den Quellen vergleichen. Nach 7 und 21 Tagen ein neues, gemischtes DHCP-/DNS-/APIPA-Fehlerbild ohne Lösungsblatt bearbeiten.</p>
+<h2 id="15-quellen-fachstand-und-validierungsplan">15. Quellen, Fachstand und Validierungsplan</h2>
+<p><strong>Offizielle technische Grundlagen (abgerufen am 22.11.2026):</strong></p>
+<ul>
+<li><strong>[Q1] Microsoft Learn – APIPA/automatische TCP/IP-Adressierung:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/troubleshoot/how-to-use-automatic-tcpip-addressing-without-a-dh" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/troubleshoot/how-to-use-automatic-tcpip-addressing-without-a-dh</a></li>
+<li><strong>[Q2] Microsoft Learn – DHCP-Problembehandlungsleitfaden:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/troubleshoot/troubleshoot-dhcp-issue" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/troubleshoot/troubleshoot-dhcp-issue</a></li>
+<li><strong>[Q3] IETF RFC 3927 – Dynamic Configuration of IPv4 Link-Local Addresses:</strong> <a href="https://www.rfc-editor.org/rfc/rfc3927.html" rel="noopener noreferrer" target="_blank">https://www.rfc-editor.org/rfc/rfc3927.html</a></li>
+<li><strong>[Q4] Microsoft Learn – DHCP-Clientprobleme:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-problems-dhcp-client" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-problems-dhcp-client</a></li>
+<li><strong>[Q5] Microsoft Learn – <code>ipconfig</code>:</strong> <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig</a></li>
+<li><strong>[Q6] Microsoft Learn – Guidance for troubleshooting DHCP:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance</a></li>
+<li><strong>[Q7] Microsoft Learn – DHCP-Serverprobleme:</strong> <a href="https://learn.microsoft.com/de-de/windows-server/troubleshoot/troubleshoot-problems-on-dhcp-server" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/troubleshoot/troubleshoot-problems-on-dhcp-server</a></li>
+<li><strong>[Q8] Microsoft Learn – Windows Networking Data Collection:</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/windows-tss/collect-data-analyze-troubleshoot-windows-networking-scenarios" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/windows-tss/collect-data-analyze-troubleshoot-windows-networking-scenarios</a></li>
+</ul>
+<p><strong>Was die Recherche liefert:</strong> begründete APIPA-Einordnung, Soll-/Ist-Vergleiche, lesende Windows-Diagnose und sichere Eskalationslogik. <strong>Was sie nicht liefert:</strong> praktische Bestätigung für eine bestimmte Windows-11-Version, Hardware, VLAN-Konfiguration oder produktive Umgebung.</p>
+<p><strong>Labortest – erst später:</strong> in isolierter Umgebung (z. B. Windows-Client + freigegebenes Testnetz/DHCP) gezielt eine fehlende DHCP-Antwort simulieren; APIPA und Ereignisse dokumentieren; Ursache korrigieren; gültige Lease, DNS und Geschäftsfunktion nachweisen. Keine Produktivänderungen ohne Freigabe.</p>
+<p><strong>Bildnachweisvorschlag:</strong> „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-036_Lernartikel.md">RB-036_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-035/index.html">← Ticket 35</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-037/index.html">Ticket 37 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

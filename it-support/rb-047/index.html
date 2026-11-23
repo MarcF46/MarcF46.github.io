@@ -1,0 +1,268 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 47: TLS-Zertifikat ungültig oder abgelaufen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 47: TLS-Zertifikat ungültig oder abgelaufen. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 47: TLS-Zertifikat ungültig oder abgelaufen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</a></li><li><a href="#2-was-beim-aufbau-einer-https-verbindung-gepruft-wird">2. Was beim Aufbau einer HTTPS-Verbindung geprüft wird</a></li><li><a href="#3-sechs-fehlerklassen-die-ahnlich-aussehen-konnen">3. Sechs Fehlerklassen, die ähnlich aussehen können</a></li><li><a href="#4-ticketaufnahme-exakt-reproduzierbar-ohne-geheimnisse">4. Ticketaufnahme: exakt, reproduzierbar, ohne Geheimnisse</a></li><li><a href="#5-sicherheitscheck-vor-jeder-korrektur">5. Sicherheitscheck vor jeder Korrektur</a></li><li><a href="#6-client-dns-uhrzeit-und-tcp-getrennt-prufen">6. Client, DNS, Uhrzeit und TCP getrennt prüfen</a></li><li><a href="#7-das-tatsachlich-vom-remote-endpunkt-gesendete-zertifikat-prufen">7. Das tatsächlich vom Remote-Endpunkt gesendete Zertifikat prüfen</a></li><li><a href="#8-gultigkeitsfenster-und-hostnamen-san-korrekt-interpretieren">8. Gültigkeitsfenster und Hostnamen/SAN korrekt interpretieren</a></li><li><a href="#9-zertifikatskette-vertrauensanker-und-sperrprufung">9. Zertifikatskette, Vertrauensanker und Sperrprüfung</a></li><li><a href="#10-iis-reverse-proxy-load-balancer-zertifikat-installiert-zertifikat-aktiv">10. IIS, Reverse Proxy, Load Balancer: Zertifikat installiert ≠ Zertifikat aktiv</a></li><li><a href="#11-tls-handshakes-und-schannel-meldungen-richtig-abgrenzen">11. TLS-Handshakes und Schannel-Meldungen richtig abgrenzen</a></li><li><a href="#12-entscheidungsmatrix-gesicherter-befund-passende-massnahme">12. Entscheidungsmatrix: gesicherter Befund → passende Maßnahme</a></li><li><a href="#13-zwei-fiktive-praxisfalle-mit-diagnosebegrundung">13. Zwei fiktive Praxisfälle mit Diagnosebegründung</a></li><li><a href="#14-active-recall-self-explanation-und-transfer">14. Active Recall, Self-Explanation und Transfer</a></li><li><a href="#15-quellen-qualitats-und-validierungsstatus">15. Quellen, Qualitäts- und Validierungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0 · <strong>Systeme:</strong> Windows 11, Windows Server/IIS, HTTPS/TLS, Reverse Proxy und Load Balancer; ergänzend OpenSSL und Linux<br/>
+<strong>Status:</strong> Offizielle Hersteller- und Protokolldokumentation recherchiert und theoretisch nachvollzogen; <strong>noch nicht praktisch validiert</strong>. Alle Hostnamen, IP-Adressen, Zertifikatsdaten und Tickets sind <strong>fiktiv</strong>. Keine produktive PKI-/TLS-Konfiguration wurde verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb047_henne_ei_tls_zertifikat.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-047 – Henne-und-Ei-Infografik: TLS-Zertifikatsfehler systematisch eingrenzen" decoding="async" loading="lazy" src="assets/rb047_henne_ei_tls_zertifikat.webp"/></a></div><figcaption>RB-047 – Henne-und-Ei-Infografik: TLS-Zertifikatsfehler systematisch eingrenzen</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>HTTPS-Port erreichbar ≠ TLS-Aushandlung erfolgreich ≠ Zertifikat gültig ≠ Gegenstelle vertrauenswürdig ≠ Anwendung funktionsfähig.</strong> Jede Aussage braucht ihren eigenen Nachweis.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</h2>
+<p><strong>Fiktives Eingangsticket:</strong> „Beim Öffnen von <code>https://portal.example.test/</code> erscheint seit heute ‚Verbindung nicht privat‘. Andere interne Webseiten funktionieren. Gestern wurde am Webserver ein Zertifikat erneuert.“</p>
+<p><strong>Lernziel:</strong> Die erste fehlerhafte Validierungsebene nachweisen: Netzwerkverbindung, TLS-Aushandlung, Hostname/SNI, Gültigkeitszeitraum, Zertifikatskette und Vertrauensspeicher, serverseitige Zertifikatsbindung oder Anwendung. Danach <strong>minimalinvasiv</strong>, mit Genehmigung, korrigieren und den geschützten Zugriff ohne Ausnahmen wiederherstellen.</p>
+<p><strong>Abgrenzung:</strong> RB-034 behandelt DNS-Auflösung, RB-038 die allgemeine Servererreichbarkeit, RB-039 TCP-Port und Listener. RB-047 setzt dort an, wo eine gesicherte Verbindung aufgebaut werden soll und ein Zertifikats- oder TLS-Validierungsfehler vermutet wird. Ein reiner TLS-Protokoll-/Cipher-Mismatch ist ein eigener Diagnosezweig und <strong>kein Beweis für ein schlechtes Zertifikat</strong>.</p>
+<p><strong>Scope:</strong> Primär HTTPS auf Port 443, mit Blick auf IIS, Reverse Proxies und TLS-terminierende Load Balancer. Bei SMTP/LDAPS gelten ähnliche Zertifikatsgrundsätze, die Prüfbefehle und Dienste unterscheiden sich.</p>
+<h2 id="2-was-beim-aufbau-einer-https-verbindung-gepruft-wird">2. Was beim Aufbau einer HTTPS-Verbindung geprüft wird</h2>
+<p>Vereinfachter Ablauf:</p>
+<ol>
+<li>Der Client löst den <strong>FQDN</strong> auf und stellt eine TCP-Verbindung zur Ziel-IP und zum Zielport her.</li>
+<li>Im TLS-Handshake kann der Client über <strong>SNI</strong> den gewünschten Hostnamen angeben; die TLS-terminierende Gegenstelle wählt das dazu konfigurierte Zertifikat.</li>
+<li>Der Server präsentiert sein <strong>End-Entity-/Leaf-Zertifikat</strong> und üblicherweise die benötigten <strong>Intermediate-Zertifikate</strong>.</li>
+<li>Der Client überprüft <strong>Hostname</strong>, <strong>Gültigkeitszeit</strong>, <strong>Zertifikatszweck</strong>, <strong>Signatur und Zertifikatskette</strong>, Vertrauensanker und – je nach Software und Richtlinie – <strong>Sperrstatus</strong>.</li>
+<li>Erst bei passender und akzeptierter TLS-Verbindung folgt die <strong>HTTP-Anfrage</strong>; dabei kann noch ein HTTP- oder Anwendungsfehler auftreten.</li>
+</ol>
+<p>Die Kette ist vereinfacht: Manche TLS-Versionen und Produkte kombinieren Handshake-Nachrichten unterschiedlich; die Validierungsprinzipien bleiben relevant. Wichtig ist, <strong>welche Komponente TLS terminiert</strong>: Das ist bei CDN, WAF, Reverse Proxy oder Application Gateway nicht zwingend der eigentliche Applikationsserver. [Q1][Q2][Q3]</p>
+<h2 id="3-sechs-fehlerklassen-die-ahnlich-aussehen-konnen">3. Sechs Fehlerklassen, die ähnlich aussehen können</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Fehlerklasse</th>
+<th>Typischer Befund</th>
+<th>Nächster Nachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ablaufdatum</strong></td>
+<td><code>notAfter</code> liegt vor dem Prüfzeitpunkt; Zertifikatswarnung</td>
+<td>Remote präsentiertes Leaf prüfen, Uhrzeit beachten</td>
+</tr>
+<tr>
+<td><strong>Noch nicht gültig / Systemuhr</strong></td>
+<td><code>notBefore</code> liegt in der Zukunft oder Clientuhr ist falsch</td>
+<td>UTC-Zeit von Client/Server und Gültigkeitsfenster prüfen</td>
+</tr>
+<tr>
+<td><strong>Hostname/SAN</strong></td>
+<td>Aufgerufener FQDN fehlt im Subject Alternative Name</td>
+<td>Ziel-URL, SAN, SNI und Proxy-/IIS-Bindung vergleichen</td>
+</tr>
+<tr>
+<td><strong>Unvollständige/nicht vertraute Kette</strong></td>
+<td>Intermediate fehlt, CA nicht vertrauenswürdig</td>
+<td>Gelieferte Kette und zulässigen Client-Trust-Store vergleichen</td>
+</tr>
+<tr>
+<td><strong>Sperr-/Statusprüfung</strong></td>
+<td>CRL/OCSP-Validierung schlägt je nach Client/Policy fehl</td>
+<td>Sicherheits-/PKI-Verantwortliche und detaillierte Fehler prüfen</td>
+</tr>
+<tr>
+<td><strong>Kein korrekter TLS-Dienst</strong></td>
+<td>TCP geht, TLS-Handshake scheitert vor/nach Zertifikat oder falscher Endpunkt</td>
+<td>Listener, Version, Cipher, SNI, TLS-Terminierung, Schannel-Ereignisse</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Ein Zertifikat mit künftigem <code>notAfter</code> ist nicht automatisch vertrauenswürdig. Ein erfolgreiches <code>Test-NetConnection ... -Port 443</code> beweist nur den TCP-Connect, keine Zertifikatsprüfung. Ein <code>HTTP 500</code> nach erfolgreichem HTTPS-Handschlag gehört in die Anwendungsdiagnose. [Q2][Q4]</p>
+<h2 id="4-ticketaufnahme-exakt-reproduzierbar-ohne-geheimnisse">4. Ticketaufnahme: exakt, reproduzierbar, ohne Geheimnisse</h2>
+<p>Erfassen:</p>
+<ul>
+<li><strong>Exakte URL/FQDN, Port, Umgebung:</strong> interne/externe URL, DNS-Ziel, VPN, Standort, Proxy/WAF/Load Balancer.</li>
+<li><strong>Auswirkung:</strong> ein Client oder viele, nur Browser oder auch APIs/Agenten, ein Hostname oder mehrere.</li>
+<li><strong>Exakte Warnung:</strong> Wortlaut/Fehlercode, Screenshot mit geschwärzten Benutzerinformationen, Uhrzeit inklusive Zeitzone.</li>
+<li><strong>Änderungen:</strong> Zertifikatserneuerung, neues Hosting, neue Proxy-/SNI-Regel, CA-Rotation, Windows-/Browserupdate, Uhrzeitabweichung.</li>
+<li><strong>Zertifikatsmetadaten:</strong> Subject/SAN, Issuer, <code>notBefore</code>, <code>notAfter</code>, SHA-256-Fingerprint; ggf. Thumbprint der Serverbindung.</li>
+<li><strong>Grenze:</strong> <strong>Keine privaten Schlüssel, <code>.pfx</code>-Passwörter, Tokens oder Session-Cookies</strong> in Tickets, Screenshots oder Chatprotokolle kopieren.</li>
+</ul>
+<p>Fiktive Platzhalter: <code>portal.example.test</code> und <code>192.0.2.10</code> sind Dokumentationswerte, <strong>kein</strong> realer produktiver Endpoint.</p>
+<h2 id="5-sicherheitscheck-vor-jeder-korrektur">5. Sicherheitscheck vor jeder Korrektur</h2>
+<p><strong>Zuerst nur lesende Prüfungen.</strong> Zertifikatswarnungen nicht durch „Trotzdem fortfahren“, <code>curl -k</code>, Abschalten von Trust-/Hostname-Checks oder pauschales Importieren fremder Root-CAs umgehen. Keine TLS-Versionen, Windows-Schannel-Registry-Einträge, HSTS-Einstellungen oder Zertifikatspeicher auf Verdacht verändern.</p>
+<p>Bei produktiver Änderung vorab prüfen: <strong>Eigentümer der Domain, Zertifikats-/PKI-Verantwortliche, Change-Freigabe, Wartungsfenster, alte/funktionierende Bindung als Rollback, private Schlüssel sicher vorhanden, alle TLS-Endpunkte und abhängige Systeme bekannt.</strong> Bei internem CA-Ausfall an PKI/Security eskalieren.</p>
+<p><strong>STOP:</strong> Unbekannte CA, verdächtige oder unerwartete Zertifikatsänderung, möglicher Man-in-the-Middle/Proxy-Eingriff, kompromittierter Schlüssel oder ungeklärte Identität der Gegenstelle → Security/PKI einschalten. Nicht einfach eine Ausnahme freigeben.</p>
+<h2 id="6-client-dns-uhrzeit-und-tcp-getrennt-prufen">6. Client, DNS, Uhrzeit und TCP getrennt prüfen</h2>
+<p><strong>Lesende Windows-/PowerShell-Prüfungen</strong> am autorisierten Client:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Systemzeit und Synchronisierungsstatus:
+Get-Date
+w32tm /query /status
+
+# LESEND – Auflösung und TCP-Zugänglichkeit:
+Resolve-DnsName -Name portal.example.test
+Test-NetConnection -ComputerName portal.example.test -Port 443
+
+# LESEND – lokaler Zertifikatsbestand (nicht automatisch Remote-Zertifikat!):
+Get-ChildItem Cert:\LocalMachine\My -ErrorAction SilentlyContinue |
+  Select-Object Subject, Thumbprint, NotBefore, NotAfter, HasPrivateKey |
+  Sort-Object NotAfter
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>TcpTestSucceeded : True</code> sagt nichts über Zertifikatsvalidität. <code>Get-ChildItem Cert:</code> liest nur den <strong>lokalen</strong> Zertifikatspeicher; das remote tatsächlich präsentierte Zertifikat muss separat geprüft werden. Eine falsche Systemuhr kann zeitbezogene Zertifikatsfehler verursachen; sie darf in verwalteten Umgebungen nicht ohne Analyse der Zeitquelle „frei Hand“ verstellt werden. [Q4][Q5]</p>
+<h2 id="7-das-tatsachlich-vom-remote-endpunkt-gesendete-zertifikat-prufen">7. Das tatsächlich vom Remote-Endpunkt gesendete Zertifikat prüfen</h2>
+<p>Die wichtigste Frage ist nicht „Welches Zertifikat wurde irgendwo installiert?“, sondern: <strong>Welches Zertifikat erhält dieser Client bei genau diesem Hostnamen?</strong></p>
+<p><strong>Lesende OpenSSL-Prüfung</strong> (OpenSSL muss installiert sein; auf Linux/macOS im Terminal, auf Windows in einer geeigneten OpenSSL-Umgebung):</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bash</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bash"># LESEND – TLS-Verbindung und Validierung für den erwarteten Hostnamen;
+# Beispiel-Domain ersetzen, ohne -verify_return_error kann s_client
+# trotz Zertifikatsproblemen weiterverhandeln, daher hier explizit:
+openssl s_client -connect portal.example.test:443 \
+  -servername portal.example.test \
+  -verify_hostname portal.example.test \
+  -verify_return_error -showcerts &lt;/dev/null
+</code></pre></div>
+<p><code>-servername</code> steuert <strong>SNI</strong> (Zertifikatsauswahl am Ziel); <code>-verify_hostname</code> prüft zusätzlich den erwarteten Zertifikatsnamen. <code>-showcerts</code> zeigt die vom Server präsentierte Kette; dabei nicht annehmen, dass ein <code>Verify return code: 0</code> automatisch den gewünschten HTTP-Anwendungszugriff beweist. Trust-Stores von OpenSSL und dem tatsächlichen Windows-/Browser-Client können voneinander abweichen. [Q6]</p>
+<p><strong>Zertifikat aus einer zuvor gesicherten, unkritischen PEM-Datei lesen:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bash</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bash"># LESEND – nur öffentliche Zertifikatsmetadaten, kein privater Schlüssel:
+openssl x509 -in server-leaf.pem -noout -subject -issuer -dates \
+  -ext subjectAltName -fingerprint -sha256
+</code></pre></div>
+<p>Wichtig: Ein PEM-Export von <code>s_client -showcerts</code> kann mehrere Zertifikate enthalten; beim Leaf-Zertifikat das richtige Zertifikat auswählen. Das Zertifikat ist grundsätzlich öffentlich, trotzdem unternehmensinterne Metadaten vertraulich behandeln. [Q7]</p>
+<h2 id="8-gultigkeitsfenster-und-hostnamen-san-korrekt-interpretieren">8. Gültigkeitsfenster und Hostnamen/SAN korrekt interpretieren</h2>
+<p><strong>Gültigkeit:</strong> <code>notBefore</code> markiert den Beginn und <code>notAfter</code> das Ende der Gültigkeitsdauer; Zertifikatszeiten werden in der Regel als UTC-Werte ausgegeben. Das Zertifikat darf <strong>nicht vor</strong> <code>notBefore</code> und <strong>nicht nach</strong> <code>notAfter</code> als zeitlich gültig gelten. Bei Abweichung zwischen Server-, Client- und vertrauenswürdiger Zeitquelle Ursache der Synchronisierung untersuchen.</p>
+<p><strong>Hostname:</strong> Der beim Zugriff verwendete Host muss zur <strong>Subject Alternative Name (SAN)</strong>-Liste passen. Beispiele:</p>
+<ul>
+<li>URL <code>https://portal.example.test</code> → SAN benötigt passende DNS-Identität <code>portal.example.test</code> oder eine zulässig passende Wildcard.</li>
+<li>SAN <code>www.example.test</code> deckt <code>portal.example.test</code> <strong>nicht</strong> ab.</li>
+<li><code>*.example.test</code> deckt in der üblichen DNS-Namensprüfung <code>portal.example.test</code> ab, aber nicht <code>example.test</code> oder <code>a.b.example.test</code>.</li>
+<li>Zugriff direkt auf eine <strong>IP-Adresse</strong> benötigt bei normgerechter IP-Identitätsprüfung einen passenden iPAddress-SAN; ein DNS-SAN für die Website ist kein Ersatz.</li>
+</ul>
+<p>Bei Reverse Proxy/Load Balancer müssen <strong>Client-URL, SNI, Zertifikats-SAN und konkrete Listener-/Host-Bindung</strong> zusammenpassen. [Q2][Q8]</p>
+<h2 id="9-zertifikatskette-vertrauensanker-und-sperrprufung">9. Zertifikatskette, Vertrauensanker und Sperrprüfung</h2>
+<p>Vereinfacht: <strong>Leaf → Zwischen-CA(s) → vertrauenswürdige Root-CA</strong>. In vielen Webserver-Konfigurationen sendet der Server Leaf <strong>plus Intermediate(s)</strong>, aber nicht notwendigerweise die Root-CA. Der Client muss die Kette zu einem <strong>bereits vertrauenswürdigen</strong> Anker validieren können. [Q3]</p>
+<p>Ursachen für unterschiedliche Clientergebnisse:</p>
+<ul>
+<li>Eine Intermediate-CA fehlt am Server, ist aber auf einem Testclient zufällig bereits gecacht.</li>
+<li>Eine interne CA wird von verwalteten Clients vertraut, aber nicht von einem externen/unverwalteten Gerät.</li>
+<li>TLS-Inspektion ersetzt aus Sicht des Clients das ausgestellte Serverzertifikat durch ein Proxy-Zertifikat; nur nach genehmigter Unternehmensrichtlinie vertrauenswürdig.</li>
+<li>Ketten-, Sperrstatus- oder Richtlinienprüfung unterscheidet sich nach Client, Trust Store und Netzwerkzugang zu CRL/OCSP.</li>
+</ul>
+<p><strong>Nicht zulässig als generischer Fix:</strong> Zertifikatsprüfung ausschalten oder eine unbekannte Root-CA global als vertrauenswürdig eintragen. Ein fehlendes Intermediate gehört auf die korrekte Server-/Proxy-Konfiguration; Trust-Anker unterliegen PKI-/Security-Vorgaben. [Q3][Q9]</p>
+<h2 id="10-iis-reverse-proxy-load-balancer-zertifikat-installiert-zertifikat-aktiv">10. IIS, Reverse Proxy, Load Balancer: Zertifikat installiert ≠ Zertifikat aktiv</h2>
+<p>Ein neu ausgestelltes Zertifikat kann korrekt im Zertifikatspeicher liegen, <strong>während eine alte Bindung weiterhin das abgelaufene Zertifikat ausliefert</strong>. Das ist ein klassischer L2-Befund.</p>
+<p><strong>Lesende Prüfung am autorisierten IIS-/HTTP.sys-Server:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Windows-Zertifikatsbestand (ggf. auch WebHosting-Store prüfen):
+Get-ChildItem Cert:\LocalMachine\My -ErrorAction SilentlyContinue |
+  Select-Object Subject, Thumbprint, NotAfter, HasPrivateKey
+
+# LESEND – HTTP.sys-SSL-Bindungen einschließlich Hostname:Port:
+netsh http show sslcert
+
+# LESEND – falls IIS-WebAdministration installiert ist:
+Get-WebBinding -Protocol https |
+  Select-Object protocol, bindingInformation, sslFlags
+</code></pre></div>
+<p><strong>Vergleich:</strong> SHA-1-Windows-Thumbprint des installierten/bindenden Zertifikats und SHA-256-Fingerprint des remote präsentierten Zertifikats sind <strong>unterschiedliche Hashverfahren</strong>; nicht blind 1:1 vergleichen. Für einen Abgleich denselben Algorithmus oder eindeutige Seriennummer + Issuer + Subject verwenden.</p>
+<p>Zusätzlich bei Proxy/LB/CDN prüfen: Frontend- und Backend-Zertifikat getrennt, SNI-/Hostzuordnung, mehrere Nodes/Regionen, aktives Secret/Key-Vault-Objekt, neu geladene Konfiguration und gegebenenfalls Backend-Health-Checks. Ein gültiges Frontend-Zertifikat beweist nicht die Integrität der Backend-TLS-Kette. [Q1][Q8][Q10]</p>
+<h2 id="11-tls-handshakes-und-schannel-meldungen-richtig-abgrenzen">11. TLS-Handshakes und Schannel-Meldungen richtig abgrenzen</h2>
+<p>Nicht jeder Fehler an Port 443 ist ein Zertifikatsfehler. Beispiele: <strong>TLS-Version/Cipher Suite ohne gemeinsame Schnittmenge</strong>, falscher Port, fehlende Private-Key-Berechtigung des Dienstkontos, SNI-Routing, Serverprozess gestoppt oder Proxy-Abbruch. Microsoft erläutert Schannel-Ereignisse und zugehörige TLS-Fehlercodes. [Q4][Q11]</p>
+<p><strong>Lesende Windows-Ereignisabfrage:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – vorhandene Schannel-Ereignisse der letzten 24 Stunden;
+# Treffer allein beweisen noch nicht den Zusammenhang mit diesem Ziel:
+Get-WinEvent -FilterHashtable @{
+  LogName='System'; ProviderName='Schannel';
+  StartTime=(Get-Date).AddDays(-1)
+} -MaxEvents 40 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<p><strong>Wichtig:</strong> Ereignisse mit Uhrzeit, Quell-/Zielkontext und einem reproduzierten Test korrelieren; die alleinige Ereignis-ID ist häufig zu unspezifisch. Schannel-Logging nicht ohne Change erweitern; es kann Auswirkungen auf Protokollvolumen haben. [Q4]</p>
+<h2 id="12-entscheidungsmatrix-gesicherter-befund-passende-massnahme">12. Entscheidungsmatrix: gesicherter Befund → passende Maßnahme</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gesicherter Befund</th>
+<th>Fachliche Folgerung</th>
+<th>Genehmigungspflichtige Korrektur (Beispiele)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Remote <code>notAfter</code> überschritten</td>
+<td>Ausgeliefertes Leaf abgelaufen</td>
+<td>Zertifikat erneuern, <strong>richtige</strong> TLS-Bindung/Endpunkte aktualisieren</td>
+</tr>
+<tr>
+<td>Remote <code>notBefore</code> in Zukunft</td>
+<td>Zeit-/Ausstellungsproblem möglich</td>
+<td>Zeitquelle analysieren oder korrekt ausgestelltes Zertifikat bereitstellen</td>
+</tr>
+<tr>
+<td>SAN passt nicht zu FQDN</td>
+<td>Hostname/Bindung/SNI falsch</td>
+<td>Passendes Zertifikat oder korrekte Hostbindung bereitstellen</td>
+</tr>
+<tr>
+<td>Intermediate fehlt / Root nicht vertraut</td>
+<td>Ketten- oder PKI-Vertrauensproblem</td>
+<td>Chain am TLS-Endpunkt korrigieren, PKI-Vorgaben für Trust beachten</td>
+</tr>
+<tr>
+<td>Nur einzelne Clients betroffen</td>
+<td>Unterschied bei Uhrzeit, Trust Store, Proxy oder Filter</td>
+<td>Clientvergleich, Verwaltung/PKI prüfen, keine Ausnahme setzen</td>
+</tr>
+<tr>
+<td>Nur ein LB-Node liefert altes Zertifikat</td>
+<td>Unterschiedliche TLS-Endpunkte</td>
+<td>Gezieltes Rollout/Binding auf betroffener Node korrigieren</td>
+</tr>
+<tr>
+<td>TLS gültig, HTTP/API scheitert</td>
+<td>Keine nachgewiesene Zertifikatsstörung</td>
+<td>Anwendung, Authentifizierung, Backend weiterdiagnostizieren</td>
+</tr>
+<tr>
+<td>Handshake scheitert vor Zertifikatsprüfung</td>
+<td>Möglicher TLS-/Cipher-/Listenerfehler</td>
+<td>Schannel/Server/Proxy nachweisorientiert untersuchen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Generell:</strong> Zertifikate mit privatem Schlüssel werden nur über die genehmigte PKI-/Secret-Verwaltung erneuert, verteilt und gebunden; niemals Schlüsselmaterial im Ticket ablegen. Rollback/Verfügbarkeit vor Aktivierung klären.</p>
+<h2 id="13-zwei-fiktive-praxisfalle-mit-diagnosebegrundung">13. Zwei fiktive Praxisfälle mit Diagnosebegründung</h2>
+<h3 id="musterfall-a-zertifikat-erneuert-warnung-bleibt">Musterfall A: Zertifikat erneuert, Warnung bleibt</h3>
+<p><strong>Ticket:</strong> Nach Zertifikatstausch auf einem IIS-Server meldet <code>portal.example.test</code> weiterhin ein abgelaufenes Zertifikat. Die Administratorin zeigt, dass im lokalen Zertifikatsspeicher ein neues Zertifikat bis 2027 liegt.</p>
+<p><strong>Eigenständige Hypothese:</strong> Der Server <strong>hat</strong> ein neues Zertifikat, aber ein HTTPS-Binding oder vorgeschalteter Reverse Proxy liefert weiter das alte aus.</p>
+<p><strong>Belege:</strong> Externer OpenSSL-Test mit <code>-servername</code> zeigt einen Fingerprint und <code>notAfter</code>, die zum alten Zertifikat passen. <code>netsh http show sslcert</code> bzw. die Proxy-/LB-Konfiguration zeigt noch die alte Zuordnung. <strong>Theoretisch plausible Ursache:</strong> Falsche/stale Bindung; durch Tests erst zu bestätigen.</p>
+<p><strong>Freigegebene Korrektur:</strong> Eigentümer ändert die betroffene Bindung mit Rollback-Plan; unabhängiger Test verifiziert anschließend <strong>Remote-Fingerprint, SAN, Chain und HTTPS-Anwendungsfunktion</strong>. Nicht bereits aufgrund des neuen Zertifikats im Store abschließen.</p>
+<h3 id="musterfall-b-intern-funktioniert-es-extern-nicht">Musterfall B: Intern funktioniert es, extern nicht</h3>
+<p><strong>Ticket:</strong> <code>https://service.example.test</code> funktioniert auf einem verwalteten Notebook, ein externes Testgerät zeigt „Nicht vertrauenswürdig“.</p>
+<p><strong>Hypothesen:</strong> Fehlendes Intermediate, ausschließlich interne Root-CA, unterschiedliche Proxy-/TLS-Endpunkte oder TLS-Inspection.</p>
+<p><strong>A/B-Test:</strong> Beide Geräte mit identischem FQDN und Zeitpunkt prüfen; Zertifikats-Fingerprint/Issuer/Chain, Trust-Stores und Netzwerkpfad vergleichen. <strong>Mögliche Diagnose:</strong> Externe Gegenstelle sendet unvollständige Kette oder vertraut einer internen CA nicht. Beide Ausgänge werden separat belegt; der Unterschied allein beweist die genaue Ursache noch nicht.</p>
+<p><strong>Korrektur:</strong> PKI-/Webteam stellt die passende, vollständig ausgelieferte Vertrauenskette oder den genehmigten externen Zertifikatspfad sicher. <strong>Keine</strong> unkontrollierte Root-CA-Installation oder Umgehung des Browserwarnhinweises.</p>
+<h2 id="14-active-recall-self-explanation-und-transfer">14. Active Recall, Self-Explanation und Transfer</h2>
+<p><strong>Wissensabruf (ohne Artikel):</strong></p>
+<ol>
+<li>Warum beweist <code>Test-NetConnection ... -Port 443</code> keine gültige HTTPS-Verbindung?</li>
+<li>Welche Aufgaben haben <code>-servername</code> und <code>-verify_hostname</code> bei <code>openssl s_client</code>?</li>
+<li>Was ist der Unterschied zwischen <code>notBefore</code>, <code>notAfter</code> und SAN?</li>
+<li>Warum zeigt der lokale Windows-Store nicht zwingend das ausgelieferte Zertifikat?</li>
+<li>Welche Rolle spielen Intermediate-CA und Root-Trust-Store?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong></p>
+<ol start="6">
+<li>Ein Zertifikat läuft erst nächstes Jahr ab, trotzdem erscheint eine Warnung: Welche drei Prüfungen folgen?</li>
+<li>Warum kann ein Browser erfolgreich zugreifen, während ein anderer Client denselben Host ablehnt?</li>
+<li>Ein Reverse Proxy zeigt nach Zertifikatswechsel weiterhin den alten Fingerprint: Welche Ebenen müssen verglichen werden?</li>
+</ol>
+<p><strong>Diagnose-/Transferkarten:</strong></p>
+<ol start="9">
+<li>Auf Client A: Hostname-Mismatch, auf Client B: keine Warnung. Welche A/B-Daten erfasst du, bevor du von DNS als Ursache sprichst?</li>
+<li>Die Zertifikatsprüfung ist erfolgreich, aber HTTP 503 erscheint: Warum ist die PKI zunächst nicht die Hauptverdächtige?</li>
+<li>Nenne zwei Gründe, weshalb <code>-k</code>/„Warnung ignorieren“ kein zulässiger Ticketabschluss ist.</li>
+</ol>
+<p><strong>Praktischer Transfer (isoliertes Lab):</strong> Zwei lokale TLS-Endpunkte mit fiktiven Hostnamen und eigens erzeugten Testzertifikaten vorsehen: eines mit absichtlich falschem SAN, ein anderes mit unvollständiger Testkette. Zuerst erwartete Befunde <strong>vorhersagen</strong>, dann getrennt mit <code>s_client</code> und einem Client der vorgesehenen Trust-Policy prüfen. Test-CA niemals ungeprüft global oder im Produktivsystem vertrauen. Abschluss mit selbst formuliertem Ticketkommentar und späterer Wiederholung nach ca. 7 und 21 Tagen.</p>
+<p><strong>Kompetenznachweis:</strong> Eine richtige Befehlsausgabe abzulesen ist noch kein Diagnoseerfolg; der Nutzer muss die <strong>erste gesichert abweichende Ebene</strong> eigenständig benennen und mit einer unabhängigen Prüfung bestätigen können.</p>
+<h2 id="15-quellen-qualitats-und-validierungsstatus">15. Quellen, Qualitäts- und Validierungsstatus</h2>
+<p>Die folgenden Quellen belegen <strong>technische Prüfmechanismen und Herstellerverfahren</strong>, nicht die fiktiven Praxisfälle. Kommandos und UI-Pfade können je nach Produktversion/Deployment abweichen. Recherchezeitpunkt: <strong>23.11.2026</strong>.</p>
+<ul>
+<li><strong>[Q1]</strong> Microsoft Learn – Azure Application Gateway Backend Health, TLS-Zertifikat, Chain, Name und Gültigkeit: <a href="https://learn.microsoft.com/en-us/troubleshoot/azure/application-gateway/application-gateway-backend-health-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/azure/application-gateway/application-gateway-backend-health-troubleshooting</a></li>
+<li><strong>[Q2]</strong> Microsoft Learn – HTTPS/TLS Backend-Prüfung und SNI: <a href="https://learn.microsoft.com/en-us/azure/application-gateway/configuration-http-settings" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/azure/application-gateway/configuration-http-settings</a></li>
+<li><strong>[Q3]</strong> Let's Encrypt – Zertifikatsketten/Intermediate-CAs: <a href="https://letsencrypt.org/certificates/" rel="noopener noreferrer" target="_blank">https://letsencrypt.org/certificates/</a></li>
+<li><strong>[Q4]</strong> Microsoft Learn – TLS/Schannel-Protokollierung: <a href="https://learn.microsoft.com/en-us/troubleshoot/developer/webapps/iis/health-diagnostic-performance/enable-schannel-event-logging" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/developer/webapps/iis/health-diagnostic-performance/enable-schannel-event-logging</a></li>
+<li><strong>[Q5]</strong> Microsoft Learn – PowerShell-Zertifikatsanbieter: <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-7.5" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-7.5</a></li>
+<li><strong>[Q6]</strong> OpenSSL – <code>s_client</code>, SNI, Zertifikatskette und <code>-verify_return_error</code>: <a href="https://docs.openssl.org/3.4/man1/openssl-s_client/" rel="noopener noreferrer" target="_blank">https://docs.openssl.org/3.4/man1/openssl-s_client/</a></li>
+<li><strong>[Q7]</strong> OpenSSL – <code>x509</code>, Gültigkeitsdaten, Issuer und SAN: <a href="https://docs.openssl.org/3.4/man1/openssl-x509/" rel="noopener noreferrer" target="_blank">https://docs.openssl.org/3.4/man1/openssl-x509/</a></li>
+<li><strong>[Q8]</strong> Microsoft Learn – IIS-/HTTP.sys-SSL-Bindung: <a href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/how-to-set-up-ssl-on-iis" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/iis/manage/configuring-security/how-to-set-up-ssl-on-iis</a></li>
+<li><strong>[Q9]</strong> Microsoft Learn – CA-Pfadprüfung und Zertifikatssperrung: <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-certificate-path-validation-revocation-policy" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-certificate-path-validation-revocation-policy</a></li>
+<li><strong>[Q10]</strong> Microsoft Learn – <code>netsh http show sslcert</code>: <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-http" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-http</a></li>
+<li><strong>[Q11]</strong> Microsoft Learn – Schannel TLS/SSL-Fehlercodes: <a href="https://learn.microsoft.com/en-us/windows/win32/secauthn/schannel-error-codes-for-tls-and-ssl-alerts" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/win32/secauthn/schannel-error-codes-for-tls-and-ssl-alerts</a></li>
+</ul>
+<p><strong>Validierungsstatus:</strong> Recherche und plausibilisierte Diagnoseverfahren liegen vor; <strong>keine</strong> echten Zertifikate, Anwendungen, Proxy-Konfigurationen oder produktiven Endpunkte wurden praktisch getestet. Die Henne-und-Ei-Grafik dient als Lernanker und ersetzt nicht die Primärquellen. Zur Veröffentlichung auf GitHub Pages sind Quellen, relative Assetpfade und Kennzeichnung „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“ beizubehalten.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-047_Lernartikel.md">RB-047_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-046/index.html">← Ticket 46</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-048/index.html">Ticket 48 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

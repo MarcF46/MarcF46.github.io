@@ -1,0 +1,292 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 39: Dienst oder TCP-Port nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 39: Dienst oder TCP-Port nicht erreichbar. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 39: Dienst oder TCP-Port nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsszenario-lernziel-und-abgrenzung">1. Störungsszenario, Lernziel und Abgrenzung</a></li><li><a href="#2-erst-unterscheiden-dienst-listener-tcp-und-anwendung">2. Erst unterscheiden: Dienst, Listener, TCP und Anwendung</a></li><li><a href="#3-tcp-verbindungsaufbau-syn-syn-ack-ack">3. TCP-Verbindungsaufbau: SYN → SYN-ACK → ACK</a></li><li><a href="#4-fehlerbild-und-ausfallbereich-erfassen">4. Fehlerbild und Ausfallbereich erfassen</a></li><li><a href="#5-sicherheit-ownership-und-ruckweg-vor-diagnose">5. Sicherheit, Ownership und Rückweg vor Diagnose</a></li><li><a href="#6-client-fqdn-ziel-ip-und-tcp-port-testen">6. Client: FQDN, Ziel-IP und TCP-Port testen</a></li><li><a href="#7-server-lauft-der-dienst-wirklich-und-offnet-er-einen-listener">7. Server: Läuft der Dienst wirklich und öffnet er einen Listener?</a></li><li><a href="#8-lokaler-gegenvergleich-loopback-ist-nicht-gleich-netz-ip">8. Lokaler Gegenvergleich: Loopback ist nicht gleich Netz-IP</a></li><li><a href="#9-firewall-und-sicherheitsfilter-bedingungen-lesen-nicht-abschalten">9. Firewall und Sicherheitsfilter: Bedingungen lesen, nicht abschalten</a></li><li><a href="#10-ergebnisarten-interpretieren-timeout-rst-erfolgreicher-handshake">10. Ergebnisarten interpretieren: Timeout, RST, erfolgreicher Handshake</a></li><li><a href="#11-anwendungsschicht-nach-offenem-port-gezielt-prufen">11. Anwendungsschicht nach offenem Port gezielt prüfen</a></li><li><a href="#12-wenn-standardtests-nicht-reichen-kontrollierte-traces-und-eskalation">12. Wenn Standardtests nicht reichen: kontrollierte Traces und Eskalation</a></li><li><a href="#13-fiktiver-praxisfall-a-dienst-lauft-aber-listener-ist-falsch-gebunden">13. Fiktiver Praxisfall A: Dienst läuft, aber Listener ist falsch gebunden</a></li><li><a href="#14-fiktiver-praxisfall-b-nur-aus-vpn-scheitert-der-tcp-verbindungsaufbau">14. Fiktiver Praxisfall B: Nur aus VPN scheitert der TCP-Verbindungsaufbau</a></li><li><a href="#15-active-recall-diagnosekarten-und-selbststandiger-transfer">15. Active Recall, Diagnosekarten und selbstständiger Transfer</a></li><li><a href="#offizielle-quellen-prufumfang-und-transparenz">Offizielle Quellen, Prüfumfang und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Windows 11 / Windows Server / TCP/IP / Windows Defender Firewall / Dienstdiagnose<br/>
+<strong>Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert; <strong>nicht praktisch validiert</strong>. Alle Musterfälle, Messergebnisse, Adressen und Tickettexte sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb039_henne_ei_tcp_port_dienst.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-039 – Dienst, TCP-Listener, Pfad und Anwendung systematisch prüfen" decoding="async" loading="lazy" src="assets/rb039_henne_ei_tcp_port_dienst.webp"/></a></div><figcaption>RB-039 – Dienst, TCP-Listener, Pfad und Anwendung systematisch prüfen</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> Ein gestarteter Dienst ist nicht dasselbe wie ein vorhandener TCP-Listener. Ein Listener auf dem Server ist kein Beweis für den Zugriff aus einem anderen Netz. Und ein erfolgreicher TCP-Handshake bestätigt noch nicht, dass die Anwendung funktioniert.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsszenario-lernziel-und-abgrenzung">1. Störungsszenario, Lernziel und Abgrenzung</h2>
+<p><strong>Meldung A:</strong> „Das interne Webportal unter <code>https://app01.firma.example:8443</code> lädt nicht, andere Anwendungen funktionieren.“<br/>
+<strong>Meldung B:</strong> „Die Datenbank läuft laut Diensteanzeige, aber der Client verbindet sich nicht.“</p>
+<p><strong>Lernziel:</strong> Ohne ungezielte Neustarts oder Firewallfreigaben unterscheiden können, ob <strong>Dienst, Prozess, Listener/Bind-Adresse, DNS/Ziel-IP, Firewall/Netzpfad, TCP-Verbindungsaufbau oder die darüberliegende Anwendung</strong> betroffen sind.</p>
+<ul>
+<li><strong>L1:</strong> Quelle, Ziel, Port, Protokoll, Fehlertext, Zeit und Umfang erfassen, freigegebene Verbindungstests durchführen.</li>
+<li><strong>L2:</strong> TCP-Ergebnisse, Listening-Sockets, lokale/remote Vergleichstests, Firewallbedingungen und Logs korrelieren.</li>
+<li><strong>System-/Security-/Netzwerk-Owner:</strong> Jede Veränderung von Dienst, Portbindung, Regelwerk, Routing oder Zertifikats-/Proxy-Konfiguration nach Freigabe und mit Rollback.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-038 untersucht die <em>End-to-End-Erreichbarkeit eines bestimmten Servers</em>; <strong>RB-039</strong> betrachtet gezielt <strong>einen bestimmten TCP-Dienst/Port</strong> und den Unterschied zwischen Socket, Transport und Anwendung. DNS im Detail: RB-034; Performance: RB-037.</p>
+<h2 id="2-erst-unterscheiden-dienst-listener-tcp-und-anwendung">2. Erst unterscheiden: Dienst, Listener, TCP und Anwendung</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ebene</th>
+<th>Nachweis</th>
+<th>Was damit <strong>nicht</strong> bewiesen ist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dienst/Prozess</td>
+<td><code>Get-Service</code> meldet <code>Running</code></td>
+<td>Der Prozess hat tatsächlich einen Socket geöffnet</td>
+</tr>
+<tr>
+<td>Listener</td>
+<td><code>Get-NetTCPConnection -State Listen</code> zeigt Port und lokale Bind-Adresse</td>
+<td>Externe Clients dürfen ihn erreichen</td>
+</tr>
+<tr>
+<td>TCP-Verbindung</td>
+<td><code>Test-NetConnection -Port</code> liefert <code>TcpTestSucceeded: True</code></td>
+<td>TLS, HTTP, SMB, Datenbankanmeldung oder Berechtigung funktionieren</td>
+</tr>
+<tr>
+<td>Anwendung</td>
+<td>Authentifizierter Test der tatsächlichen Funktion klappt</td>
+<td>Dauerhafte Stabilität, Lastfestigkeit oder andere Benutzerpfade</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ein Windows-Dienst kann gestartet sein, während sein Webmodul noch nicht gebunden ist; eine Anwendung kann ohne Windows-Serviceverwaltung als normaler Prozess oder in einem Container laufen. Umgekehrt kann der TCP-Listener korrekt sein, aber ein Reverse Proxy oder eine Backend-Verbindung HTTP 502/503 liefern. <strong>Jede Ebene braucht ihren eigenen Beleg.</strong> [Q1–Q4]</p>
+<h2 id="3-tcp-verbindungsaufbau-syn-syn-ack-ack">3. TCP-Verbindungsaufbau: SYN → SYN-ACK → ACK</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Client                        Server / erreichbarer TCP-Endpunkt
+  | --- SYN  (Zielport 8443) --------------------&gt; |
+  | &lt;---------------------- SYN-ACK -------------- |
+  | --- ACK -------------------------------------&gt; |
+  |        TCP-Verbindung aufgebaut                |
+  |     erst danach: z. B. TLS, HTTP, Login        |
+</code></pre></div>
+<ul>
+<li><strong>SYN:</strong> Client möchte den TCP-Handshake starten.</li>
+<li><strong>SYN-ACK:</strong> Ein erreichbarer Endpunkt akzeptiert die TCP-Aushandlung auf dieser Verbindung.</li>
+<li><strong>ACK:</strong> Client bestätigt; der Handshake ist abgeschlossen.</li>
+<li><strong>RST:</strong> Aktive Zurückweisung oder Zurücksetzung möglich; Herkunft kann Zielhost, Firewall, Load Balancer oder eine Zwischenkomponente sein. Die RST-Ursache ist <strong>nicht</strong> allein aus dem Vorhandensein des Flags ableitbar.</li>
+<li><strong>SYN-Wiederholungen ohne Antwort:</strong> Paketverlust, Filterung, falsche Route, nicht erreichbarer Host oder fehlender Rückweg sind denkbar. Nur ein Mitschnitt auf mehreren Punkten kann den Drop-Punkt genauer belegen.</li>
+</ul>
+<p>Ein TCP-Handshake kann an <strong>einem Proxy/Load Balancer</strong> enden, nicht zwingend am Backend. Außerdem kann eine Verbindung nach erfolgreichem Handshake durch TLS-Fehler oder Anwendungsantworten scheitern. [Q1, Q2, Q5]</p>
+<h2 id="4-fehlerbild-und-ausfallbereich-erfassen">4. Fehlerbild und Ausfallbereich erfassen</h2>
+<p>Vor technischen Änderungen folgende Daten sammeln:</p>
+<ol>
+<li><strong>Ziel:</strong> FQDN, tatsächlich erwartete IPv4/IPv6-Adresse, TCP-Port, Dienstname, URL oder Applikationsname.</li>
+<li><strong>Quelle:</strong> Clientname, Quell-IP, VLAN, VPN, Standort, Betriebsart und verwendete Anwendung.</li>
+<li><strong>Fehler:</strong> Exakter Text/Code (z. B. „Connection refused“, Timeout, TLS-Fehler, HTTP 503), Zeitpunkt und Reproduzierbarkeit.</li>
+<li><strong>Betroffene:</strong> Ein PC, eine Benutzergruppe, nur VPN, nur ein VLAN, alle Standorte? Funktioniert ein Vergleichsdienst?</li>
+<li><strong>Veränderungen:</strong> Neuer Release, Firewall-Change, Serverneustart, Zertifikat, neue Bind-Adresse, Container-/Reverse-Proxy-Änderung?</li>
+</ol>
+<p><strong>Wichtig:</strong> Standardports (HTTPS meist 443; SMB 445; RDP 3389) dienen nur der Orientierung. Ein kundenspezifischer Dienst kann auf <em>einem anderen</em> Port lauschen. <strong>Port und Transportprotokoll aus der Sollkonfiguration verifizieren.</strong> UDP braucht andere Prüfschritte; <code>Test-NetConnection -Port</code> ist ein <strong>TCP-Test</strong>, kein UDP-Nachweis.</p>
+<h2 id="5-sicherheit-ownership-und-ruckweg-vor-diagnose">5. Sicherheit, Ownership und Rückweg vor Diagnose</h2>
+<ul>
+<li>Zu Beginn <strong>lesende</strong> Abfragen, wenige vereinbarte Einzeltests und erlaubte A/B-Vergleiche.</li>
+<li>Keine produktive Firewall deaktivieren, keine globale Portfreigabe, keine ACL-/Routenänderung oder Dienste-/Serverneustarts auf Verdacht.</li>
+<li>Über einen einzigen Fernzugang keine Änderung vornehmen, die den Rückweg abschneiden kann; alternative Konsole/Rollback abstimmen.</li>
+<li>Paketmitschnitte enthalten ggf. interne Adressen, Token, personenbezogene Daten und Anwendungsinhalte: nur mit Freigabe, minimierter Aufzeichnung und geregelter Aufbewahrung.</li>
+<li>TLS-Zertifikatsfehler nicht durch dauerhaftes Abschalten der Zertifikatsprüfung „lösen“.</li>
+</ul>
+<p>Eine freigegebene Reparatur benötigt: <strong>Befund → Owner → Zieländerung → Zeitfenster → Rollback → verifizierbarer Retest</strong>.</p>
+<h2 id="6-client-fqdn-ziel-ip-und-tcp-port-testen">6. Client: FQDN, Ziel-IP und TCP-Port testen</h2>
+<p><strong>Auf dem betroffenen Windows-Client; Testport 8443 ist fiktiv und muss angepasst werden.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># 1. Tatsächliche DNS-Zieladressen ermitteln:
+Resolve-DnsName -Name 'app01.firma.example' -Type A
+Resolve-DnsName -Name 'app01.firma.example' -Type AAAA
+
+# 2. TCP-Verbindungsaufbau zum genannten Dienstport prüfen:
+Test-NetConnection -ComputerName 'app01.firma.example' -Port 8443 -InformationLevel Detailed
+
+# 3. Nur bei freigegebenem Vergleich mit erwarteter IPv4-Adresse:
+Test-NetConnection -ComputerName '192.0.2.40' -Port 8443 -InformationLevel Detailed
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>TcpTestSucceeded: True</code> bedeutet, dass der TCP-Verbindungsversuch auf den angegebenen Endpunkt erfolgreich war. <code>False</code> sagt nur, dass dieser Versuch <em>nicht erfolgreich</em> war; Ursache und konkreter Fehler (RST vs. Timeout) sind aus diesem Boolean allein nicht eindeutig bestimmbar. Die Ausgabe <code>RemoteAddress</code>, <code>SourceAddress</code> und <code>InterfaceAlias</code> hilft, die tatsächliche Verbindung zu prüfen. [Q3]</p>
+<p><strong>A/B-Matrix:</strong> Dieselbe <em>Ziel-IP und derselbe Port</em> am betroffenen Client, an einem funktionierenden Client im selben VLAN und (wenn freigegeben) aus einem anderen VLAN/VPN testen. Nur so können unterschiedliche Quellbedingungen sinnvoll verglichen werden.</p>
+<h2 id="7-server-lauft-der-dienst-wirklich-und-offnet-er-einen-listener">7. Server: Läuft der Dienst wirklich und öffnet er einen Listener?</h2>
+<p><strong>Die folgenden Befehle sind lokal auf dem berechtigt zugänglichen Zielserver auszuführen.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Windows-Dienststatus, wenn der tatsächliche Dienstname bekannt ist:
+Get-Service -Name 'W3SVC'  # Beispiel für IIS, nicht zwingend für Port 8443 zuständig
+
+# TCP-Listener auf dem erwarteten Port:
+Get-NetTCPConnection -State Listen -LocalPort 8443 |
+  Select-Object LocalAddress, LocalPort, State, OwningProcess
+
+# Listener-Prozess identifizieren, nachdem PID aus obiger Ausgabe bekannt ist:
+Get-Process -Id 1234  # Beispiel-PID, niemals ungeprüft übernehmen
+
+# Nur lesend: Windows-Service zum Prozess zuordnen, falls Service-basiert:
+Get-CimInstance Win32_Service | Where-Object ProcessId -eq 1234 |
+  Select-Object Name, DisplayName, State, ProcessId
+</code></pre></div>
+<p><strong>Befundlogik:</strong> <code>Get-Service</code> mit <code>Running</code> <strong>reicht nicht</strong>. Der Socket muss auf dem erwarteten <strong>Port, Adressfamilie und Bind-Ziel</strong> vorhanden sein. Ein Listener auf <code>127.0.0.1:8443</code> kann von einem entfernten Client normalerweise nicht direkt erreicht werden; ein Listener auf <code>0.0.0.0:8443</code> gilt für IPv4-Adressen dieses Hosts, vorbehaltlich Host-/Netzwerkfiltern. Bei IPv6 (<code>::</code>, <code>::1</code>) gelten die jeweiligen Socket- und Dual-Stack-Eigenschaften; deren Verhalten nicht stillschweigend als identisch zu IPv4 annehmen. [Q4]</p>
+<p><strong>Kein Listener:</strong> Dienst-/App-Logs, Konfigurationsdatei, Zertifikatsbindung, Portkonflikt, Prozessabsturz oder Container-/Reverse-Proxy-Portmapping abklären. <strong>Nicht reflexartig neu starten.</strong></p>
+<h2 id="8-lokaler-gegenvergleich-loopback-ist-nicht-gleich-netz-ip">8. Lokaler Gegenvergleich: Loopback ist nicht gleich Netz-IP</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Auf dem Server: Nur sinnvoll, wenn ein Listener auf Loopback oder allen IPv4-Adressen lauscht:
+Test-NetConnection -ComputerName '127.0.0.1' -Port 8443
+
+# Auf dem Server: Bind-Adresse aus der Listenerliste als Ziel verwenden:
+Test-NetConnection -ComputerName '192.0.2.40' -Port 8443
+</code></pre></div>
+<p><strong>Entscheidung:</strong> „Loopback funktioniert, externe Adresse nicht“ ist ein Hinweis auf eine Bindungs-, lokale Filter- oder Hostpfadfrage, <strong>aber kein endgültiger Beweis</strong> für eine Firewall. Wenn nur auf einer konkreten Nicht-Loopback-IP gebunden wurde, ist ein fehlgeschlagener Loopback-Test nicht automatisch ein Fehler.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Vergleich</th>
+<th>Möglicher Fokus</th>
+<th>Vorbehalt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Listener auf dem erwarteten Port</td>
+<td>Dienst/App-Konfiguration, Portbindung, Startfehler</td>
+<td>Listener kann auf anderem Host/Proxy/Container liegen</td>
+</tr>
+<tr>
+<td>Listener nur <code>127.0.0.1</code></td>
+<td>Loopback-Bindung / Proxy-Topologie</td>
+<td>Proxy könnte bewusst lokal weiterleiten</td>
+</tr>
+<tr>
+<td>Listener auf Soll-IP; lokal erfolgreich; remote scheitert</td>
+<td>Hostfilter, Netzwerk-ACL, Route, Rückweg</td>
+<td>Zwei-seitige Traces zum Beweis nötig</td>
+</tr>
+<tr>
+<td>Remote TCP erfolgreich; Anwendung scheitert</td>
+<td>TLS, Hostname/SNI, Auth, HTTP-Status, Backend</td>
+<td>TCP-Test endet evtl. an Load Balancer</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-firewall-und-sicherheitsfilter-bedingungen-lesen-nicht-abschalten">9. Firewall und Sicherheitsfilter: Bedingungen lesen, nicht abschalten</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Lokal auf dem Zielserver – geltende Profile und Standardaktionen:
+Get-NetFirewallProfile |
+  Select-Object Name, Enabled, DefaultInboundAction, DefaultOutboundAction
+
+# Regeln zu einem exakt konfigurierten TCP-Port suchen (nur ein Einstieg):
+Get-NetFirewallPortFilter |
+  Where-Object { $_.Protocol -eq 'TCP' -and $_.LocalPort -eq '8443' } |
+  Get-NetFirewallRule |
+  Select-Object DisplayName, Direction, Enabled, Action, Profile
+</code></pre></div>
+<p><strong>Achtung:</strong> Dieser Portfilter ist <strong>kein vollständiger Wirksamkeitsnachweis</strong>: Regeln mit <code>Any</code>, Portbereichen, Programm-/Dienstbindung, Quell-IP-Bedingungen, Sicherheits-/IPsec-Vorgaben, zentralen GPO-/MDM-Richtlinien oder Drittanbieter-WFP-Filtern können ebenso relevant sein. Die aktiven Richtlinien und zugehörigen Address-/Application-/Service-Filter müssen bei Bedarf durch die zuständige Administration geprüft werden. Nicht alle Netzwerk-Firewalls befinden sich auf dem Zielserver. [Q6, Q7]</p>
+<p>Für eine notwendige Korrektur <strong>nie pauschal die Firewall deaktivieren</strong>: Stattdessen zielgenaue Regeln nach Source, Destination, Protokoll und Port gemäß Change-/Security-Prozess planen.</p>
+<h2 id="10-ergebnisarten-interpretieren-timeout-rst-erfolgreicher-handshake">10. Ergebnisarten interpretieren: Timeout, RST, erfolgreicher Handshake</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ergebnis</th>
+<th>Was sicherer gesagt werden kann</th>
+<th>Nächster differenzierender Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TcpTestSucceeded: False</code></td>
+<td>Versuch konnte keine TCP-Verbindung herstellen</td>
+<td>Listener lokal prüfen; vergleichende Paket-/Logbefunde suchen</td>
+</tr>
+<tr>
+<td>Capture: SYN wiederholt, keine Antwort</td>
+<td>Kein SYN-ACK/RST am Capture-Punkt beobachtet</td>
+<td>SYN auf Server und Firewall-Grenzen verfolgen; Rückweg prüfen</td>
+</tr>
+<tr>
+<td>Capture: RST statt SYN-ACK</td>
+<td>Verbindung wird aktiv zurückgewiesen/zurückgesetzt</td>
+<td>RST-Ursprung mit Server-/Firewall-Logs oder zweiseitiger Capture bestimmen</td>
+</tr>
+<tr>
+<td><code>TcpTestSucceeded: True</code></td>
+<td>Handshake zum getesteten TCP-Endpunkt gelang</td>
+<td>Echte Anwendung: TLS, Auth, HTTP-/Protokollstatus, Backend prüfen</td>
+</tr>
+<tr>
+<td>Lokal funktioniert, ein VLAN scheitert</td>
+<td>Quellnetz-spezifischer Pfad-/Filterunterschied plausibel</td>
+<td>Vergleich Quelle/VLAN, ACL, Rückroute, Firewalllogs</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Vorsicht:</strong> Ein Paketmitschnitt ist <strong>ortsabhängig</strong>. Ein fehlendes SYN im Servercapture kann ein Filter auf dem Pfad sein; ein SYN am Server ohne Antwort könnte durch Hostfilter, Listener, Routing oder Capture-Bedingungen entstehen. Nicht aus einer einzigen Messung eine definitive Schuldzuweisung ableiten. [Q1, Q2, Q8]</p>
+<h2 id="11-anwendungsschicht-nach-offenem-port-gezielt-prufen">11. Anwendungsschicht nach offenem Port gezielt prüfen</h2>
+<p>Ist der TCP-Test erfolgreich, folgt ein <strong>protokollgerechter</strong> End-to-End-Test, keine Portliste auf Verdacht:</p>
+<ul>
+<li><strong>HTTPS:</strong> Richtiger Hostname/SNI, Zertifikat und HTTP-Status, Reverse Proxy, IIS-/App-Logs; z. B. in freigegebener Testumgebung <code>curl.exe -I https://app01.firma.example:8443/</code> (<code>HEAD</code> muss vom Dienst unterstützt werden). Nicht <code>-k</code> als dauerhafte Umgehung verwenden.</li>
+<li><strong>SMB:</strong> Tatsächliche Freigabe und Benutzerberechtigung unter Windows testen; Port 445 allein beweist keine erfolgreiche SMB-Sitzung.</li>
+<li><strong>RDP:</strong> Anmeldung, Gruppenrichtlinien und RDP-Dienst, nicht nur Port 3389 testen.</li>
+<li><strong>SQL/Datenbanken:</strong> Instanz/Port, TLS, Authentifizierung und Datenbankzustand mit autorisiertem Client; „Port offen“ ist kein erfolgreicher Datenbank-Login.</li>
+</ul>
+<p>Auch HTTP 401/403/404/502/503 kann nach <strong>erfolgreichem TCP-Handshake</strong> auftreten. Das ist für die Diagnose ein wertvoller <em>Schichtwechsel</em> und kein Widerspruch. <strong>Nie echte Credentials in Tickets oder Screenshots übernehmen.</strong></p>
+<h2 id="12-wenn-standardtests-nicht-reichen-kontrollierte-traces-und-eskalation">12. Wenn Standardtests nicht reichen: kontrollierte Traces und Eskalation</h2>
+<p><strong>Nur bei Bedarf, nach Freigabe und möglichst zeitgleich an Quelle und Ziel:</strong> Paketaufzeichnungen bzw. Windows Filtering Platform (WFP)-Ereignisse auswerten. Microsoft beschreibt zweiseitige Traces und die Identifikation von SYN-Drops sowie WFP-Filtern. [Q1, Q2, Q8]</p>
+<ul>
+<li>Client-Timestamp, Quell-IP/Quellport, Ziel-IP/Zielport, TCP-Flags festhalten.</li>
+<li>Sichtbarkeit des <strong>SYN</strong> am Server prüfen; Rückantwort <strong>SYN-ACK oder RST</strong> prüfen; falls Antwort verlässt den Server, Rückweg überprüfen.</li>
+<li>Ergebnisse mit Host-Firewall, Netzwerkfirewall, Load Balancer und IDS/IPS korrelieren.</li>
+<li>Logs und Traces nur im erforderlichen Umfang und entsprechend Sicherheits-/Datenschutzregel verwahren.</li>
+</ul>
+<p><strong>Eskalationspaket:</strong> betroffene Quelle(n)/Ziel/Port, DNS-Ziel, Zeitfenster, lokale Bind-Adresse, Listener-PID, Service-Status, A/B-Tests, Regel-Owner, relevante Log-/Trace-Befunde, beobachtete Handshakephase und konkrete nächste Hypothese.</p>
+<h2 id="13-fiktiver-praxisfall-a-dienst-lauft-aber-listener-ist-falsch-gebunden">13. Fiktiver Praxisfall A: Dienst läuft, aber Listener ist falsch gebunden</h2>
+<p><strong>Meldung:</strong> „Nur das Webportal <code>app01.firma.example:8443</code> ist von den Arbeitsplätzen nicht erreichbar.“</p>
+<p><strong>Beobachtungen (erfunden):</strong></p>
+<ol>
+<li><code>Get-Service</code> meldet <code>Running</code> für den zugehörigen Dienst.</li>
+<li><code>Get-NetTCPConnection -State Listen -LocalPort 8443</code> meldet <strong><code>127.0.0.1:8443</code></strong>, aber keinen Listener auf der vorgesehenen Netz-IP.</li>
+<li><code>Test-NetConnection 127.0.0.1 -Port 8443</code> ist auf dem Server erfolgreich, ein direkter Test zur Server-IP von einem anderen Client scheitert.</li>
+<li>Architekturabgleich: Es gibt <strong>keinen vorgesehenen Reverse Proxy</strong>; die Bindung an Loopback ist laut Sollkonfiguration falsch.</li>
+</ol>
+<p><strong>Hypothese:</strong> Falsche Listener-Bindadresse; der Dienst beantwortet nur lokale Verbindungen.<br/>
+<strong>Freigegebene L2-Maßnahme (nicht ausgeführt):</strong> Verantwortlicher Applikations-Owner korrigiert die konfigurierte Bind-Adresse im Changefenster, prüft Abhängigkeiten und sichert Rollback.<br/>
+<strong>Erfolgskriterium:</strong> Listener auf Soll-IP und Soll-Port sichtbar, Remote-TCP-Test erfolgreich, authentifizierte Webfunktion bestätigt.</p>
+<p><strong>Transfer:</strong> Wäre ein lokaler Reverse Proxy vorgesehen, könnte dieselbe Loopback-Bindung korrekt sein – dann müsste stattdessen der Proxy-Eingangsport untersucht werden.</p>
+<h2 id="14-fiktiver-praxisfall-b-nur-aus-vpn-scheitert-der-tcp-verbindungsaufbau">14. Fiktiver Praxisfall B: Nur aus VPN scheitert der TCP-Verbindungsaufbau</h2>
+<p><strong>Meldung:</strong> „Port 8443 geht im Büro, im Homeoffice hängt die Verbindung.“</p>
+<p><strong>Beobachtungen (erfunden):</strong></p>
+<ol>
+<li>Server lauscht auf <code>192.0.2.40:8443</code> und beantwortet den lokalen Test.</li>
+<li>Büro-Client: <code>TcpTestSucceeded: True</code>, App funktioniert.</li>
+<li>VPN-Client: DNS löst auf dieselbe Ziel-IP auf, <code>TcpTestSucceeded: False</code>.</li>
+<li>Genehmigte Netzwerk-/Hostfirewall-Logs zeigen eine <strong>explizite Deny-Regel</strong> für das VPN-Quellsubnetz auf genau diesen Zielport; Change-Historie und Sollregel passen zusammen.</li>
+</ol>
+<p><strong>Belegte Ursache im fiktiven Fall:</strong> Eine unpassende ACL für das VPN-Quellnetz; kein Dienstdefekt.<br/>
+<strong>Freigegebene Maßnahme (nicht ausgeführt):</strong> Security-/Netzwerk-Owner korrigiert ausschließlich die erforderliche Source-/Destination-/Port-Regel mit dokumentiertem Rollback.<br/>
+<strong>Retest:</strong> TCP, TLS/Anmeldung und tatsächliche Anwendung vom <strong>ursprünglichen VPN-Client</strong>, plus Negativtest mit nicht autorisiertem Quellnetz.<br/>
+<strong>Transfer:</strong> Ohne ein belegendes Deny-Log wären Rückroute, VPN-Split-Tunnel, Endpoint-Security und Filter auf dem Pfad weiterhin Hypothesen, keine Tatsachen.</p>
+<h2 id="15-active-recall-diagnosekarten-und-selbststandiger-transfer">15. Active Recall, Diagnosekarten und selbstständiger Transfer</h2>
+<p><strong>Wissensfragen (ohne Nachschlagen beantworten):</strong></p>
+<ol>
+<li>Wie lauten die drei Nachrichten des TCP-Verbindungsaufbaus?</li>
+<li>Was zeigt <code>TcpTestSucceeded: True</code> – und was nicht?</li>
+<li>Was bedeutet <code>Listen</code> in <code>Get-NetTCPConnection</code>?</li>
+<li>Unterschied zwischen Bindung an <code>127.0.0.1</code> und <code>0.0.0.0</code>?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong></p>
+<ol start="5">
+<li>Warum kann <code>Get-Service = Running</code> bei fehlendem Listener auftreten?</li>
+<li>Weshalb ist ein lokaler Loopback-Test kein Beweis für den Fernzugriff?</li>
+<li>Warum beweist ein RST allein keine defekte Anwendung?</li>
+</ol>
+<p><strong>Diagnose-/Transferfragen:</strong></p>
+<ol start="8">
+<li>Server lauscht auf <code>192.0.2.40:8443</code>, lokaler TCP-Test geht, nur VLAN 40 scheitert. Welche A/B- und Logtests trennen Hostfilter, ACL und Rückweg?</li>
+<li>TCP 443 klappt, Browser meldet TLS-Zertifikatsfehler. Welches Fachteam und welche Ebene sind jetzt relevant?</li>
+<li>Der Windows-Dienst steht auf <code>Running</code>, aber die Software läuft in einem Container hinter Proxy. Wo <strong>muss</strong> der erwartete externe Listener sein?</li>
+</ol>
+<p><strong>Selbst-Erklärung:</strong> In drei Sätzen dokumentieren: (1) reproduzierbares Problem, (2) unterscheidende Messung mit konkretem Ergebnis, (3) minimaler, freigegebener Folgeschritt mit Retest.<br/>
+<strong>Spaced Repetition:</strong> Nach etwa 7 und 21 Tagen zwei neue Diagnoseszenarien ohne Musterlösung lösen; Anki-Karten erst aus tatsächlich verstandenem Material erstellen.</p>
+<hr/>
+<h2 id="offizielle-quellen-prufumfang-und-transparenz">Offizielle Quellen, Prüfumfang und Transparenz</h2>
+<p>Die folgenden Microsoft-Referenzen dokumentieren die <em>recherchierten Konzepte und Kommandos</em>, nicht deren erfolgreiche Durchführung in diesem Projekt:</p>
+<ul>
+<li><strong>[Q1]</strong> Windows Server – TCP/IP-Kommunikation: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-tcp-ip-communication-guidance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-tcp-ip-communication-guidance</a></li>
+<li><strong>[Q2]</strong> Windows-Client – TCP/IP-Konnektivitätsdiagnose: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-connectivity-issues-troubleshooting</a></li>
+<li><strong>[Q3]</strong> PowerShell <code>Test-NetConnection</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps</a></li>
+<li><strong>[Q4]</strong> PowerShell <code>Get-NetTCPConnection</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-nettcpconnection?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/nettcpip/get-nettcpconnection?view=windowsserver2025-ps</a></li>
+<li><strong>[Q5]</strong> Microsoft – TCP-Three-Way-Handshake: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/three-way-handshake-via-tcpip" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/three-way-handshake-via-tcpip</a></li>
+<li><strong>[Q6]</strong> Windows Firewall über PowerShell: <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line</a></li>
+<li><strong>[Q7]</strong> PowerShell <code>Get-NetFirewallPortFilter</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallportfilter?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallportfilter?view=windowsserver2025-ps</a></li>
+<li><strong>[Q8]</strong> SMB-Beispiel – TCP-Handshake und WFP: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/storage/file-server/troubleshoot/tcp-three-way-handshake-fails" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/storage/file-server/troubleshoot/tcp-three-way-handshake-fails</a></li>
+<li><strong>[Q9]</strong> PowerShell <code>Get-Service</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.6" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-service?view=powershell-7.6</a></li>
+</ul>
+<p><strong>Status:</strong> Keine realen Netzwerktests durchgeführt und keine produktiven Änderungen vorgenommen. Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Alle Beispiel-IP-Adressen unter <code>192.0.2.0/24</code> und <code>.example</code> sind ausschließlich Platzhalter; bei einer echten Diagnose an die genehmigte Umgebung anpassen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-039_Lernartikel.md">RB-039_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-038/index.html">← Ticket 38</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-040/index.html">Ticket 40 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

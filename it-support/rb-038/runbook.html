@@ -1,0 +1,102 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 38: Bestimmter Server nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 38: Bestimmter Server nicht erreichbar. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 38: Bestimmter Server nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-incident-aufnehmen-und-eingrenzen">1. Incident aufnehmen und eingrenzen</a></li><li><a href="#2-sicherheit-und-ruckweg-absichern">2. Sicherheit und Rückweg absichern</a></li><li><a href="#3-dns-ip-abgleich">3. DNS-/IP-Abgleich</a></li><li><a href="#4-ip-und-routengrundlagen">4. IP- und Routengrundlagen</a></li><li><a href="#5-icmp-und-pfad-testen">5. ICMP und Pfad testen</a></li><li><a href="#6-tcp-mit-name-und-ip-vergleichen">6. TCP mit Name und IP vergleichen</a></li><li><a href="#7-a-b-test-mit-kontrollierter-vergleichsquelle">7. A/B-Test mit kontrollierter Vergleichsquelle</a></li><li><a href="#8-zielserver-und-ownerprufung">8. Zielserver- und Ownerprüfung</a></li><li><a href="#9-freigabe-minimale-korrektur-oder-l2-l3-eskalation">9. Freigabe, minimale Korrektur oder L2/L3-Eskalation</a></li><li><a href="#10-retest-nutzerfreigabe-und-ticketkommentar">10. Retest, Nutzerfreigabe und Ticketkommentar</a></li></ol></nav><div class="support-markdown">
+<p><strong>Status:</strong> Recherchiert, <strong>nicht praktisch validiert</strong> · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Bereich:</strong> Windows 11 / DNS / TCP-IP / Routing / Firewall / Windows Server<br/>
+<strong>Regel:</strong> Keine Produktivänderung ohne Auftrag, Ownership, Freigabe, Rückweg und dokumentiertes Retest-Kriterium.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb038_henne_ei_server_erreichbarkeit.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-038 – Henne-und-Ei-Übersicht" decoding="async" loading="lazy" src="assets/rb038_henne_ei_server_erreichbarkeit.webp"/></a></div><figcaption>RB-038 – Henne-und-Ei-Übersicht</figcaption></figure>
+<h2 id="1-incident-aufnehmen-und-eingrenzen">1. Incident aufnehmen und eingrenzen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Fehlermeldung / Screenshot / Uhrzeit, Clientname, Benutzergruppe, Standort notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ziel: FQDN, IP, UNC/URL und tatsächlich benötigter <strong>Port/Dienst</strong> erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein Client, mehrere im selben VLAN, VPN, ein Standort oder alle betroffen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Startzeitpunkt, Änderungshistorie, Server-/Applikations-Owner und Kritikalität klären.</li>
+</ul>
+<p><strong>Zielnotiz:</strong> „Von Client A, VLAN 20, 22:10 Uhr, <code>server01.firma.example:443</code> fehlerhaft; derselbe Dienst von Client B im VLAN 30 erreichbar.“ – Beispiel fiktiv.</p>
+<h2 id="2-sicherheit-und-ruckweg-absichern">2. Sicherheit und Rückweg absichern</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur <strong>lesende</strong> Diagnosen zunächst; sensible Logs geschützt speichern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>VPN-/Netzwerk-Konfigurationsänderungen vermeiden, falls nur ein Fernzugang existiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Firewall-Deaktivierung, Route-/DNS-Manipulation, ungeplanten Neustart oder Portfreigabe auf Verdacht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gegenprobe mit freigegebenem Vergleichsclient und notwendigem Testport abstimmen.</li>
+</ul>
+<h2 id="3-dns-ip-abgleich">3. DNS-/IP-Abgleich</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-DnsClientServerAddress
+Resolve-DnsName -Name 'server01.firma.example' -Type A
+Resolve-DnsName -Name 'server01.firma.example' -Type AAAA
+</code></pre></div>
+<p><strong>Befundfragen:</strong> Antwortet Resolver? Erwartete A-/AAAA-Adressen? Unterschied zu Vergleichsclient? Split-DNS/VPN? Kein öffentlicher DNS-Ersatz auf Verdacht. Für echte Tests den Beispielnamen ersetzen.</p>
+<h2 id="4-ip-und-routengrundlagen">4. IP- und Routengrundlagen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-NetIPConfiguration
+Get-NetAdapter | Select-Object Name,Status,LinkSpeed
+Get-NetRoute -AddressFamily IPv4 | Select-Object DestinationPrefix,NextHop,InterfaceAlias,RouteMetric
+Test-NetConnection -ComputerName '192.0.2.40' -DiagnoseRouting -InformationLevel Detailed
+</code></pre></div>
+<p><strong>Befundfragen:</strong> Welcher Adapter, welche Quell-IP/Route, VPN-Tunnel, Gateway und Serverzielnetz? Falls IPv6-Ziel: separaten IPv6-Routenpfad untersuchen. Keine <code>ipconfig /release</code>-/<code>route delete</code>-Befehle über Remotesitzung.</p>
+<h2 id="5-icmp-und-pfad-testen">5. ICMP und Pfad testen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">ping -n 4 192.0.2.40
+tracert -d 192.0.2.40
+</code></pre></div>
+<p><strong>Wichtig:</strong> <code>Ping fehlgeschlagen</code> ist <strong>kein</strong> Serverausfall-Beweis. ICMP kann gefiltert sein. Hop-Timeouts in <code>tracert</code> sind ohne weitere Befunde kein Nachweis des Fehlerorts.</p>
+<h2 id="6-tcp-mit-name-und-ip-vergleichen">6. TCP mit Name und IP vergleichen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Test-NetConnection -ComputerName 'server01.firma.example' -Port 443 -InformationLevel Detailed
+Test-NetConnection -ComputerName '192.0.2.40' -Port 443 -InformationLevel Detailed
+</code></pre></div>
+<p><strong>Bewertung:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Messbild</th>
+<th>Nächste Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name → falsches Ziel; geprüfte richtige IP → TCP funktioniert</td>
+<td>DNS-/Adresspfad, Split-DNS, IPv4/IPv6</td>
+</tr>
+<tr>
+<td>Beide TCP-Tests scheitern</td>
+<td>Route, Firewall, Zielhost/Listener, Rückweg</td>
+</tr>
+<tr>
+<td>TCP ist erfolgreich, App meldet Fehler</td>
+<td>TLS/HTTP/SMB/Authentifizierung/Backend (RB-039)</td>
+</tr>
+<tr>
+<td>Nur ein Quell-VLAN betroffen</td>
+<td>Gateway, Segmentierung, ACL/Firewall-Logs, VPN-Route</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>TcpTestSucceeded</code> bestätigt <strong>nur TCP auf dem gewählten Port</strong>, nicht die korrekte Anwendung.</p>
+<h2 id="7-a-b-test-mit-kontrollierter-vergleichsquelle">7. A/B-Test mit kontrollierter Vergleichsquelle</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gleicher FQDN, gleiche Ziel-IP und gleicher TCP-Port, ähnliche Zeit.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zweiter Client im selben Subnetz; wenn möglich zweiter Standort/VLAN.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ergebnis mit Uhrzeit, Source-IP, Destination-IP, Port, DNS-Antwort und VPN-Status festhalten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nicht allein aufgrund eines Clients die Ursache einem Server oder einer Firewall zuschreiben.</li>
+</ul>
+<h2 id="8-zielserver-und-ownerprufung">8. Zielserver- und Ownerprüfung</h2>
+<p>Nur mit Serverzugang und entsprechender Berechtigung:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-NetIPConfiguration
+Get-NetAdapter | Select-Object Name,Status,LinkSpeed
+Get-NetTCPConnection -LocalPort 443 -State Listen -ErrorAction SilentlyContinue
+</code></pre></div>
+<p><strong>Fragen:</strong> Server/VM online? Erwartete IP und NIC? Dienst lauscht? Hypervisor-/Firewall-/Routing- und Monitoring-Befunde korrelieren. Lokaler Listener beweist keine externe Erreichbarkeit.</p>
+<h2 id="9-freigabe-minimale-korrektur-oder-l2-l3-eskalation">9. Freigabe, minimale Korrektur oder L2/L3-Eskalation</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verantwortlichen benennen (DNS-Owner, Netzwerk-/Firewall-Team, Server-/Applikations-Team).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Befundbasierte Hypothese mit zwei oder mehr unabhängigen Beobachtungen dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Änderung nur nach Genehmigung, mit Rollback-Plan und Testfenster.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls unklar: <strong>keinen</strong> blind durchgeführten Firewall-/Netzwerkreset, sondern Paket-/Firewall-Logs mit Source und Destination anfordern.</li>
+</ul>
+<p><strong>Eskalationspaket:</strong> Ticket-Impact; Quelle/VLAN/VPN; Ziel/FQDN/IP/Port; Uhrzeit; DNS-Ergebnis; TCP/Traceroute; Vergleichsclient; Änderungshistorie; gewünschte minimale Freigabe.</p>
+<h2 id="10-retest-nutzerfreigabe-und-ticketkommentar">10. Retest, Nutzerfreigabe und Ticketkommentar</h2>
+<p><strong>Nur dann „behoben“:</strong> Der <em>ursprünglich betroffene</em> Nutzer/Client kann <strong>denselben Dienst</strong> am beabsichtigten Ziel und Port wieder nutzen; der erfolgreiche TCP-Test allein genügt nicht.</p>
+<p><strong>Muster-Ticketkommentar – FIKTIV:</strong></p>
+<blockquote>
+<p><strong>Befund:</strong> HTTPS-Zugriff auf <code>server01.firma.example</code> von VLAN 20 fehlgeschlagen, von VLAN 30 erfolgreich; identische DNS-Antwort auf <code>192.0.2.40</code>.<br/>
+<strong>Analyse:</strong> TCP 443 nur aus VLAN 20 nicht erreichbar; Netzwerk-Owner hat anhand Firewall-Logs eine unpassende ACL für die betreffende Quellgruppe bestätigt.<br/>
+<strong>Maßnahme und Ergebnis:</strong> Nach dokumentierter Freigabe hat der Owner die Regel minimal angepasst; ursprünglicher Client kann die Anwendung wieder öffnen. Retest und Nutzerbestätigung dokumentiert.</p>
+</blockquote>
+<p><strong>Abschluss:</strong> Zeit, tatsächlich ausgeführte Prüfungen, bestätigte Ursache (oder „weiterhin offen“), Freigabe-/Change-ID, konkrete Maßnahme, Vorher/Nachher und Nutzerbestätigung. Keine Laborvalidierung behaupten, solange sie nicht stattgefunden hat.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-038_Praxis-Runbook.md">RB-038_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-037/index.html">← Ticket 37</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-039/index.html">Ticket 39 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,218 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 26: Windows startet nicht korrekt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 26: Windows startet nicht korrekt. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 26: Windows startet nicht korrekt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-annahme-und-priorisierung">1. Annahme und Priorisierung</a></li><li><a href="#2-sicherheits-und-backup-gate-vor-reparatur">2. Sicherheits- und Backup-Gate – VOR Reparatur</a></li><li><a href="#3-den-fehler-reproduzierbar-lokalisieren">3. Den Fehler reproduzierbar lokalisieren</a></li><li><a href="#4-winre-zugriff-auswahlen">4. WinRE-Zugriff auswählen</a></li><li><a href="#5-diagnosepfad-a-bcd-startmanager">5. Diagnosepfad A – BCD / Startmanager</a></li><li><a href="#6-diagnosepfad-b-windows-logo-neustartschleife-oder-bsod">6. Diagnosepfad B – Windows-Logo, Neustartschleife oder BSOD</a></li><li><a href="#7-recovery-optionen-nach-eignung-auswahlen">7. Recovery-Optionen nach Eignung auswählen</a></li><li><a href="#8-re-test-und-abschlusskriterien">8. Re-Test und Abschlusskriterien</a></li><li><a href="#9-eskalation-und-saubere-ubergabe">9. Eskalation und saubere Übergabe</a></li><li><a href="#10-praxiswissen-und-herstellerquellen">10. Praxiswissen und Herstellerquellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Support-Level:</strong> L2 · <strong>Erstaufnahme:</strong> L1<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Recherchiertes und noch <strong>nicht praktisch validiertes</strong> Runbook. Keine Maßnahme ohne passende Berechtigung, Datensicherung und Gerätefreigabe.</p>
+<blockquote>
+<p><strong>Leitsatz:</strong> <strong>Phase nachweisen → Risiko prüfen → Diagnose durchführen → eine geeignete Maßnahme → vollständiger Normalstart und Anwendungsfunktion verifizieren.</strong> Die Ursache wird nicht aus einer einzelnen Meldung geraten.</p>
+</blockquote>
+<h2 id="1-annahme-und-priorisierung">1. Annahme und Priorisierung</h2>
+<p><strong>Meldung:</strong> „Windows startet nicht korrekt.“</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kontakt, Gerät, Hersteller/Modell, Asset-Nummer, Standort und betroffene Arbeitsaufgabe dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ausfallzeit, geschäftliche Auswirkung, Ersatzarbeitsplatz und Anzahl betroffener Geräte erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Letzter erfolgreicher Normalstart und erste Fehlerzeit notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Fehlerdarstellung/Stopcode/BCD-Code/BitLocker-Anzeige erfassen; falls zulässig Foto im Ticket.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Änderungen kurz vorher: Updates, Software, Treiber, Sicherheitsprodukt, UEFI/TPM, Stromausfall.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Laufwerkserkennung/Hardwareindikatoren aus RB-025 übernehmen; bei <strong>No Power/No POST/No Video</strong> zurück zu RB-025.</li>
+</ul>
+<p><strong>Priorisierung</strong> nicht allein nach Technikbezeichnung, sondern nach <strong>Auswirkung und Dringlichkeit</strong>; interne SLA beachten.</p>
+<h2 id="2-sicherheits-und-backup-gate-vor-reparatur">2. Sicherheits- und Backup-Gate – VOR Reparatur</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Physischer Defekt ausgeschlossen? SSD erkennbar, keine Hardware-Fehlercodes, keine Anzeichen für Schaden/Überhitzung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Besteht nachweisbarer Backup-/Recovery-Stand? Nicht synchronisierte lokale Geschäftsdaten geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>BitLocker-/Geräteverschlüsselung bekannt und <strong>Wiederherstellungsschlüssel über autorisierte Stelle</strong> erreichbar?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Freigabe von Endpoint/IT-Leitung, Datensicherung und Anwenderauswirkungen (bei Bedarf) vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Für jede Änderung: Ausgangsstatus und Rückfallstrategie dokumentiert?</li>
+</ul>
+<p><strong>STOP bei „Nein/Unbekannt“:</strong> Keine schreibenden Reparaturen. Backup/Endpoint/Hardware/Security einschalten. <strong>BitLocker-Schlüssel nie im Ticket notieren oder an Unbefugte schicken.</strong></p>
+<h2 id="3-den-fehler-reproduzierbar-lokalisieren">3. Den Fehler reproduzierbar lokalisieren</h2>
+<p>Einmal den kontrollierten Start beobachten, nicht beliebig oft neu starten.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste Einordnung</th>
+<th>Nächster sicherer Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein Strom, kein Firmware-Logo</td>
+<td>Noch kein belegter Windows-Fehler</td>
+<td>RB-025 (Hardware)</td>
+</tr>
+<tr>
+<td>UEFI-Meldung, SSD fehlt</td>
+<td>Storage-/Bootmedium-Hypothese</td>
+<td>OEM-/Hardwareteam, <strong>kein</strong> <code>chkdsk</code>/BCD-Eingriff</td>
+</tr>
+<tr>
+<td>BCD-/Bootmanager-Fehler</td>
+<td>Frühe Windows-Bootphase</td>
+<td>Meldung + Systemlaufwerk klären, Starthilfe erwägen</td>
+</tr>
+<tr>
+<td>Windows-Logo, Neustartschleife</td>
+<td>Loader/Kernel/Software/Storage möglich</td>
+<td>Stopcode, Veränderungshistorie, WinRE prüfen</td>
+</tr>
+<tr>
+<td>Bluescreen/Stopcode</td>
+<td>Kernel-/Treiber-/Storage-Pfad möglich</td>
+<td>Vollständigen Stopcode notieren, passende technische Quelle</td>
+</tr>
+<tr>
+<td>Nur schwarzer Bildschirm</td>
+<td>Windows-Start <strong>nicht belegt</strong></td>
+<td>Video-/Externer-Monitor-Test aus RB-022/RB-025</td>
+</tr>
+<tr>
+<td>BitLocker-Abfrage</td>
+<td>Sicherheits-/Recoveryprozess</td>
+<td>Schlüssel-ID und Freigabe, <strong>kein</strong> TPM-Reset</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="4-winre-zugriff-auswahlen">4. WinRE-Zugriff auswählen</h2>
+<p><strong>A. Windows oder Anmeldebildschirm erreichbar:</strong> Über <code>Einstellungen → System → Wiederherstellung → Erweiterter Start</code> bzw. <code>Umschalt + Neu starten</code> WinRE öffnen.</p>
+<p><strong>B. Windows startet nicht:</strong> Erscheint „Automatische Reparatur“ bereits von selbst, <strong>Erweiterte Optionen</strong> aufrufen. Wenn nicht: nur freigegebene Recovery-Medien/OEM-Weg nutzen; <strong>erzwungene harte Unterbrechungen nicht als Standard</strong>.</p>
+<p><strong>C. Verschlüsselung:</strong> WinRE kann für bestimmte Optionen den BitLocker-Recovery-Key verlangen. Schlüsselbeschaffung <strong>nur</strong> über zuständige Unternehmenssysteme und -prozesse.</p>
+<p><strong>Mögliche Menüpunkte:</strong> <code>Problembehandlung → Erweiterte Optionen</code>: <strong>Starthilfe</strong>, <strong>Starteinstellungen</strong>, <strong>Updates deinstallieren</strong>, <strong>Systemwiederherstellung</strong>, <strong>Eingabeaufforderung</strong>. Abweichungen nach Build/Hersteller/Richtlinie dokumentieren.</p>
+<h2 id="5-diagnosepfad-a-bcd-startmanager">5. Diagnosepfad A – BCD / Startmanager</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte Fehlermeldung und Code sichern (z. B. möglicher BCD-Fehlercode).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>SSD-Erkennung und OEM-Hardwarebefund prüfen. <strong>Fehlendes Laufwerk ⇒ keine Windows-Reparatur.</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach Freigabe und Backup-/Key-Gate: <code>WinRE → Problembehandlung → Erweiterte Optionen → Starthilfe</code> verwenden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Starthilfeausgabe, etwaige Log-Datei und Ergebnis dokumentieren; vollständigen Neustart prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Fehlschlag: <strong>L2-Bootanalyse</strong>, keine allgemeine <code>bootrec</code>-/<code>bcdboot</code>-Befehlsserie aus dem Internet. UEFI/GPT und Legacy/MBR unterscheiden; Zielpartitionen vor jeder Änderung eindeutig identifizieren.</li>
+</ol>
+<p><strong>Beispiel nur lesender Prüfung in autorisierter WinRE-Konsole:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bat</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bat">:: Aktuelle BCD-Anzeige (keine Änderung)
+bcdedit /enum all
+
+:: Volumes nur auflisten; Laufwerksbuchstaben in WinRE sind nicht garantiert gleich
+diskpart
+list volume
+exit
+
+:: BitLocker-Zustand erfragen, ohne Geheimnisse zu veröffentlichen
+manage-bde -status
+</code></pre></div>
+<p><strong>Achtung:</strong> Bei Auffälligkeiten den <strong>konkreten</strong> Befund mit L2/Endpoint abgleichen, bevor eine Bootpartition bearbeitet wird.</p>
+<h2 id="6-diagnosepfad-b-windows-logo-neustartschleife-oder-bsod">6. Diagnosepfad B – Windows-Logo, Neustartschleife oder BSOD</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vollständigen Stopcode/Fehlercode und zeitlichen Ablauf dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls freigegeben und technisch möglich: <code>WinRE → Starteinstellungen → Neu starten → Abgesicherter Modus</code>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Safe Mode erfolgreich?</strong> Änderungsverlauf, Treiber, zuletzt installierte Software, Security-Produkt, Startprogramme und Systemereignisse eingrenzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Safe Mode scheitert?</strong> Treiber-/Kernel-/Storageursache bleibt offen. Starthilfe bzw. weitere WinRE-Analyse nach Befund, keine automatisierte Komplettreparatur.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Update-Indiz: <strong>Updates deinstallieren</strong> (nur passende, tatsächlich angebotene Aktualisierung) <em>oder</em> <strong>Systemwiederherstellung</strong> nach genehmigter Risikoabwägung. Nicht pauschal alles zurücksetzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach jeder Maßnahme vollständigen <strong>Normalstart</strong> prüfen. Abgesicherter Modus alleine ist keine Erfolgskontrolle.</li>
+</ol>
+<p><strong>Lesende Nachanalyse nur auf laufendem Windows/Safe Mode:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-WinEvent -FilterHashtable @{
+  LogName='System'; Id=41,6008,1001; StartTime=(Get-Date).AddDays(-14)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 20 TimeCreated, Id, ProviderName, Message
+
+Get-CimInstance Win32_OperatingSystem |
+    Select-Object Caption, Version, BuildNumber, LastBootUpTime
+
+Get-Disk | Select-Object Number, FriendlyName, HealthStatus, OperationalStatus
+
+reagentc /info
+</code></pre></div>
+<p><strong>Interpretation:</strong> Event 41/6008 = ungeplanter Neustart/Shutdown-Hinweis, <strong>nicht</strong> Beweis einer bestimmten Ursache. PowerShell-Befehle funktionieren nicht zwangsläufig in WinRE. <code>Healthy</code> ersetzt keine OEM-Storageprüfung.</p>
+<h2 id="7-recovery-optionen-nach-eignung-auswahlen">7. Recovery-Optionen nach Eignung auswählen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Maßnahme</th>
+<th>Typisches Einsatzfenster</th>
+<th>Auswirkung / Voraussetzung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Starthilfe</strong></td>
+<td>Vermutete Startdatei-/Bootkonfigurationsstörung</td>
+<td><strong>Schreibender Reparaturversuch</strong>, kein Erfolgsversprechen</td>
+</tr>
+<tr>
+<td><strong>Abgesicherter Modus</strong></td>
+<td>Treiber-/Software-/Dienstproblem eingrenzen</td>
+<td>Diagnostischer Start, normale Anwendungsfunktion eingeschränkt</td>
+</tr>
+<tr>
+<td><strong>Updates deinstallieren</strong></td>
+<td>Fehler zeitlich/technisch mit Update korreliert</td>
+<td>Entfernt nur unterstützte/angebotene Updates; Freigabe erforderlich</td>
+</tr>
+<tr>
+<td><strong>Systemwiederherstellung</strong></td>
+<td>Geeigneter Wiederherstellungspunkt, Systemänderungen</td>
+<td>Kann Apps/Treiber/Systemeinstellungen zurücksetzen; persönliche Dateien i. d. R. nicht</td>
+</tr>
+<tr>
+<td><strong>Point-in-Time-Wiederherstellung (falls vorhanden)</strong></td>
+<td>Passender Snapshot auf unterstütztem Windows 11</td>
+<td>Kann auch persönliche Dateien auf Snapshotstand zurückführen</td>
+</tr>
+<tr>
+<td><strong>Reset / Rebuild / Clean Install</strong></td>
+<td>Letzte Option nach Datensicherung und Eskalationsentscheidung</td>
+<td>Anwendungen/Einstellungen, ggf. Datenverlust; geräteverwaltete Bereitstellung nötig</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Unzulässige Kurzschlüsse:</strong> <code>DISM /Online</code> in WinRE als Offline-Reparatur ausgeben; ohne Pfadprüfung <code>sfc</code> auf die falsche Installation anwenden; <code>bcdedit /set ...</code> zur Symptombeseitigung ohne Rollback; <code>chkdsk /f</code> auf verdächtiger SSD mit ungesicherten Daten.</p>
+<h2 id="8-re-test-und-abschlusskriterien">8. Re-Test und Abschlusskriterien</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein ursprünglicher BCD-/Stop-/Reparaturfehler beim <strong>Normalstart</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows-Benutzeranmeldung erfolgreich, erwartete Benutzerumgebung vorhanden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mindestens ein zweiter kontrollierter Start, sofern betrieblich freigegeben und sinnvoll; kein erneuter Fehler.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Systemdatum, Grundfunktionen, Laufwerkserkennung, Netzwerk, nötige Geschäftsanwendungen geprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>BitLocker-Schutz-/Recoveryzustand nach Unternehmensvorgabe geprüft; <strong>keine Geheimnisse protokolliert</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Geänderte Treiber-/Updateversionen und die tatsächliche Maßnahme dokumentiert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Melder bestätigt, dass die ursprüngliche Arbeitsaufgabe wieder möglich ist.</li>
+</ul>
+<p><strong>Wenn keine Ursache nachgewiesen:</strong> Ticketstatus nicht als „Ursache gefunden“ ausgeben; nach erfolgreichem Betrieb ggf. „Störung derzeit nicht reproduzierbar“ mit weiterem Monitoring nach Prozess.</p>
+<h2 id="9-eskalation-und-saubere-ubergabe">9. Eskalation und saubere Übergabe</h2>
+<p><strong>Unverzüglich eskalieren bei:</strong> SSD im UEFI fehlend, OEM-Hardwarediagnose fehlerhaft, wiederholtem STOP mit Datenverlustverdacht, fehlendem Schlüsselzugang, kritischen ungesicherten Daten, fehlender Freigabe, erfolgloser Starthilfe und unklarer Bootpartitionslage, verdächtiger Security-/Malwarelage.</p>
+<p><strong>Übergabedaten:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Asset, Windows-Version/Build, Verschlüsselung <strong>nur als Status</strong>, Backup-Status.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vollständiger Code und Screenshot/Fehlermeldung; Zeitpunkt und letzte Änderung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche Startphase ist <strong>belegt</strong>, welche nur <strong>vermutet</strong>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>UEFI-Laufwerkserkennung und ggf. OEM-Hardwarebefund.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>WinRE verfügbar? Starthilfe/Safe Mode getestet? <strong>Befund/Ergebnis</strong> statt nur „geht nicht“.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte durchgeführte Änderungen, Autorisierung und Rückfalloption.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Offene Hypothese, zuständiges Team, gewünschte nächste Prüfung.</li>
+</ul>
+<h3 id="kopierbarer-muster-ticketkommentar-fiktiv">Kopierbarer Muster-Ticketkommentar (fiktiv)</h3>
+<blockquote>
+<p><strong>Symptom:</strong> Windows 11 startet nach Neustart nicht normal; nach Herstellerlogo wiederholt sich ein BSOD (Stopcode dokumentiert). <strong>Eingrenzung:</strong> UEFI erkennt SSD, OEM-Storage-Kurztest ohne gemeldeten Fehler; WinRE verfügbar. BitLocker-Key-Zugriff und Backup durch zuständige Stelle bestätigt. <strong>Test:</strong> Abgesicherter Modus startet; zuletzt geänderter Drittanbietertreiber als Hypothese. <strong>Maßnahme:</strong> Nach Endpoint-Freigabe gezieltes Treiber-Rollback. <strong>Prüfung:</strong> Zwei erfolgreiche Normalstarts, Benutzeranmeldung, Netzwerk und Fachanwendung erfolgreich. <strong>Status:</strong> Fiktiv gelöster Übungsfall; kein produktiver Eingriff erfolgt.</p>
+</blockquote>
+<h2 id="10-praxiswissen-und-herstellerquellen">10. Praxiswissen und Herstellerquellen</h2>
+<p><strong>Lerncheck ohne Hilfsmittel:</strong></p>
+<ol>
+<li>Was ist der Unterschied zwischen Firmware-, Bootmanager-, Loader- und Kernelphase?</li>
+<li>Warum ist ein BCD-Fehler nicht automatisch ein Beweis für beschädigte BCD-Dateien?</li>
+<li>Warum werden Daten-/Backupstatus und BitLocker <strong>vor</strong> der ersten Reparatur geprüft?</li>
+<li>Was beweist Safe Mode, und warum reicht er für den Abschluss nicht?</li>
+<li>Warum darf <code>DISM /Online</code> nicht als Offline-Reparatur in WinRE verstanden werden?</li>
+<li>Welche Informationen gehören in ein strukturiertes L2-Übergabeticket?</li>
+</ol>
+<p><strong>Quellen (Microsoft, Recherche 22.11.2026):</strong></p>
+<ul>
+<li>Startphasen: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting</a></li>
+<li>WinRE: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment</a></li>
+<li>Starthilfe: <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair</a></li>
+<li>Abgesicherter Modus/Starteinstellungen: <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/windows-startup-settings" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/windows-startup-settings</a></li>
+<li>Recoveryoptionen: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows</a></li>
+<li>Updates deinstallieren: <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/how-to-uninstall-a-windows-update" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/how-to-uninstall-a-windows-update</a></li>
+<li>Systemwiederherstellung: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/system-restore" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/system-restore</a></li>
+<li>BitLocker-Recovery: <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Recherchierte technische Anleitung, keine reale Durchführung. Ein erfolgreicher Testausgang in den Beispielen ist ausdrücklich <strong>fiktiv</strong>. Bis zu einer praktischen Lab-/Arbeitsplatzvalidierung ist das Runbook als vorläufig zu kennzeichnen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-026_Praxis-Runbook.md">RB-026_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-025/index.html">← Ticket 25</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-027/index.html">Ticket 27 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,215 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-und-auswirkungsprufung-l1">1. Ticketaufnahme und Auswirkungsprüfung (L1)</a></li><li><a href="#2-vorbedingungen-ohne-riskante-anderung-l1">2. Vorbedingungen – ohne riskante Änderung (L1)</a></li><li><a href="#3-kontrollierter-a-b-test-l1">3. Kontrollierter A/B-Test (L1)</a></li><li><a href="#4-fehlerzweig-a-kabelgebundene-maus-tastatur-oder-usb-gerat-l1">4. Fehlerzweig A – Kabelgebundene Maus, Tastatur oder USB-Gerät (L1)</a></li><li><a href="#5-fehlerzweig-b-usb-funkempfanger-2-4-ghz-maus-oder-tastatur-l1">5. Fehlerzweig B – USB-Funkempfänger (2,4 GHz), Maus oder Tastatur (L1)</a></li><li><a href="#6-fehlerzweig-c-bluetooth-maus-oder-bluetooth-tastatur-l1">6. Fehlerzweig C – Bluetooth-Maus oder Bluetooth-Tastatur (L1)</a></li><li><a href="#7-windows-gerate-manager-und-lesende-powershell-l1-l2">7. Windows-Geräte-Manager und lesende PowerShell (L1/L2)</a></li><li><a href="#8-massnahme-nach-befund-und-ruckfallstrategie-l1-l2">8. Maßnahme nach Befund und Rückfallstrategie (L1/L2)</a></li><li><a href="#9-funktionskontrolle-dokumentation-und-l2-ubergabe">9. Funktionskontrolle, Dokumentation und L2-Übergabe</a></li><li><a href="#10-quellen-transparenz-und-lernkontrolle">10. Quellen, Transparenz und Lernkontrolle</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Zielumgebung:</strong> Windows 11, direkte USB-Geräte, USB-Hubs/Dockingstationen, USB-Funkempfänger und Bluetooth-HID-Geräte<br/>
+<strong>Level:</strong> L1 (Aufnahme, gefahrlose Gegenproben und bestätigte Standardmaßnahmen); L2 (Controller/Treiber, Energiekonfiguration, Richtlinien, Hardwaretausch bei Unklarheit)<br/>
+<strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026<br/>
+<strong>Status:</strong> recherchiertes Runbook zur späteren praktischen Prüfung; noch nicht im Labor validiert.</p>
+<blockquote>
+<p><strong>Einsatzregel:</strong> <em>Erst benennen, was ausgefallen ist, dann genau eine Variable ändern.</em> USB-Speicher sind <strong>keine</strong> harmlosen Eingabegeräte: Schreibvorgänge beenden, sichere Entfernung beachten. Sicherheitsrichtlinien nicht umgehen. Bei mechanischem Schaden, Überstromwarnung oder Überhitzung Tests abbrechen.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb024_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-024 – technischer Diagnosebaum" decoding="async" loading="lazy" src="assets/rb024_diagnosebaum.svg"/></a></div><figcaption>RB-024 – technischer Diagnosebaum</figcaption></figure>
+<h2 id="1-ticketaufnahme-und-auswirkungsprufung-l1">1. Ticketaufnahme und Auswirkungsprüfung (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wer/wo betroffen? Hostmodell, Windows-Version, Arbeitsplatz, Zeitpunkt und letzte Änderung notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Exaktes Gerät:</strong> Maus, Tastatur, Headset, Speicher, Drucker o. a.; Hersteller/Modell, USB-A/USB-C, direkt über Kabel, USB-Receiver, Bluetooth oder Dock/Hub/KVM?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Symptom:</strong> gar keine Reaktion, „USB-Gerät nicht erkannt“, sporadische Aussetzer, nur in einer Anwendung, nur nach Standby, falsche Eingabe?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Umfang:</strong> nur ein Gerät, ein Port, alle USB-Ports, nur ein Dock oder ganze Geräteklasse?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Haben Mitarbeitende noch <strong>mindestens eine funktionsfähige Eingabemöglichkeit</strong>? Bei Maus und Tastatur gleichzeitig ausgefallen: Ersatzgerät/Fernsupport nach Vorgabe organisieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gibt es <strong>Speicher- oder Sicherheitsrisiken</strong>? Laufende Kopiervorgänge, Wechselmedien, Produktionsgeräte, USB-Device-Control, sensibler Arbeitsplatz?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sichtbare Schäden/Hitze/Überstrom? Wenn ja: <strong>Stop, sicherer Hardwareprozess</strong>.</li>
+</ul>
+<p><strong>Primärziel:</strong> Betroffene Fehlerdomäne eingrenzen, nicht ungeprüft „USB-Treiberfehler“ in das Ticket schreiben.</p>
+<h2 id="2-vorbedingungen-ohne-riskante-anderung-l1">2. Vorbedingungen – ohne riskante Änderung (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nutzer über mögliche kurze Unterbrechung informieren; offene Arbeit sichern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Kabelgerät: Steckersitz, Kabel, Buchse und Gerät sichtprüfen, <strong>keine</strong> beschädigten Anschlüsse weiternutzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Funkgerät: Batterie/Akku, Ein-/Aus-Schalter, Empfänger vorhanden und geeignet, Reichweite.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Bluetooth: Gerät im korrekten Modus? Bluetooth unter <strong>Einstellungen → Bluetooth &amp; Geräte</strong> aktiviert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Hub/Dock: Netzteil/Hostkabel prüfen; nach Möglichkeit <strong>direkt am Notebook/PC</strong> testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei USB-Speicher: <strong>Schreibvorgänge stoppen</strong>, ggf. sicher auswerfen; kein vorschnelles Abziehen, Initialisieren oder Formatieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Keine</strong> unfreigegebenen Fremdgeräte oder unbekannten USB-Sticks als Vergleich verwenden.</li>
+</ul>
+<h2 id="3-kontrollierter-a-b-test-l1">3. Kontrollierter A/B-Test (L1)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Prüfung</th>
+<th>Test A</th>
+<th>Test B – genau eine Änderung</th>
+<th>Befund aufnehmen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Porttest</strong></td>
+<td>Gerät A an ursprünglichem Port</td>
+<td>Gerät A an anderem <strong>direkten, geeigneten Port</strong></td>
+<td>Ergebnis je Port</td>
+</tr>
+<tr>
+<td><strong>Gerätetest</strong></td>
+<td>Gerät A am ursprünglichen Port</td>
+<td>Freigegebenes, intaktes Gerät B <strong>am selben Port</strong></td>
+<td>Gerät oder Port wahrscheinlicher?</td>
+</tr>
+<tr>
+<td><strong>Hosttest</strong></td>
+<td>Gerät A an PC 1</td>
+<td>Gerät A an zugelassenem PC 2</td>
+<td>Gerätespezifisch oder Host/Policy?</td>
+</tr>
+<tr>
+<td><strong>Hubtest</strong></td>
+<td>Gerät A über Hub/Dock</td>
+<td>Gerät A direkt am PC</td>
+<td>Hub/Dock-/Hostpfad betroffen?</td>
+</tr>
+<tr>
+<td><strong>Funkvergleich</strong></td>
+<td>Empfänger an bisheriger Position</td>
+<td>Position/Abstand zu Störquellen ändern</td>
+<td>Störung reproduzierbar besser?</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Pflicht im Ticket:</strong> A-Test, B-Test, <em>einziger</em> geänderter Faktor, Beobachtung, Wiederholbarkeit, neue Hypothese. Unterschiede zwischen PCs (Richtlinien, Treiber, Betriebssystem) können das Ergebnis beeinflussen.</p>
+<h2 id="4-fehlerzweig-a-kabelgebundene-maus-tastatur-oder-usb-gerat-l1">4. Fehlerzweig A – Kabelgebundene Maus, Tastatur oder USB-Gerät (L1)</h2>
+<ol>
+<li>Strom-/Schaden-/Kabelprüfung gemäß Abschnitt 2.</li>
+<li>Bei <strong>unkritischem Eingabegerät</strong> ab- und nach kurzer Pause wieder anstecken (mit Nutzerfreigabe). Bei Datenträgern nur nach Abschnitt 2!</li>
+<li>Einen anderen <strong>direkten</strong> USB-Anschluss testen; Hub/KVM/Dock vorerst umgehen.</li>
+<li>Mit bekannt funktionierender Maus/Tastatur im ursprünglichen Anschluss gegenprüfen.</li>
+<li>Gerät an freigegebenem anderen PC testen, falls nötig.</li>
+<li>Funktion <strong>tatsächlich</strong> bestätigen: Maus bewegen/klicken/scrollen; Tastatur in Testfeld schreiben.</li>
+<li>Bleibt ein Port reproduzierbar defekt oder treten mehrere Geräte gleichzeitig aus: L2/Hardware mit A/B-Ergebnissen.</li>
+</ol>
+<p><strong>Befundregel:</strong> LED an ≠ USB-Datenstrecke ok; sichtbares PnP-Gerät ≠ nutzbare Eingabe.</p>
+<h2 id="5-fehlerzweig-b-usb-funkempfanger-2-4-ghz-maus-oder-tastatur-l1">5. Fehlerzweig B – USB-Funkempfänger (2,4 GHz), Maus oder Tastatur (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verbindungstyp sicher festgestellt? <strong>USB-Receiver ist nicht dasselbe wie Bluetooth.</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Batterien/Akku, An-/Aus-Schalter, Modus des Geräts geprüft.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>USB-Receiver als richtiges, ggf. gekoppeltes Gegenstück vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Receiver direkt am PC statt an Hub/KVM/Dock getestet.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Abstand, Metallflächen und mögliche Funkstörer überprüft; ggf. Empfänger mit <strong>freigegebener</strong> Verlängerung günstiger positioniert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät und Receiver am freigegebenen Vergleichs-PC getestet (wenn unterstützt).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hersteller-Pairing nur nach Vorgaben, mit zugelassener Software, <strong>nicht</strong> blind; fehlende Kompatibilität beachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Stabile Funktion mit wiederholten Bewegungen/Tastatureingaben bestätigt.</li>
+</ul>
+<p><strong>Erklärung:</strong> Ein vom PC erkannter USB-Empfänger beweist noch nicht die Funkkopplung zum Eingabegerät.</p>
+<h2 id="6-fehlerzweig-c-bluetooth-maus-oder-bluetooth-tastatur-l1">6. Fehlerzweig C – Bluetooth-Maus oder Bluetooth-Tastatur (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Akku/Schalter/Reichweite/Gerätemodus prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows 11: <strong>Einstellungen → Bluetooth &amp; Geräte</strong>: Bluetooth an? Gerät sichtbar/verbunden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist nur dieses Gerät oder der gesamte Bluetooth-Adapter betroffen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Geeignete Windows-Bluetooth-Problembehandlung über <strong>Hilfe abrufen</strong> nutzen; Ergebnis notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls möglich, anderes zugelassenes Bluetooth-Gerät vergleichen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Pairingfehler <strong>nach Freigabe</strong> Verbindung gezielt entfernen und neu koppeln; vorher Eingabefallback sicherstellen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Adapter-/Treiberfehler, fehlendem Bluetooth-Menü oder Sicherheitssperre an L2/Endpoint.</li>
+</ul>
+<p><strong>Kein Fehlschluss:</strong> „Gekoppelt“ ist nicht automatisch „verbunden und funktionsfähig“.</p>
+<h2 id="7-windows-gerate-manager-und-lesende-powershell-l1-l2">7. Windows-Geräte-Manager und lesende PowerShell (L1/L2)</h2>
+<p><strong>Geräte-Manager:</strong> <code>Win + X</code> → Geräte-Manager / <code>devmgmt.msc</code> (falls sichere Eingabe möglich). Unter <strong>USB-Controller</strong>, <strong>Eingabegeräte (HID)</strong>, <strong>Mäuse</strong>, <strong>Tastaturen</strong>, <strong>Bluetooth</strong>, ggf. <strong>Andere Geräte</strong> prüfen. Gerätestatus/Fehlercode auslesen, <strong>nichts auf Verdacht deaktivieren</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># 1. Präsente USB-/HID-/Maus-/Tastatur-/Bluetooth-Geräte (nur lesen)
+Get-PnpDevice -PresentOnly |
+  Where-Object { $_.Class -in @('USB','HIDClass','Mouse','Keyboard','Bluetooth') } |
+  Select-Object Class, Status, FriendlyName, InstanceId |
+  Sort-Object Class, FriendlyName
+
+# 2. Aktuell präsente PnP-Instanzen mit Fehler-/Warnstatus (nur lesen)
+Get-PnpDevice -PresentOnly |
+  Where-Object { $_.Status -ne 'OK' } |
+  Select-Object Class, Status, FriendlyName, InstanceId
+
+# 3. Bei Bedarf Windows-PnP-Inventar und ConfigManagerErrorCode (nur lesen)
+Get-CimInstance Win32_PnPEntity |
+  Where-Object { $_.PNPClass -in @('USB','HIDClass','Mouse','Keyboard') } |
+  Select-Object Name, PNPClass, Status, ConfigManagerErrorCode
+</code></pre></div>
+<p><strong>Code 10:</strong> Startproblem; <strong>22:</strong> Gerät deaktiviert; <strong>43:</strong> Gerät/Treiber meldet Problem – <strong>keiner</strong> dieser Codes beweist allein defekte Hardware. Ein <code>Status OK</code> belegt weder funktionsfähige Funkstrecke noch nutzbare Eingabe. Fehlender Eintrag ist ebenfalls kein eindeutiger Defektbeweis. Nur notwendige Kennungen ins Ticket übernehmen.</p>
+<h2 id="8-massnahme-nach-befund-und-ruckfallstrategie-l1-l2">8. Maßnahme nach Befund und Rückfallstrategie (L1/L2)</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Maßnahme</th>
+<th>Freigabe / Risikogrenze</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Defektes Eingabegerät/Kabel durch Gegenproben gestützt</td>
+<td>Freigegebenes Ersatzgerät/-kabel</td>
+<td>L1 / Hardwareausgabe</td>
+</tr>
+<tr>
+<td>Fehler nur über Hub/Dock</td>
+<td>Direkte Verbindung als Überbrückung; RB-023 zur Dockdiagnose</td>
+<td>Keine unkontrollierten Dock-Resets</td>
+</tr>
+<tr>
+<td>Akku leer, Empfänger ungünstig, Funkstörung plausibel</td>
+<td>Batterie, Schalter, Empfängerposition korrigieren</td>
+<td>L1, mit Re-Test</td>
+</tr>
+<tr>
+<td>Bluetooth nicht gekoppelt</td>
+<td>Zielgerichtet koppeln (nach Zustimmung)</td>
+<td>Fallback-Eingabe vorher sicherstellen</td>
+</tr>
+<tr>
+<td>Deaktiviertes oder verwaltetes Gerät</td>
+<td>Ursache/Richtlinie prüfen, Freigabe einholen</td>
+<td>Endpoint/Security, niemals umgehen</td>
+</tr>
+<tr>
+<td>Controller-/Treiberfehler, nach Standby reproduzierbar</td>
+<td>L2 bewertet OEM-Treiber, Energieverwaltung, Rollback</td>
+<td><strong>Nicht</strong> pauschal USB-Controller deinstallieren</td>
+</tr>
+<tr>
+<td>Überstrom/Hitze/Portdefekt</td>
+<td>Test stoppen, Arbeitsplatz sichern, Hardwareprozess</td>
+<td>Kein L1-Reparaturversuch</td>
+</tr>
+<tr>
+<td>Speicher mit Fehlern/Datenrisiko</td>
+<td>Keine Initialisierung/Formatierung; Datensicherung/Recovery-Prozess</td>
+<td>Daten priorisieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>USB Selective Suspend:</strong> Microsoft empfiehlt, die Energieeinsparung nicht pauschal zu deaktivieren. Ein Auftreten nach Standby ist zunächst <strong>Korrelation</strong>, keine Ursachenbestätigung. Änderungen an Treibern, Firmware, BIOS/UEFI, Registry, USB-Sperr- oder Energieeinstellungen nur kontrolliert durch zuständige Stelle.</p>
+<h2 id="9-funktionskontrolle-dokumentation-und-l2-ubergabe">9. Funktionskontrolle, Dokumentation und L2-Übergabe</h2>
+<p><strong>Erfolg ist eine funktionierende Tätigkeit, nicht nur der Gerätestatus:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Maus: Zeiger, Linksklick/Rechtsklick, ggf. Scrollen zuverlässig.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Tastatur: Texteingabe und betroffene Tasten; Layout/Fn/NumLock ggf. berücksichtigt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Funkgerät: stabil über eine für das Fehlersymptom angemessene Testdauer; ggf. nach Reconnect/Standby nachtesten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anderes USB-Gerät: tatsächlich benötigte Funktion erfolgreich (nur in freigegebener Testumgebung).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nutzende Person bestätigt die Wiederherstellung; eventuelle Einschränkung/Workaround benannt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Dokumentiert:</strong> Vorher → A/B-Test → Ursache/Hypothese → einzelne Maßnahme → Re-Test → Benutzerbestätigung.</li>
+</ul>
+<p><strong>Übergabe an L2 bei:</strong> multiplen ausgefallenen direkten Ports, USB-Controller-/PnP-Fehlern, Richtlinie/Endpoint-Sperre, fehlendem sicheren Eingabepfad, Treiber-/Firmwarethema, mechanischem Schaden, Datenträgerrisiko oder unklarem reproduzierbarem Fehler.</p>
+<h3 id="kopierbarer-ticketkommentar-beispiel-fiktiv">Kopierbarer Ticketkommentar (Beispiel – fiktiv)</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Störung: USB-Tastatur an Dock zeitweise ohne Eingabe; direkt am PC intakt.
+Eingrenzung: Strom/Stecker ohne sichtbare Schäden. A: Dock-USB-Port =
+Aussetzer; B: gleiche Tastatur direkt am Notebook = stabil.
+Zusatztest: bekannte intakte Tastatur über Dock ebenfalls betroffen.
+Bewertung: Dock-/Hubpfad wahrscheinlicher, exakte Ursache offen.
+Maßnahme: Freigegebene Direktverbindung als Übergang, RB-023 an L2.
+Re-Test: Direkte Tastatureingabe mit Anwender geprüft, erfolgreich.
+Status: Eingabe wieder nutzbar, Dockproblem gesondert offen.
+</code></pre></div>
+<h2 id="10-quellen-transparenz-und-lernkontrolle">10. Quellen, Transparenz und Lernkontrolle</h2>
+<p><strong>Herstellerquellen – Recherche 22.11.2026:</strong></p>
+<ol>
+<li>Microsoft – Probleme mit Maus und Tastatur unter Windows: <a href="https://support.microsoft.com/de-de/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows</a></li>
+<li>Dell – How to Fix USB Port Issues on Your Dell Computer: <a href="https://www.dell.com/support/kbdoc/en-us/000132048/how-to-troubleshoot-usb-issues" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/kbdoc/en-us/000132048/how-to-troubleshoot-usb-issues</a></li>
+<li>Microsoft – Bluetooth-Probleme in Windows beheben: <a href="https://support.microsoft.com/de-de/windows/hardware/bluetooth/fix-bluetooth-problems-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/bluetooth/fix-bluetooth-problems-in-windows</a></li>
+<li>Logitech – Wireless device does not work or is not recognized: <a href="https://support.logi.com/hc/en-150/articles/360023204454-Wireless-device-does-not-work-or-is-not-recognized" rel="noopener noreferrer" target="_blank">https://support.logi.com/hc/en-150/articles/360023204454-Wireless-device-does-not-work-or-is-not-recognized</a></li>
+<li>Microsoft Learn – USB Selective Suspend: <a href="https://learn.microsoft.com/de-de/windows-hardware/drivers/usbcon/usb-selective-suspend" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/drivers/usbcon/usb-selective-suspend</a></li>
+<li>Microsoft – Fehlercodes im Geräte-Manager: <a href="https://support.microsoft.com/de-de/windows/hardware/drivers/error-codes-in-device-manager-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/drivers/error-codes-in-device-manager-in-windows</a></li>
+</ol>
+<p><strong>Transparenz:</strong> Dieses Runbook ist eine recherchierte, noch <strong>nicht im Labor validierte</strong> Arbeitsanweisung; Beispiel-Tickets sind fiktiv. Die Befehle im Runbook sind ausschließlich lesend. Die abgeleitete Diagnose-Reihenfolge ist eine eigene Zusammenstellung und kein offizielles Komplettverfahren eines einzelnen Herstellers.</p>
+<p><strong>Kurztest ohne Runbook:</strong> Eine USB-Maus fällt nur am Hub aus. Formuliere zwei Ursachenhypothesen, einen Vergleichstest mit <strong>nur einer Änderung</strong> sowie den Nachweis, der eine Eskalation an L2 fachlich rechtfertigt. Nach 7 und 21 Tagen mit einem abgewandelten Szenario wiederholen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-024_Praxis-Runbook.md">RB-024_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-023/index.html">← Ticket 23</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-025/index.html">Ticket 25 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

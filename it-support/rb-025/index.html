@@ -1,0 +1,387 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 25: Computer startet nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 25: Computer startet nicht. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 25: Computer startet nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</a></li><li><a href="#2-technik-verstehen-was-geschieht-beim-einschalten">2. Technik verstehen: Was geschieht beim Einschalten?</a></li><li><a href="#3-das-henne-und-ei-prinzip-ursache-und-folge-nicht-verwechseln">3. Das Henne-und-Ei-Prinzip – Ursache und Folge nicht verwechseln</a></li><li><a href="#4-vier-fehlerklassen-und-ihre-typischen-hypothesen">4. Vier Fehlerklassen und ihre typischen Hypothesen</a></li><li><a href="#5-sicherheits-und-datenvorprufung">5. Sicherheits- und Datenvorprüfung</a></li><li><a href="#6-l1-start-beobachten-dokumentieren-gezielt-eingrenzen">6. L1-Start: Beobachten, dokumentieren, gezielt eingrenzen</a></li><li><a href="#7-diagnosezweig-a-no-power-l1-bei-bedarf-l2">7. Diagnosezweig A – No Power (L1, bei Bedarf L2)</a></li><li><a href="#8-diagnosezweig-b-no-post-firmware-oder-hardwareproblem">8. Diagnosezweig B – No POST / Firmware- oder Hardwareproblem</a></li><li><a href="#9-diagnosezweig-c-no-video-parallel-zur-startkette">9. Diagnosezweig C – No Video (parallel zur Startkette)</a></li><li><a href="#10-diagnosezweig-d-no-boot-l2-ubergang-zu-rb-026">10. Diagnosezweig D – No Boot (L2; Übergang zu RB-026)</a></li><li><a href="#11-sichere-technische-prufungen-und-ihre-grenzen">11. Sichere technische Prüfungen und ihre Grenzen</a></li><li><a href="#12-massnahmen-nach-befund-ruckfallstrategie-und-eskalation">12. Maßnahmen nach Befund, Rückfallstrategie und Eskalation</a></li><li><a href="#13-zwei-fiktive-praxisfalle-diagnose-und-transfer">13. Zwei fiktive Praxisfälle – Diagnose und Transfer</a></li><li><a href="#14-active-recall-self-explanation-und-spatere-validierung">14. Active Recall, Self-Explanation und spätere Validierung</a></li><li><a href="#15-offizielle-quellen-und-transparenz">15. Offizielle Quellen und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Hardware, Windows 11, Arbeitsplatz und Startdiagnose<br/>
+<strong>Support-Level:</strong> L1/L2 (L1: Fehlerklasse, äußerer Stromweg und sichere Gegenproben; L2/Hardware: POST-/Firmware-/Speicher-/Systemdiagnose)<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Anhand offizieller Herstellerquellen recherchiert, theoretisch dokumentiert; <strong>noch nicht an einem realen Störungsgerät praktisch validiert</strong>. Alle Übungsfälle sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb025_henne_ei_startprobleme.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-025: Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb025_henne_ei_startprobleme.webp"/></a></div><figcaption>RB-025: Henne-und-Ei-Infografik</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> „Computer startet nicht“ ist ein <strong>Symptom</strong>, noch keine Ursache. <strong>No Power → No POST → No Video → No Boot</strong> sind unterscheidbare Fehlerbilder, keine vier gleichbedeutenden Namen. Erst erkennen, welche Phase betroffen ist, dann möglichst datenschonend eingrenzen und beheben.</p>
+</blockquote>
+<h2 id="1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</h2>
+<p><strong>INC-025 (fiktive Meldung):</strong> „Mein Rechner startet seit heute Morgen nicht. Der Bildschirm bleibt schwarz. Ich brauche die Dokumente für einen Kundentermin.“</p>
+<p><strong>Arbeitsziel:</strong> Die betroffene Startphase <strong>beobachtbar und reproduzierbar eingrenzen</strong>; einen sicheren, möglichst minimalinvasiven Lösungsweg wählen; Daten und Betriebsvorgaben schützen; Startfähigkeit und Nutzerzugang prüfen. <strong>Ein schwarzer Bildschirm allein beweist nicht, dass Windows defekt ist.</strong></p>
+<p><strong>Erstkontakt – sechs Leitfragen:</strong></p>
+<ol>
+<li>Was genau passiert nach dem Einschalten: <strong>gar nichts</strong>, LEDs/Lüfter/Pieptöne, Herstellerlogo, Windows-Logo, Fehlermeldung, BitLocker-Abfrage, Neustartschleife?</li>
+<li>Desktop, Notebook oder All-in-One? <strong>Hersteller, Modell, Inventarnummer</strong>, Netzteil/Dock und Anzahl angeschlossener Monitore?</li>
+<li>Seit wann? Letzter erfolgreicher Start? Vorher <strong>Stromausfall, Umzug, Akkuleerstand, Update, Flüssigkeit, Sturz, Hardwarewechsel</strong>?</li>
+<li>Gibt es <strong>Wärme, Geruch, ungewöhnliche Geräusche, sichtbare Beschädigung oder aufgeblähten Akku</strong>? Dann <strong>nicht weiter testen</strong>.</li>
+<li>Was ist geschäftskritisch: Frist, Anzahl Betroffener, lokale noch nicht gesicherte Daten, Zugang zu Ersatzarbeitsplatz?</li>
+<li>Lässt sich die Störung mit genau <strong>einem kontrollierten Startversuch</strong> reproduzieren, ohne einen laufenden Update-/Reparaturprozess zu unterbrechen?</li>
+</ol>
+<p><strong>L1-Grenze:</strong> Steckdose, Netzteiltyp, Anschlüsse, LED- und Monitorstatus, externe Peripherie und vereinbarte Gegenproben. <strong>L2/Hardware:</strong> modellabhängige Diagnoseprogramme, Hardwaretausch, interne Komponenten, Firmware und verschlüsselter Wiederherstellungszugriff.</p>
+<h2 id="2-technik-verstehen-was-geschieht-beim-einschalten">2. Technik verstehen: Was geschieht beim Einschalten?</h2>
+<p>Ein typischer Windows-Arbeitsplatz durchläuft logisch mehrere Voraussetzungen:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Vereinfachte Funktion</th>
+<th>Beobachtbare Indizien</th>
+<th>Was die Beobachtung <strong>nicht</strong> beweist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stromversorgung</strong></td>
+<td>Steckdose/Netzteil/Akku/Board stellen nutzbare Energie bereit.</td>
+<td>Power-LED, Ladestatus, Lüfter, Verhalten der Einschalttaste.</td>
+<td>Eine leuchtende Lade-LED beweist <strong>keinen</strong> erfolgreichen Systemstart.</td>
+</tr>
+<tr>
+<td><strong>Firmware / POST</strong></td>
+<td>UEFI/BIOS initialisiert zentrale Hardware und führt Selbsttests aus.</td>
+<td>Herstellerlogo, LEDs, modellabhängige Pieptöne, Diagnosemeldungen.</td>
+<td>Ein Logo belegt <strong>nicht zwingend</strong>, dass POST vollständig abgeschlossen wurde.</td>
+</tr>
+<tr>
+<td><strong>Videoausgabe</strong></td>
+<td>Grafikpfad, Kabel, Monitor und Eingang stellen ein Bild dar.</td>
+<td>Monitor-OSD, „Kein Signal“, Bild auf alternativem Bildschirm.</td>
+<td>Keine Bildausgabe ist <strong>nicht automatisch</strong> No Power oder No POST.</td>
+</tr>
+<tr>
+<td><strong>Boot-Pfad</strong></td>
+<td>UEFI/Bootmanager findet das Startmedium und lädt Windows-Komponenten.</td>
+<td>„No bootable device“, Windows-Logo, Laderad, Wiederherstellungsansicht.</td>
+<td>Das Anzeigen des Herstellerlogos beweist <strong>noch keinen</strong> Windows-Start.</td>
+</tr>
+<tr>
+<td><strong>Windows / Anmeldung</strong></td>
+<td>Kernel, Dienste, Anmeldung und Benutzerumgebung starten.</td>
+<td>Anmeldebildschirm, Desktop, Netzwerkzugriff.</td>
+<td>Ein sichtbarer Desktop bestätigt nicht alle Geschäftsanwendungen.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die Dell-Klassifikation trennt <strong>No Power</strong>, <strong>No POST</strong>, <strong>No Boot</strong> und <strong>No Video</strong>. Die Microsoft-Dokumentation trennt zusätzlich Windows-Startphasen. Quellen: <a href="https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer" rel="noopener noreferrer" target="_blank">Dell – Klassifikation</a>, <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows-Startprobleme</a>.</p>
+<p><strong>Begriffe präzise:</strong></p>
+<ul>
+<li><strong>No Power:</strong> Keine oder unzureichende Anzeichen eines Einschaltens; primär Stromweg/Hardware prüfen. Manche Defekte wirken ähnlich und brauchen Herstellerdiagnose.</li>
+<li><strong>No POST:</strong> Rechner bekommt offenbar Strom, erreicht aber keinen nachweisbar abgeschlossenen Selbsttest. Diagnose-LEDs, Pieptöne oder Hängenbleiben im Logo sind Hinweise, keine universellen Codes.</li>
+<li><strong>No Video:</strong> Rechner könnte laufen, aber Anzeigeweg ist unterbrochen. Von No POST ohne weitere Indizien nicht immer eindeutig abzugrenzen.</li>
+<li><strong>No Boot:</strong> Hardwareinitialisierung ist weit genug, aber ein startfähiges Betriebssystem wird nicht erfolgreich geladen. Fehler kann Firmware-Bootkonfiguration, SSD oder Windows betreffen.</li>
+</ul>
+<h2 id="3-das-henne-und-ei-prinzip-ursache-und-folge-nicht-verwechseln">3. Das Henne-und-Ei-Prinzip – Ursache und Folge nicht verwechseln</h2>
+<p><strong>Die Henne fragt:</strong> „Soll ich Windows reparieren, obwohl der PC überhaupt nicht reagiert?“<br/>
+<strong>Das Ei erklärt:</strong> „Bevor Windows startet, müssen Stromversorgung, grundlegende Hardwareinitialisierung und ein Bootpfad funktionieren.“</p>
+<p><strong>Abhängigkeitskette:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Betriebsbereite Stromversorgung
+          ↓
+Firmware initialisiert Hardware / POST
+          ↓
+Firmware findet gültigen Startpfad
+          ↓
+Windows-Bootmanager / Windows-Ladevorgang
+          ↓
+Windows-Anmeldung und Arbeitsplatz
+</code></pre></div>
+<p><strong>Parallelspur: Bildschirm:</strong> Ein Rechner kann alle genannten Schritte durchlaufen, obwohl aufgrund eines Defekts im Monitor-/Grafikpfad <strong>kein sichtbares Bild</strong> erscheint. Deshalb steht „No Video“ nicht einfach als festes serielles Glied der Startkette. Der Bildschirm muss separat geprüft werden.</p>
+<p><strong>Fachlicher Merksatz:</strong> <em>Keine Windows-Reparatur, bevor belegt ist, dass der Fehler überhaupt in der Windows-Startphase liegt.</em></p>
+<h2 id="4-vier-fehlerklassen-und-ihre-typischen-hypothesen">4. Vier Fehlerklassen und ihre typischen Hypothesen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ausgangsbeobachtung</th>
+<th>Arbeitshypothese</th>
+<th>Erste geeignete Gegenprobe</th>
+<th>Eskalationssignal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keine LED, keine Reaktion</td>
+<td>Steckdose, Netzleiste, Adapter, Akku, Stromversorgung</td>
+<td>Bekannte funktionierende Steckdose/zulässiger Adapter</td>
+<td>Überhitzung, Geruch, Schaden oder weiterhin keinerlei Reaktion</td>
+</tr>
+<tr>
+<td>Power-LED / Lüfter, kein Logo; Piepcodes</td>
+<td>POST-/Board-/RAM-/Firmwareproblem möglich</td>
+<td>Blinkmuster dokumentieren; OEM-Handbuch/Diagnose</td>
+<td>Diagnosecode, ausbleibender POST trotz sicherer Gegenprobe</td>
+</tr>
+<tr>
+<td>Power-LED, kein Bild, Monitor meldet „Kein Signal“</td>
+<td>Falsche Quelle, Kabel, Monitor, Grafikpfad; POST offen</td>
+<td>OSD, Eingang, Direktanschluss/zweiter Bildschirm</td>
+<td>Vergleichsmonitor bleibt schwarz; Diagnosecode</td>
+</tr>
+<tr>
+<td>Herstellerlogo bleibt stehen</td>
+<td>POST hängt oder Boot-Übergabe scheitert</td>
+<td>Verlauf/Fehlermeldung dokumentieren; OEM-Diagnose</td>
+<td>Wiederholt gleiche Stelle, Hardwarefehler</td>
+</tr>
+<tr>
+<td>„No bootable device“</td>
+<td>SSD nicht erreichbar, Bootreihenfolge/UEFI-Konfiguration, Dateisystem-/Bootfehler</td>
+<td>SSD-Erkennung in <strong>lesender</strong> UEFI-Ansicht, OEM-Test</td>
+<td>SSD fehlt/Hardwaretest fehlerhaft; BitLocker-Kontext</td>
+</tr>
+<tr>
+<td>Windows-Laderad, automatische Reparatur, Neustartschleife</td>
+<td>OS-/Treiber-/Update-/Storagefehler möglich</td>
+<td>Exakte Meldung, WinRE-Optionen, Ereignisverlauf nach Wiederanlauf</td>
+<td>Wiederholte Reparaturfehlschläge, ungesicherte Daten</td>
+</tr>
+<tr>
+<td>BitLocker-Wiederherstellungsbildschirm</td>
+<td>Verschlüsselungs-/TPM-/Bootzustandsänderung oder Recovery-Bedingung</td>
+<td>Schlüssel-ID prüfen; autorisierten Key-Prozess starten</td>
+<td>Key nicht vorhanden; kein Recht zur Entsperrung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Ein einzelner Blinkcode ist <strong>nicht herstellerübergreifend</strong> definiert. Anzahl, Farbe und Rhythmus immer exakt mit dem konkreten Modellhandbuch abgleichen. <a href="https://support.hp.com/ch-de/document/ish_4120821-4027713-16" rel="noopener noreferrer" target="_blank">HP-Startdiagnose</a>.</p>
+<h2 id="5-sicherheits-und-datenvorprufung">5. Sicherheits- und Datenvorprüfung</h2>
+<p><strong>Nicht fortsetzen</strong> bei Brandgeruch, Rauch, heißem Gehäuse, ausgelaufenem/aufgeblähtem Akku, Flüssigkeitsschaden oder knisterndem Netzteil. Gerät nach betrieblicher Sicherheitsanweisung stromlos machen, sofern gefahrlos möglich; verantwortliche Stelle informieren. Bei Flüssigkeit nicht wiederholt einschalten.</p>
+<p><strong>Nie als L1-Standardmaßnahme:</strong></p>
+<ul>
+<li>PC-<strong>Netzteilgehäuse</strong> öffnen, Kondensatoren berühren, defekte Leitungen provisorisch reparieren oder Netzteile unterschiedlicher Spezifikation improvisiert anschließen.</li>
+<li>BIOS/UEFI aktualisieren, Secure Boot / TPM deaktivieren, Bootmodus ändern, CMOS zurücksetzen oder interne Laufwerke/RAM ohne technische Freigabe ausbauen.</li>
+<li>Partitionen löschen, SSD initialisieren, Windows neu installieren, „Diesen PC zurücksetzen“ oder Daten durch Wiederherstellungsversuche gefährden.</li>
+<li>BitLocker-Schlüssel in das Ticket schreiben oder außerhalb des vorgesehenen <strong>autorisierten</strong> Schlüsselprozesses versenden.</li>
+<li>Einen laufenden BIOS-Update-, Firmware-, Verschlüsselungs-, Datenträger- oder Windows-Reparaturprozess wegen eines langen schwarzen Bildschirms vorschnell mit Gewalt abbrechen.</li>
+</ul>
+<p><strong>Vor Reparatur klären:</strong> Letzte Datensicherung, nur lokal gespeicherte Geschäftsdaten, Verschlüsselungsstatus, Schlüsselzugang und Wiederherstellungsrechte. <strong>Wenn dies ungeklärt ist, L2 einbeziehen und zunächst Beweissicherung/Diagnose statt Änderung.</strong></p>
+<h2 id="6-l1-start-beobachten-dokumentieren-gezielt-eingrenzen">6. L1-Start: Beobachten, dokumentieren, gezielt eingrenzen</h2>
+<ol>
+<li><strong>Sichtprüfung und Gefahrenausschluss:</strong> beschädigte Leitungen, ungewöhnliche Wärme/Gerüche, Flüssigkeit, aufgeblähten Akku beachten.</li>
+<li><strong>Nur einen Startversuch beobachten:</strong> Uhrzeit, Geräusche, LEDs, Hersteller-/Windows-Logo, genaue Fehlermeldung und zeitliche Reihenfolge notieren.</li>
+<li><strong>Bekannt funktionierenden Stromweg</strong> kontrollieren: Steckdose direkt, Netzleiste/Schalter, Steckverbindungen, Modell-/Leistungsdaten des freigegebenen Netzteils. Bei Notebook Lade-LED und Akkuanzeige einordnen; nur Hersteller-konforme Vergleichsadapter verwenden.</li>
+<li><strong>Monitor separat prüfen:</strong> Menü/OSD erreichbar? Richtiger Eingang? Signalweg direkt testen, ohne Dock/KVM/Adapter, wenn betrieblich möglich. Laptop: internen Bildschirm berücksichtigen.</li>
+<li><strong>Peripherie nach Freigabe minimieren:</strong> Nicht benötigte USB-Geräte, externe Datenträger, Dock, KVM und Zusatzmonitore abkoppeln, dabei geöffnete Anwendungen und Datenträger-Schreibvorgänge berücksichtigen. Alle Veränderungen protokollieren.</li>
+<li><strong>Fehlerklasse wählen:</strong> No Power / Verdacht No POST / No Video / No Boot. Bei Mehrdeutigkeit ausdrücklich „nicht trennscharf“ dokumentieren und weitere Gegenprobe planen.</li>
+</ol>
+<p><strong>Zu einem Power-Reset / Entladen:</strong> Manche Hersteller empfehlen bei bestimmten Modellen nach Trennung der Versorgung eine definierte Tastenhaltezeit. Das ist <strong>kein universeller Reset</strong>; nur auf Grundlage der jeweiligen OEM-Anleitung und Betriebsfreigabe, keinesfalls während eines laufenden Updates. Dell beschreibt modellabhängige Verfahren unter <a href="https://www.dell.com/support/contents/en-ed/article/product-support/self-support-knowledgebase/fix-common-issues/no-power" rel="noopener noreferrer" target="_blank">No Power</a>.</p>
+<h2 id="7-diagnosezweig-a-no-power-l1-bei-bedarf-l2">7. Diagnosezweig A – No Power (L1, bei Bedarf L2)</h2>
+<p><strong>Symptom:</strong> Power-Taste ohne erkennbare Wirkung; keine üblichen Betriebsindikatoren. Eine externe Lade-LED allein schließt No Power nicht aus.</p>
+<p><strong>Reihenfolge:</strong></p>
+<ul>
+<li><strong>A1:</strong> Steckdose durch ein anderes geeignetes Gerät bzw. nach örtlichen Regeln prüfen; schaltbare Steckdosenleiste und Netzschalter kontrollieren. Keine elektrischen Messungen ohne Qualifikation.</li>
+<li><strong>A2:</strong> Externes Originalnetzteil, Kabel und Stecker auf sichtbare Schäden prüfen; korrekt einsetzen. Bei USB-C-Laden nur technisch freigegebenen Adapter mit ausreichender Leistung und für das konkrete Gerät unterstütztem Ladeport verwenden.</li>
+<li><strong>A3:</strong> Notebook: Akku-/Netzteilanzeige und Startverhalten unter Netzversorgung beobachten; bei tiefentladenem Akku Herstellerladehinweise befolgen. Ohne vom Hersteller als entnehmbar vorgesehenen Akku keine Öffnung.</li>
+<li><strong>A4:</strong> <strong>Eine Variable pro Versuch</strong>: anderes freigegebenes Netzteil / Steckdose / Anschluss. Ergebnis und verwendete Spezifikation notieren.</li>
+<li><strong>A5:</strong> Bleibt das Gerät reaktionslos oder gibt es Auffälligkeiten → L2/Hardware, Gewährleistung/Service. Kein Netzteil öffnen.</li>
+</ul>
+<p><strong>Interpretation:</strong> Start nur mit Vergleichsnetzteil ist ein Hinweis auf den bisherigen Strompfad, aber kein automatischer Beweis, dass ausschließlich das Netzteil defekt ist. Prüfen, ob der Fehler unter der normalen Konfiguration dauerhaft behoben ist.</p>
+<h2 id="8-diagnosezweig-b-no-post-firmware-oder-hardwareproblem">8. Diagnosezweig B – No POST / Firmware- oder Hardwareproblem</h2>
+<p><strong>Symptom:</strong> Lüfter/LEDs aktiv; piept, blinkt oder bleibt vor nachweisbarem Boot stehen. Ein fehlendes Bild kann auch nur ein Video-Fehler sein; die Zuordnung braucht Indizien.</p>
+<ol>
+<li><strong>LED-/Piep-Sequenz</strong> exakt erfassen: Farben, Anzahl, Pausen, Wiederholung und Modell/BIOS-Version falls bereits bekannt. Keine generische Zahlentabelle anlegen.</li>
+<li><strong>Herstellerhandbuch</strong> zur konkreten Seriennummer oder Modellkennung aufrufen; Ursachen werden modellabhängig codiert. HP nennt z. B. Caps-Lock-/Num-Lock-Blinkmuster, Dell verschiedene LEDs/Pieptöne. Herstellerquellen: <a href="https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer" rel="noopener noreferrer" target="_blank">Dell</a>, <a href="https://support.hp.com/ch-de/document/ish_4120821-4027713-16" rel="noopener noreferrer" target="_blank">HP</a>.</li>
+<li><strong>Externe Peripherie</strong> mit kontrollierter Gegenprobe ausschließen, soweit sicher und freigegeben.</li>
+<li>Wenn ein OEM-Diagnosemenü erreichbar ist, <strong>nur passende freigegebene Tests</strong> durchführen und Kennungen/Fehlercodes sichern. Bootmenü-Tasten variieren je Hersteller, Generation und Firmware.</li>
+<li>Bei persistierendem Fehler: <strong>L2/Hardwaretausch/Herstellerservice</strong>. RAM-Tausch, Gehäuseöffnung, BIOS-Wiederherstellung und CMOS-Reset erst nach Servicevorgabe.</li>
+</ol>
+<p><strong>Hinweis:</strong> „Herstellerlogo sichtbar“ ist ein Übergangssignal, kein absoluter Beweis eines vollständigen POST. Bei Freeze am Logo kommen Firmware-/Hardwareinitialisierung und Boot-Übergang infrage.</p>
+<h2 id="9-diagnosezweig-c-no-video-parallel-zur-startkette">9. Diagnosezweig C – No Video (parallel zur Startkette)</h2>
+<p><strong>Symptom:</strong> Power-Indikatoren vorhanden, aber Monitor schwarz. Ob POST und Windows erfolgreich laufen, ist zunächst offen.</p>
+<p><strong>Sichere Prüfungen:</strong></p>
+<ul>
+<li>Monitorstrom, OSD-Menü und Eingang (HDMI/DP/USB-C) kontrollieren; wenn OSD nicht erscheint: Monitor-/Stromweg prüfen.</li>
+<li>Verbindung und direktes, bekannt funktionsfähiges Kabel testen; Dock/KVM/Adapter als eigene Fehlerquelle isolieren. Keine heißen/angeschmorten Anschlüsse anfassen.</li>
+<li>Bei Notebook internes Panel gegen externes vergleichen, bei Desktop unterschiedliche Monitor-/Kabelkombinationen im Rahmen zulässiger Anschlüsse prüfen.</li>
+<li>Ein wahrnehmbarer Windows-Anmeldeton oder eindeutige Netzwerk-/Remote-Erreichbarkeit <strong>kann</strong> helfen, laufendes System trotz fehlender Anzeige zu vermuten, beweist aber die exakte Ursache nicht. Remote-Tests nur mit zulässiger Berechtigung.</li>
+<li>Gelingt ein Bild auf alternativem Monitor, einen <strong>Monitor-/Signalwegfehler</strong> priorisieren. Bei komplett fehlendem Bild und Hersteller-Hardwarecodes <strong>L2</strong>.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-022 behandelt den externen Monitor vertieft. RB-025 benutzt diese Gegenprobe lediglich, um einen vermeintlichen Computer-Startfehler sauber abzugrenzen.</p>
+<h2 id="10-diagnosezweig-d-no-boot-l2-ubergang-zu-rb-026">10. Diagnosezweig D – No Boot (L2; Übergang zu RB-026)</h2>
+<p><strong>Voraussetzung:</strong> Es gibt belastbare Hinweise auf abgeschlossene oder ausreichend weit fortgeschrittene Hardwareinitialisierung und auf eine Störung beim Erreichen des Betriebssystems.</p>
+<ul>
+<li><strong>D1: Exakte Meldung:</strong> „No bootable device“, „Operating System not found“, Bootmanager-/BCD-Fehler, BitLocker-Recovery, Bluescreen oder automatische Reparatur – jeweils fotografieren und im Ticket vermerken, falls datenschutzkonform.</li>
+<li><strong>D2: Bootmedium/SSD:</strong> In UEFI nur <strong>lesend</strong> prüfen, ob ein Datenträger/Boot-Eintrag vorhanden ist. <strong>Nicht</strong> auf Verdacht SATA-Modus, Secure Boot, TPM, Partitionierung oder Bootreihenfolge ändern. SSD nicht sichtbar oder OEM-Test fehlerhaft → Hardware/Data-Recovery-Pfad.</li>
+<li><strong>D3: WinRE (Windows-Wiederherstellungsumgebung):</strong> Wenn verfügbar und freigegeben, „Problembehandlung → Erweiterte Optionen → Starthilfe“ als herstellerunterstütztes Verfahren erwägen. <strong>Die Starthilfe nimmt Änderungen vor</strong>; deshalb erst Daten-/BitLocker-/Freigabestatus klären.</li>
+<li><strong>D4: Vor jedem tieferen Reparaturversuch:</strong> Autorisierte BitLocker-Wiederherstellung prüfen; Schlüssel nicht ungeschützt erfassen. Ohne Zugriff oder bei geschäftskritischen ungesicherten Daten an L2/Backup/Endpoint übergeben.</li>
+<li><strong>D5: Ergebnis:</strong> Startet Windows, Anmeldung und erforderliche Anwendungen testen; startet es nicht, Fehlerausgabe sichern und an L2 übergeben. <strong>Keine Blindserie</strong> aus <code>bootrec</code>, <code>bcdedit</code>, <code>diskpart</code>, <code>chkdsk /f</code> oder Neuinstallation.</li>
+</ul>
+<p>Microsoft beschreibt WinRE und Starthilfe offiziell: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">Windows RE</a>, <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">Starthilfe</a>. Eine detaillierte Windows-Bootreparatur gehört zum nachfolgenden <strong>RB-026 „Windows startet nicht korrekt“</strong>.</p>
+<h2 id="11-sichere-technische-prufungen-und-ihre-grenzen">11. Sichere technische Prüfungen und ihre Grenzen</h2>
+<p><strong>Grundregel:</strong> Auf einem tatsächlich nicht startenden PC kann man <strong>keine normalen Windows-PowerShell-Befehle ausführen</strong>. Die folgenden <strong>lesenden</strong> Beispiele sind nur sinnvoll, wenn Windows wieder startet, ein autorisierter Remote-Zugang besteht oder Daten auf einem Vergleichsgerät betrachtet werden. Sie ersetzen keinen POST-Test.</p>
+<h3 id="a-systemmodell-nach-erfolgreichem-start">A. Systemmodell nach erfolgreichem Start</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-CimInstance -ClassName Win32_ComputerSystem |
+    Select-Object Manufacturer, Model, Name
+</code></pre></div>
+<p><strong>Nutzen:</strong> Modell für Handbuch, Treiber-/Serviceportal und Dokumentation bestimmen. <strong>Grenze:</strong> Ausgabe nur aus laufendem Windows; kein Beweis für den Zustand beim ursprünglichen Fehler.</p>
+<h3 id="b-firmware-version-erfassen">B. Firmware-Version erfassen</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-CimInstance -ClassName Win32_BIOS |
+    Select-Object Manufacturer, SMBIOSBIOSVersion, ReleaseDate
+</code></pre></div>
+<p><strong>Nutzen:</strong> Abgleich mit OEM-Diagnosehinweisen. <strong>Keine</strong> Update-Anweisung und keine Reparatur. Das Vorhandensein einer BIOS-Version beweist nicht, dass das Gerät aktuell fehlerfrei startet.</p>
+<h3 id="c-vorhandene-datentrager-nur-inventar">C. Vorhandene Datenträger – nur Inventar</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-Disk |
+    Select-Object Number, FriendlyName, SerialNumber, BusType,
+                  OperationalStatus, HealthStatus, Size
+</code></pre></div>
+<p><strong>Grenze:</strong> <code>HealthStatus = Healthy</code> ist <strong>keine</strong> vollständige Datenträger- oder Datenintegritätsgarantie; manche Treiber melden nur eingeschränkte Informationen. Keine <code>Initialize-Disk</code>-/<code>Clear-Disk</code>-/<code>Set-Disk</code>-Folgebefehle ableiten.</p>
+<h3 id="d-boot-power-ereignisse-nach-erfolgreichem-windows-start">D. Boot-/Power-Ereignisse nach erfolgreichem Windows-Start</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-WinEvent -FilterHashtable @{
+    LogName='System'
+    Id=41,6008
+    StartTime=(Get-Date).AddDays(-7)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 15 TimeCreated, Id, ProviderName, Message
+</code></pre></div>
+<p><strong>Interpretation:</strong> Ereignis 41 (Kernel-Power) und 6008 (unerwartetes Herunterfahren) können den <strong>ungeplanten Shutdown</strong> dokumentieren, belegen aber für sich <strong>nicht</strong> die Ursache, z. B. kein sicherer Beweis für einen Netzteildefekt. Ereignisse fehlen möglicherweise bei vollkommenem Startausfall oder Log-Lücken.</p>
+<h3 id="e-optionaler-winre-status-auf-funktionierendem-windows">E. Optionaler WinRE-Status auf funktionierendem Windows</h3>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">reagentc /info
+</code></pre></div>
+<p><strong>Grenze:</strong> Zeigt die Konfiguration der Wiederherstellungsumgebung auf einem laufenden System. Dieser Befehl <strong>startet keine</strong> Reparatur und hilft beim vollständig stromlosen Gerät nicht. Keine Änderungen am WinRE-Status ohne Freigabe.</p>
+<h3 id="f-ohne-lauffahiges-windows-was-bleibt-belegbar">F. Ohne lauffähiges Windows: Was bleibt belegbar?</h3>
+<ul>
+<li>Hersteller-/Gerätemodell, Power-LEDs, Beep-Codes, UEFI-Diagnoseergebnis;</li>
+<li>OSD-/Monitorstatus, bekannte funktionierende Versorgung und Kabel;</li>
+<li>Anwenderangaben zum letzten erfolgreichen Start, letzte Änderungen;</li>
+<li>Vorliegende verwaltete Geräteinformationen (Inventarsystem) ausdrücklich <strong>als historische Quelle</strong> kennzeichnen, nicht als aktuelle Live-Messung.</li>
+</ul>
+<h2 id="12-massnahmen-nach-befund-ruckfallstrategie-und-eskalation">12. Maßnahmen nach Befund, Rückfallstrategie und Eskalation</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Belegter Befund</th>
+<th>Angemessene Maßnahme</th>
+<th>Kontrolle/Rückfall</th>
+<th>Zuständigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Netzleiste ausgeschaltet / Netzstecker lose</td>
+<td>Korrekt anschließen</td>
+<td>Kontrollierter Kaltstart und angemessene Beobachtung</td>
+<td>L1</td>
+</tr>
+<tr>
+<td>Freigegebener Vergleichsadapter funktioniert, bisheriger nicht</td>
+<td>Adapter spezifikationsgleich austauschen</td>
+<td>Mehrfachstart, Laden und Arbeitsplatz testen; Altteil kennzeichnen</td>
+<td>L1 nach Prozess / Hardware</td>
+</tr>
+<tr>
+<td>Start nur ohne externes Gerät/Dock möglich</td>
+<td>Schuldigen Anschluss/Peripherie systematisch einzeln bestimmen</td>
+<td>Ursprüngliche Konfiguration schrittweise wiederherstellen</td>
+<td>L1/L2</td>
+</tr>
+<tr>
+<td>Externer Monitor defekt oder falscher Eingang</td>
+<td>Anzeige-/Kabelpfad berichtigen</td>
+<td>Bild bereits im Firmware-/Startbildschirm und Windows</td>
+<td>L1</td>
+</tr>
+<tr>
+<td>Eindeutiger OEM-POST-Fehlercode</td>
+<td>Gerät, Modell, Code, Rhythmus dokumentieren</td>
+<td>Keine invasive Selbstreparatur; Servicefall</td>
+<td>L2/Hersteller</td>
+</tr>
+<tr>
+<td>SSD nicht erkennbar / Diagnose meldet Fehler</td>
+<td>Datensicherung/Recovery-Priorität klären</td>
+<td>Nicht initialisieren; abgestimmter Austausch</td>
+<td>L2/Storage</td>
+</tr>
+<tr>
+<td>Windows-Bootproblem, Datensicherung/BitLocker geklärt</td>
+<td>Starthilfe <strong>nur nach Freigabe</strong> oder definiertes Recovery-Runbook</td>
+<td>Erfolgreicher Boot und Benutzerabnahme</td>
+<td>L2</td>
+</tr>
+<tr>
+<td>Unklare Datenlage / BitLocker-Key nicht verfügbar</td>
+<td>Keine schreibenden Reparaturen</td>
+<td>An Endpoint/Security/Backup eskalieren</td>
+<td>L2/Security</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Eskalationsdaten mindestens:</strong> Ticketzeitpunkt; Hersteller/Modell/Inventarnummer; Beschreibung des letzten funktionierenden Zustands; Fehlerklasse plus Unsicherheit; LED-/Piepmuster; Bild-/Fehlermeldung; Versorgungs-/Kabel-/Monitor-/Peripherie-Gegenproben; OEM-Diagnosecode; Verschlüsselungs- und Sicherungsstatus <strong>ohne Schlüsselmaterial</strong>; bereits ausgeführte Veränderungen; betriebliche Auswirkung.</p>
+<p><strong>Rückfallstrategie:</strong> Ausgangskonfiguration notieren und nach jeder harmlosen Gegenprobe wiederherstellen. Bei freigegebenen Änderungen zuvor festhalten, wer sie zurücknehmen kann. Firmware-/TPM-/Bootkonfigurationsänderungen können BitLocker-Recovery auslösen und gehören nicht zu improvisierten L1-Maßnahmen.</p>
+<h2 id="13-zwei-fiktive-praxisfalle-diagnose-und-transfer">13. Zwei fiktive Praxisfälle – Diagnose und Transfer</h2>
+<h3 id="fall-a-toter-pc-trotz-funktionierendem-arbeitsplatzmonitor">Fall A – „Toter PC“ trotz funktionierendem Arbeitsplatzmonitor</h3>
+<p><strong>Ausgangslage:</strong> Nach Arbeitsplatzwechsel reagiert ein Notebook beim Druck auf die Power-Taste nicht; der Nutzer vermutet defektes Windows. Die Steckdosenleiste leuchtet. Ein Dock ist angeschlossen, aber die Lade-LED des Notebooks ist aus.</p>
+<p><strong>Eigenständige Hypothesenbildung:</strong> Ist die Leiste wirklich auf dieser Buchse unter Spannung? Liefert das Dock genügend/überhaupt Strom? Ist das Notebook über den richtigen Ladeanschluss verbunden? Ist der Akku tiefentladen?</p>
+<p><strong>Kontrollierte Probe (fiktiv):</strong> Freigegebenes Original-Netzteil direkt am Notebook → Lade-LED erscheint, nach Ladezeit Start möglich. Der Vergleich ist ein Hinweis auf den Dock-/Strompfad. Anschließend dockseitige Verkabelung, Netzteilmodell und Leistungsanforderung abgleichen. <strong>Nicht automatisch</strong> Dock oder Akku als defekt deklarieren.</p>
+<p><strong>Ticketkommentar (Beispiel):</strong> „Notebook reagierte an Dock nicht auf Einschaltversuch; Ladeanzeige aus. Nach Anschluss des freigegebenen Original-Netzteils Ladeanzeige vorhanden, Start erfolgreich. Ursache auf Dock-Strompfad eingegrenzt; Dock-Netzteil/Verkabelung an zuständiges Team übergeben. Nutzerzugang am Original-Netzteil geprüft.“</p>
+<h3 id="fall-b-notebook-lauft-aber-es-bleibt-bei-schwarzem-bild">Fall B – Notebook läuft, aber es bleibt bei schwarzem Bild</h3>
+<p><strong>Ausgangslage:</strong> Notebook-Lüfter und Power-LED laufen, der externe Monitor zeigt „Kein Signal“. Nutzer meldet „Computer startet nicht“. Bei direkter Prüfung zeigt das interne Panel den Windows-Anmeldebildschirm.</p>
+<p><strong>Diagnose:</strong> Der Rechner startet nachweislich bis zur Anmeldung; dies ist ein <strong>Video-/Dock-/Signalproblem</strong>, kein nachgewiesener No-Boot-Fall. Direktes HDMI-Signal mit freigegebenem Kabel funktioniert, nur das Dock liefert kein externes Bild. Übergabe an Dock-/Videopfad (RB-022/RB-023).</p>
+<p><strong>Transferfrage:</strong> Welche Beobachtung hätte dir vor der Gegenprobe als <strong>vermeintlich</strong> starker Hinweis auf einen Rechnerdefekt erscheinen können, obwohl sie diesen nicht belegt?</p>
+<h2 id="14-active-recall-self-explanation-und-spatere-validierung">14. Active Recall, Self-Explanation und spätere Validierung</h2>
+<p><strong>Ohne auf den Text zu schauen beantworten:</strong></p>
+<ol>
+<li>Worin unterscheiden sich No Power, No POST, No Video und No Boot? Nenne für jede Klasse einen beobachtbaren Hinweis.</li>
+<li>Weshalb ist „LED leuchtet“ kein Beleg für einen erfolgreich ausgeführten POST?</li>
+<li>Wie würdest du feststellen, ob ein schwarzer Bildschirm auf Monitor/Kabel oder auf dem Rechner beruht, ohne Windows zu verändern?</li>
+<li>Warum darf ein Hersteller-Blinkcode nicht mit irgendeiner allgemeinen Blinkcode-Tabelle interpretiert werden?</li>
+<li>Welche <strong>drei Freigaben/Voraussetzungen</strong> brauchst du vor tieferen Windows-Recovery-Maßnahmen?</li>
+<li>Ein Anwender meldet „No bootable device“: Welche zwei <strong>lesenden</strong> Informationen willst du zuerst sichern?</li>
+<li>Warum beweist <code>Kernel-Power 41</code> für sich keinen Netzteilschaden?</li>
+<li>Welche Information muss im L2-Ticket stehen, damit der nächste Bearbeiter die Fehlersuche ohne Wiederholung fortsetzen kann?</li>
+</ol>
+<p><strong>Anki-Kandidaten (noch nicht als Karten exportiert):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Typ</th>
+<th>Frage</th>
+<th>Kurze Antwort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wissen</td>
+<td>Was bedeutet POST?</td>
+<td>Power-On Self-Test: Firmware prüft/initialisiert zentrale Hardware.</td>
+</tr>
+<tr>
+<td>Wissen</td>
+<td>Was heißt No Boot?</td>
+<td>Hardwarestart weit genug, Betriebssystem wird nicht erfolgreich geladen.</td>
+</tr>
+<tr>
+<td>Verständnis</td>
+<td>Warum nicht sofort Windows reparieren?</td>
+<td>Der Fehler kann im Strom-, POST- oder Videopfad liegen.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>LEDs aktiv, externer Monitor schwarz – erste Unterscheidung?</td>
+<td>Video-/Signalweg gegen POST-/Hardwarefehler abgrenzen.</td>
+</tr>
+<tr>
+<td>Diagnose</td>
+<td>BitLocker-Wiederherstellung vor Repair – nächster Schritt?</td>
+<td>Autorisierte Schlüsselbeschaffung, Freigabe und Datensicherung klären.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Praktische Validierung (später):</strong> Auf freigegebener Lab-Hardware gefahrlose, reversible Simulationen durchführen: Netzleiste aus / Netzteil getrennt, falscher Monitoreingang, externen Monitor abgekoppelt, bootfähiges Medium <strong>nicht</strong> manipulieren. Gemessen werden Diagnoseklasse, Dauer, Ergebnis der Gegenprobe, korrekte Eskalation und saubere Ticketdokumentation. <strong>Keine absichtlich beschädigten Bootdaten, kein Stromabzug während Updates, keine mutwillige Verschlüsselungs-/TPM-Störung.</strong></p>
+<p><strong>Spaced Repetition:</strong> Dieselbe vierteilige Klassifikation nach etwa <strong>7 und 21 Tagen</strong> ohne Vorlage erneut anhand eines anderen Fehlerbilds erklären. Erfolg = selbstständige Zuordnung und Begründung, nicht bloß Wiedererkennen von Schlagwörtern.</p>
+<h2 id="15-offizielle-quellen-und-transparenz">15. Offizielle Quellen und Transparenz</h2>
+<p>Abruf und inhaltliche Recherche: <strong>22.11.2026</strong>. Die Quellen stützen allgemeine Diagnosekonzepte; konkrete Prüfsequenzen für einen echten Firmenrechner sind stets mit <strong>Modellhandbuch, Unternehmensrichtlinie, Backup-/BitLocker-Prozess und Supportberechtigung</strong> abzugleichen.</p>
+<ol>
+<li><strong>Dell:</strong> „Resolve No Power, No POST, No Boot or No Video Issues“ – Klassifikation und OEM-Diagnose. <a href="https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer</a></li>
+<li><strong>Dell:</strong> „Computer Won't Turn On: Troubleshoot Power Issues“ – Stromversorgungs- und Startfehler. <a href="https://www.dell.com/support/contents/en-ed/article/product-support/self-support-knowledgebase/fix-common-issues/no-power" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/contents/en-ed/article/product-support/self-support-knowledgebase/fix-common-issues/no-power</a></li>
+<li><strong>HP:</strong> „Computer lässt sich nicht einschalten, startet nicht oder das System wird nicht gestartet“ – Startfehler und modellbezogene Diagnose. <a href="https://support.hp.com/ch-de/document/ish_4120821-4027713-16" rel="noopener noreferrer" target="_blank">https://support.hp.com/ch-de/document/ish_4120821-4027713-16</a></li>
+<li><strong>Microsoft Support:</strong> „Windows-Wiederherstellungsumgebung“. <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment</a></li>
+<li><strong>Microsoft Support:</strong> „Starthilfe“. <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair</a></li>
+<li><strong>Microsoft Learn:</strong> „Windows startup issues troubleshooting“ – Phasendiagnose. <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting</a></li>
+<li><strong>Microsoft Learn:</strong> „BitLocker recovery overview“ – geschützter Wiederherstellungszugriff. <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview</a></li>
+<li><strong>Microsoft Support:</strong> „Wiederherstellungsoptionen unter Windows“ – Bewertung von Recovery-Wegen. <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows</a></li>
+</ol>
+<p><strong>Quellenabgrenzung:</strong> Die Ablaufmatrix, A/B-Test-Priorisierung, Musterfälle, Formulierungen und Lernfragen sind eine <strong>eigene didaktische Synthese</strong> aus Herstellerangaben und bewährtem Diagnoseprinzip; sie sind nicht als wörtliche Herstellervorgaben zu verstehen. Ein konkreter Hardwaredefekt wurde <strong>nicht</strong> festgestellt. Keine Lösung wurde im Labor getestet.</p>
+<p><strong>Grafikhinweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Infografik ist ein Lernanker und kein Ersatz für den technischen Entscheidungsbaum und die Modell-Dokumentation.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-025_Lernartikel.md">RB-025_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-024/index.html">← Ticket 24</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-026/index.html">Ticket 26 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

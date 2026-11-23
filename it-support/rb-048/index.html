@@ -1,0 +1,292 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 48: Remotedesktopverbindung (RDP) schlägt fehl | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 48: Remotedesktopverbindung (RDP) schlägt fehl. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 48: Remotedesktopverbindung (RDP) schlägt fehl</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingangsticket-lernziel-und-fachliche-abgrenzung">1. Eingangsticket, Lernziel und fachliche Abgrenzung</a></li><li><a href="#2-technisches-modell-die-sieben-prufebenen">2. Technisches Modell: die sieben Prüfebenen</a></li><li><a href="#3-fehlersymptome-unterscheiden-bevor-getestet-wird">3. Fehlersymptome unterscheiden, bevor getestet wird</a></li><li><a href="#4-ticketaufnahme-notwendige-informationen-ohne-geheimnisse">4. Ticketaufnahme: notwendige Informationen ohne Geheimnisse</a></li><li><a href="#5-sicherheits-und-stop-check-vor-jeder-massnahme">5. Sicherheits- und STOP-Check vor jeder Maßnahme</a></li><li><a href="#6-l1-hostfahigkeit-und-netzwerkpfad-prufen">6. L1: Hostfähigkeit und Netzwerkpfad prüfen</a></li><li><a href="#7-l2-rdp-konfiguration-listener-und-dienst-am-ziel">7. L2: RDP-Konfiguration, Listener und Dienst am Ziel</a></li><li><a href="#8-l2-anmeldung-nla-benutzerrechte-und-ereignisprotokolle">8. L2: Anmeldung, NLA, Benutzerrechte und Ereignisprotokolle</a></li><li><a href="#9-sonderfalle-rd-gateway-rds-farm-entra-id-und-sitzungsabbruch">9. Sonderfälle: RD Gateway, RDS-Farm, Entra ID und Sitzungsabbruch</a></li><li><a href="#10-a-b-testmatrix-aus-einem-symptom-eine-hypothese-machen">10. A/B-Testmatrix: aus einem Symptom eine Hypothese machen</a></li><li><a href="#11-fehlerursachen-und-passende-freigabepflichtige-korrekturen">11. Fehlerursachen und passende, freigabepflichtige Korrekturen</a></li><li><a href="#12-fiktiver-musterfall-a-ein-benutzer-scheitert-nach-kennwortwechsel">12. Fiktiver Musterfall A – Ein Benutzer scheitert nach Kennwortwechsel</a></li><li><a href="#13-fiktiver-musterfall-b-rdp-geht-intern-uber-vpn-nicht">13. Fiktiver Musterfall B – RDP geht intern, über VPN nicht</a></li><li><a href="#14-lernkontrolle-active-recall-verstandnis-und-transfer">14. Lernkontrolle: Active Recall, Verständnis und Transfer</a></li><li><a href="#15-praxistraining-validierungsgrenzen-und-ticketabschluss">15. Praxistraining, Validierungsgrenzen und Ticketabschluss</a></li><li><a href="#quellen-und-technische-verifikation-23-11-2026">Quellen und technische Verifikation (23.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 23.11.2026 · <strong>Version:</strong> 1.0 · <strong>Systeme:</strong> Windows 11 Pro/Enterprise/Education als Host, Windows Server, Active Directory, VPN und ggf. Remote Desktop Gateway (RD Gateway)<br/>
+<strong>Status:</strong> Technische Quellenrecherche und theoretisch begründeter Diagnoseweg; <strong>keine praktische Validierung</strong>. Alle Fallbeispiele, Namen, Zeiten und IP-Adressen sind fiktiv. Keine produktive Konfiguration wurde verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb048_henne_ei_rdp.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-048 – Henne-und-Ei-Infografik: RDP-Störung systematisch eingrenzen" decoding="async" loading="lazy" src="assets/rb048_henne_ei_rdp.webp"/></a></div><figcaption>RB-048 – Henne-und-Ei-Infografik: RDP-Störung systematisch eingrenzen</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>Zielsystem läuft ≠ DNS korrekt ≠ TCP-Port erreichbar ≠ RDP-Listener funktionsfähig ≠ Anmeldung autorisiert ≠ Remotesitzung nutzbar.</strong> Jede Ebene erfordert einen eigenen Nachweis.</p>
+</blockquote>
+<hr/>
+<h2 id="1-eingangsticket-lernziel-und-fachliche-abgrenzung">1. Eingangsticket, Lernziel und fachliche Abgrenzung</h2>
+<p><strong>Fiktives Eingangsticket:</strong> „Seit heute 08:15 Uhr komme ich von meinem Firmenlaptop aus nicht mehr per Remotedesktop auf <code>ws-rdp-01.corp.example.test</code>. Über VPN bin ich angemeldet. Bei meinen Kollegen klappt es.“</p>
+<p><strong>Lernziel:</strong> Ohne blinde Regeländerungen die <strong>erste nachweisbar fehlerhafte Ebene</strong> identifizieren, passende Tests auswählen, den Befund dokumentieren und eine begrenzte, genehmigte Korrektur mit funktionaler Erfolgskontrolle durchführen.</p>
+<p><strong>Abgrenzung:</strong> RB-011 behandelt allgemeine VPN-Störungen, RB-034 DNS, RB-038 die Servererreichbarkeit, RB-039 generische TCP-Ports und RB-047 TLS-Zertifikate. RB-048 vertieft den RDP-spezifischen Pfad: Hostfähigkeit, RDP-Konfiguration, Listener, NLA, Kontorechte und Sitzungserstellung.</p>
+<p><strong>Produktgrenze:</strong> Windows 11 Home kann als RDP-<strong>Client</strong>, nicht als integrierter RDP-<strong>Host</strong> dienen. Ein normaler Arbeitsplatzhost (Windows 11 Pro/Enterprise/Education) ist nicht dasselbe wie eine Windows-Server-RDS-Farm mit RD Session Host, Gateway, Broker und RDS-CAL-Lizenzierung. [Q1][Q2]</p>
+<h2 id="2-technisches-modell-die-sieben-prufebenen">2. Technisches Modell: die sieben Prüfebenen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">RDP-Client (mstsc) / richtiges Ziel
+  → DNS oder IP-Adresse
+  → VPN / RD Gateway / Netzroute und Firewall
+  → TCP-Port (typisch 3389 bei direktem RDP)
+  → RDP-TCP-Listener / Remote Desktop Services am Host
+  → NLA und Kontoauthentifizierung
+  → RDP-Anmelderecht und Sitzung / Profil / Anwendung
+</code></pre></div>
+<p><strong>TCP 3389</strong> ist bei direktem klassischem RDP der Standard. Konfigurierte Ports können abweichen; bei <strong>RD Gateway</strong> wird vom Client zunächst das Gateway, typischerweise per <strong>HTTPS 443</strong>, erreicht und der Zielhost über den Gateway-Pfad verbunden. Ein fehlgeschlagener direkter Clienttest auf <code>Ziel:3389</code> ist <strong>kein</strong> alleiniger Beweis für ein Gateway-Problem. RDP kann neben TCP auch UDP einsetzen; ein ausgefallener UDP-Pfad darf nicht automatisch mit einem vollständigen RDP-Ausfall gleichgesetzt werden. [Q2][Q3][Q4]</p>
+<p><strong>NLA (Network Level Authentication)</strong> verlagert die Authentifizierung vor die Desktop-Sitzung. Es erhöht die Sicherheit und sollte nicht zum „Schnelltest“ deaktiviert werden. <strong>TCP erfolgreich</strong> sagt nur, dass der Port eine Verbindung zulässt; nicht, dass Anmeldung, Autorisierung und Anwendung funktionieren. [Q1][Q5]</p>
+<h2 id="3-fehlersymptome-unterscheiden-bevor-getestet-wird">3. Fehlersymptome unterscheiden, bevor getestet wird</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Benutzerbefund</th>
+<th>Plausible Fehlerklasse</th>
+<th>Wodurch abgrenzen?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>„Computer nicht erreichbar“ / Timeout</td>
+<td>Falscher Host, DNS, VPN, Routing, Filter oder Listener</td>
+<td>FQDN/IP, <code>Test-NetConnection</code>, Vergleichsclient</td>
+</tr>
+<tr>
+<td>„Verbindung wird abgelehnt“</td>
+<td>Kein Listener am Zielport oder aktive Ablehnung durch Ziel/Netzgerät</td>
+<td>Lokales <code>qwinsta</code>, Listener, Port/Bindung prüfen</td>
+</tr>
+<tr>
+<td>Zugangsdaten werden abgelehnt</td>
+<td>Falscher Konto-Kontext, Kennwort, Konto- oder NLA-Problem</td>
+<td>Exakten Fehler, lokale Security-Events, Richtlinien prüfen</td>
+</tr>
+<tr>
+<td>„Anmeldetyp nicht zulässig“</td>
+<td>Fehlendes Recht „Anmelden über Remotedesktopdienste“ oder Deny-Recht</td>
+<td>Gruppenmitgliedschaft und lokale/GPO-Benutzerrechte</td>
+</tr>
+<tr>
+<td>Anmeldung erfolgreich, sofort getrennt</td>
+<td>RDS-Sitzung, Benutzerprofil, Ressourcen, Lizenzierung bei RDS-Farm</td>
+<td>TerminalServices-Ereignisse und Sitzungsstatus</td>
+</tr>
+<tr>
+<td>Nur vom Homeoffice betroffen</td>
+<td>VPN, Gateway, Split-DNS, standortbezogene Netzregeln</td>
+<td>Gleiches Ziel aus internem Standort vergleichen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>L2-Hinweis:</strong> Symptomtexte geben Hinweise, aber <strong>keine eindeutigen Ursachen</strong>. Ein Timeout allein belegt weder einen Firewallblock noch einen Serverausfall. [Q2][Q5][Q6]</p>
+<h2 id="4-ticketaufnahme-notwendige-informationen-ohne-geheimnisse">4. Ticketaufnahme: notwendige Informationen ohne Geheimnisse</h2>
+<ul>
+<li>Ziel-FQDN, beabsichtigtes Zielgerät bzw. RemoteApp und <strong>vorgesehener Port/Gateway-Pfad</strong>; Hostname nicht mit einer zufällig erreichbaren IP verwechseln.</li>
+<li>Clientgerät, Windows-Edition, RDP-Client, Benutzerkonto und <strong>welcher Identitätskontext</strong> verwendet wird (lokal, Domäne, Microsoft Entra, ggf. RD Gateway).</li>
+<li>Exakter Fehlertext, Fehlercode, Start- und Fehlerzeitpunkt mit Zeitzone; seit wann und von wo aus (Büro/Homeoffice/VPN)?</li>
+<li>Betroffenheitsgrad: ein Benutzer, ein Client, ein Zielserver, alle Benutzer oder ein Standort?</li>
+<li>Letzte Änderungen: Passwort, GPO, Gruppenmitgliedschaft, VPN, Firewall, Zertifikate, Updates, Hostwechsel, RDS-/Gateway-Konfiguration.</li>
+<li>Auswirkungen: Kritikalität, Alternativzugriff (vorhandene VM-/Hostkonsole, genehmigtes Remote-Management), Change-/Wartungsfenster.</li>
+</ul>
+<p><strong>Datenschutz:</strong> Keine Kennwörter, MFA-Codes, private Schlüssel, komplette Anmelde-Tokens oder unnötige personenbezogene Eventlog-Inhalte in öffentlichen Dokumenten bzw. Tickets ablegen. Eventdaten nur zweckgebunden und möglichst redigiert erfassen.</p>
+<h2 id="5-sicherheits-und-stop-check-vor-jeder-massnahme">5. Sicherheits- und STOP-Check vor jeder Maßnahme</h2>
+<p><strong>Zunächst nur lesend prüfen.</strong> Keine Firewall vollständig deaktivieren, keine eingehende Regel „für alle“ anlegen, Port 3389 nicht per Router-Portweiterleitung öffentlich bereitstellen, NLA nicht abschalten und keine anonymen Zugänge erlauben. Für externe Verbindungen sichere Wege wie genehmigtes VPN oder RD Gateway nutzen. [Q1][Q7]</p>
+<p><strong>Nicht blind:</strong> <code>TermService</code> neu starten (kann aktive Sitzungen trennen), Security-Richtlinien ändern, lokale RDP-Gruppe erweitern, RDS-Rollen entfernen, Zertifikate ersetzen, Registry-Listener neu erstellen. Vor Änderungen: Verantwortlichen, Change-Freigabe, Rollback, Sitzungsbelegung und gesicherten alternativen Zugang klären.</p>
+<p><strong>STOP/Eskalation:</strong> Unbekannte Anmeldung, Brute-Force-/Sicherheitsverdacht, unklare Berechtigung, drohender vollständiger Remotezugriffsverlust, RDS-Farm oder geschäftskritischer Terminalserver → zuständigen Endpoint-/RDS-/Security-Betrieb einschalten.</p>
+<h2 id="6-l1-hostfahigkeit-und-netzwerkpfad-prufen">6. L1: Hostfähigkeit und Netzwerkpfad prüfen</h2>
+<ol>
+<li><strong>Zielsystem eindeutig zuordnen:</strong> Name, IP, Edition, Standort, erwarteter RDP-Host. Bei Windows Home als Zielhost ist der integrierte RDP-Host nicht verfügbar.</li>
+<li><strong>Hoststatus</strong> aus CMDB, Monitoring, Hypervisor- oder autorisierter Konsole prüfen: Läuft der Rechner? Ist er im richtigen Netz?</li>
+<li><strong>DNS vergleichen:</strong> Ist der FQDN korrekt aufgelöst? Bei VPN sowohl internen als auch externen Namensraum beachten.</li>
+<li><strong>Von demselben Client und einem genehmigten Vergleichsclient</strong> testen. Unterschiedliche Ergebnisse lokalisieren oft ein Client-/VPN-/Quellnetzproblem.</li>
+<li><strong>Ziel-IP und Port</strong> nur auf genehmigtem Pfad testen. Ein Ping-Timeout sagt wenig über RDP aus: ICMP kann blockiert werden.</li>
+</ol>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND am Client; Test-Namen und Port gemäß Ticket ersetzen:
+Resolve-DnsName -Name ws-rdp-01.corp.example.test
+Test-NetConnection -ComputerName ws-rdp-01.corp.example.test -Port 3389 -InformationLevel Detailed
+
+# Optional: zeigt Verbindungs- und Routeninformationen an, kein Authentifizierungstest:
+Test-NetConnection -ComputerName ws-rdp-01.corp.example.test -DiagnoseRouting -InformationLevel Detailed
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>TcpTestSucceeded = True</code> belegt <strong>TCP-Konnektivität bis zu einem akzeptierenden Endpunkt</strong>, nicht die richtige Serveridentität und nicht eine gültige Anmeldung. Bei <code>False</code> zuerst IP, Quell-/Zielroute, VPN/Gateway, Filter und Ziel-Listener vergleichen; nicht blind Firewall öffnen. [Q2][Q8]</p>
+<h2 id="7-l2-rdp-konfiguration-listener-und-dienst-am-ziel">7. L2: RDP-Konfiguration, Listener und Dienst am Ziel</h2>
+<p>Die nächsten Schritte benötigen <strong>berechtigten Zugang am Zielsystem</strong>, beispielsweise über Konsole oder bereits genehmigte Management-Verbindung. Niemals einen zuvor fehlerfreien entfernten Managementpfad gefährden.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND auf dem Zielhost:
+Get-Service -Name TermService | Select-Object Name, Status, StartType
+Get-NetTCPConnection -LocalPort 3389 -State Listen -ErrorAction SilentlyContinue |
+    Select-Object LocalAddress, LocalPort, State, OwningProcess
+qwinsta
+
+# LESEND: Einstellungen können durch Gruppenrichtlinie überschrieben werden:
+Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' |
+    Select-Object fDenyTSConnections
+Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' |
+    Select-Object PortNumber, UserAuthentication
+
+# LESEND: relevante Firewallregeln (Gruppen-/Anzeigenamen können lokalisiert sein):
+Get-NetFirewallRule -Direction Inbound |
+    Where-Object { $_.DisplayName -match 'Remote|Remotedesktop|RDP' } |
+    Select-Object DisplayName, Enabled, Profile, Action
+</code></pre></div>
+<p><code>qwinsta</code> sollte am erwarteten RDP-Listener <code>rdp-tcp</code> mit Status <strong>Listen</strong> (oder lokalisierter Variante) zeigen; lokaler Listener-Port kann konfigurationsbedingt von 3389 abweichen. Ein laufender <code>TermService</code> allein beweist keine funktionierende Portbindung. Windows-Firewallregeln, Netzwerkprofile und ggf. Netzwerk-Firewalls/NSGs sind getrennte Ebenen. [Q2][Q9]</p>
+<p><strong>Typische Ursachen:</strong> RDP deaktiviert/GPO blockiert, Hostedition nicht geeignet, TermService/Listener defekt, Konflikt auf zugewiesenem Port, falsche Bindung, Firewall-Regel nur für anderes Profil, Host ist gar nicht erreichbar. <strong>Korrekturen</strong> (z. B. RDP einschalten, Listener reparieren, Firewallregel anpassen) sind <strong>nicht</strong> Teil lesender Diagnose und erfolgen nur mit berechtigtem Change.</p>
+<h2 id="8-l2-anmeldung-nla-benutzerrechte-und-ereignisprotokolle">8. L2: Anmeldung, NLA, Benutzerrechte und Ereignisprotokolle</h2>
+<p>Wenn der <strong>TCP-Pfad erfolgreich</strong> ist, endet die Diagnose nicht. Jetzt prüfen:</p>
+<ul>
+<li><strong>Wer meldet sich an?</strong> <code>DOMAIN\user</code> vs. lokales <code>HOST\user</code>; ggf. spezieller Anmeldeweg bei Entra-joined Geräten. Keine Konten auf Verdacht wechseln.</li>
+<li><strong>NLA/Kerberos/CredSSP:</strong> Funktionieren Authentifizierung und erforderliche Domänen-/DC-Erreichbarkeit? Gibt es Richtlinien- oder Zertifikatshinweise?</li>
+<li><strong>Autorisierung:</strong> Ist das Konto passend berechtigt (Administrators oder Remote Desktop Users / genehmigte Gruppen), und ist das Recht <strong>„Anmelden über Remotedesktopdienste zulassen“</strong> vorhanden? Hat ein <strong>Deny</strong>-Recht Vorrang?</li>
+<li><strong>Anmeldetoken:</strong> Nach Gruppenänderung kann eine bestehende Sitzung alte Informationen enthalten; neue Anmeldung nur kontrolliert.</li>
+<li><strong>Ereignisse:</strong> Windows Security (z. B. fehlgeschlagene Anmeldung <strong>4625</strong>) und TerminalServices-Logs zeitlich korrelieren. Event-IDs nie ohne konkreten Kontext als alleinigen Nachweis betrachten.</li>
+</ul>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND auf dem Zielhost mit geeigneten Leserechten:
+Get-WinEvent -FilterHashtable @{
+  LogName='Security'; Id=4625; StartTime=(Get-Date).AddHours(-4)
+} -MaxEvents 20 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated, Id, Message
+
+Get-WinEvent -FilterHashtable @{
+  LogName='Microsoft-Windows-TerminalServices-LocalSessionManager/Operational';
+  StartTime=(Get-Date).AddHours(-4)
+} -MaxEvents 30 -ErrorAction SilentlyContinue |
+  Select-Object TimeCreated, Id, Message
+
+# LESEND: lokale Gruppen und effektive Computer-GPO:
+Get-LocalGroupMember -Group 'Remote Desktop Users' -ErrorAction SilentlyContinue
+# Hinweis: Gruppenname kann auf deutschem Windows lokalisiert sein.
+gpresult /r /scope computer
+</code></pre></div>
+<p><strong>Wichtig:</strong> <code>4625</code> mit Unterstatus und Logon Type 10 kann helfen; Eventkorrelation ist erforderlich. Ein TCP-Erfolg und selbst akzeptierte Anmeldedaten bedeuten noch nicht, dass eine vollständige Remotesitzung erstellt wurde. [Q5][Q6][Q10]</p>
+<h2 id="9-sonderfalle-rd-gateway-rds-farm-entra-id-und-sitzungsabbruch">9. Sonderfälle: RD Gateway, RDS-Farm, Entra ID und Sitzungsabbruch</h2>
+<p><strong>RD Gateway:</strong> Prüfen, ob der Client auf den richtigen Gatewaynamen/HTTPS-Endpunkt zugreift, ob Benutzer- und Ressourcenrichtlinien (CAP/RAP) die Zielverbindung erlauben und ob Gateway → internes Ziel funktioniert. Bei einem Gateway-Dienstpfad kann der direkte Test <code>Client → Ziel:3389</code> absichtlich blockiert sein. [Q4][Q7]</p>
+<p><strong>RDS-Farm:</strong> Zusätzlich Broker, Collection, Session Host, Lizenzierungsdiagnose und RDS-CAL-Rahmen kontrollieren. Ein „keine RD-Lizenzserver verfügbar“-Fehler betrifft die RDS-Infrastruktur; nicht mit Windows-11-Einzelhostdiagnose vermischen. [Q11]</p>
+<p><strong>Entra-joined Endpoint:</strong> Für Microsoft-Entra-Authentifizierung gelten besondere Konfigurations- und Identitätsvorgaben. Diagnose nicht blind auf <code>DOMAIN\user</code> reduzieren. [Q12]</p>
+<p><strong>Direkt nach Anmeldung getrennt:</strong> Session-/Profildienst, Hostressourcen, Sicherheitsrichtlinien, vorhandene Sitzungen und TerminalServices-Ereignisse prüfen; bei Profilfehlern Querverweis <strong>RB-042</strong>.</p>
+<h2 id="10-a-b-testmatrix-aus-einem-symptom-eine-hypothese-machen">10. A/B-Testmatrix: aus einem Symptom eine Hypothese machen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Vergleichstest</th>
+<th>Ergebnis</th>
+<th>Interpretation / nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hostname vs. fest zugeordnete Ziel-IP</td>
+<td>Nur IP funktioniert</td>
+<td>DNS/Suffix/Zielnamen- oder Identitätskontext prüfen; nicht dauerhaft unsichere IP-Umgehung etablieren</td>
+</tr>
+<tr>
+<td>Betroffener vs. bekannter funktionierender Client</td>
+<td>Nur ein Client scheitert</td>
+<td>Client, VPN, Gateway, Credential-/RDP-Konfiguration vergleichen</td>
+</tr>
+<tr>
+<td>Direkt im LAN vs. über genehmigtes VPN</td>
+<td>Nur VPN scheitert</td>
+<td>VPN-Route/ACL/DNS/Gateway prüfen</td>
+</tr>
+<tr>
+<td>TCP-Port erreichbar, RDP-Anmeldung scheitert</td>
+<td>TCP OK, Auth-Fehler</td>
+<td>NLA, Konto, Gruppen-/Benutzerrechte und Eventlogs</td>
+</tr>
+<tr>
+<td>RDP von allen Clients auf einen Host fehlerhaft</td>
+<td>Isolierter Zielhost</td>
+<td>Hostzustand, Listener, Richtlinien und Firewall prüfen</td>
+</tr>
+<tr>
+<td>Mehrere Session Hosts betroffen</td>
+<td>Farmweit</td>
+<td>Gateway, Broker, gemeinsame Richtlinien, Lizenzierung prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p>Jeder Test braucht eine Ausgangshypothese, einen zu erwartenden Befund und eine eindeutige Angabe von <strong>Quellgerät und Zielgerät</strong>. In Produktionsumgebungen niemals unautorisiert fremde Hosts oder Ports scannen.</p>
+<h2 id="11-fehlerursachen-und-passende-freigabepflichtige-korrekturen">11. Fehlerursachen und passende, freigabepflichtige Korrekturen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesene Ursache</th>
+<th>Zuständige Maßnahme nach Freigabe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Falscher Host/FQDN</td>
+<td>Zuordnung, DNS-/Inventareintrag und Clientkonfiguration korrigieren</td>
+</tr>
+<tr>
+<td>Windows Home als Ziel</td>
+<td>Geeignete Host-Edition oder genehmigte Remote-Support-Alternative verwenden</td>
+</tr>
+<tr>
+<td>VPN-/Route-/Gatewayfehler</td>
+<td>Zuständiges Netzwerk-/Gateway-Team behebt nach dokumentiertem Pfadbefund</td>
+</tr>
+<tr>
+<td>RDP-Listener nicht aktiv</td>
+<td>Host-/RDS-Administration prüft Dienst, Listener, Policy und Portkonflikt</td>
+</tr>
+<tr>
+<td>Hostfirewall- oder Netz-Firewallregel blockiert</td>
+<td>Präzise genehmigte Regel mit kleinstmöglichem Scope; <strong>nicht Firewall deaktivieren</strong></td>
+</tr>
+<tr>
+<td>NLA-/Konto- oder Benutzerrechtproblem</td>
+<td>Authentifizierungs- und GPO-Ursache korrigieren; <strong>nicht NLA abschalten</strong></td>
+</tr>
+<tr>
+<td>RDS-Lizenzierung oder Broker</td>
+<td>RDS-Administration; L1/L2 eskalieren</td>
+</tr>
+<tr>
+<td>Sitzung wird nach Anmeldung beendet</td>
+<td>Profil-/Sitzungs-/Hostressourcenanalyse, bei Bedarf Profilteam</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine Maßnahme vor dem Nachweis</strong>. Ein Dienstneustart kann produktive Remotesitzungen trennen und muss vorab organisatorisch geklärt werden.</p>
+<h2 id="12-fiktiver-musterfall-a-ein-benutzer-scheitert-nach-kennwortwechsel">12. Fiktiver Musterfall A – Ein Benutzer scheitert nach Kennwortwechsel</h2>
+<p><strong>Meldung:</strong> „Auf <code>ws-rdp-01.corp.example.test</code> kann ich mich nicht mehr anmelden; mein Kollege erreicht den Rechner.“</p>
+<p><strong>Befunde (fiktiv):</strong> DNS korrekt; <code>Test-NetConnection ... -Port 3389</code> zeigt <code>True</code>; Listener auf Ziel <code>Listen</code>; Vergleichskonto kann sich anmelden; beim betroffenen Konto Security-4625-Einträge mit zum Versuch passendem Zeitfenster.</p>
+<p><strong>Hypothesen:</strong> Veraltete lokal gespeicherte Anmeldeinformationen, falscher Benutzerpräfix, Passwortänderung noch nicht berücksichtigt, Kontosperr-/Richtlinienproblem.</p>
+<p><strong>Diagnoseplan:</strong> Benutzerpräfix und vorgesehenen Authentifizierungsweg abgleichen; Authentifizierungsstatus anhand Sicherheitsereignissen und Konto-/DC-Zustand prüfen; gespeicherte Credentials nur mit Benutzer und Richtlinie untersuchen; <strong>kein</strong> wahlloses Löschen anderer Einträge.</p>
+<p><strong>Korrekturbeispiel (nur nach Nachweis):</strong> Vorgesehenes Konto mit aktuellen Anmeldeinformationen nutzen, kontospezifische Fehlerursache durch berechtigte Stelle beseitigen. <strong>Validierung:</strong> Betroffener Benutzer erreicht RDP, meldet sich an, startet benötigte Anwendung; Eventlage und Ticket sind dokumentiert.</p>
+<p><strong>Lernfrage:</strong> Warum ist ein erneutes Öffnen von Port 3389 hier nicht begründbar?</p>
+<h2 id="13-fiktiver-musterfall-b-rdp-geht-intern-uber-vpn-nicht">13. Fiktiver Musterfall B – RDP geht intern, über VPN nicht</h2>
+<p><strong>Meldung:</strong> „Aus dem Büro komme ich auf <code>rdsh-02.corp.example.test</code>, aus dem Homeoffice nur auf das VPN-Portal.“</p>
+<p><strong>Befunde (fiktiv):</strong> Interner Client erreicht Ziel-TCP-Port und meldet sich an. VPN-Client löst Zielhostname auf eine erwartete interne Adresse auf; Verbindungsversuch zum vorgesehenen TCP-Port scheitert; mehrere VPN-Nutzer betroffen. Gateway-/VPN-Design muss vor Porttests geklärt sein.</p>
+<p><strong>Hypothesen:</strong> Fehlende VPN-Route, Filter zwischen VPN-Pool und Servernetz, Gateway-Policy oder falscher Verbindungsweg. Ein RDP-Listener-Defekt ist angesichts funktionierender LAN-Verbindung weniger wahrscheinlich.</p>
+<p><strong>Diagnoseplan:</strong> Quell-/Zielnetz, beabsichtigten VPN-/Gatewaypfad, Routingtabellen und Firewall-/Gateway-Protokolle durch Netzteam vergleichen. Keine pauschale Regel und keine öffentliche Portweiterleitung.</p>
+<p><strong>Korrekturbeispiel (nur nach Nachweis):</strong> Eine konkrete, autorisierte Route/Policy korrigieren; vom VPN-Segment erneut TCP, Anmeldung und Anwendung prüfen.</p>
+<p><strong>Lernfrage:</strong> Welche Messung trennt RDP-Authentifizierung vom Netzwerkpfad?</p>
+<h2 id="14-lernkontrolle-active-recall-verstandnis-und-transfer">14. Lernkontrolle: Active Recall, Verständnis und Transfer</h2>
+<p><strong>Wissensfragen (aus dem Gedächtnis):</strong></p>
+<ol>
+<li>Welcher TCP-Port wird für direkte RDP-Verbindungen standardmäßig verwendet? Welche Abweichungen sind möglich?</li>
+<li>Welches Tool zeigt den lokalen RDP-TCP-Listenerstatus an?</li>
+<li>Kann Windows 11 Home regulär eingehende RDP-Hostverbindungen anbieten?</li>
+<li>Was bedeutet NLA, und weshalb bleibt es aktiviert?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong>
+5. Weshalb ist <code>TcpTestSucceeded=True</code> kein Nachweis für erfolgreiche RDP-Anmeldung?
+6. Warum ist bei RD Gateway ein direkter Test Client → Ziel:3389 nicht zwingend aussagekräftig?
+7. Wie unterscheiden sich Gruppenmitgliedschaft, Anmelderecht und erfolgreicher Sitzungaufbau?</p>
+<p><strong>Diagnosefragen:</strong>
+8. TCP 3389 erreichbar, Anmeldung wird abgelehnt: Welche drei Hypothesen testest du zuerst und warum?
+9. Ein einzelner VPN-Standort betroffen, LAN funktioniert: Welche Messungen vergleichst du?
+10. RDP-Anmeldung gelingt, sofortiger Sitzungsabbruch: Welche Logs und Systeme untersuchst du?</p>
+<p><strong>Transfer:</strong> Nach 7 und 21 Tagen neue Kombinationen testen: falscher FQDN, Firewall-Profile, NLA, GPO-Deny, RDS-Lizenzierung. Ziel ist Diagnosebegründung <strong>ohne vorheriges Öffnen des Runbooks</strong>.</p>
+<h2 id="15-praxistraining-validierungsgrenzen-und-ticketabschluss">15. Praxistraining, Validierungsgrenzen und Ticketabschluss</h2>
+<p><strong>Laborvorschlag:</strong> Zwei autorisierte VMs (Windows 11 Pro/Enterprise-Testhost oder Windows Server als RDP-Host; Windows-Client als Ausgangspunkt) in einem isolierten Netzwerk. Vorher VM-Checkpoints und ein alternativer Konsolenzugang. Nacheinander nur <strong>eine</strong> simulierte Fehlerursache setzen: deaktivierte RDP-Einstellung, gezielte Testfirewallregel, falscher Zielport, fehlende Berechtigung eines Testkontos. <strong>NLA bleibt aktiviert; kein öffentliches RDP.</strong></p>
+<p><strong>Training:</strong> Zuerst nur fiktives Ticket lesen → Hypothesen formulieren → lesende Tests durchführen → Befund präsentieren → genehmigte Laborkorrektur → Gegenprüfung aus zweiter Sitzung → eigenes Runbook und Ticket schreiben → mit dieser Vorlage vergleichen.</p>
+<p><strong>Erfolgskriterien:</strong> Korrekte Zielidentität, erreichbarer sicherer Transportpfad, erlaubte Authentifizierung, passende Benutzerrechte, stabile Sitzung, benötigte Anwendung nutzbar, reproduzierbarer Gegencheck. Bei produktiven Systemen ausdrücklich auch andere Benutzer/Sitzungen und Sicherheitswirkung berücksichtigen.</p>
+<p><strong>Muster-Ticketabschluss, fiktiv:</strong> „RDP-Verbindungsfehler seit 08:15 Uhr nachgestellt. Namensauflösung und TCP-Listener geprüft; Ursache lag in [nachgewiesener Ebene]. Änderung [ID/Freigabe] durch [zuständiges Team]. RDP-Anmeldung und Fachanwendung von [Quellnetz] getestet; keine bekannten Nebenwirkungen. Ergebnis dokumentiert.“</p>
+<hr/>
+<h2 id="quellen-und-technische-verifikation-23-11-2026">Quellen und technische Verifikation (23.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> Microsoft Learn – Remotedesktop aktivieren, Windows-Edition und NLA: <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access</a></li>
+<li><strong>[Q2]</strong> Microsoft Learn – Remotedesktop kann keine Verbindung herstellen (Host, Port, Listener, Richtlinien, Firewall): <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/remote-desktop-cannot-connect-remote-computer" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/remote-desktop-cannot-connect-remote-computer</a></li>
+<li><strong>[Q3]</strong> Microsoft Learn – Von Remotedesktopdiensten verwendete Ports: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/ports-used-by-rds" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/ports-used-by-rds</a></li>
+<li><strong>[Q4]</strong> Microsoft Learn – RD-Gateway und RDP-Zugriff: <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/rds-roles" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/rds-roles</a></li>
+<li><strong>[Q5]</strong> Microsoft Learn – Einschränkungen von RDP-Anmeldetypen: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/system-admin-restrict-types-logon" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/system-admin-restrict-types-logon</a></li>
+<li><strong>[Q6]</strong> Microsoft Learn – Anmeldeereignis 4625: <a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4625" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4625</a></li>
+<li><strong>[Q7]</strong> Microsoft Learn – Remotedesktop-Zugriff außerhalb des lokalen Netzes und VPN-Empfehlung: <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-outside-access" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-allow-outside-access</a></li>
+<li><strong>[Q8]</strong> Microsoft Learn – <code>Test-NetConnection</code>: <a href="https://learn.microsoft.com/de-de/powershell/module/nettcpip/test-netconnection?view=windowsserver2022-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/powershell/module/nettcpip/test-netconnection?view=windowsserver2022-ps</a></li>
+<li><strong>[Q9]</strong> Microsoft Learn – Listener-/Dienst-/Firewall-Problembehandlung: <a href="https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/troubleshoot/rdp-error-general-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-server/remote/remote-desktop-services/troubleshoot/rdp-error-general-troubleshooting</a></li>
+<li><strong>[Q10]</strong> Microsoft Learn – Windows-Client: RDP-Anmeldeschwierigkeiten: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/remote/terminal-server-client-connection-failures" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/remote/terminal-server-client-connection-failures</a></li>
+<li><strong>[Q11]</strong> Microsoft Learn – RDS-Lizenzierungsdiagnose: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/troubleshoot-rds-licensing-guidance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/remote/troubleshoot-rds-licensing-guidance</a></li>
+<li><strong>[Q12]</strong> Microsoft Learn – RDP zu Entra-joined PCs: <a href="https://learn.microsoft.com/de-de/windows/client-management/client-tools/connect-to-remote-aadj-pc" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/client-management/client-tools/connect-to-remote-aadj-pc</a></li>
+</ul>
+<p><strong>Validierungsstand:</strong> Herstellerrecherche und technische Plausibilisierung; <strong>keine echte RDP-Störung oder Konfigurationsänderung wurde im Labor reproduziert oder getestet</strong>. Die Infografik ist ein Lernanker, nicht der Nachweis für eine produktive Fehlerursache. Veröffentlichungshinweis: „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.“</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-048_Lernartikel.md">RB-048_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-047/index.html">← Ticket 47</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-049/index.html">Ticket 49 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

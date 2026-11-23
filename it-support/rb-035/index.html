@@ -1,0 +1,366 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 35: Client erhält keine DHCP-Adresse | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 35: Client erhält keine DHCP-Adresse. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 35: Client erhält keine DHCP-Adresse</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsmeldung-rollen-und-lernziele">1. Störungsmeldung, Rollen und Lernziele</a></li><li><a href="#2-technische-grundlage-was-dhcp-tatsachlich-tut">2. Technische Grundlage – was DHCP tatsächlich tut</a></li><li><a href="#3-symptome-richtig-klassifizieren">3. Symptome richtig klassifizieren</a></li><li><a href="#4-vorwissen-aktivieren-hypothesen-vor-befehlen">4. Vorwissen aktivieren – Hypothesen vor Befehlen</a></li><li><a href="#5-ticketaufnahme-reproduzierbar-und-datensparsam">5. Ticketaufnahme – reproduzierbar und datensparsam</a></li><li><a href="#6-lesende-clientdiagnose-unter-windows-11">6. Lesende Clientdiagnose unter Windows 11</a></li><li><a href="#7-layer-1-2-und-netzwerksegment-testen">7. Layer 1/2 und Netzwerksegment testen</a></li><li><a href="#8-dora-uber-netzwerkaufzeichnung-belegen">8. DORA über Netzwerkaufzeichnung belegen</a></li><li><a href="#9-dhcp-server-prufen-nur-mit-zustandigkeit-und-berechtigung">9. DHCP-Server prüfen – nur mit Zuständigkeit und Berechtigung</a></li><li><a href="#10-relay-vlan-und-netzwerk-security-typischer-l2-pfad">10. Relay, VLAN und Netzwerk-Security – typischer L2-Pfad</a></li><li><a href="#11-entscheidungs-und-fehlermatrix">11. Entscheidungs- und Fehlermatrix</a></li><li><a href="#12-korrektur-freigabe-und-sicherheitsgrenzen">12. Korrektur, Freigabe und Sicherheitsgrenzen</a></li><li><a href="#13-zwei-fiktive-musterfalle-diagnose-vor-losung">13. Zwei fiktive Musterfälle – Diagnose vor Lösung</a></li><li><a href="#14-active-recall-diagnosekarten-und-transfer">14. Active Recall, Diagnosekarten und Transfer</a></li><li><a href="#15-abschluss-erfolgskriterien-und-quellen">15. Abschluss, Erfolgskriterien und Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Windows 11 / Ethernet &amp; WLAN / DHCPv4 / VLAN / DHCP-Relay / Windows Server DHCP<br/>
+<strong>Support-Level:</strong> L1/L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Recherchierte, aus Microsoft-Dokumentation abgeleitete Diagnoseverfahren. <strong>Praktische Validierung steht aus.</strong> Alle Ticketdaten, Netze und Befunde sind fiktiv. Es wurden keine produktiven Netzwerke verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb035_henne_ei_dhcp.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-035 – Henne-und-Ei-Infografik zur DHCP-Diagnose" decoding="async" loading="lazy" src="assets/rb035_henne_ei_dhcp.webp"/></a></div><figcaption>RB-035 – Henne-und-Ei-Infografik zur DHCP-Diagnose</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „Der Client bekommt keine IP“ beschreibt nur ein Symptom. Beweise zuerst <strong>welcher Adapter</strong>, <strong>welches Segment</strong>, <strong>welche DHCP-Nachrichten</strong> und <strong>welcher Server</strong> tatsächlich betroffen sind – erst dann ist eine Korrektur begründet.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsmeldung-rollen-und-lernziele">1. Störungsmeldung, Rollen und Lernziele</h2>
+<p><strong>Typische Anfragen:</strong> „Mein Windows-Notebook hat im Büro kein Netzwerk“, „Nach dem Umzug an einen anderen Switch bekommt nur ein PC keine Adresse“, „Alle Geräte im neuen VLAN bekommen keine IP“, „WLAN ist verbunden, aber keine Firmenadresse zugewiesen“, „Beim <code>ipconfig /renew</code> tritt ein Zeitüberschreitungsfehler auf“.</p>
+<p><strong>Lernziel:</strong> Einen fehlenden oder ungültigen DHCPv4-Lease ohne vorschnelle Eingriffe eingrenzen. Zwischen <strong>Client/Netzadapter</strong>, <strong>Link und VLAN</strong>, <strong>DHCP-Relay/IP-Helper</strong>, <strong>DHCP-Dienst und Scope</strong> sowie <strong>Adresskonflikt oder Richtlinienfilterung</strong> unterscheiden.</p>
+<ul>
+<li><strong>L1:</strong> Fehlerbild, Reichweite und Uhrzeit sichern; lesende Adapter-/Adressprüfung; Vergleich an erlaubtem Arbeitsplatz oder Port; bei riskanten Änderungen stoppen.</li>
+<li><strong>L2:</strong> DORA-Nachrichten, Netzwerkpfad, VLAN-/Relay-Umsetzung, DHCP-Scopes, Serverbindungen, AD-Autorisierung, Logs, Sicherheitsfilter und Failover prüfen.</li>
+<li><strong>Netzwerk-/Server-Owner:</strong> Änderungen an Switchport, DHCP-Snooping, IP-Helper, Firewall, Scope, Reservierung, Filter, Failover und Dienst nach Change-Verfahren freigeben.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-034 behandelt DNS-Auflösung, RB-036 gezielt APIPA (<code>169.254.x.x</code>). Hier geht es um die <strong>Ursache einer gescheiterten DHCPv4-Zuweisung</strong>, nicht um generelle Anwendungs- oder Namensprobleme.</p>
+<h2 id="2-technische-grundlage-was-dhcp-tatsachlich-tut">2. Technische Grundlage – was DHCP tatsächlich tut</h2>
+<p>Ein DHCPv4-Client fordert eine zeitlich begrenzte Konfiguration an. Ein typischer <strong>Neubezug</strong> folgt dem <strong>DORA-Schema</strong> [Q1, Q2]:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">DHCP-Client                                DHCP-Server
+   |---- DHCPDISCOVER (UDP 68 → 67) ----------&gt;|
+   |&lt;--- DHCPOFFER (angebotene Adresse) ------|
+   |---- DHCPREQUEST (ausgewähltes Angebot) --&gt;|
+   |&lt;--- DHCPACK (Lease bestätigt) -----------|
+   |          → IP / Maske / Optionen
+</code></pre></div>
+<p>Ein <strong>DHCP-Relay/IP-Helper</strong> vermittelt zwischen Client und Server, <strong>wenn beide in unterschiedlichen L3-Subnetzen liegen</strong>. In demselben Broadcastsegment ist für diesen Standardfall kein Relay erforderlich. Ein Relay transportiert die Anfrage über die Segmentgrenze und liefert dem Server üblicherweise Subnetzinformationen (beispielsweise <code>giaddr</code>) zur Scope-Auswahl. [Q1, Q2]</p>
+<p><strong>Wichtig:</strong> Nicht jeder <code>ipconfig /renew</code>-Vorgang zeigt eine vollständige DORA-Sequenz. Bei noch gültigen Leases kann der Client direkt per <strong>Unicast</strong> eine Verlängerung anfragen. Erst bei einer Neuvergabe oder wenn eine direkte Verlängerung nicht gelingt, ergeben sich andere Austauschmuster. Paketmitschnitte stets im Zusammenhang mit dem Leasezustand interpretieren. [Q2]</p>
+<p>DHCPv4 verwendet <strong>UDP 67 (Server)</strong> und <strong>UDP 68 (Client)</strong>. Ein erfolgreicher TCP-Porttest oder Ping ist <strong>kein DHCP-Funktionstest</strong>. [Q1, Q2]</p>
+<h2 id="3-symptome-richtig-klassifizieren">3. Symptome richtig klassifizieren</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste Hypothese</th>
+<th>Was damit <em>nicht</em> bewiesen ist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kein IPv4-Lease, Adapter „Medien getrennt“</td>
+<td>Layer 1/2, Kabel, Adapter, Funkassoziation</td>
+<td>Dass der DHCP-Server defekt ist</td>
+</tr>
+<tr>
+<td><code>169.254.x.x</code> auf Windows</td>
+<td>Automatische Link-Local-Adresse (APIPA)</td>
+<td>Dass der Fehler ausschließlich beim DHCP-Server liegt</td>
+</tr>
+<tr>
+<td>Statische, aber unerwartete IPv4-Adresse</td>
+<td>DHCP möglicherweise gar nicht aktiviert / Sonderkonfiguration</td>
+<td>Dass ein DHCP-Server falsch geantwortet hat</td>
+</tr>
+<tr>
+<td>Ein Client betroffen, andere am selben Port/VLAN funktionieren</td>
+<td>Client, MAC-Zulassung, Treiber, lokale Richtlinie</td>
+<td>Dass die gesamte DHCP-Infrastruktur gesund ist</td>
+</tr>
+<tr>
+<td>Alle Clients eines VLANs betroffen</td>
+<td>Relay, VLAN, Scope, Netzfilter</td>
+<td>Dass alle DHCP-Scopes ausgefallen sind</td>
+</tr>
+<tr>
+<td>Alle Standorte betroffen</td>
+<td>Dienst/HA, zentrale Filter/Erreichbarkeit</td>
+<td>Dass jeder Client gleich konfiguriert ist</td>
+</tr>
+<tr>
+<td>Lease vorhanden, DNS/Internet trotzdem nicht funktionsfähig</td>
+<td>DHCP-Optionen, Routing, DNS, Proxy, Authentisierung</td>
+<td>Dass DHCP-Adressvergabe fehlgeschlagen ist</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>IPv4 vs. IPv6:</strong> IPv6 kann unabhängig von DHCPv4 funktionieren (SLAAC oder DHCPv6). Eine IPv6-Adresse beweist daher nicht, dass DHCPv4 in Ordnung ist.</p>
+<h2 id="4-vorwissen-aktivieren-hypothesen-vor-befehlen">4. Vorwissen aktivieren – Hypothesen vor Befehlen</h2>
+<p>Formuliere vor dem ersten Eingriff drei konkurrierende Hypothesen:</p>
+<ol>
+<li><strong>Ein Client, ein Port:</strong> falscher Interfacezustand oder lokale DHCP-Einstellung.</li>
+<li><strong>Mehrere Clients im gleichen VLAN:</strong> falsches VLAN, fehlender DHCP-Relay/IP-Helper oder Scope-Probleme.</li>
+<li><strong>Mehrere Segmente:</strong> zentrale DHCP-Funktion, AD-Autorisierung, Routing/Filter oder HA.</li>
+</ol>
+<p><strong>Trennender Test:</strong> Dasselbe Gerät an einem freigegebenen Vergleichsport; ein bekannt intaktes Gerät am ursprünglichen Port; betroffene und nicht betroffene Clients desselben Segments. <strong>Nicht</strong> unkontrolliert Geräte zwischen Sicherheitszonen umstecken.</p>
+<p>Merksatz: <strong>Ein Test ist diagnostisch wertvoll, wenn sein Ergebnis mehrere Hypothesen auseinanderhält.</strong></p>
+<h2 id="5-ticketaufnahme-reproduzierbar-und-datensparsam">5. Ticketaufnahme – reproduzierbar und datensparsam</h2>
+<p>Erfasse <strong>exakte Uhrzeit</strong>, Host, betroffenen Netzadapter, Ethernet/WLAN, Standort, Switchport/WLAN-SSID (falls verfügbar), VLAN/Scope nach Netzwerkdokumentation, Zeitpunkt der letzten erfolgreichen Verbindung, <code>ipconfig /all</code>-Auszug sowie Anzahl betroffener Anwender.</p>
+<p>Kläre zusätzlich:</p>
+<ul>
+<li>Ist der Netzwerkadapter <strong>aktiv</strong>, der Link <strong>UP</strong>, bei WLAN die Anmeldung/Assoziation abgeschlossen?</li>
+<li><strong>DHCP aktiviert?</strong> Welche IPv4-Adresse, Maske, Gateway, DNS-Server, Lease-Zeiten und DHCP-Server werden angezeigt?</li>
+<li>Gab es Gerätewechsel, Patchkabeltausch, Port-/VLAN-/SSID-Änderungen, Netzumzug oder neue NAC-Richtlinien?</li>
+<li>Gab es letzte Leases auf demselben Adapter, und wurden <strong>Fehler im DHCP-Client-Ereignisprotokoll</strong> registriert?</li>
+<li>Besteht Fernzugriff über genau diese Verbindung? Dann <strong>keine trennenden Befehle</strong> ohne alternative Zugangsmöglichkeit.</li>
+</ul>
+<p><strong>Datenschutz:</strong> MAC-Adressen, Rechnernamen, interne IP-Bereiche, Benutzerbezug und Switch-Topologien nur in internen autorisierten Tickets speichern. Publikationen verwenden vollständig fiktive Beispiele.</p>
+<h2 id="6-lesende-clientdiagnose-unter-windows-11">6. Lesende Clientdiagnose unter Windows 11</h2>
+<p>Die folgenden Befehle ermitteln Zustände und <strong>verändern weder Lease noch Adapterkonfiguration</strong> [Q3, Q4]:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Zuverlässiger Überblick über aktuelle IPv4-/DHCP-Konfiguration
+ipconfig /all
+Get-NetAdapter | Format-Table Name,Status,LinkSpeed,MacAddress -AutoSize
+Get-NetIPInterface -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,InterfaceIndex,ConnectionState,Dhcp
+Get-NetIPAddress -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,IPAddress,PrefixLength,PrefixOrigin
+Get-NetIPConfiguration
+Get-Service -Name Dhcp
+
+# Ereigniskanäle auf diesem System finden (Namen können variieren)
+Get-WinEvent -ListLog '*Dhcp*' -ErrorAction SilentlyContinue |
+  Select-Object LogName,RecordCount,IsEnabled
+</code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><code>DHCP aktiviert: Nein</code> beziehungsweise <code>Dhcp=Disabled</code> → keine dynamische IPv4-Vergabe über diese Schnittstelle zu erwarten, solange keine Änderung freigegeben wurde.</li>
+<li>Link <code>Disconnected</code> → zunächst Layer 1/2; DHCP kann ohne nutzbare Verbindung nicht erfolgreich durchlaufen.</li>
+<li><code>PrefixOrigin=Dhcp</code> zeigt eine per DHCP bezogene Adresse an, <strong>nicht</strong>, dass alle Optionen korrekt sind.</li>
+<li><code>169.254/16</code> kann unter Windows auf APIPA hinweisen; nähere Analyse folgt in RB-036. [Q5]</li>
+<li>DHCP-Clientdienst darf nicht blind neu gestartet oder deaktiviert werden; Prozessabhängigkeiten und Richtlinien beachten.</li>
+</ul>
+<p><strong>Ereignisanzeige:</strong> <em>Anwendungs- und Dienstprotokolle → Microsoft → Windows → DHCP-Client</em> (insbesondere Admin/Operational; die konkrete Anzeigename-/Kanalstruktur prüfen). Ereignisse mit <strong>Zeitpunkt und Adapter-ID</strong> korrelieren. Microsoft empfiehlt hierfür bei Bedarf <code>Get-NetAdapter -IncludeHidden</code>. [Q3]</p>
+<h2 id="7-layer-1-2-und-netzwerksegment-testen">7. Layer 1/2 und Netzwerksegment testen</h2>
+<p><strong>Prüfungsreihenfolge:</strong> Link-/WLAN-Status → Kabel oder Funkassoziation → Dock/USB-Ethernet → zugewiesenes VLAN/SSID → zulässiger Vergleichsport → NAC/802.1X und DHCP-Snooping (durch berechtigten Owner).</p>
+<ul>
+<li><strong>Kabelgebunden:</strong> Link-LED allein garantiert nicht, dass das vorgesehene VLAN, 802.1X und DHCP-Pakete durchgelassen werden.</li>
+<li><strong>WLAN:</strong> Ein angezeigter WLAN-Link ist kein Beweis für Zugang zum richtigen Unternehmenssegment. SSID, Authentisierung und Clientrolle vergleichen.</li>
+<li><strong>Nur ein Switchport:</strong> Portprofil, VLAN-ID, Port-Security/DHCP-Snooping und Fehlerzähler vergleichen, ohne die Konfiguration eigenmächtig zu ändern.</li>
+<li><strong>Nur ein VLAN:</strong> ist das DHCP-Relay für dieses Subnetz konfiguriert? Erreichen Discover-Pakete den Relay und verlässt die Weiterleitung den Router? Die Diagnose gehört zur Netzadministration.</li>
+</ul>
+<p><strong>A/B-Vergleichsmatrix:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Befund</th>
+<th>Konsequenz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gleiches Gerät am freigegebenen Vergleichport</td>
+<td>Lease ja/nein</td>
+<td>Port-/VLAN-Abhängigkeit prüfen</td>
+</tr>
+<tr>
+<td>Vergleichsgerät am betroffenen Port</td>
+<td>Lease ja/nein</td>
+<td>Client- gegen Netzpfad-Hypothese abgrenzen</td>
+</tr>
+<tr>
+<td>Nachbarclient im selben VLAN</td>
+<td>Lease ja/nein</td>
+<td>Einzelclient vs. Segmentfehler</td>
+</tr>
+<tr>
+<td>Client im selben Subnetz wie Server</td>
+<td>Lease ja, anderes VLAN nein</td>
+<td>Relay/Firewall/Routing bevorzugt prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Achtung:</strong> Ein Wechsel kann NAC- oder Sicherheitskontrollen auslösen. Nur autorisierte Testgeräte und Ports verwenden.</p>
+<h2 id="8-dora-uber-netzwerkaufzeichnung-belegen">8. DORA über Netzwerkaufzeichnung belegen</h2>
+<p>Bei komplexeren Fällen empfiehlt Microsoft zeitgleiches Erfassen von <strong>Client- und Serverseite</strong> beziehungsweise auf dem Relay. Wireshark-Anzeigefilter <code>dhcp</code> (je nach Wireshark-Version ist auch <code>bootp</code> verbreitet), alternativ <code>udp.port == 67 || udp.port == 68</code>. [Q1, Q3]</p>
+<p><strong>Paketdiagnose (nach Freigabe und Datensicherheitsklärung):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Paketlage</th>
+<th>Befund</th>
+<th>Nächster Untersuchungsort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kein Discover/Request am Client</strong> trotz gezielt angestoßener Neuvergabe</td>
+<td>Keine Sendung erkennbar</td>
+<td>Adapter, DHCP-Client, Erfassungsinterface und tatsächlichen Leasezustand prüfen</td>
+</tr>
+<tr>
+<td><strong>Discover am Client, nicht am Server</strong></td>
+<td>Transport unterbrochen</td>
+<td>VLAN, Relay, Switch-/Firewallpfad, DHCP-Snooping prüfen</td>
+</tr>
+<tr>
+<td><strong>Discover am Server, kein Offer</strong></td>
+<td>Server reagiert nicht im Capture</td>
+<td>Scope, Dienst, Autorisierung, Filter/Policies und Logs</td>
+</tr>
+<tr>
+<td><strong>Offer am Server, nicht am Client</strong></td>
+<td>Rückweg fehlt</td>
+<td>Relay, Netzfilter, Switch/DHCP-Snooping</td>
+</tr>
+<tr>
+<td><strong>Offer + Request, aber NAK oder kein ACK</strong></td>
+<td>Zuweisung nicht abgeschlossen</td>
+<td>Leasekonflikt, fremdes Subnetz, Policy, Serverlogs, Paketpfad</td>
+</tr>
+<tr>
+<td><strong>ACK am Client, aber keine gültige Konfiguration</strong></td>
+<td>Client übernimmt angebotene Parameter nicht</td>
+<td>Adresskonflikt/DAD, Clientlogs, Adapter/Policy</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Fehlt ein Paket in einem einzelnen Mitschnitt, ist das kein endgültiger Beweis. Falscher Mitschnittpunkt, Capture-Filter, Packet-Offloading, Zeitversatz und Wechsel des Interfaces können die Beobachtung verfälschen. Immer zwei Perspektiven abgleichen.</p>
+<p>Eine Neuvergabe lässt sich auf einem <strong>lokal betreuten Testgerät</strong> nach Sicherung des Ausgangszustands gegebenenfalls mit <code>ipconfig /release "Ethernet"</code> und <code>ipconfig /renew "Ethernet"</code> anstoßen. <strong>Das sind verändernde Befehle, keine reinen Diagnoseabfragen</strong>: Sie können Netzwerk- und Fernzugriff trennen, veränderte Leases auslösen und laufende Anwendungen unterbrechen. Nicht ungefragt in produktiven Sitzungen ausführen. [Q4]</p>
+<h2 id="9-dhcp-server-prufen-nur-mit-zustandigkeit-und-berechtigung">9. DHCP-Server prüfen – nur mit Zuständigkeit und Berechtigung</h2>
+<p>Auf einem autorisierten Windows-Server- oder RSAT-System, mit passender Rolle und Leserechten [Q1, Q6–Q10]:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Fiktive Labornamen/Netze
+Get-DhcpServerInDC
+Get-DhcpServerv4Binding -ComputerName dhcp01.corp.example
+Get-DhcpServerv4Scope -ComputerName dhcp01.corp.example
+Get-DhcpServerv4ScopeStatistics -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+Get-DhcpServerv4Lease -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+Get-DhcpServerv4OptionValue -ComputerName dhcp01.corp.example -ScopeId 192.168.120.0
+Get-Service -Name DHCPServer
+</code></pre></div>
+<p><code>Get-Service -Name DHCPServer</code> ist <strong>nur auf dem DHCP-Server selbst</strong> bzw. innerhalb einer dafür autorisierten Remotesitzung sinnvoll; ein Helpdesk-Client ohne Serverrolle hat diesen Dienst normalerweise nicht.</p>
+<p><strong>Servercheckliste:</strong></p>
+<ol>
+<li>Serverdienst läuft? Windows-DHCP-Server in AD <strong>autorisiert</strong> (falls relevant)? [Q7]</li>
+<li>Scope für das Clientsubnetz vorhanden und <strong>aktiv</strong>? Freie Adressen, Ausschlüsse und Reservierungen plausibel?</li>
+<li>Aktuelle Statistiken, Leases und <code>BAD_ADDRESS</code>-Einträge prüfen; Konflikte nicht allein aufgrund eines Zählers behaupten. [Q1, Q11]</li>
+<li>Option 003 (Gateway), 006 (DNS) und weitere Optionen prüfen – diese erklären Konfigurationsfehler <strong>nach</strong> der Zuweisung, aber nicht automatisch das Fehlen jedes Leases.</li>
+<li>Richtlinien, MAC-/Vendor-Filter, Scope-Reihenfolge, Serverbindung und bei HA die Failover-Statistik berücksichtigen.</li>
+<li>Ereignisprotokolle unter <strong>Microsoft → Windows → DHCP-Server</strong> und Auditdateien standardmäßig unter <code>%windir%\System32\Dhcp</code> prüfen. [Q1]</li>
+</ol>
+<p><strong>Besondere Gefahren:</strong> DHCP-Scope nicht „kurz vergrößern“ ohne Adressplan; keine produktiven Reservierungen, Exclusions oder Autorisierung in AD auf Verdacht ändern.</p>
+<h2 id="10-relay-vlan-und-netzwerk-security-typischer-l2-pfad">10. Relay, VLAN und Netzwerk-Security – typischer L2-Pfad</h2>
+<p>Wenn Client und DHCP-Server <strong>verschiedene Subnetze</strong> benutzen, ist bei DHCPv4 meist ein DHCP-Relay/IP-Helper auf dem L3-Gateway erforderlich. [Q1, Q2]</p>
+<p>Der Netzwerk-Owner prüft:</p>
+<ul>
+<li>Welches <strong>VLAN/Subnetz</strong> hat der betroffene Switchport bzw. das WLAN-Profil tatsächlich?</li>
+<li>Welcher <strong>Relay-/Helper-Zielserver</strong> ist auf der VLAN-Schnittstelle eingetragen?</li>
+<li>Welche Subnetzinformation (<code>giaddr</code>, ggf. Option 82) trifft beim DHCP-Server ein? Passen sie zum Scope und den Sicherheitsregeln?</li>
+<li>Ist der <strong>Hin- und Rückweg</strong> für DHCP zwischen Gateway/Relay und Server erlaubt? Richtige UDP-Ports und Gerätefunktionen berücksichtigen.</li>
+<li>Verwirft <strong>DHCP-Snooping</strong>, Port-Security, NAC oder eine ACL Pakete? Vertrauensstellung nur nach Sicherheitskonzept ändern.</li>
+<li>Gibt es versehentlich <strong>weitere DHCP-Server</strong>, welche widersprüchliche Angebote liefern? Nie die Filterung ausschalten, nur um schnell einen Lease zu bekommen.</li>
+</ul>
+<p><strong>Beispiel:</strong> Clients in VLAN 120 (<code>192.168.120.0/24</code>) bekommen keine Lease, im Server-VLAN funktioniert alles: Das ist ein starkes <strong>Indiz</strong> für Scope/Relay/VLAN/ACL, kein Beweis ohne Mitschnitt und Servercheck.</p>
+<h2 id="11-entscheidungs-und-fehlermatrix">11. Entscheidungs- und Fehlermatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste Untersuchung</th>
+<th>Sichere Folgemaßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nur ein Client; DHCP auf Adapter deaktiviert</td>
+<td>Interfacekonfiguration/Policy</td>
+<td>Zuständigen Owner um Prüfung der Sollkonfiguration bitten</td>
+</tr>
+<tr>
+<td>Adapterstatus „Disconnected“</td>
+<td>Kabel, Funk, Dock, Port</td>
+<td>Vergleichskomponenten nach Freigabe testen</td>
+</tr>
+<tr>
+<td>Mehrere Clients eines VLANs ohne Lease</td>
+<td>VLAN, Relay/IP-Helper, Scope, Snooping</td>
+<td>Netzwerkteam mit Netz-/Zeit-/Capturebefunden einschalten</td>
+</tr>
+<tr>
+<td>Server sieht Discover, kein Offer</td>
+<td>Autorisierung, Scope, Leasevorrat, Filter</td>
+<td>Serverteam gezielt eskalieren</td>
+</tr>
+<tr>
+<td>Offer am Server, nicht am Client</td>
+<td>Rückweg, Relay, Filter</td>
+<td>Beidseitige Captures korrelieren</td>
+</tr>
+<tr>
+<td>ACK, aber Client nimmt IPv4 nicht an</td>
+<td>Clientlog, Adresskonflikt, Policy</td>
+<td>Client- und Server-Events abgleichen</td>
+</tr>
+<tr>
+<td>Lease korrekt, nur Anwendungen gestört</td>
+<td>DNS/Route/Gateway/Dienst</td>
+<td>Zu RB-034 / RB-038 / RB-039 wechseln</td>
+</tr>
+<tr>
+<td>DHCP erneuert, Problem tritt wieder auf</td>
+<td>Ablaufzeit, Failover, Intervall, sporadische L2-Probleme</td>
+<td>Langzeitbefunde sammeln; nicht als dauerhaft gelöst schließen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Ein guter Ticketbefund</strong> nennt das konkrete Paket/Protokollereignis und den Vergleichspunkt – nicht lediglich „DHCP kaputt“.</p>
+<h2 id="12-korrektur-freigabe-und-sicherheitsgrenzen">12. Korrektur, Freigabe und Sicherheitsgrenzen</h2>
+<p><strong>Grundsatz:</strong> Änderungen erst nach Befundsicherung, schriftlich oder prozessual erlaubter Freigabe, Wirkungsschätzung und Rollbackplan.</p>
+<ul>
+<li><strong>Client:</strong> falsch zugewiesenes statisches IPv4 oder deaktiviertes DHCP nur nach Prüfung der Sollkonfiguration korrigieren.</li>
+<li><strong>Link:</strong> defektes Kabel oder falsche Dock-/Switchverbindung gezielt ersetzen, mit Genehmigung.</li>
+<li><strong>VLAN/Relay:</strong> Port-VLAN und IP-Helper auf dokumentierten Sollzustand zurückführen – nur Netzwerk-Owner.</li>
+<li><strong>Server:</strong> abgelaufene/erschöpfte Scopes, Reservierungen, Ausnahmelisten, AD-Autorisierung und Failover prüfen; nur Server-Owner ändert.</li>
+<li><strong>Adresskonflikte:</strong> Konfliktquelle nachweisen, statt blind <code>BAD_ADDRESS</code>-Leases zu löschen oder Adressbereiche frei zu geben.</li>
+</ul>
+<p><strong>Nicht als Schnelllösung:</strong> unkontrolliertes <code>ipconfig /release</code>, DHCP-Server-Neustart, Deaktivieren von DHCP-Snooping/NAC, blindes Ändern von Scopes, Ausschlüssen oder DHCP-Filterlisten, dauerhafte statische Notfalladresse ohne Change.</p>
+<h2 id="13-zwei-fiktive-musterfalle-diagnose-vor-losung">13. Zwei fiktive Musterfälle – Diagnose vor Lösung</h2>
+<h3 id="fall-a-nur-ein-notebook-in-besprechungsraum-betroffen">Fall A: Nur ein Notebook in Besprechungsraum betroffen</h3>
+<p><strong>Meldung:</strong> „Notebook NB-17 bekommt nach Anschluss an die Dockingstation keine Firmenadresse.“</p>
+<p><strong>Befunde (fiktiv):</strong> WLAN ist deaktiviert, USB-Ethernet-Adapter meldet Link <code>Up</code>, <code>ipconfig /all</code> zeigt DHCP aktiviert und APIPA; Nachbarclient am freigegebenen Port bekommt gültigen Lease. Vergleichsgerät am ursprünglichen Port erhält ebenfalls keine Adresse. Netzteam stellt fest: Der Port ist versehentlich dem Gast-VLAN zugeordnet, das in diesem Szenario keinen DHCP-Dienst anbietet.</p>
+<p><strong>Hypothesenprüfung:</strong> Clientkonfiguration plausibel; zwei Geräte scheitern am selben Port; am Soll-VLAN funktioniert DHCP. Ergebnis <strong>spricht für ein Port-/VLAN-Problem</strong>, nicht für einen global defekten DHCP-Server.</p>
+<p><strong>Korrektur:</strong> Autorisierter Netzwerk-Owner stellt dokumentiertes VLAN wieder her; DHCP-Neubezug bei lokal anwesendem Anwender und kontrollierter Zugangsmöglichkeit; Soll-IP, Gateway, DNS und Anwendungstest bestätigen.</p>
+<h3 id="fall-b-ganzes-neues-vlan-ohne-dhcp-lease">Fall B: Ganzes neues VLAN ohne DHCP-Lease</h3>
+<p><strong>Meldung:</strong> „Nach Standorterweiterung bekommen 14 Geräte im neuen Netz keine IP.“</p>
+<p><strong>Befunde (fiktiv):</strong> Clients senden DHCPDISCOVER; der DHCP-Server erhält im zeitgleichen Capture <strong>keine</strong> entsprechenden Pakete. Im bisherigen VLAN gibt es weiterhin DORA und gültige Leases. Der L3-Owner prüft das neue SVI und findet einen fehlenden DHCP-Relay-Eintrag; Scope ist vorhanden und aktiv.</p>
+<p><strong>Hypothesenprüfung:</strong> Vergleich altes/neues VLAN, Client-/Servercapture und Sollkonfiguration weisen auf den fehlenden Relay-Pfad. <strong>Kein Serverdienst-Neustart erforderlich.</strong></p>
+<p><strong>Korrektur:</strong> Netzwerk-Owner setzt IP-Helper nach Change, prüft Paketfluss und gültige Leases sowie erreichbare Business-Dienste; Rollback und Zeitpunkt ins Ticket.</p>
+<p><strong>Beide Fälle sind ausschließlich Lernsimulationen und wurden nicht praktisch durchgeführt.</strong></p>
+<h2 id="14-active-recall-diagnosekarten-und-transfer">14. Active Recall, Diagnosekarten und Transfer</h2>
+<p>Beantworte zunächst <strong>ohne Runbook</strong> und prüfe erst danach die Lösungen:</p>
+<ol>
+<li><strong>Wissen:</strong> Welche vier Schritte bilden DORA? → Discover, Offer, Request, ACK.</li>
+<li><strong>Verständnis:</strong> Warum reicht <code>ping</code> zum DHCP-Server nicht? → DHCPv4 arbeitet über UDP 67/68 und Broadcast/Relay; ICMP ist eine andere Prüfung.</li>
+<li><strong>Diagnose:</strong> Ein Client sendet Discover, kein Server sieht es. Was vergleichst du? → Relay/VLAN/ACL/Snooping und zweiten Mitschnittpunkt.</li>
+<li><strong>Diagnose:</strong> Der Server versendet Offer, der Client sieht es nicht. Welche Hypothese? → Rückweg/Relay/Netzfilter oder Capturefehler.</li>
+<li><strong>Verständnis:</strong> Warum beweist 169.254.x.x keinen Serverdefekt? → Auch Link, Adapter, VLAN, Relay, Richtlinien und Adresskonflikte können vorher scheitern.</li>
+<li><strong>Diagnose:</strong> Nur ein VLAN betroffen, andere laufen. Erstmaßnahme? → Segment/Relay/Scope vergleichen, nicht den zentralen Dienst pauschal neu starten.</li>
+<li><strong>Wissen:</strong> Welche Komponente verteilt Leases in Windows Server? → DHCP-Serverdienst mit aktivem Scope und gültiger Autorisierung (wenn AD-Kontext).</li>
+<li><strong>Diagnose:</strong> Lease vorhanden, Anwendung trotzdem offline. Weiter? → Gateway, DNS, Routing, Firewall, Dienst separat prüfen.</li>
+<li><strong>Sicherheit:</strong> Warum <code>ipconfig /release</code> nicht einfach remote? → Der Vorgang kann den einzigen Verwaltungszugang trennen.</li>
+<li><strong>Transfer:</strong> Neuer WLAN-Client sieht SSID, bekommt aber keine Lease. Welche Ebene noch offen? → Richtige Authentisierung/Rolle, VLAN, NAC und DHCP-Pfad.</li>
+</ol>
+<p><strong>Anki bei späterem Tagesabschluss (Vorschlag):</strong> 3 Wissens-, 3 Verständnis- und 4 Diagnosekarten; kurze präzise Antworten, möglichst keine reinen Definitionsfragen. Zeitversetzte neue Szenarien nach ca. 7 und 21 Tagen.</p>
+<h2 id="15-abschluss-erfolgskriterien-und-quellen">15. Abschluss, Erfolgskriterien und Quellen</h2>
+<p>Ein Ticket gilt <strong>nicht</strong> aufgrund einer einzelnen <code>ipconfig /renew</code>-Erfolgsmeldung als abschließend validiert. Prüfe unter Originalbedingungen:</p>
+<ol>
+<li>Gewünschter Adapter bekommt <strong>nachweislich</strong> gültige IPv4-Adresse aus richtigem Scope sowie passende Maske, Gateway, DNS und Leasezeiten.</li>
+<li>Mehrere betroffene Clients, derselbe Port, WLAN-Bereich oder dasselbe VLAN funktionieren wieder – soweit betroffen.</li>
+<li>Verwendeter DHCP-Server/Relay und Ursache sind durch Log, Capture oder kontrollierte Gegenprobe ausreichend belegt.</li>
+<li>Anmeldung, fachlich benötigte Anwendung und Zugriff auf interne Dienste funktionieren mit vorgesehenen Rechten.</li>
+<li>Änderung, Genehmigung, Risiken, Rollback und Anwenderbestätigung im Ticket dokumentiert; bei ungeklärtem Befund korrekt eskalieren.</li>
+</ol>
+<p><strong>Drei-Satz-Ticketkommentar (fiktiv):</strong></p>
+<blockquote>
+<p><strong>Problem:</strong> „Vierzehn Clients in VLAN 120 erhielten keine DHCPv4-Adresse; die Clients sendeten Discover, die entsprechende Anfrage erreichte den Server nicht.“<br/>
+<strong>Diagnose/Maßnahme:</strong> „Der Netzwerkvergleich lokalisierte einen fehlenden IP-Helper-Eintrag am VLAN-Gateway; der zuständige Netzwerkadministrator stellte den dokumentierten Zustand nach Freigabe wieder her.“<br/>
+<strong>Nachweis:</strong> „Danach wurde DORA erfolgreich beobachtet; die Clients erhielten gültige Leases und der Zugriff auf die vorgesehenen Dienste wurde bestätigt.“</p>
+</blockquote>
+<h3 id="offizielle-quellen-microsoft-learn-abgerufen-am-22-11-2026">Offizielle Quellen – Microsoft Learn, abgerufen am 22.11.2026</h3>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance" rel="noopener noreferrer" target="_blank">Anleitung zur Problembehandlung bei DHCP (DHCP-Server/Client/Relay/Paketmitschnitt)</a></li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/en-us/windows-server/troubleshoot/troubleshoot-dhcp-issue" rel="noopener noreferrer" target="_blank">DHCP Troubleshooting Guide – DORA, Renew, Rebind, Relay und UDP-Ports</a></li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/troubleshoot-problems-dhcp-client" rel="noopener noreferrer" target="_blank">Troubleshoot problems on the DHCP client – Ereignisprotokolle und Vergleichsmitschnitte</a></li>
+<li><strong>[Q4]</strong> <a href="https://learn.microsoft.com/de-de/windows-server/administration/windows-commands/ipconfig" rel="noopener noreferrer" target="_blank"><code>ipconfig</code> – Syntax und Auswirkungen von Release/Renew</a></li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/de-de/windows-server/troubleshoot/how-to-use-automatic-tcpip-addressing-without-a-dh" rel="noopener noreferrer" target="_blank">APIPA – automatische TCP/IP-Adressierung ohne DHCP</a></li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dhcpserver/get-dhcpserverv4scopestatistics?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank"><code>Get-DhcpServerv4ScopeStatistics</code> – Scope-Auslastung</a></li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshooting-guide-dhcp-authorization-failures" rel="noopener noreferrer" target="_blank">DHCP Server Authorization Failures – AD-Autorisierung</a></li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dhcpserver/get-dhcpserverv4binding?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank"><code>Get-DhcpServerv4Binding</code> – Netzwerkbindungen</a></li>
+<li><strong>[Q9]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dhcpserver/get-dhcpserverv4scope?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank"><code>Get-DhcpServerv4Scope</code> – Scopes lesen</a></li>
+<li><strong>[Q10]</strong> <a href="https://learn.microsoft.com/en-us/powershell/module/dhcpserver/get-dhcpserverv4lease?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank"><code>Get-DhcpServerv4Lease</code> – Leases lesen</a></li>
+<li><strong>[Q11]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/event-4199-windows-client-cannot-get-ip-address-dhcp-server" rel="noopener noreferrer" target="_blank">Event ID 4199 und DHCP-Adresskonflikte</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Diese Recherche und die erzeugten Dateien ersetzen keine reale Paketaufzeichnung, Konfigurationstests oder praktische Freigabe. Der Inhalt ist als Lern- und Vorbereitungsgrundlage für die eigenständige Validierung konzipiert.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-035_Lernartikel.md">RB-035_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-034/index.html">← Ticket 34</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-036/index.html">Ticket 36 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

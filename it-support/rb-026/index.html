@@ -1,0 +1,354 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 26: Windows startet nicht korrekt | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 26: Windows startet nicht korrekt. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 26: Windows startet nicht korrekt</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-ticket-symptom-auftrag-und-abgrenzung">1. Das Ticket: Symptom, Auftrag und Abgrenzung</a></li><li><a href="#2-das-windows-henne-und-ei-prinzip">2. Das Windows-Henne-und-Ei-Prinzip</a></li><li><a href="#3-vier-windows-startphasen-prazise-unterscheiden">3. Vier Windows-Startphasen präzise unterscheiden</a></li><li><a href="#4-symptome-in-technisch-prufbare-hypothesen-ubersetzen">4. Symptome in technisch prüfbare Hypothesen übersetzen</a></li><li><a href="#5-vor-jedem-schreibenden-eingriff-sicherheits-und-daten-gate">5. Vor jedem schreibenden Eingriff: Sicherheits- und Daten-Gate</a></li><li><a href="#6-winre-sicher-erreichen-und-richtig-einordnen">6. WinRE sicher erreichen und richtig einordnen</a></li><li><a href="#7-winre-starthilfe-erste-geeignete-reparaturoption-bei-bootproblemen">7. WinRE-Starthilfe: erste geeignete Reparaturoption bei Bootproblemen</a></li><li><a href="#8-abgesicherter-modus-diagnose-nicht-beweis-einer-losung">8. Abgesicherter Modus: Diagnose, nicht Beweis einer Lösung</a></li><li><a href="#9-nach-updates-oder-treibern-wiederherstellung-mit-minimalem-eingriff">9. Nach Updates oder Treibern: Wiederherstellung mit minimalem Eingriff</a></li><li><a href="#10-nur-lesende-technische-prufungen-arbeitsumgebung-beachten">10. Nur lesende technische Prüfungen – Arbeitsumgebung beachten</a></li><li><a href="#11-fortgeschrittene-reparatur-weshalb-pauschale-befehlslisten-gefahrlich-sind">11. Fortgeschrittene Reparatur: weshalb pauschale Befehlslisten gefährlich sind</a></li><li><a href="#12-diagnose-nach-befund-entscheidungsmatrix">12. Diagnose nach Befund: Entscheidungsmatrix</a></li><li><a href="#13-fiktiver-ubungsfall-a-update-neustartschleife-safe-mode">13. Fiktiver Übungsfall A: Update, Neustartschleife, Safe Mode</a></li><li><a href="#14-fiktiver-ubungsfall-b-bcd-meldung-aber-ssd-problem">14. Fiktiver Übungsfall B: BCD-Meldung, aber SSD-Problem</a></li><li><a href="#15-diagnosekompetenz-selbsttest-und-quellen">15. Diagnosekompetenz, Selbsttest und Quellen</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Windows 11 · Systemstart · Wiederherstellung · Störungsanalyse<br/>
+<strong>Support-Level:</strong> L2 (L1: Aufnahme und gesicherte Erstbefunde; L2: WinRE, Start-/Systemdiagnose und autorisierte Wiederherstellung)<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Anhand offizieller Microsoft-Dokumentation recherchiert und didaktisch aufbereitet. <strong>Keine praktische Validierung auf einem betroffenen Gerät erfolgt.</strong> Alle Fallbeispiele und Ergebnisse sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb026_henne_ei_windows_start.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-026: Henne-und-Ei-Infografik zur Windows-Startdiagnose" decoding="async" loading="lazy" src="assets/rb026_henne_ei_windows_start.webp"/></a></div><figcaption>RB-026: Henne-und-Ei-Infografik zur Windows-Startdiagnose</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> Die Meldung „Windows startet nicht“ ist keine Diagnose. <strong>Zuerst klären, wo der Start abbricht; dann die Daten und den BitLocker-Zugriff absichern; erst anschließend die passende Wiederherstellungsmaßnahme auswählen.</strong></p>
+</blockquote>
+<h2 id="1-das-ticket-symptom-auftrag-und-abgrenzung">1. Das Ticket: Symptom, Auftrag und Abgrenzung</h2>
+<p><strong>INC-026 (fiktiver Übungsfall):</strong> „Nach einem Update kommt nur noch das Windows-Logo. Danach startet der Rechner neu und zeigt die automatische Reparatur. Gestern lief noch alles.“</p>
+<p><strong>Bearbeitungsziel:</strong> Den betroffenen Teil der Windows-Startkette mit nachvollziehbaren Indizien ermitteln, die wahrscheinlichste Fehlerursache eingrenzen, eine <strong>autorisierte und möglichst datenschonende</strong> Maßnahme auswählen und den erfolgreichen Normalstart anschließend beweisen.</p>
+<p><strong>Abgrenzung zu RB-025:</strong> Bei RB-025 war noch offen, ob überhaupt Strom, POST oder Bildausgabe funktionieren. <strong>RB-026 setzt voraus, dass sich der Fehler zumindest plausibel im Windows-Startpfad zeigt.</strong> „No bootable device“, fehlendes Laufwerk oder POST-Diagnosecodes können weiterhin Hardware-/Storagefälle sein. Sie werden nicht blind als Softwarefehler behandelt.</p>
+<p><strong>Sechs Fragen an die meldende Person:</strong></p>
+<ol>
+<li>Welches <strong>konkrete Bild</strong> erscheint: Firmware-Logo, drehende Punkte, Bluescreen, BitLocker-Abfrage, Reparaturmenü oder schwarzer Bildschirm?</li>
+<li><strong>Wann</strong> genau und wie oft wird neu gestartet? Bleibt der Vorgang dauerhaft an derselben Stelle? Exakten Stopcode / Fehlercode fotografieren oder abschreiben.</li>
+<li>Letzter erfolgreicher Start; was geschah vorher (Update, neuer Treiber, Sicherheitssoftware, Stromausfall, Dock, BIOS-Änderung)?</li>
+<li>Ist die Festplatte/SSD im <strong>UEFI beziehungsweise Herstellerdiagnosetool</strong> sichtbar, oder meldet das Gerät fehlende Hardware?</li>
+<li>Gibt es lokale, <strong>noch nicht gesicherte Daten</strong>, verwaltete Unternehmensrichtlinien oder eine Wiederherstellungssperre?</li>
+<li>Ist <strong>BitLocker/Device Encryption</strong> aktiv, und ist der Wiederherstellungsschlüssel über den <strong>autorisierten</strong> Prozess zugänglich (nicht im Ticket hinterlegen)?</li>
+</ol>
+<p><strong>L1:</strong> Symptom aufnehmen, sichere Beobachtung, Gerätedaten, Zeitpunkt, Änderungsverlauf, Backup-/Schlüsselstatus zur richtigen Stelle melden. <strong>L2:</strong> WinRE-Auswertung, Recovery-Auswahl, Treiber-/Update-Rollback und Bootkonfiguration <strong>nur nach Berechtigung</strong>.</p>
+<h2 id="2-das-windows-henne-und-ei-prinzip">2. Das Windows-Henne-und-Ei-Prinzip</h2>
+<p>Windows kann den Desktop nur anzeigen, wenn vorgelagerte Komponenten ausreichend funktionieren. Vereinfacht:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">UEFI-Firmware / POST (vor Windows)
+             ↓
+Windows Boot Manager (z. B. bootmgfw.efi bei UEFI)
+             ↓
+Windows OS Loader (winload.efi bei UEFI)
+             ↓
+Windows-Kernel, Boot-Start-Treiber und Systemstruktur
+             ↓
+Sitzungsaufbau, Dienste, Anmeldung, Desktop
+</code></pre></div>
+<p><strong>Henne:</strong> „Der Windows-Desktop erscheint nicht – ist der Desktop kaputt?“<br/>
+<strong>Ei:</strong> „Vielleicht. Zuerst brauchen Bootmanager, Ladeprogramm und Kernel ihren jeweiligen funktionierenden Vorgänger. Ein Fehler an einer früheren Stelle verhindert spätere Bildschirme.“</p>
+<p><strong>Wichtige Ausnahme:</strong> Die <strong>Bildausgabe ist ein separater Beobachtungspfad</strong>. Ein schwarzer Monitor beweist nicht, dass Windows nicht gebootet hat (siehe RB-022/RB-025). Ein Stopcode zeigt dagegen, dass Windows bereits in eine weiter fortgeschrittene Startphase gekommen ist.</p>
+<p><strong>Merksatz:</strong> <em>Erst den ausgefallenen Schritt der Abhängigkeitskette identifizieren, dann die richtige Ebene reparieren.</em></p>
+<p><strong>Quelle:</strong> <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Windows-Startphasen</a>.</p>
+<h2 id="3-vier-windows-startphasen-prazise-unterscheiden">3. Vier Windows-Startphasen präzise unterscheiden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Wofür verantwortlich?</th>
+<th>Typische Hinweise</th>
+<th>Typische Diagnosefrage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PreBoot / Firmware</strong></td>
+<td>Hardware initialisieren, Bootmedium und Startpfad finden</td>
+<td>Logo, UEFI-Meldung, „No bootable device“</td>
+<td>Wird der Systemdatenträger erkannt? War POST erfolgreich?</td>
+</tr>
+<tr>
+<td><strong>Windows Boot Manager</strong></td>
+<td>Boot-Konfiguration (BCD) nutzen und Windows-Lader wählen</td>
+<td>BCD-Fehler, <code>0xc000000f</code> als mögliches Beispiel</td>
+<td>Ist ein gültiger Boot-Eintrag vorhanden?</td>
+</tr>
+<tr>
+<td><strong>Windows OS Loader</strong></td>
+<td>Kernel und bootkritische Komponenten laden</td>
+<td>Loader-/Dateifehler, verschiedene Recovery-Fehlercodes</td>
+<td>Lassen sich notwendige Dateien und Treiber laden?</td>
+</tr>
+<tr>
+<td><strong>Kernel / spätere Initialisierung</strong></td>
+<td>Treiber, Registry-Hives, Systemdienste, Sitzungen starten</td>
+<td>Stopcode/BSOD, Neustartschleife, lange Hänger</td>
+<td>Welcher Treiber, Dienst oder welche Systemkomponente stoppt?</td>
+</tr>
+</tbody>
+</table></div>
+<p>Die Zuordnung ist <strong>eine Hypothese anhand der Beobachtung</strong>, keine unumstößliche Diagnose: Ein und derselbe Fehlercode kann mehrere Auslöser haben. Auch kaputter Massenspeicher kann wie ein Bootkonfigurationsfehler aussehen.</p>
+<p><strong>UEFI / GPT ist bei Windows 11 der Normalfall.</strong> Pauschale Internetanleitungen für Legacy-BIOS/MBR (zum Beispiel beliebige <code>bootrec /fixmbr</code>-Serien) sind deshalb <strong>keine universelle Standardlösung</strong>.</p>
+<h2 id="4-symptome-in-technisch-prufbare-hypothesen-ubersetzen">4. Symptome in technisch prüfbare Hypothesen übersetzen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Fehlersymptom</th>
+<th>Mögliche Ursachen (nicht abschließend)</th>
+<th>Sinnvolle erste Prüfung</th>
+<th>Typischer nächster Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bootmanager-/BCD-Meldung</td>
+<td>Boot-Konfiguration, fehlende Startdatei, Laufwerk/EFI-Partition nicht erreichbar</td>
+<td>Vollständigen Code, UEFI-SSD-Erkennung und Bootpfad dokumentieren</td>
+<td>WinRE-Starthilfe nach Freigabe; L2-Bootanalyse wenn erfolglos</td>
+</tr>
+<tr>
+<td>Windows-Logo mit Endlosschleife</td>
+<td>Update, bootkritischer Treiber, Systemdateien, Storage</td>
+<td>Letzte Änderung, Stopcode, WinRE-Verfügbarkeit, Safe Mode</td>
+<td>Ursache anhand der Tests weiter eingrenzen</td>
+</tr>
+<tr>
+<td>Bluescreen beim Start</td>
+<td>Treiber-/Kernelproblem, Storage, beschädigte Komponenten</td>
+<td>Stopcode und Parameter, Zeitpunkt, vorangegangene Änderung</td>
+<td>Stopcode-spezifische Microsoft-Dokumentation; ggf. L2/Endpoint</td>
+</tr>
+<tr>
+<td>Automatische Reparatur ohne Erfolg</td>
+<td>Starthilfe hat Problem erkannt, aber nicht behoben</td>
+<td>Reparaturbericht/<code>SrtTrail.txt</code> nach identifiziertem Windows-Laufwerk</td>
+<td>Geeignete andere WinRE-Option oder weiterführende Analyse</td>
+</tr>
+<tr>
+<td>Abgesicherter Modus funktioniert</td>
+<td>Fehler ggf. an optionalen Treibern, Diensten oder Software</td>
+<td>Normalstart vs. Safe Mode, Ereignisprotokolle, Änderungsverlauf</td>
+<td>Problematische Änderung gezielt zurücknehmen</td>
+</tr>
+<tr>
+<td>WinRE startet nicht</td>
+<td>WinRE/Bootpfad beschädigt, Recovery-Partition oder Hardwareproblem</td>
+<td>Bootmedium/Storage/USB-Recoveryweg nach Unternehmensvorgabe</td>
+<td>Autorisierte Wiederherstellungsmedien/Endpoint-Team</td>
+</tr>
+<tr>
+<td>BitLocker-Recovery-Screen</td>
+<td>Schutzauslösung, geänderter Boot-/TPM-Kontext, legitimer Recoveryfall</td>
+<td>Schlüssel-ID und Ursache über zuständige Stelle prüfen</td>
+<td>Autorisierten Wiederherstellungsprozess nutzen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Keine voreilige Kausalbehauptung:</strong> „Nach dem Update“ beschreibt <strong>zeitliche Nähe</strong>, nicht zwingend die Ursache.</p>
+<h2 id="5-vor-jedem-schreibenden-eingriff-sicherheits-und-daten-gate">5. Vor jedem schreibenden Eingriff: Sicherheits- und Daten-Gate</h2>
+<p><strong>STOP-Bedingungen:</strong> auffällige SSD-Geräusche/Hardwaretests, Laufwerk nicht erkannt, ungeklärte Backups, kritische lokale Daten, BitLocker-Schlüssel nicht verfügbar, Gerät unter Security-/Forensik-Vorbehalt, fehlende Freigabe, laufendes Firmware-Update oder unklarer Verschlüsselungsstatus.</p>
+<p><strong>Daten-Check:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind lokale Dateien oder noch nicht synchronisierte Inhalte vorhanden? <strong>Cloud-Synchronisierung ersetzt kein verifiziertes Backup.</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gibt es ein <strong>getestetes</strong>, zeitlich passendes Backup oder eine freigegebene Sicherungs-/Imagingstrategie?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verschlüsselung und <strong>autorisierter</strong> BitLocker-Wiederherstellungsschlüsselzugang geklärt? <strong>Keinen Schlüssel</strong> in E-Mail/Ticket/Chat speichern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verantwortliche Person, notwendiges Wartungsfenster, System-/Arbeitsplatzkritikalität dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Was ist <strong>Rollback</strong> oder Eskalationsweg, wenn die Maßnahme scheitert?</li>
+</ul>
+<p><strong>Nicht als Standardprobe:</strong> <code>format</code>, <code>diskpart clean</code>, <code>chkdsk /f</code> oder <code>/r</code>, Bootpartitionen ändern, <code>bcdboot</code> oder <code>bootrec</code> blind ausführen, BCD-Recovery deaktivieren, Secure Boot/TPM umstellen, Windows zurücksetzen oder neu installieren. All das kann Daten oder Systemstart beeinflussen und muss zu einem konkreten Befund und einem freigegebenen Recoveryverfahren passen.</p>
+<p><strong>Microsoft weist darauf hin</strong>, dass für bestimmte WinRE-Optionen ein BitLocker-Wiederherstellungsschlüssel nötig ist. Unterschiedliche WinRE-Startwege können unterschiedliches Entsperrverhalten auslösen. <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">BitLocker-Wiederherstellung</a>.</p>
+<h2 id="6-winre-sicher-erreichen-und-richtig-einordnen">6. WinRE sicher erreichen und richtig einordnen</h2>
+<p><strong>Windows Recovery Environment (WinRE)</strong> ist die Wiederherstellungsumgebung mit unter anderem <strong>Starthilfe, Starteinstellungen, Updates deinstallieren, Systemwiederherstellung, Eingabeaufforderung</strong> und je nach Version/Verwaltung weiteren Optionen.</p>
+<p><strong>Zugriffswege (je nach Ausgangszustand):</strong></p>
+<ol>
+<li><strong>Windows ist noch erreichbar:</strong> <code>Einstellungen → System → Wiederherstellung → Erweiterter Start → Jetzt neu starten</code>.</li>
+<li><strong>Anmeldebildschirm erreichbar:</strong> <code>Umschalt</code> gedrückt halten, über Ein/Aus <strong>Neu starten</strong> wählen.</li>
+<li><strong>Wiederholte fehlgeschlagene Startversuche:</strong> WinRE kann <strong>automatisch</strong> erscheinen. Nicht routinemäßig den Strom während laufender Update- oder Recovery-Vorgänge unterbrechen.</li>
+<li><strong>WinRE lokal nicht verfügbar:</strong> freigegebenes Windows-/OEM-Wiederherstellungsmedium; im Setup den <strong>Reparaturweg</strong> wählen, nicht versehentlich installieren.</li>
+</ol>
+<p>Microsoft dokumentiert auch einen Zugang durch kontrollierte Startunterbrechungen. <strong>Dies ist keine harmlose Universalroutine:</strong> Vor allem bei möglichen Schreibvorgängen, Laufwerksfehlern oder geschäftskritischen Daten wird sie nicht als erster Schritt verwendet; nur nach Risikoprüfung und Freigabe.</p>
+<p><strong>Wichtig:</strong> Nicht jede Option ist auf jedem Windows-11-Build und in jeder Unternehmensumgebung sichtbar oder erlaubt. Manche aktuellen Windows-11-Versionen bieten zusätzliche Wiederherstellungsfunktionen (z. B. Quick Machine Recovery oder Point-in-Time Restore); deren Verfügbarkeit hängt u. a. von Version und Verwaltung ab.</p>
+<p><strong>Quellen:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">WinRE</a>, <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows" rel="noopener noreferrer" target="_blank">Wiederherstellungsoptionen</a>.</p>
+<h2 id="7-winre-starthilfe-erste-geeignete-reparaturoption-bei-bootproblemen">7. WinRE-Starthilfe: erste geeignete Reparaturoption bei Bootproblemen</h2>
+<p><strong>Wann?</strong> Bootmanager-/Startdateiprobleme oder andere klassische Startstörungen, <strong>nachdem</strong> die Hardware-/Datenprüfung erfolgte und der Eingriff freigegeben ist.</p>
+<p><strong>Menüweg (Anzeigen können abweichen):</strong> <code>WinRE → Problembehandlung → Erweiterte Optionen → Starthilfe</code> (bzw. „Startreparatur“). Falls verlangt, Konto und Wiederherstellungsschlüssel autorisiert bereitstellen.</p>
+<p><strong>Was sie tut:</strong> Sie <strong>diagnostiziert und verändert gegebenenfalls</strong> Startkomponenten automatisch. Die Starthilfe ist <strong>kein rein lesender Test</strong> und keine Garantie auf vollständige Reparatur. Nach Abschluss immer einen kontrollierten Neustart und einen vollständigen Funktionstest durchführen.</p>
+<p><strong>Bei Fehlschlag:</strong> Nicht immer wieder blind denselben Durchlauf starten. Ergebnis, genaue Meldung, Hardwarestatus und etwaige Protokolldaten aufnehmen. Microsoft beschreibt ein Diagnoseprotokoll unter <code>%windir%\System32\LogFiles\Srt\SrtTrail.txt</code>. <strong>WinRE-Laufwerksbuchstaben können von Windows abweichen</strong>; den Pfad nicht pauschal als <code>C:</code> voraussetzen. Ein Verweis auf <code>SrtTrail.txt</code> ist <strong>kein Beleg</strong>, dass die Datei selbst die Ursache ist.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">Microsoft Support – Starthilfe</a>, <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">Microsoft Learn – Startup Repair und Protokoll</a>.</p>
+<h2 id="8-abgesicherter-modus-diagnose-nicht-beweis-einer-losung">8. Abgesicherter Modus: Diagnose, nicht Beweis einer Lösung</h2>
+<p><strong>Voraussetzung:</strong> Windows kann mit reduzierten Treibern und Diensten zumindest teilweise starten, BitLocker-Zugang und Berechtigung sind geklärt.</p>
+<p><strong>Menüweg:</strong> <code>WinRE → Problembehandlung → Erweiterte Optionen → Starteinstellungen → Neu starten</code>, danach in der Liste <strong>Abgesicherter Modus</strong> oder <strong>mit Netzwerk</strong> auswählen. Nicht von einer universell funktionierenden F8-Taste ausgehen.</p>
+<p><strong>Aussagewert:</strong> Startet Windows im abgesicherten Modus, jedoch nicht normal, <strong>spricht das</strong> für eine Störung durch zusätzliche Treiber, Dienste, Autostart-/Softwarekomponenten oder Konfiguration. Ein gelungener Safe-Mode-Start <strong>identifiziert die konkrete Ursache noch nicht</strong>.</p>
+<p><strong>Kontrollierte Schritte:</strong> genaue letzte Änderung eingrenzen, passende Protokolle prüfen, nach Freigabe zuletzt hinzugekommene problematische Software/Treiber rückgängig machen, danach <strong>normal neu starten</strong> und das ursprüngliche Symptom erneut testen. Ein dauerhaft erzwungener Safe-Mode-Start ist kein erfolgreicher Ticketabschluss.</p>
+<p><strong>Quelle:</strong> <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/windows-startup-settings" rel="noopener noreferrer" target="_blank">Microsoft Support – Windows-Starteinstellungen</a>.</p>
+<h2 id="9-nach-updates-oder-treibern-wiederherstellung-mit-minimalem-eingriff">9. Nach Updates oder Treibern: Wiederherstellung mit minimalem Eingriff</h2>
+<p><strong>Update nachweislich zeitnah?</strong> In WinRE kann <code>Problembehandlung → Erweiterte Optionen → Updates deinstallieren</code> eine passende Option sein. Welche Kategorien deinstallierbar sind, hängt von Build/Update/Umgebung ab. Nicht jede Aktualisierung lässt sich entfernen.</p>
+<p><strong>Wiederherstellungspunkt vorhanden?</strong> Die <strong>Systemwiederherstellung</strong> setzt Systemdateien, installierte Programme und Einstellungen auf den Zustand des Wiederherstellungspunktes zurück. <strong>Persönliche Dateien werden dabei normalerweise nicht zurückgesetzt</strong>, neue Anwendungen/Treiber/Updates können aber betroffen sein. Vor Bestätigung die betroffenen Programme prüfen und die Unternehmensvorgaben beachten.</p>
+<p><strong>Neue, versionsabhängige Optionen:</strong> Point-in-Time-Wiederherstellung stellt einen <strong>breiteren PC-Snapshot</strong> wieder her und kann auch persönliche Dateien betreffen; daher nicht mit der klassischen Systemwiederherstellung gleichsetzen. Quick Machine Recovery (sofern verfügbar/aktiviert) adressiert bekannte, weit verbreitete Startprobleme und ist kein Ersatz für lokale Storage-Diagnose.</p>
+<p><strong>Nicht vermischen:</strong> Eine <strong>In-Place-Reparatur</strong> der laufenden Windows-Installation erfordert einen entsprechenden startfähigen Windows-Kontext; eine <strong>saubere Neuinstallation</strong> ist eine andere, deutlich invasivere Maßnahme. „Eigene Dateien beibehalten“ im Reset bedeutet nicht, dass Programme, Konfigurationen oder alle Daten unverändert bleiben.</p>
+<p><strong>Quellen:</strong> <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/how-to-uninstall-a-windows-update" rel="noopener noreferrer" target="_blank">Updates deinstallieren</a>, <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/system-restore" rel="noopener noreferrer" target="_blank">Systemwiederherstellung</a>, <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows" rel="noopener noreferrer" target="_blank">Windows-Recoveryoptionen</a>.</p>
+<h2 id="10-nur-lesende-technische-prufungen-arbeitsumgebung-beachten">10. Nur lesende technische Prüfungen – Arbeitsumgebung beachten</h2>
+<p><strong>A. Auf normal oder im abgesicherten Modus gestarteten, autorisierten Windows-Geräten:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Wiederherstellungsumgebung und Status – nur auslesen
+reagentc /info
+
+# Zuletzt aufgetretene Stop-/Shutdown-/Bugcheck-Indizien (keine Diagnose allein)
+Get-WinEvent -FilterHashtable @{
+    LogName='System'; Id=41,6008,1001; StartTime=(Get-Date).AddDays(-14)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 20 TimeCreated, Id, ProviderName, Message
+
+# Gerät, Windows-Build, Datenträgerinventar
+Get-CimInstance Win32_OperatingSystem |
+    Select-Object Caption, Version, BuildNumber, LastBootUpTime
+Get-Disk | Select-Object Number, FriendlyName, HealthStatus, OperationalStatus
+
+# BitLocker-STATUS auslesen – KEINE Wiederherstellungsschlüssel veröffentlichen
+Get-BitLockerVolume | Select-Object MountPoint, VolumeStatus, ProtectionStatus
+</code></pre></div>
+<p><strong>B. In WinRE / einer autorisierten Windows-PE-Konsole – lesende Orientierung, keine Partitionsänderung:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bat</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bat">:: BCD-Konfiguration anzeigen; aktueller Systemkontext beachten
+bcdedit /enum all
+
+:: Vorhandene Laufwerksbuchstaben und Volumes anzeigen
+:: diskpart ist hier nur mit 'list volume' im lesenden Modus vorgesehen
+diskpart
+list volume
+exit
+
+:: Verschlüsselungsstatus nur auslesen; gibt keine Schlüssel preis
+manage-bde -status
+</code></pre></div>
+<p><strong>Interpretationsgrenzen:</strong> <code>Get-WinEvent</code> funktioniert nicht in einer normalen, unveränderten WinRE-Shell. Ein Laufwerksbuchstabe in WinRE muss nicht dem produktiven <code>C:</code> entsprechen. <code>HealthStatus = Healthy</code> ist kein Nachweis, dass eine SSD fehlerfrei ist. <code>bcdedit /enum all</code> zeigt einen Konfigurationsstand, aber nicht automatisch, <em>warum</em> ein Bootvorgang scheitert. Nie aus diesen Ausgaben allein eine schreibende Reparatur ableiten.</p>
+<h2 id="11-fortgeschrittene-reparatur-weshalb-pauschale-befehlslisten-gefahrlich-sind">11. Fortgeschrittene Reparatur: weshalb pauschale Befehlslisten gefährlich sind</h2>
+<p><strong>Häufige Internetbefehle und ihre Grenzen:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befehl / Maßnahme</th>
+<th>Einordnung</th>
+<th>Warum nicht blind ausführen?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sfc /scannow</code></td>
+<td>Reparatur geschützter Windows-Dateien <strong>im laufenden Zielsystem</strong></td>
+<td>In WinRE ist der Zielkontext <strong>nicht</strong> automatisch die offline installierte Windows-Instanz. Offline-Optionen erfordern korrekt ermittelte Pfade.</td>
+</tr>
+<tr>
+<td><code>DISM /Online /Cleanup-Image /RestoreHealth</code></td>
+<td>Reparatur des <strong>aktuell laufenden</strong> Windows-Images</td>
+<td><code>/Online</code> aus WinRE würde die dort laufende Umgebung adressieren, <strong>nicht automatisch</strong> die offline Installation.</td>
+</tr>
+<tr>
+<td><code>chkdsk /f</code> oder <code>/r</code></td>
+<td>Kann Dateisystem reparieren und Schreibvorgänge auslösen</td>
+<td>Bei defekter SSD oder ungesicherten Daten können Reparaturversuche ein Datenrettungsszenario verschlechtern.</td>
+</tr>
+<tr>
+<td><code>bootrec /fixmbr</code>, <code>/fixboot</code>, <code>/rebuildbcd</code></td>
+<td>Reparatur-/Bootwerkzeuge für <strong>konkrete</strong> Startkonfigurationen</td>
+<td>BIOS/MBR und UEFI/GPT unterscheiden sich; veränderte Bootdateien/-einträge können Start und Verschlüsselung beeinflussen.</td>
+</tr>
+<tr>
+<td><code>bcdboot</code></td>
+<td>Kann Bootdateien und Startkonfiguration erstellen</td>
+<td>Benötigt zweifelsfrei identifizierte Windows- und EFI-/Systempartition sowie ein geprüftes L2-Verfahren.</td>
+</tr>
+<tr>
+<td><code>bcdedit /set ...</code></td>
+<td>Ändert BCD und Start-/Recoveryverhalten</td>
+<td>Änderungen können Recovery-Schleifen verdecken oder Sicherheitsmechanismen beeinflussen.</td>
+</tr>
+<tr>
+<td>Reset / Neuinstallation</td>
+<td>Letztes Recovery- bzw. Bereitstellungsverfahren</td>
+<td>Anwendungen, Einstellungen und ggf. Datenverlust; Unternehmensbereitstellung und Backup erforderlich.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Beispiel eines Verfahrensfehlers:</strong> Die Reparaturkonsole zeigt eine Windows-Installation auf <code>D:</code>, ein Internet-Tutorial verwendet ungeprüft <code>C:\Windows</code>. Das kann eine falsche Partition oder ein falsches Image betreffen. Deshalb <strong>erst Zuordnung, Daten-/BitLocker-Gate, Freigabe und dokumentierte Zielpfade</strong>, dann gegebenenfalls passende L2-Kommandos aus der für das Gerät geltenden Hersteller- oder Microsoft-Prozedur.</p>
+<h2 id="12-diagnose-nach-befund-entscheidungsmatrix">12. Diagnose nach Befund: Entscheidungsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachweis / Arbeitshypothese</th>
+<th>Gute nächste Entscheidung</th>
+<th>Re-Test / Rückfall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Startdateien/BCD auffällig, SSD erkannt</td>
+<td>Freigegebene WinRE-Starthilfe; wenn gescheitert L2-Bootanalyse</td>
+<td>Bootmanager-Fehler verschwindet; vollständiger Windows-Start</td>
+</tr>
+<tr>
+<td>Nur Normalstart scheitert, Safe Mode funktioniert</td>
+<td>Änderungsverlauf/Treiber-/Softwarekorrelation untersuchen</td>
+<td>Nach isoliertem Rollback Normalstart und Fachanwendung testen</td>
+</tr>
+<tr>
+<td>Fehler nach Update, passende Update-Deinstallation verfügbar</td>
+<td>Änderung nach Freigabe über WinRE rückgängig machen</td>
+<td>Normalstart, Updatezustand und Richtlinienkonformität prüfen</td>
+</tr>
+<tr>
+<td>Restore-Point passend und Backup/BitLocker geklärt</td>
+<td>Systemwiederherstellung nach Auswirkungen prüfen</td>
+<td>Anmelde-/Anwendungs-/Datenfunktion und Änderung dokumentieren</td>
+</tr>
+<tr>
+<td>SSD fehlt im UEFI oder OEM-Test fehlerhaft</td>
+<td><strong>Keine Windows-Reparatur</strong>, Storage-/Hardwareteam</td>
+<td>Hardwareprüfung und Daten-/Recoveryplan</td>
+</tr>
+<tr>
+<td>BitLocker-Recovery ohne Schlüsselzugang</td>
+<td><strong>STOP</strong>, autorisierte Key-Stelle einbinden</td>
+<td>Keine unautorisierte Entsperrung/Bootänderung</td>
+</tr>
+<tr>
+<td>Wiederherstellungsoptionen erfolglos</td>
+<td>Beweissicherung, Backup-/Imagingstatus, L2/L3-Entscheidung</td>
+<td>Nur freigegebenes Rebuild/Neuinstallation, danach kompletter Re-Test</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Grundregel:</strong> Eine Fehlermeldung darf auch <strong>mehrere Ursachen gleichzeitig</strong> haben. Beispielsweise kann ein Speicherfehler Windows-Dateien beschädigen; eine einmalige Dateireparatur beseitigt dann nicht unbedingt die Hardwareursache.</p>
+<h2 id="13-fiktiver-ubungsfall-a-update-neustartschleife-safe-mode">13. Fiktiver Übungsfall A: Update, Neustartschleife, Safe Mode</h2>
+<p><strong>Ausgangslage:</strong> Windows-11-Notebook startet nach einem geplanten Update nur bis zur Neustartschleife. Firmware erkennt die SSD, keine Hardware-Fehlercodes. WinRE ist verfügbar; Backupstatus und BitLocker-Keyzugriff werden von der zuständigen Stelle bestätigt.</p>
+<p><strong>Hypothese 1:</strong> Das Update oder eine damit ausgelöste Treiberänderung korreliert mit dem Fehler. <strong>Noch kein Beweis</strong>, dass das Update selbst defekt ist.</p>
+<p><strong>Test:</strong> Ein autorisierter Safe-Mode-Start gelingt. Im Ereignisverlauf zeigen sich Hinweise auf einen kürzlich aktualisierten Drittanbietertreiber. Der Befund spricht <strong>für</strong> eine Treiber-/Softwarekomponente, nicht für einen gesicherten Hardwaredefekt.</p>
+<p><strong>Maßnahme (fiktiv):</strong> Nach Freigabe wird <strong>genau der betroffene Treiber</strong> auf die freigegebene vorherige Version zurückgesetzt; übrige Updates bleiben unangetastet.</p>
+<p><strong>Validierung (fiktiv):</strong> Zwei normale Starts, Windows-Anmeldung, VPN/Netzwerk und betroffene Fachanwendung funktionieren. Das Ticket enthält Treiberversionen, Tests und die Freigabe.</p>
+<p><strong>Transferfrage:</strong> Warum wäre das pauschale Entfernen sämtlicher Updates in diesem Fall eine schlechter begründete Maßnahme?</p>
+<h2 id="14-fiktiver-ubungsfall-b-bcd-meldung-aber-ssd-problem">14. Fiktiver Übungsfall B: BCD-Meldung, aber SSD-Problem</h2>
+<p><strong>Ausgangslage:</strong> Rechner meldet sinngemäß eine beschädigte Startkonfiguration. Ein zuvor geplanter Neustart war abrupt. Im UEFI wird die SSD zeitweise <strong>nicht</strong> erkannt; OEM-Diagnose meldet einen Laufwerksfehler.</p>
+<p><strong>Hypothese:</strong> Der Bootfehler könnte <strong>Folge</strong> einer instabilen SSD sein – nicht primär ein isolierter BCD-Defekt.</p>
+<p><strong>Test:</strong> OEM-Befund und Sichtbarkeit des Laufwerks werden dokumentiert, ohne schreibenden Dateisystemtest. Das Team prüft Backup, lokale Daten und den autorisierten Verschlüsselungszugang.</p>
+<p><strong>Entscheidung:</strong> <strong>Keine</strong> <code>bootrec</code>-/<code>bcdboot</code>-/<code>chkdsk /f</code>-Experimente. Übergabe an Storage/Endpoint/L2 mit Datenrettungspriorität.</p>
+<p><strong>Lehrpunkt:</strong> Selbst eine „reparaturbedürftig“ aussehende Startdatei darf nicht automatisch repariert werden, wenn die zugrunde liegende Speicherebene instabil ist.</p>
+<h2 id="15-diagnosekompetenz-selbsttest-und-quellen">15. Diagnosekompetenz, Selbsttest und Quellen</h2>
+<h3 id="active-recall-ohne-unterlagen-beantworten">Active Recall – ohne Unterlagen beantworten</h3>
+<ol>
+<li>Wie unterscheiden sich UEFI, Bootmanager, Windows-Lader und Kernel in der Startkette?</li>
+<li>Warum kann eine beschädigte SSD wie ein BCD-Fehler aussehen?</li>
+<li>Weshalb ist <code>sfc /scannow</code> in einer WinRE-Shell nicht einfach der gleiche Test wie im laufenden Windows?</li>
+<li>Was beweist ein erfolgreicher Start im abgesicherten Modus – und was <strong>nicht</strong>?</li>
+<li>Wann ist „Updates deinstallieren“ geeignet, wann eher die Starthilfe?</li>
+<li>Welche drei Punkte müssen vor einer Systemwiederherstellung verbindlich geklärt sein?</li>
+<li>Warum bedeutet „Dateien beibehalten“ beim Reset nicht „keine Auswirkungen“?</li>
+<li>Wie lautet ein professioneller Übergabekommentar mit <strong>Befund → Test → Ergebnis → nächstem Schritt</strong>?</li>
+</ol>
+<h3 id="verstandnis-und-diagnosefragen">Verständnis- und Diagnosefragen</h3>
+<ul>
+<li><strong>D1:</strong> Bluescreen direkt nach dem Windows-Logo, SSD ist vorhanden, Safe Mode funktioniert. Welchen Test würdest du als Nächstes wählen – und warum?</li>
+<li><strong>D2:</strong> WinRE zeigt eine Windows-Installation auf <code>D:</code>; ein Tutorial empfiehlt <code>C:</code>. Was tust du <strong>zuerst</strong>?</li>
+<li><strong>D3:</strong> Starthilfe meldet Erfolg, Windows startet einmal, fällt beim zweiten Start erneut aus. Ist das Ticket erledigt? Begründe.</li>
+<li><strong>D4:</strong> BitLocker-Abfrage und keine Information zum Key. Was ist deine Grenze und wer muss übernehmen?</li>
+</ul>
+<p><strong>Spaced Repetition:</strong> Nach ca. <strong>7 und 21 Tagen</strong> erneut zwei Diagnosefälle lösen, ohne Diagramm oder Runbook. Ziel ist <strong>selbstständige Fehlereingrenzung</strong>, nicht bloß das Erinnern an Klickfolgen.</p>
+<h3 id="offizielle-quellen-recherche-22-11-2026">Offizielle Quellen, Recherche 22.11.2026</h3>
+<ol>
+<li>Microsoft Learn, <em>Erweiterte Problembehandlung für Windows-Startprobleme</em>: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting</a></li>
+<li>Microsoft Support, <em>Windows-Wiederherstellungsumgebung</em>: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment</a></li>
+<li>Microsoft Support, <em>Starthilfe</em>: <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair</a></li>
+<li>Microsoft Support, <em>Windows-Starteinstellungen</em>: <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/windows-startup-settings" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/windows-startup-settings</a></li>
+<li>Microsoft Support, <em>Wiederherstellungsoptionen</em>: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/recovery-options-in-windows</a></li>
+<li>Microsoft Support, <em>Update deinstallieren</em>: <a href="https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/how-to-uninstall-a-windows-update" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/deployment/updates-lifecycle/how-to-uninstall-a-windows-update</a></li>
+<li>Microsoft Support, <em>Systemwiederherstellung</em>: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/system-restore" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/system-restore</a></li>
+<li>Microsoft Learn, <em>BitLocker-Wiederherstellung</em>: <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview</a></li>
+</ol>
+<p><strong>Transparenz:</strong> Alle Tabellen, Teststrategien, Formulierungen und Musterfälle sind eine eigene didaktische Zusammenstellung der oben genannten Herstellerquellen. Einzelne diagnostische Hypothesen sind als Hypothesen gekennzeichnet. Die Maßnahmen wurden <strong>nicht</strong> in einer Labor- oder Produktionsumgebung ausgeführt und ihr Erfolg <strong>nicht</strong> praktisch bestätigt. Die Infografik ist eine KI-gestützte Illustration und ersetzt kein technisches Prüfergebnis.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-026_Lernartikel.md">RB-026_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-025/index.html">← Ticket 25</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-027/index.html">Ticket 27 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

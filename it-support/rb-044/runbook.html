@@ -1,0 +1,147 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 44: BitLocker-Recovery wird angefordert | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 44: BitLocker-Recovery wird angefordert. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 44: BitLocker-Recovery wird angefordert</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-bildschirm-und-auswirkungen-bestatigen">1. Ticketannahme: Bildschirm und Auswirkungen bestätigen</a></li><li><a href="#2-stop-und-sicherheitscheck-vor-schlusselabruf">2. STOP- und Sicherheitscheck vor Schlüsselabruf</a></li><li><a href="#3-recovery-id-und-gerateidentitat-eindeutig-vergleichen">3. Recovery-ID und Geräteidentität eindeutig vergleichen</a></li><li><a href="#4-zugelassenen-speicherort-fur-das-recoverypassword-finden">4. Zugelassenen Speicherort für das RecoveryPassword finden</a></li><li><a href="#5-entsperren-ohne-anderung-der-verschlusselung">5. Entsperren ohne Änderung der Verschlüsselung</a></li><li><a href="#6-nach-dem-start-lesender-status-und-logcheck">6. Nach dem Start: lesender Status- und Logcheck</a></li><li><a href="#7-ausloser-eingrenzen-einmalig-oder-wiederkehrend">7. Auslöser eingrenzen: einmalig oder wiederkehrend</a></li><li><a href="#8-gezielte-freigegebene-folgemassnahme-wahlen">8. Gezielte, freigegebene Folgemaßnahme wählen</a></li><li><a href="#9-retest-zwei-getrennte-nachweise">9. Retest: Zwei getrennte Nachweise</a></li><li><a href="#10-abschluss-eskalation-muster-ticketkommentar">10. Abschluss, Eskalation, Muster-Ticketkommentar</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 typische IT-Supportfälle · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Offizielle Herstellerquellen recherchiert; <strong>noch nicht praktisch validiert</strong>. Beispiele fiktiv. <strong>Keine Schlüssel im Ticket speichern.</strong></p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb044_henne_ei_bitlocker_recovery.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-044 – Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb044_henne_ei_bitlocker_recovery.webp"/></a></div><figcaption>RB-044 – Henne-und-Ei-Infografik</figcaption></figure>
+<p><strong>Ziel:</strong> Berechtigte Recovery sicher ermöglichen, schlüsselgeheime Verarbeitung gewährleisten und eine wiederholte Recovery-Anforderung ursächlich eingrenzen. Nicht mit einem gewöhnlichen Passwort-Reset oder einem pauschalen Windows-Reparaturticket verwechseln.</p>
+<h2 id="1-ticketannahme-bildschirm-und-auswirkungen-bestatigen">1. Ticketannahme: Bildschirm und Auswirkungen bestätigen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist es tatsächlich eine <strong>BitLocker-Recovery-Abfrage</strong> vor Windows/bei WinRE statt Windows-Hello-, Login- oder Benutzer-PIN-Problem?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Genauer Zeitpunkt, Gerät und Benutzer, Einzel-/Mehrfachfall, kürzliches Firmware-/Windows-Update, Hardware-/Bootänderung aufgenommen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerätebezeichnung/Inventarnummer erfasst, Service-Ausfall priorisiert, ggf. mehrere Geräte nach Rollout abgeglichen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Angezeigte <strong>Key ID</strong> für spätere Zuordnung nur im zulässigen Umfang festgehalten, <strong>nicht</strong> das 48-stellige Kennwort?</li>
+</ul>
+<h2 id="2-stop-und-sicherheitscheck-vor-schlusselabruf">2. STOP- und Sicherheitscheck <strong>vor</strong> Schlüsselabruf</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anfragende Person <strong>nach Unternehmensverfahren authentifiziert</strong>, Gerätezuordnung und Autorisierung plausibel?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zugelassener Administrations-/Self-Service-Pfad und <strong>sicherer Übermittlungskanal</strong> vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sicherheitsverdacht, nicht gemeldeter Gerätewechsel oder falsches Gerät ausgeschlossen bzw. Security eingebunden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein Plan für unautorisiertes Entfernen von BitLocker-Schutz, Zurücksetzen des TPM, BIOS-Manipulation oder Neuinstallation?</li>
+</ul>
+<p><strong>STOP:</strong> Ohne Identitäts-/Gerätefreigabe und passenden Schlüsselnachweis <strong>keine</strong> Ausgabe eines Wiederherstellungskennworts. Nicht in Ticket/Chat/Log/Screenshot eintragen.</p>
+<h2 id="3-recovery-id-und-gerateidentitat-eindeutig-vergleichen">3. Recovery-ID und Geräteidentität eindeutig vergleichen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Key ID wird <strong>vom gesperrten Gerät</strong> aufgenommen; richtiges Mandanten-/Geräteobjekt ausgewählt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerätename zusätzlich durch Inventardaten/Seriennummer/Benutzer-/Eigentümerzuordnung plausibilisiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei mehreren Datensätzen: passt die <strong>Key ID</strong> genau zum vorgesehenen RecoveryPassword?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein bloßes Kopieren eines Schlüsselwerts aus einem ähnlich benannten Altgerät?</li>
+</ul>
+<p><strong>Merksatz:</strong> Schlüssel-ID dient der <strong>Zuordnung</strong>; sie entsperrt nicht selbst.</p>
+<h2 id="4-zugelassenen-speicherort-fur-das-recoverypassword-finden">4. Zugelassenen Speicherort für das RecoveryPassword finden</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Umfeld</th>
+<th>Autorisierter Abrufweg (nach Policy)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Privates Gerät</td>
+<td>Microsoft-Konto: <code>https://aka.ms/myrecoverykey</code></td>
+</tr>
+<tr>
+<td>Geschäfts-/Schulkonto</td>
+<td><code>https://aka.ms/aadrecoverykey</code> / Mein Konto / Unternehmensportal (wenn zugelassen)</td>
+</tr>
+<tr>
+<td>Intune/Entra administriert</td>
+<td>Intune-/Entra-Geräteobjekt → BitLocker-Wiederherstellungsschlüssel, mit berechtigtem RBAC und Audit</td>
+</tr>
+<tr>
+<td>Klassisches AD DS</td>
+<td>Von Organisation freigegebenes BitLocker-Recovery-Informationsverfahren, wenn zuvor hinterlegt</td>
+</tr>
+<tr>
+<td>Gesondert gesichert</td>
+<td>Genehmigter Ausdruck/Datei/USB-Key; sicherer Besitznachweis</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Einträge und <strong>Key ID</strong> abgeglichen, nur passende autorisierte Quelle verwendet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls kein Eintrag: andere zulässige Ablagen, Tenant, Altgerät, Escrow-Status prüfen und an Identity/Security eskalieren.</li>
+</ul>
+<h2 id="5-entsperren-ohne-anderung-der-verschlusselung">5. Entsperren ohne Änderung der Verschlüsselung</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Den <strong>passenden 48-stelligen Zahlencode</strong> am Recovery-Bildschirm über den zugelassenen Weg eingeben lassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Eingabefehler zuerst Key-ID und Zuordnung prüfen, keine brutalen Recovery-/Reset-Experimente.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows-Start und Benutzeranmeldung bestätigt? Wenn nicht: nach gesicherter Schlüssel-/Datenlage an RB-026-/Hardware-Zweig eskalieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Schlüssel nicht in Ticket, Zwischenablageprotokoll, Screenshots, Kennwortmanager ohne Freigabe oder Exportdateien hinterlassen.</li>
+</ul>
+<h2 id="6-nach-dem-start-lesender-status-und-logcheck">6. Nach dem Start: <strong>lesender</strong> Status- und Logcheck</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># NUR nach erfolgreichem Boot auf dem autorisierten Gerät;
+# NICHT den KeyProtector mit potentiell geheimen Werten ausgeben.
+Get-BitLockerVolume -MountPoint $env:SystemDrive |
+  Select-Object MountPoint, VolumeStatus, ProtectionStatus,
+                LockStatus, EncryptionPercentage
+
+manage-bde.exe -status
+
+Get-WinEvent -ListLog '*BitLocker*' |
+  Select-Object LogName, RecordCount
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Schutzstatus und Laufwerkzustand dokumentiert, <strong>ohne Geheimnisse</strong>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zeitgleiche BitLocker-/TPM-/Systemereignisse geprüft? Eventuell kein eindeutiger Eintrag – Befund nicht erfinden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erneut angeforderte Recovery in neuen Bootvorgängen gesondert beachten.</li>
+</ul>
+<h2 id="7-ausloser-eingrenzen-einmalig-oder-wiederkehrend">7. Auslöser eingrenzen: einmalig oder wiederkehrend</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Lesender Vergleich</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nach einmaligem genehmigten Firmware-/BIOS-Update</td>
+<td>Change-Zeitpunkt, Firmwarestand, Recoverydatum, Bootstatus</td>
+</tr>
+<tr>
+<td>Recovery bei jedem Start</td>
+<td>TPM/Secure-Boot-/PCR-Hinweise, UEFI-/Bootänderung, BitLocker-Ereignisse; Endpoint/Security-Team</td>
+</tr>
+<tr>
+<td>Nur ein Notebook betroffen</td>
+<td>Gerätetyp, Hardwarewechsel, TPM-Status, Vergleichsgerät</td>
+</tr>
+<tr>
+<td>Viele Clients nach Rollout betroffen</td>
+<td>Gemeinsamer Change/Richtlinie/Updatepaket, Incident-/Rollout-Eigentümer</td>
+</tr>
+<tr>
+<td>„Schlüssel nicht gefunden“</td>
+<td>Gerät/Tenant/Key-ID/Escrow und alternative freigegebene Sicherung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht</strong> TPM löschen, Secure Boot abschalten, Bootreihenfolge oder BitLocker-Protektoren ändern, um „kurz zu testen“.</p>
+<h2 id="8-gezielte-freigegebene-folgemassnahme-wahlen">8. Gezielte, freigegebene Folgemaßnahme wählen</h2>
+<p><strong>L1:</strong> Sichere Identitätsprüfung, Gerätezuordnung, dokumentierter Abruf über zugelassenen Weg, Autorisierung, Recovery-Begleitung und Eskalation.</p>
+<p><strong>L2/Endpoint/Identity/Security:</strong> Bootintegritäts- und Firmwareänderung anhand von Logs/Change bewerten, Herstellerverfahren und Konfigurationspolicy prüfen, ggf. gezielte Korrektur mit Rollback. <strong>Keyrotation</strong> nach offen gelegtem RecoveryPassword bzw. Security-Policy durch berechtigte Rollen nur bei <strong>gesicherter neuer Hinterlegung</strong>.</p>
+<p><strong>Nicht im Standard-Runbook:</strong> <code>Clear-Tpm</code>, <code>manage-bde -off</code>, <code>manage-bde -protectors -disable</code>, <code>bcdedit</code>-Änderungen, Schlüsseldateien in Logfiles exportieren, Reset/Wipe/Reinstall oder Entfernen von Entra-/Intune-Geräten.</p>
+<h2 id="9-retest-zwei-getrennte-nachweise">9. Retest: Zwei getrennte Nachweise</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Zugang:</strong> Windows erfolgreich gestartet und Benutzer kann die benötigten Daten/Anwendungen verwenden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Schutz:</strong> BitLocker-Status korrekt und geforderte Schlüsselsicherung/Key-ID nach Policy kontrolliert.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Stabilität:</strong> Ein <strong>kontrollierter weiterer Neustart</strong> ohne erneute Recovery, bei Bedarf mehrfache Tests durch L2; wenn Recovery erneut → nicht abgeschlossen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Ursache:</strong> Change-/Firmware-/TPM-/Startpfad mit unabhängigen Befunden plausibilisiert; nicht nur Codeeingabe notiert.</li>
+</ul>
+<h2 id="10-abschluss-eskalation-muster-ticketkommentar">10. Abschluss, Eskalation, Muster-Ticketkommentar</h2>
+<p><strong>Eskalieren:</strong> Keine sichere Geräte-/Benutzerzuordnung, fehlender passender Recovery-Eintrag, offengelegter Schlüssel, Sicherheitsverdacht, wiederholte Abfrage, Datenträger-/TPM-Fehler, kein Start trotz Entsperren, fehlende Backups bei beabsichtigter Systemreparatur.</p>
+<blockquote>
+<p><strong>Muster – fiktiv, bewusst ohne Geheimdaten:</strong> „Auf Firmennotebook NB-044 erschien nach einem freigegebenen UEFI-Firmwareupdate die BitLocker-Recovery-Abfrage. Identität und Gerät verifiziert; Schlüssel-ID dem autorisiert hinterlegten Eintrag zugeordnet. Entsperrung im zugelassenen Verfahren durchgeführt, kein RecoveryPassword protokolliert. Windows-Start und Geschäftsapplikation geprüft, Schutzstatus aktiv, kontrollierter Neustart erfolgreich. Ergebnis und Change-Referenz dokumentiert; kein TPM-Reset, keine Schutzdeaktivierung.“</p>
+</blockquote>
+<p><strong>Transparenz:</strong> Dieses Runbook ist ein recherchierter Diagnosepfad, <strong>noch nicht praktisch validiert</strong>. Die endgültige Entscheidung richtet sich nach Richtlinien, Sicherheitsrollen und konkreter Gerätekonfiguration.</p>
+<h3 id="microsoft-quellen-22-11-2026">Microsoft-Quellen (22.11.2026)</h3>
+<ul>
+<li>[Q1] <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview</a></li>
+<li>[Q2] <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-process" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/recovery-process</a></li>
+<li>[Q3] <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/operations-guide" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/operations-guide</a></li>
+<li>[Q4] <a href="https://support.microsoft.com/de-de/windows/security/encryption/find-your-bitlocker-recovery-key" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/security/encryption/find-your-bitlocker-recovery-key</a></li>
+<li>[Q5] <a href="https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/preboot-recovery-screen" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows/security/operating-system-security/data-protection/bitlocker/preboot-recovery-screen</a></li>
+<li>[Q8] <a href="https://learn.microsoft.com/de-de/intune/device-configuration/endpoint-security/encrypt-bitlocker-windows" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/intune/device-configuration/endpoint-security/encrypt-bitlocker-windows</a></li>
+<li>[Q7] <a href="https://learn.microsoft.com/en-us/intune/device-management/actions/rotate-bitlocker-keys" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-management/actions/rotate-bitlocker-keys</a></li>
+</ul>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-044_Praxis-Runbook.md">RB-044_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-043/index.html">← Ticket 43</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-045/index.html">Ticket 45 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

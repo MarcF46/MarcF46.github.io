@@ -1,0 +1,109 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 41: AD-Gruppenmitgliedschaft greift nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 41: AD-Gruppenmitgliedschaft greift nicht. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 41: AD-Gruppenmitgliedschaft greift nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-und-scope">1. Ticketannahme und Scope</a></li><li><a href="#2-sicherheitsgate-und-beweissicherung">2. Sicherheitsgate und Beweissicherung</a></li><li><a href="#3-richtiges-ad-konto-und-zielgruppe-lesen">3. Richtiges AD-Konto und Zielgruppe lesen</a></li><li><a href="#4-verschachtelung-und-ad-basierten-gruppensatz-prufen">4. Verschachtelung und AD-basierten Gruppensatz prüfen</a></li><li><a href="#5-aktuelle-anmeldung-beim-betroffenen-benutzer-prufen">5. Aktuelle Anmeldung beim betroffenen Benutzer prüfen</a></li><li><a href="#6-kerberos-tickets-und-netzwerkkontext-lesen">6. Kerberos-Tickets und Netzwerkkontext lesen</a></li><li><a href="#7-ressource-share-und-ntfs-rechte-getrennt-prufen">7. Ressource: Share- und NTFS-Rechte getrennt prüfen</a></li><li><a href="#8-standort-dc-und-replikation-eingrenzen">8. Standort, DC und Replikation eingrenzen</a></li><li><a href="#9-entscheidung-freigegebene-korrektur-und-retest">9. Entscheidung, freigegebene Korrektur und Retest</a></li><li><a href="#10-abschluss-eskalation-und-muster-ticketkommentar">10. Abschluss, Eskalation und Muster-Ticketkommentar</a></li></ol></nav><div class="support-markdown">
+<p><strong>Fachstatus:</strong> Recherchiert, <strong>noch nicht praktisch validiert</strong> · 22.11.2026 · Version 1.0<br/>
+<strong>Sicherheitsregel:</strong> Zuerst lesende Beweise sammeln. Gruppen, ACLs, Tickets und Anmeldungen <strong>nicht</strong> ohne Owner, Freigabe und Rückweg ändern.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb041_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-041 – technischer Diagnosebaum zur AD-Gruppenmitgliedschaft" decoding="async" loading="lazy" src="assets/rb041_diagnosebaum.svg"/></a></div><figcaption>RB-041 – technischer Diagnosebaum zur AD-Gruppenmitgliedschaft</figcaption></figure>
+<h2 id="1-ticketannahme-und-scope">1. Ticketannahme und Scope</h2>
+<ul>
+<li>Betroffener <strong>Benutzer/UPN</strong>, Computer, Domäne, Standort/VPN, Zielressource (UNC/Applikation), genaue Operation, Fehlermeldung, Uhrzeit?</li>
+<li><strong>Ein Nutzer oder mehrere?</strong> Neue Mitglieder oder bestehende? Verhält es sich auf einem Vergleichsclient anders?</li>
+<li>Zeitpunkt der <strong>Gruppenänderung</strong>, letzter <strong>vollständiger Logon</strong>, Zustand offener Netzwerkverbindungen?</li>
+<li><strong>AD-/Token-/ACL-Problem</strong> oder eigentlich DNS, SMB-Port, GPO oder Anwendung? Eine nachvollziehbare Hypothese notieren.</li>
+</ul>
+<h2 id="2-sicherheitsgate-und-beweissicherung">2. Sicherheitsgate und Beweissicherung</h2>
+<ul>
+<li>Anfrage/Freigabe für genaues Zielrecht prüfen; kein pauschales Hinzufügen zu breiteren Gruppen.</li>
+<li>Befunde nur lesend, minimal personenbezogen sammeln. Kein Passwort, keine Tickets/Geheimnisse veröffentlichen.</li>
+<li>Für Neuanmeldung, Sitzungstrennung, <code>klist purge</code>, ACL- oder AD-Änderungen <strong>Zustimmung, Backup/Dateischutz, Rückfall und Maintenance-Fenster</strong> prüfen.</li>
+<li><strong>Remote/VPN:</strong> Verbindung und Domänenzugriff dürfen durch Maßnahmen nicht unkontrolliert abbrechen.</li>
+</ul>
+<h2 id="3-richtiges-ad-konto-und-zielgruppe-lesen">3. Richtiges AD-Konto und Zielgruppe lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Auf einem autorisierten RSAT-/Admin-PC mit ActiveDirectory-Modul:
+Import-Module ActiveDirectory
+Get-ADUser -Identity 'max.mustermann' -Properties UserPrincipalName,Enabled,DistinguishedName |
+  Select-Object SamAccountName, UserPrincipalName,Enabled,DistinguishedName
+Get-ADGroup -Identity 'DL_Projekte_TeamA_Modify' |
+  Select-Object Name,GroupCategory,GroupScope,DistinguishedName
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' |
+  Select-Object Name,SamAccountName,ObjectClass
+</code></pre></div>
+<p><strong>Befund:</strong> Richtiger Identitätskontext? Sicherheitsgruppe statt Distribution? Benutzer direkt enthalten oder zwischengeschaltete Gruppe? Korrekte Domäne, SID, Ressource?</p>
+<h2 id="4-verschachtelung-und-ad-basierten-gruppensatz-prufen">4. Verschachtelung und AD-basierten Gruppensatz prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Rekursiv aufgelöste Mitglieder (nicht die vollständige Zwischengruppen-Kette):
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Recursive |
+  Select-Object Name,SamAccountName,ObjectClass
+
+# Berechnete Autorisierungsgruppen im AD (kein Beweis für aktuellen Logon-Token):
+Get-ADAccountAuthorizationGroup -Identity 'max.mustermann' |
+  Select-Object Name,GroupScope,SID
+</code></pre></div>
+<p><strong>Befund:</strong> Kette beispielsweise <code>User → GG_Rolle → DL_Ressource → ACL</code> nachvollziehen; fehlende oder ungeeignete Verschachtelung, falsche Mitgliedschaft oder Replikationsdifferenz? <code>Get-ADAccountAuthorizationGroup</code> benötigt einen Global Catalog.</p>
+<h2 id="5-aktuelle-anmeldung-beim-betroffenen-benutzer-prufen">5. Aktuelle Anmeldung beim betroffenen Benutzer prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Im tatsächlich betroffenen Benutzerkontext auf dessen PC ausführen:
+whoami /user
+whoami /groups
+whoami /all
+</code></pre></div>
+<p><strong>Befund:</strong> Ist die neue <strong>globale</strong> Sicherheitsgruppe im Token enthalten? Welcher Benutzer ist angemeldet? Unterschiede zu AD sind bei einer <em>alten laufenden Sitzung</em> plausibel. Fehlende domänenlokale Gruppen des <strong>Ressourcenservers</strong> im Clienttoken sind allein kein Negativbeweis.</p>
+<h2 id="6-kerberos-tickets-und-netzwerkkontext-lesen">6. Kerberos-Tickets und Netzwerkkontext lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Keine Änderungen – aktuelle Kerberos-Tickets und TGT-Zeiten:
+klist
+klist tgt
+</code></pre></div>
+<p><strong>Befund:</strong> TGT/Service-Ticket vor oder nach dem Gruppenwechsel ausgestellt? Zielservice (z. B. <code>cifs/…</code>) vorhanden? Noch bestehende Netzwerksitzung? <strong><code>klist</code> zeigt keine vollständige Gruppenliste im Ticket.</strong> <code>klist purge</code> <em>nicht</em> zur Erstdiagnose einsetzen.</p>
+<h2 id="7-ressource-share-und-ntfs-rechte-getrennt-prufen">7. Ressource: Share- und NTFS-Rechte getrennt prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur auf dem tatsächlichen Windows-Dateiserver mit passenden Leserechten:
+Get-SmbShareAccess -Name 'Projekte' |
+  Select-Object Name,AccountName,AccessControlType,AccessRight
+Get-Acl -Path 'D:\Shares\Projekte\TeamA' |
+  Select-Object -ExpandProperty Access |
+  Select-Object IdentityReference,FileSystemRights,AccessControlType,IsInherited
+</code></pre></div>
+<p><strong>Befund:</strong> Welche Rolle ist <strong>tatsächlich</strong> in den ACLs? Gewünschte Aktion: Lesen oder Ändern? Deny oder Vererbung? Der Effektivzugriff muss im Ressourcenkontext geprüft werden; entfernte ACL-Berechnungen können gruppenscopebedingt unvollständig sein.</p>
+<h2 id="8-standort-dc-und-replikation-eingrenzen">8. Standort, DC und Replikation eingrenzen</h2>
+<p>Bei widersprüchlichen AD-Befunden <strong>zwei DCs ausdrücklich vergleichen</strong>:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Server 'dc01.corp.example'
+Get-ADGroupMember -Identity 'DL_Projekte_TeamA_Modify' -Server 'dc02.corp.example'
+# Nur AD-L2/Domain-Owner, lesend:
+repadmin /showrepl dc01.corp.example
+</code></pre></div>
+<p><strong>Befund:</strong> DC-Stände konsistent? Standort/VPN, DNS/KDC/GC erreichbar? Bei Abweichungen an AD-Owner eskalieren; <strong>keine</strong> Replikation vorschnell erzwingen.</p>
+<h2 id="9-entscheidung-freigegebene-korrektur-und-retest">9. Entscheidung, freigegebene Korrektur und Retest</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Nächster verantwortbarer Schritt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AD-Mitgliedschaft falsch</td>
+<td>AD-/Ressourcen-Owner um beantragte minimale Gruppenkorrektur bitten</td>
+</tr>
+<tr>
+<td>AD richtig, aktuelle Sitzung alt</td>
+<td>Nach Rückweg- und Datensicherung <strong>kontrollierte Neuanmeldung</strong> abstimmen</td>
+</tr>
+<tr>
+<td>AD+Token korrekt, Ressource verweigert</td>
+<td>Share/NTFS, Deny, Ressourcendomäne, erforderliche Aktion prüfen</td>
+</tr>
+<tr>
+<td>DC-Ergebnisse widersprechen sich</td>
+<td>Replikation/DNS/Standort durch AD-Team prüfen</td>
+</tr>
+<tr>
+<td>Zugriff nur im alten Prozess nicht</td>
+<td>Anwendungs-/Ressourcensitzung gezielt prüfen; keine flächendeckende Cache-Bereinigung</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Retest:</strong> Gleicher Benutzer und Client, Originalpfad, konkrete beauftragte Aktion; danach Negativtest eines nicht berechtigten Kontos. Ergebnis protokollieren. <strong>Kein</strong> vorzeitiger Abschluss allein wegen <code>Get-ADGroupMember</code> oder <code>whoami</code>.</p>
+<h2 id="10-abschluss-eskalation-und-muster-ticketkommentar">10. Abschluss, Eskalation und Muster-Ticketkommentar</h2>
+<p><strong>Dokumentationsfelder:</strong> Datum/Uhrzeit, Benutzer/Host/Ressource anonymisiert, angeforderte Aktion, ursprüngliche Meldung, AD-Quelle/DC, Gruppen-/Tokenbefund, Ticketzeit, ACL-Befund, verantwortlicher Owner, Maßnahme/Freigabe, Retest und Negativtest.</p>
+<blockquote>
+<p><strong>Muster (fiktiv):</strong> „Zugriff auf <code>\\filesrv01\Projekte\TeamA</code> wurde mit dem betroffenen Konto im ursprünglichen Arbeitskontext überprüft. Mitgliedschaft über <code>GG_Projekt_TeamA → DL_Projekte_TeamA_Modify</code> im AD bestätigt. Der seit 07:45 Uhr bestehende Benutzerkontext enthielt die neu zugewiesene globale Gruppe nicht. Nach Abstimmung einer vollständigen Neuanmeldung wurden Gruppeninformationen und Zugriff erneut geprüft. Die erforderliche Änderungsoperation war erfolgreich; ein nicht berechtigtes Testkonto wurde weiterhin abgewiesen. Keine ACL- oder Gruppenberechtigungen verändert.“</p>
+</blockquote>
+<p><strong>Eskalation an L3/Owner:</strong> Cross-Forest-Scope/Trust, KDC/NTLM, abweichende DC-Stände, Authz-/ACL-Komplexität oder widersprüchliche Token-/Ressourcenereignisse – immer inklusive <strong>exakter Befunde und Zeitpunkt</strong>, nicht bloß „User hat Rechte, geht nicht“.</p>
+<p><strong>Quellen:</strong> Vollständige Microsoft-Links und Literaturhinweise im <strong>Lernartikel, Abschnitt „Herstellerquellen“</strong>. Alle hier gezeigten Nutzer-/Servernamen sind Platzhalter. Keine praktische Validierung ist erfolgt.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-041_Praxis-Runbook.md">RB-041_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-040/index.html">← Ticket 40</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-042/index.html">Ticket 42 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

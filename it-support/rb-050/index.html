@@ -1,0 +1,281 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 50: Offboarding: Benutzerzugänge sicher deaktivieren</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingangsticket-lernziel-und-abgrenzung">1. Eingangsticket, Lernziel und Abgrenzung</a></li><li><a href="#2-prozessmodell-sperren-sitzungen-daten-und-nachweise">2. Prozessmodell: Sperren, Sitzungen, Daten und Nachweise</a></li><li><a href="#3-autorisierung-identitat-und-genaues-zeitfenster">3. Autorisierung, Identität und genaues Zeitfenster</a></li><li><a href="#4-cloud-only-vs-hybrid-quelle-der-identitat-bestimmen">4. Cloud-only vs. Hybrid: Quelle der Identität bestimmen</a></li><li><a href="#5-zugang-blockieren-und-bestehende-sitzungen-widerrufen">5. Zugang blockieren und bestehende Sitzungen widerrufen</a></li><li><a href="#6-rollen-gruppen-und-privilegierte-zugange">6. Rollen, Gruppen und privilegierte Zugänge</a></li><li><a href="#7-gerate-und-mobile-management-retire-ist-nicht-wipe">7. Geräte und Mobile Management: Retire ist nicht Wipe</a></li><li><a href="#8-exchange-online-postfach-erhalten-oder-loschen">8. Exchange Online: Postfach erhalten oder löschen?</a></li><li><a href="#9-onedrive-sharepoint-teams-und-datenubergabe">9. OneDrive, SharePoint, Teams und Datenübergabe</a></li><li><a href="#10-lizenzen-fristen-und-konto-lebenszyklus">10. Lizenzen, Fristen und Konto-Lebenszyklus</a></li><li><a href="#11-lesende-diagnosebefehle-und-statusprufungen">11. Lesende Diagnosebefehle und Statusprüfungen</a></li><li><a href="#12-befund-und-entscheidungsmatrix">12. Befund- und Entscheidungsmatrix</a></li><li><a href="#13-fiktiver-praxisfall-a-geplanter-austritt">13. Fiktiver Praxisfall A – geplanter Austritt</a></li><li><a href="#14-fiktiver-praxisfall-b-sicherheitskritischer-sofortaustritt">14. Fiktiver Praxisfall B – sicherheitskritischer Sofortaustritt</a></li><li><a href="#15-active-recall-selbst-erklarung-und-transfer">15. Active Recall, Selbst-Erklärung und Transfer</a></li><li><a href="#herstellerquellen-und-recherchegrundlage-microsoft-learn-recherchiert-am-23-11-2026">Herstellerquellen und Recherchegrundlage (Microsoft Learn; recherchiert am 23.11.2026)</a></li><li><a href="#projekt-und-veroffentlichungsstatus">Projekt- und Veröffentlichungsstatus</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 23.11.2026 · <strong>Paketversion:</strong> 1.0<br/>
+<strong>Systeme:</strong> Microsoft Entra ID, Microsoft 365, Exchange Online, OneDrive/SharePoint, optional Active Directory DS (hybrid), Microsoft Intune, VPN/SaaS/Fachanwendungen<br/>
+<strong>Status:</strong> Herstellerquellen recherchiert; <strong>noch nicht praktisch validiert</strong>. Alle Personen, Konten, Daten und Ergebnisse in den Beispielen sind fiktiv. Kein produktiver Benutzer wurde verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb050_henne_ei_offboarding.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-050 – Henne-und-Ei-Infografik: sicheres Offboarding" decoding="async" loading="lazy" src="assets/rb050_henne_ei_offboarding.webp"/></a></div><figcaption>RB-050 – Henne-und-Ei-Infografik: sicheres Offboarding</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>Konto gesperrt ≠ bestehende Anwendungssitzungen beendet ≠ alle externen Zugänge entzogen ≠ Unternehmensdaten rechtssicher gesichert.</strong> Offboarding ist ein überprüfbarer Sicherheits- und Datenprozess.</p>
+</blockquote>
+<hr/>
+<h2 id="1-eingangsticket-lernziel-und-abgrenzung">1. Eingangsticket, Lernziel und Abgrenzung</h2>
+<p><strong>Fiktives Ticket <code>HR-OFF-1050</code>:</strong> „Mitarbeiterin <strong>Mira Seidel</strong> verlässt das Unternehmen am 30.11.2026 um 17:00 Uhr. Unternehmenszugänge ab diesem Zeitpunkt sperren, Firmenlaptop und Mobilgerät zurücknehmen, Projektablage übergeben und Mail-/OneDrive-Daten gemäß Aufbewahrungsvorgabe behandeln. Genehmigt durch HR und fachlich verantwortliche Führungskraft.“ Konto <code>mira.seidel@firma.example</code> und Gerät <code>LT-050</code> sind <strong>ausschließlich Beispieldaten</strong>.</p>
+<p><strong>Lernziel:</strong> Den autorisierten Austritt technisch und organisatorisch so begleiten, dass neue Anmeldungen verhindert, laufende Sitzungen und sonstige Zugangswege nach dokumentiertem Verfahren entzogen, benötigte Unternehmensdaten geschützt und abschließend Nachweise gesichert werden.</p>
+<p><strong>Abgrenzung:</strong> RB-049 behandelte das Onboarding. RB-041 behandelt AD-Gruppenrechte; RB-044 BitLocker; RB-045 Intune; RB-031 Shared Mailbox. RB-050 integriert die Rücknahme aller Berechtigungen und den geordneten Datenlebenszyklus. L1 darf Auftrag, Status und Geräteannahme prüfen; das tatsächliche Sperren, die Sitzungswiderrufe, sensible Datenübergabe und Löschungen erfolgen nur durch dazu berechtigte Stellen.</p>
+<p><strong>Kritische Voraussetzung:</strong> Rechtliche Aufbewahrungs-/Löschpflichten und Datenschutz werden <strong>nicht</strong> durch dieses Muster festgelegt. HR, Datenschutz, Legal/Compliance, Ressourcen- und Geräteverantwortliche entscheiden nach Unternehmensrichtlinien. [Q1]</p>
+<h2 id="2-prozessmodell-sperren-sitzungen-daten-und-nachweise">2. Prozessmodell: Sperren, Sitzungen, Daten und Nachweise</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Autorisierter HR-Austritt (eindeutige Person + Wirksamkeitszeitpunkt)
+   → Identität &amp; Quellsystem (Cloud-only / AD DS-hybrid) verifizieren
+   → Zum genehmigten Zeitpunkt Konto sperren / erforderliche Zugangsdaten absichern
+   → Entra-Sitzungen widerrufen + eigene SaaS-/VPN-/App-Sitzungen berücksichtigen
+   → privilegierte Zugänge, Freigaben, Gruppen, Geräte, Integrationen erfassen
+   → Datenübergabe, Retention, Holds, Postfach und OneDrive klären
+   → Lizenzentzug und Kontolöschung ausschließlich nach eigener Freigabe
+   → Sperrwirkung und Übergabe anhand geeigneter Nachweise verifizieren
+</code></pre></div>
+<p><strong>Keine starre Reihenfolge für jeden Sonderfall:</strong> Eine geplante Beendigung, ein Sicherheitsvorfall und ein privates Mobilgerät erfordern unterschiedliche Entscheidungen. Die <strong>zeitkritische Zugangssperrung</strong> darf bei Gefahr nicht auf die vollständige Datenübergabe warten; umgekehrt dürfen <strong>irreversible Lösch- und Lizenzschritte</strong> nicht vor dem Daten-/Aufbewahrungscheck erfolgen. [Q1][Q2]</p>
+<h2 id="3-autorisierung-identitat-und-genaues-zeitfenster">3. Autorisierung, Identität und genaues Zeitfenster</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Prüfpunktsgruppe</th>
+<th>Beispiel / Erwartung</th>
+<th>Zuständigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auftrag</td>
+<td>HR-Referenz, genehmigtes Austrittsdatum und Uhrzeit samt Zeitzone</td>
+<td>HR / Teamleitung</td>
+</tr>
+<tr>
+<td>Betroffenes Identitätsobjekt</td>
+<td>UPN, eindeutige Objekt-ID, ggf. <code>sAMAccountName</code>; keine Namensgleichheit raten</td>
+<td>Identity / AD</td>
+</tr>
+<tr>
+<td>Auslöser</td>
+<td>Geplanter Austritt, fristloser Austritt, Kompromittierung oder Dienstwechsel</td>
+<td>HR / Security</td>
+</tr>
+<tr>
+<td>Bestandszugänge</td>
+<td>AD/Entra, SaaS, VPN, Gerät, lokale Administrationskonten, Service-/API-Zugänge</td>
+<td>Fach-/Systemeigner</td>
+</tr>
+<tr>
+<td>Geschäftsdaten</td>
+<td>Postfach, OneDrive, Teams, SharePoint, Geräte-/Projektdateien</td>
+<td>Data Owner / Compliance</td>
+</tr>
+<tr>
+<td>Besitz und Rückgabe</td>
+<td>Notebook, Smartphone, Zutrittsmittel, Schlüssel, Token, Hardware</td>
+<td>Asset / Security</td>
+</tr>
+<tr>
+<td>Nachweis</td>
+<td>Maßnahmen, Zeitpunkt, ausführende Rolle, Zielobjekt, Prüfergebnisse</td>
+<td>Ticketverantwortliche</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>STOP:</strong> Unklare oder widersprüchliche Identität, fehlende Genehmigung, unklarer Austrittszeitpunkt oder fehlender geeigneter Wiederherstellungs-/Eskalationsweg. Keine Kontoaktion allein auf Zuruf. Personaldetails nur in minimal erforderlichem Umfang speichern.</p>
+<h2 id="4-cloud-only-vs-hybrid-quelle-der-identitat-bestimmen">4. Cloud-only vs. Hybrid: Quelle der Identität bestimmen</h2>
+<p><strong>Cloud-only:</strong> Konto ist primär in Microsoft Entra ID administriert. Der berechtigte Administrator sperrt die Anmeldung im Entra Admin Center und widerruft Sitzungen. Der Vorgang wird im Audit nachvollzogen. [Q2][Q4]</p>
+<p><strong>Hybrid-AD:</strong> Wird das Benutzerkonto aus dem lokalen AD DS synchronisiert, ist der lokale Verzeichniszustand ein wesentlicher Ausgangspunkt für die Sperrung. Microsoft beschreibt explizit das Deaktivieren des lokalen Kontos und ergänzende Maßnahmen in der Cloud. Synchronisation kann zeitlich verzögert sein. Nur den Cloudzustand oder nur <code>Get-ADUser</code> zu betrachten reicht daher nicht. [Q2]</p>
+<p><strong>Diagnose:</strong> Konto in AD gesperrt, Entra weiterhin <code>AccountEnabled=True</code> → Syncstatus und Übergangsphase prüfen/Identity eskalieren; Konto in Entra gesperrt, Zugriff auf separate Fachanwendung noch aktiv → lokale Anwendungssitzung beziehungsweise unabhängige Anmeldemethode untersuchen. Für alternative Identitätsquellen (separate lokale Fachkonten, B2B-Gastzugänge) eigene Offboarding-Schritte vorsehen.</p>
+<h2 id="5-zugang-blockieren-und-bestehende-sitzungen-widerrufen">5. Zugang blockieren und bestehende Sitzungen widerrufen</h2>
+<p>Microsoft dokumentiert sowohl das Blockieren neuer Anmeldungen als auch den <strong>Widerruf von Refresh-Tokens und Entra-Sitzungsinformationen</strong>. Ein Widerruf via <code>revokeSignInSessions</code> macht ältere Refresh-Tokens und bestimmte Browser-Sitzungsdaten ungültig; er beendet nicht verlässlich jede bereits aktive Anwendungssitzung eines Drittanbieters. Bereits ausgestellte Access Tokens können bis zu ihrem Ablauf oder einer von der Anwendung unterstützten kontinuierlichen Zugriffsbewertung gültig bleiben. [Q2][Q3][Q4]</p>
+<p><strong>Kontrollfragen:</strong></p>
+<ol>
+<li>Ist das richtige Objekt zum genehmigten Zeitpunkt gesperrt?</li>
+<li>Wurden die vorgesehenen Entra-Sitzungen widerrufen und die Aktion protokolliert?</li>
+<li>Sind vorhandene VPN-, SaaS-, RDS- und Anwendungssitzungen eigenständig kontrolliert?</li>
+<li>Werden Funktionen mit eigenem Benutzerverzeichnis (z. B. Fachapp ohne SSO) separat entzogen?</li>
+<li>Muss aufgrund eines Sicherheitsvorfalls zusätzlich Credential-Rotation, Geräteisolation oder Sicherheitseskalation erfolgen?</li>
+</ol>
+<p><strong>Wichtig:</strong> Kein Supportmitarbeiter versucht eine Prüfung durch Anmeldung mit dem Kennwort der ausgeschiedenen Person. Der Nachweis erfolgt über Accountstatus, Audit-/Sign-in-Logs, vertrauenswürdige Anwendungssignale und einen <strong>genehmigten, datenschutzkonformen Negativtest</strong>. „Logout aller Systeme sofort bestätigt“ ist ohne entsprechende Nachweise nicht zulässig.</p>
+<h2 id="6-rollen-gruppen-und-privilegierte-zugange">6. Rollen, Gruppen und privilegierte Zugänge</h2>
+<p>Die Deaktivierung der Identität ist die zeitkritische Grundlage, aber die spätere Berechtigungsbereinigung bleibt ein eigener Prozess. Zu prüfen sind AD-/Entra-Gruppen, lokale Administratorrechte, Exchange-Delegationen, SharePoint-/Teams-Berechtigungen, VPN, RDP, SaaS-Gruppen, cloudbasierte Rollen und ggf. PIM-/Privileged-Access-Zuweisungen.</p>
+<p><strong>Servicekonten und Shared Secrets:</strong> Ein Benutzer kann Eigentümer oder Mitnutzer von API-Schlüsseln, SSH-Schlüsseln, Service-Accounts, Runbooks, Git-/CI-Deployments, Zertifikaten oder App-Registrierungen sein. Solche Abhängigkeiten nicht automatisch löschen: Erst Eigentum, Ersatzverantwortliche, Wirkbereich und Rotation nach genehmigtem Change prüfen. Ein ohne Prüfung entfernter Kontoinhaber kann produktive Integrationen unterbrechen.</p>
+<p><strong>Minimalrechte:</strong> Datenzugriff für Nachfolgepersonen nur mit gesonderter fachlicher Freigabe; keine pauschale Vollzugriffsrolle. Ein „Rechte entzogen“-Häkchen darf sich nicht nur auf Entra-Gruppen beziehen.</p>
+<h2 id="7-gerate-und-mobile-management-retire-ist-nicht-wipe">7. Geräte und Mobile Management: Retire ist nicht Wipe</h2>
+<p><strong>Firmenhardware:</strong> Gerät eindeutig mit Inventarnummer und Benutzer zuordnen, Rückgabe und Zustand dokumentieren, Schutz von Unternehmensdaten priorisieren. Vor Neuverwendung nach genehmigter Prozessvorgabe verschlüsselte Datenträger, lokale Dateien, Zugangsartefakte, Zertifikate und Browserprofile beachten. BitLocker-Recovery-Schlüssel bleiben Geheimnisse.</p>
+<p><strong>Private/BYOD-Geräte:</strong> Die Intune-Aktion <strong>Retire</strong> dient typischerweise dazu, Unternehmensverwaltung und Unternehmensdaten zu entfernen, ohne grundsätzlich alle privaten Inhalte per Werksreset zu löschen. <strong>Wipe</strong> kann Daten auf dem Gerät durch einen Reset vollständig entfernen; Plattform und konkrete Optionen sind entscheidend. Die Auswahl ist eine Eigentums-, Datenschutz- und Freigabeentscheidung. [Q8][Q9][Q10]</p>
+<p><strong>Offline-Geräte:</strong> Eine Intune-Aktion, die nur <em>ausgelöst</em> oder <em>ausstehend</em> ist, ist kein Nachweis, dass sie tatsächlich auf dem Gerät ausgeführt wurde. Device-Action-Status und Gerätekontakt separat verifizieren; bei Diebstahl Verlust-/Incident-Prozess anwenden.</p>
+<h2 id="8-exchange-online-postfach-erhalten-oder-loschen">8. Exchange Online: Postfach erhalten oder löschen?</h2>
+<p><strong>Option A – regulär aufbewahren / übertragen:</strong> Vor Änderung prüfen, ob Geschäftsvorgänge, Kalender, Aufbewahrungspflichten, eDiscovery/Holds oder Nachfolgerrechte zu berücksichtigen sind. Die Auswahl trifft der Daten-/Compliance-Verantwortliche, nicht der Support nach Bauchgefühl. [Q1][Q6]</p>
+<p><strong>Option B – zum freigegebenen Postfach umwandeln:</strong> Microsoft beschreibt die Konvertierung eines Benutzerpostfachs in eine Shared Mailbox. Vor Konvertierung braucht das Benutzerpostfach eine passende Lizenz. Danach kann bei Einhaltung der Bedingungen ggf. die Lizenz entfallen; die Shared Mailbox benötigt weiterhin ein zugehöriges Benutzerobjekt, das <strong>nicht gelöscht</strong> werden darf. Ohne eigene Lizenz liegt die Größenbeschränkung grundsätzlich bei 50 GB; Archive, Holds oder größere Postfächer können besondere Lizenzvoraussetzungen haben. <strong>Anmeldung des zugrunde liegenden Benutzerobjekts muss weiterhin gesperrt bleiben.</strong> [Q5][Q12]</p>
+<p><strong>Option C – Aufbewahrung/Inaktives Postfach:</strong> Wenn rechtliche oder organisatorische Aufbewahrung vorgeschrieben ist, vor einer Löschung die anwendbaren Purview-/Exchange-Retention-/Hold-Konfigurationen und Lizenzanforderungen durch Compliance prüfen lassen. Eine Kontolöschung ohne diese Prüfung kann Daten dauerhaft verlieren lassen.</p>
+<p><strong>Entscheidungsstopp:</strong> Mail-Weiterleitung oder Delegation darf erst mit Zustimmung des verantwortlichen Fachbereichs und datenschutzrechtlicher Prüfung eingerichtet werden; keine automatische Weiterleitung an private Adressen.</p>
+<h2 id="9-onedrive-sharepoint-teams-und-datenubergabe">9. OneDrive, SharePoint, Teams und Datenübergabe</h2>
+<p>Für OneDrive beträgt die <strong>Standard-Aufbewahrungszeit nach Löschung des Benutzerkontos</strong> typischerweise 30 Tage; sie ist konfigurierbar und Retention Policies/Holds beeinflussen den Lebenszyklus. Wichtig: Der OneDrive-Löschprozess startet durch Kontolöschung, <strong>nicht allein</strong> durch Blockieren der Anmeldung oder Entfernen einer Lizenz. Seit den neueren Regeln können <strong>unlizenzierte OneDrive-Konten nach 93 Tagen automatisch archiviert</strong> werden; Kosten und Datenhaltung sind vorher zu klären. [Q6][Q7]</p>
+<p><strong>Übergabeprozess:</strong></p>
+<ul>
+<li>Fachlich benannte und berechtigte Nachfolgeperson bestimmen, nicht pauschal Teamzugang erweitern.</li>
+<li>Projektrelevante Dateien kontrolliert in Team-/SharePoint-Ablagen übertragen und erforderliche Berechtigungen prüfen.</li>
+<li>Besitzerrollen für Teams, SharePoint-Websites, Planner, Power Automate und Fachanwendungen prüfen; fehlende verantwortliche Eigentümer ersetzen.</li>
+<li>Unternehmensrelevante Kalender, Termine, laufende Freigaben und Workflows nach Freigabe übergeben.</li>
+<li>Persönliche/private und rechtlich geschützte Daten nicht ungeprüft kopieren. Rechts- und Datenschutzvorgaben können engere Schranken setzen.</li>
+</ul>
+<h2 id="10-lizenzen-fristen-und-konto-lebenszyklus">10. Lizenzen, Fristen und Konto-Lebenszyklus</h2>
+<p><strong>Lizenzentzug nicht als erste Sperrmaßnahme verwenden.</strong> Zuerst autorisierte Kontosperrung und weitere Zugriffswege, dann Daten-/Retention-Entscheid, danach Lizenzverwaltung nach Freigabe. Microsoft beschreibt Folgen für Exchange-Daten und OneDrive; die konkret wirksamen Fristen hängen von Dienst, Konfiguration und Retention ab. [Q1][Q5][Q7]</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Entscheidung</th>
+<th>Vorbedingung</th>
+<th>Risiko, wenn übersprungen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lizenz entziehen</td>
+<td>Datenaufbewahrung, Mailbox-Typ, Archiv/Hold, Servicepläne geprüft</td>
+<td>Postfachzugriff/Archivierung gefährdet</td>
+</tr>
+<tr>
+<td>Benutzerkonto löschen</td>
+<td>Alle geschäftlichen Abhängigkeiten, Shared Mailbox, Holds und Retention geklärt</td>
+<td>Verlust von Daten und Ressourcenankern</td>
+</tr>
+<tr>
+<td>Shared Mailbox weiterverwenden</td>
+<td>Benutzerobjekt als Anker erhalten, Anmeldung blockiert, Zugriff genehmigt</td>
+<td>Postfach oder Security-Zustand inkonsistent</td>
+</tr>
+<tr>
+<td>Gerät zurücksetzen</td>
+<td>Eigentum, Datensicherung, Gerätedaten, Freigabe, Status geprüft</td>
+<td>Irreversibler lokaler Datenverlust</td>
+</tr>
+<tr>
+<td>Projektzugriff übertragen</td>
+<td>Rechteinhaber und schutzwürdige Daten geprüft</td>
+<td>Unzulässige Datenweitergabe</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Mit einem abgeschlossenen zeitkritischen Sicherheits-Offboarding kann das Ticket einen <strong>separaten Daten-/Lizenz-Folgeprozess</strong> eröffnen; der Gesamtvorgang wird nicht fälschlich als „alles erledigt“ markiert. [Q1][Q11]</p>
+<h2 id="11-lesende-diagnosebefehle-und-statusprufungen">11. Lesende Diagnosebefehle und Statusprüfungen</h2>
+<p>Alle Beispiele sind <strong>nur lesend</strong> und benötigen die notwendigen Module, Rollen und freigegebenen Zugriffswege. Namen und Objekt-IDs sind fiktiv. <code>Connect-MgGraph</code> startet eine Anmeldung, <strong>ändert aber keinen Benutzerzustand</strong>.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Microsoft Graph PowerShell – Status, keine Kontenänderung
+Connect-MgGraph -Scopes 'User.Read.All','Directory.Read.All'
+$upn = 'mira.seidel@firma.example'
+Get-MgUser -UserId $upn `
+  -Property 'Id,DisplayName,UserPrincipalName,AccountEnabled,OnPremisesSyncEnabled' |
+  Select-Object Id, DisplayName, UserPrincipalName, AccountEnabled, OnPremisesSyncEnabled
+
+# Lizenzdetails lesen – keine Lizenzentfernung
+Get-MgUserLicenseDetail -UserId $upn | Select-Object SkuPartNumber, ServicePlans
+</code></pre></div>
+<p><strong>Bei Hybrid-AD mit RSAT/lesender Berechtigung:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Import-Module ActiveDirectory
+Get-ADUser -Identity 'mseidel' -Properties Enabled,UserPrincipalName,MemberOf |
+  Select-Object SamAccountName,Enabled,UserPrincipalName,MemberOf
+</code></pre></div>
+<p><strong>Bei freigegebenem Exchange-Read-Zugriff:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Bestehende EXO-Verbindung und geeignete Rolle vorausgesetzt
+Get-Mailbox -Identity 'mira.seidel@firma.example' |
+  Select-Object PrimarySmtpAddress,RecipientTypeDetails,ArchiveStatus,LitigationHoldEnabled
+</code></pre></div>
+<p><strong>Nicht Teil der lesenden Beispiele:</strong> <code>Disable-ADAccount</code>, <code>Update-MgUser -AccountEnabled:$false</code>, <code>Revoke-MgUserSignInSession</code>, <code>Remove-MgUser</code>, <code>Set-MgUserLicense</code>, Intune <code>Wipe</code>/<code>Retire</code>. Diese sind <strong>verändernde Maßnahmen</strong> und ausschließlich nach Identitätsabgleich, Freigabe und Change-/Notfallverfahren auszuführen. Die konkreten Syntax- und Berechtigungsanforderungen der Herstellerdokumentation sind jeweils zu prüfen. [Q2][Q3]</p>
+<h2 id="12-befund-und-entscheidungsmatrix">12. Befund- und Entscheidungsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Feststellung</th>
+<th>Hypothese / nächster Nachweis</th>
+<th>Verantwortlich</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HR-Auftrag unklar</td>
+<td>Auftrag, Person, Uhrzeit oder Sicherheitseinstufung offen</td>
+<td>HR/Security → STOP</td>
+</tr>
+<tr>
+<td>AD gesperrt, Entra noch aktiv</td>
+<td>Hybrid-Sync/Quellsystem/Latenz prüfen</td>
+<td>Identity/AD</td>
+</tr>
+<tr>
+<td>Entra blockiert, App weiter erreichbar</td>
+<td>Eigenständige Session/SSO-Protokoll/Refresh-Lebenszyklus prüfen</td>
+<td>App Owner/Security</td>
+</tr>
+<tr>
+<td>Benutzerkonto gesperrt, VPN bleibt aktiv</td>
+<td>VPN-Session-/Gateway-Status separat prüfen</td>
+<td>Network/Security</td>
+</tr>
+<tr>
+<td>Mailbox soll bestehen bleiben</td>
+<td>Shared-Mailbox-Lizenz/Anker/Retention prüfen</td>
+<td>Exchange/Compliance</td>
+</tr>
+<tr>
+<td>OneDrive soll übergeben werden</td>
+<td>Dateninhaber, Retention, sichere Übergabe organisieren</td>
+<td>Data Owner/SharePoint</td>
+</tr>
+<tr>
+<td>Gerät offline, Retire ausstehend</td>
+<td>Device-Action-Ergebnis fehlt; Asset-/Security-Folgeprozess</td>
+<td>Endpoint/Security</td>
+</tr>
+<tr>
+<td>Lizenzentzug vorgesehen, Hold ungeklärt</td>
+<td>STOP, Compliance/Lizenzadministration entscheidet</td>
+<td>Legal/Compliance</td>
+</tr>
+<tr>
+<td>Änderungen abgeschlossen, Audit unklar</td>
+<td>Account- und Anwendungsnachweise, Zeitstempel, Restzugriffe</td>
+<td>L2/Identity/Security</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="13-fiktiver-praxisfall-a-geplanter-austritt">13. Fiktiver Praxisfall A – geplanter Austritt</h2>
+<p><strong>Ausgangslage:</strong> Mira Seidel verlässt die fiktive Firma am 30.11.2026 um 17:00 Uhr. Ihr Postfach enthält noch laufende Projektkommunikation; OneDrive hat genehmigt zu übertragende Projektdokumente. Das Notebook <code>LT-050</code> wird zurückgegeben.</p>
+<p><strong>Diagnosehypothesen:</strong> (H1) HR-Termin und Accountzuordnung sind eindeutig. (H2) Cloud-only oder Hybrid ist geklärt. (H3) Berechtigungen auf Fachsysteme können nach Kontosperre separat weiterbestehen. (H4) Mail-/OneDrive-Aufbewahrung muss vor Lizenzentzug geklärt sein.</p>
+<p><strong>Musterplan (nicht ausgeführt):</strong> Termin/Person/Freigabe bestätigen → Besitz/Abhängigkeiten inventarisieren → zum Termin im maßgeblichen Verzeichnis sperren → Sitzungseinträge und externe Anwendungen nach Verfahren behandeln → Geräte entgegennehmen → freigegebenes Shared-Mailbox-/Datenübergabekonzept umsetzen → später Lizenz- und Löschentscheid gesondert freigeben → Audit-/Statusprüfungen protokollieren.</p>
+<p><strong>Erwartete Nachweise:</strong> Nach Ablauf der notwendigen Replikations-/Token-Zeiten blockierte Anmeldung, behandelte externe Zugänge, vollständige Assetliste, datenschutzkonforme Übergabe und offene Retention-Entscheide mit Owner/Termin. <strong>Keine echte Maßnahme oder Validierung durchgeführt.</strong></p>
+<h2 id="14-fiktiver-praxisfall-b-sicherheitskritischer-sofortaustritt">14. Fiktiver Praxisfall B – sicherheitskritischer Sofortaustritt</h2>
+<p><strong>Ausgangslage:</strong> Fiktiver Benutzer <code>paul.becker@firma.example</code> scheidet mit sofortiger Wirkung aus; ein Firmenlaptop ist nicht zurückgegeben, und eine SaaS-Anwendung nutzt eigene Sitzungen.</p>
+<p><strong>Entscheidender Unterschied:</strong> Hier hat <strong>schnelle Zugriffssperrung und Incident-Eskalation</strong> Vorrang; Datenlösch- und Lizenzarbeiten werden nicht improvisiert. Das verantwortliche Team verhindert neue Sign-ins, widerruft Entra-Sitzungen und koordiniert die getrennte SaaS-/VPN-Sessionsperre sowie Geräteschutz. Ein ggf. geplanter Intune-Wipe darf nicht blind auf ein möglicherweise privates Gerät angewendet werden.</p>
+<p><strong>Testfrage:</strong> Warum wäre „Entra <code>AccountEnabled=False</code>“ allein kein Abschlussnachweis? <strong>Antwort:</strong> Weil bereits bestehende App-Sitzungen, unabhängige Fachanmeldungen, API-Zugänge und offline gespeicherte Daten gesondert geprüft werden müssen. [Q2]</p>
+<p><strong>Ticketabschluss:</strong> Erst mit nachvollziehbaren Logs, ausdrücklich dokumentierten Risiken/Restzugängen und verantwortlichen Nacharbeiten. <strong>Alle Ergebnisse sind rein fiktiv.</strong></p>
+<h2 id="15-active-recall-selbst-erklarung-und-transfer">15. Active Recall, Selbst-Erklärung und Transfer</h2>
+<p><strong>Ohne in die Unterlagen zu schauen beantworten:</strong></p>
+<ol>
+<li>Welche drei Fragen brauchst du, bevor du eine Kontosperrung ausführst?</li>
+<li>Warum ist eine Sperrung im lokalen AD nicht automatisch eine sofortige Sperrung jedes Cloud-Dienstes?</li>
+<li>Warum beendet <code>revokeSignInSessions</code> nicht zwangsläufig ein bereits bestehendes SaaS-Session-Cookie?</li>
+<li>Worin unterscheiden sich <em>Kontosperre</em>, <em>Sitzungswiderruf</em> und <em>Berechtigungsbereinigung</em>?</li>
+<li>Warum darf die Lizenz nicht pauschal vor einer Mailbox-/Retention-Prüfung entfernt werden?</li>
+<li>Welche Besonderheit gilt bei Umwandlung eines Benutzerpostfachs in eine Shared Mailbox?</li>
+<li>Wie unterscheidest du Intune <code>Retire</code> von <code>Wipe</code> und wann musst du STOP sagen?</li>
+<li>Welche zwei Frist- und Datenfragen prüfst du bei OneDrive?</li>
+<li>Wie würdest du den wirksamen Zugriffsverlust belegen, ohne dich als die Person anzumelden?</li>
+<li>Welchen Unterschied macht ein geplanter Austritt zu einem Security-Sofortaustritt?</li>
+</ol>
+<p><strong>Self-Explanation:</strong> Erkläre in maximal 90 Sekunden den Unterschied zwischen <em>Zugriffsblockierung</em> und <em>Datenaufbewahrung</em>. Ein fachlich belastbarer Vortrag nennt mindestens <strong>zwei unabhängige Sitzungstypen</strong> und eine <strong>Lösch-/Lizenzgefahr</strong>.</p>
+<p><strong>Transfertraining:</strong> Ein externer Gast besitzt einen SharePoint-Zugang und eine eigenständige SaaS-Session, aber kein lokales AD-Konto. Welche Teile des Standard-Offboardings bleiben gültig, und welche müssen durch separate Zugangsprüfungen ersetzt werden? Begründe die Reihenfolge.</p>
+<p><strong>Späterer Laborschritt:</strong> Ausschließlich mit Testkonten im eigenen Tenant/Lab: (1) genehmigte Sollkontrollen, (2) lesende Audit- und Statusabfragen, (3) bewusst angelegte fiktive Berechtigungspfade, (4) kontrollierte Sperrübung mit Rückfallplan, (5) Wirksamkeitsnachweis; keine echten Nutzerdaten. Runbook anschließend selbst neu verfassen; Wiederholung nach etwa 7 und 21 Tagen.</p>
+<hr/>
+<h2 id="herstellerquellen-und-recherchegrundlage-microsoft-learn-recherchiert-am-23-11-2026">Herstellerquellen und Recherchegrundlage (Microsoft Learn; recherchiert am 23.11.2026)</h2>
+<ul>
+<li>[Q1] Microsoft 365 – Remove a former employee (Prozessüberblick): <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee</a></li>
+<li>[Q2] Microsoft Entra – Revoke user access in an emergency: <a href="https://learn.microsoft.com/en-us/entra/identity/users/users-revoke-access" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/entra/identity/users/users-revoke-access</a></li>
+<li>[Q3] Microsoft Graph v1.0 – user: revokeSignInSessions: <a href="https://learn.microsoft.com/en-us/graph/api/user-revokesigninsessions?view=graph-rest-1.0" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/graph/api/user-revokesigninsessions?view=graph-rest-1.0</a></li>
+<li>[Q4] Microsoft 365 – Step 1: Prevent user sign-in: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-1" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-1</a></li>
+<li>[Q5] Microsoft 365 – Convert a user mailbox to a shared mailbox: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/email/convert-user-mailbox-to-shared-mailbox" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/email/convert-user-mailbox-to-shared-mailbox</a></li>
+<li>[Q6] Microsoft 365 – Step 5: Give another employee access to OneDrive/Outlook: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-5" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-5</a></li>
+<li>[Q7] SharePoint/OneDrive – Retention and deletion: <a href="https://learn.microsoft.com/en-us/sharepoint/retention-and-deletion" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/sharepoint/retention-and-deletion</a></li>
+<li>[Q8] Microsoft Intune – Remote device actions: <a href="https://learn.microsoft.com/en-us/intune/device-management/actions/" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-management/actions/</a></li>
+<li>[Q9] Microsoft Intune – Retire: <a href="https://learn.microsoft.com/en-us/intune/device-management/actions/retire" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-management/actions/retire</a></li>
+<li>[Q10] Microsoft Intune – Wipe: <a href="https://learn.microsoft.com/en-us/intune/device-management/actions/wipe" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-management/actions/wipe</a></li>
+<li>[Q11] Microsoft 365 – Step 7: Delete a former employee’s user account: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-7" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/remove-former-employee-step-7</a></li>
+<li>[Q12] Microsoft 365 – About shared mailboxes: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/email/about-shared-mailboxes" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/email/about-shared-mailboxes</a></li>
+<li>[Q13] Microsoft Entra – Disable on-prem AD account / cloud account and revoke sessions: siehe [Q2]</li>
+<li>[Q14] Microsoft 365 – Assign or unassign licenses: <a href="https://learn.microsoft.com/en-us/microsoft-365/admin/manage/assign-licenses-to-users" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/microsoft-365/admin/manage/assign-licenses-to-users</a></li>
+</ul>
+<p><strong>Einordnung:</strong> Die Quellen dokumentieren Herstellerfunktionen und technische Einschränkungen. Die Reihenfolge im Runbook ist eine <strong>abgeleitete, sicherheitsorientierte Musterprozesslogik</strong>, kein universeller Rechts- oder Tenant-Standard. Aufbewahrungspflichten, Rollen und Löschfristen sind im konkreten Unternehmen verbindlich abzuklären.</p>
+<h2 id="projekt-und-veroffentlichungsstatus">Projekt- und Veröffentlichungsstatus</h2>
+<p><strong>Recherche und Dokumentation abgeschlossen; praktische Ausführung, Fehlerreproduktion und dauerhafter Wissenstransfer nicht nachgewiesen.</strong> Dieses Paket bietet eine Lern- und Prüfbasis, keine universell freigegebene produktive Ausführungsanweisung.</p>
+<p><em>Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</em></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-050_Lernartikel.md">RB-050_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-049/index.html">← Ticket 49</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

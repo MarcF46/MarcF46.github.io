@@ -1,0 +1,125 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 36: APIPA-Adresse 169.254.x.x | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 36: APIPA-Adresse 169.254.x.x. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 36: APIPA-Adresse 169.254.x.x</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-umfang-eingrenzen">1. Ticket aufnehmen – Umfang eingrenzen</a></li><li><a href="#2-vorwissen-und-ersthypothesen">2. Vorwissen und Ersthypothesen</a></li><li><a href="#3-lesende-basisdiagnose-windows-11">3. Lesende Basisdiagnose (Windows 11)</a></li><li><a href="#4-a-b-vergleich-und-reichweite">4. A/B-Vergleich und Reichweite</a></li><li><a href="#5-dhcp-ereignisprotokoll-lesen">5. DHCP-Ereignisprotokoll lesen</a></li><li><a href="#6-dhcp-transaktion-l2-nur-nach-freigabe">6. DHCP-Transaktion (L2, nur nach Freigabe)</a></li><li><a href="#7-korrekturpfad-und-stoppschwellen">7. Korrekturpfad und Stoppschwellen</a></li><li><a href="#8-funktionstest-unter-originalbedingungen">8. Funktionstest unter Originalbedingungen</a></li><li><a href="#9-eskalation-und-ticketabschluss">9. Eskalation und Ticketabschluss</a></li><li><a href="#10-drei-satz-ticketkommentar-rein-fiktiv">10. Drei-Satz-Ticketkommentar (rein fiktiv)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Version:</strong> 1.0 · <strong>22.11.2026</strong> · <strong>Fachstatus:</strong> recherchiert, <strong>praktische Validierung offen</strong><br/>
+<strong>Ziel:</strong> Die Ursache eines APIPA-Zustands auf dem <strong>betroffenen Adapter</strong> identifizieren; erwartete IPv4-Konfiguration und ursprünglichen Zugriff verifizieren. Nicht allein „Internet geht“ als Lösung akzeptieren.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb036_henne_ei_apipa.webp" rel="noopener noreferrer" target="_blank"><img alt="Infografik zur APIPA-Diagnose" decoding="async" loading="lazy" src="assets/rb036_henne_ei_apipa.webp"/></a></div><figcaption>Infografik zur APIPA-Diagnose</figcaption></figure>
+<h2 id="1-ticket-aufnehmen-umfang-eingrenzen">1. Ticket aufnehmen – Umfang eingrenzen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zeitpunkt, betroffener Benutzer/Host, betroffene Anwendung und Standort.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Betroffener Adapter:</strong> Ethernet/WLAN/Dock; falls vorhanden InterfaceAlias und InterfaceIndex.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche IP meldet <code>ipconfig /all</code>? <strong>Autokonfigurations-IPv4-Adresse 169.254.x.x / 255.255.0.0?</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche Soll-IP/Subnetz/VLAN/SSID laut Netzwerkdokumentation erwartet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur ein PC, ein Port, ein VLAN oder mehrere Standorte?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist Fernzugriff über genau diesen Adapter die einzige Verbindung? Falls ja: <strong>keine trennenden Eingriffe</strong>.</li>
+</ul>
+<h2 id="2-vorwissen-und-ersthypothesen">2. Vorwissen und Ersthypothesen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>APIPA ist eine Link-Local-Adresse, <strong>keine</strong> gültige Ersatzadresse für das geplante routbare Firmennetz.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hypothese A: Client/Adapter/konfiguriertes DHCP.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hypothese B: Link, Kabel, WLAN-Zuordnung, Dock, VLAN oder NAC.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hypothese C: Relay/ACL/Scope/DHCP-Server oder Rückweg.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Für jede Hypothese einen <strong>trennenden Test</strong> notieren.</li>
+</ul>
+<h2 id="3-lesende-basisdiagnose-windows-11">3. Lesende Basisdiagnose (Windows 11)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">ipconfig /all
+Get-NetAdapter | Select-Object Name,InterfaceIndex,Status,LinkSpeed
+Get-NetIPInterface -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,InterfaceIndex,ConnectionState,Dhcp
+Get-NetIPAddress -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,IPAddress,PrefixLength,PrefixOrigin,AddressState
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,DestinationPrefix,NextHop
+Get-Service Dhcp
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>DHCP für den <strong>betroffenen Adapter</strong> aktiviert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Adapter <code>Up</code>/WLAN assoziiert und im erwarteten Segment?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gibt es andere Interfaces mit routbarer IPv4, die eine Fehlinterpretation verursachen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>169.254/16 dokumentiert, <strong>ohne</strong> daraus vorschnell einen DHCP-Serverausfall zu folgern.</li>
+</ul>
+<h2 id="4-a-b-vergleich-und-reichweite">4. A/B-Vergleich und Reichweite</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bekannter Vergleichsclient im <strong>selben genehmigten Port/Netzsegment</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betroffener Client an <strong>freigegebenem</strong> Vergleichsport (wenn sinnvoll).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Betrifft es eine SSID, ein VLAN, mehrere VLANs oder nur den aktuellen Adapter?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Dock/USB-Ethernet als eigenen Fehlerpfad prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein ungenehmigtes Umstecken zwischen Sicherheitszonen.</li>
+</ul>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Arbeitshypothese</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ein Client APIPA, Vergleichsgeräte okay</td>
+<td>Client/Adapter/MAC-/Port-/NAC-Zuordnung</td>
+</tr>
+<tr>
+<td>Nur ein Port/Dock APIPA</td>
+<td>Link/Portprofil/Dock</td>
+</tr>
+<tr>
+<td>Ganzes VLAN APIPA</td>
+<td>Relay/Scope/Netzfilter</td>
+</tr>
+<tr>
+<td>Viele VLANs APIPA</td>
+<td>zentrale DHCP-/Netzstörung</td>
+</tr>
+<tr>
+<td>APIPA nur auf ungenutzter NIC</td>
+<td>möglicher Befund ohne unmittelbare Nutzerwirkung</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5-dhcp-ereignisprotokoll-lesen">5. DHCP-Ereignisprotokoll lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-WinEvent -ListLog '*DHCP*' -ErrorAction SilentlyContinue |
+  Select-Object LogName,IsEnabled,RecordCount
+# Nur bei vorhandenem Kanal:
+Get-WinEvent -LogName 'Microsoft-Windows-Dhcp-Client/Admin' -MaxEvents 30 |
+  Select-Object TimeCreated,Id,Message
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ereignisse mit <strong>Zeitpunkt</strong>, Adapter-ID und Fall verbinden; alte Meldungen nicht als neue Ursache ausgeben.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fehlt Kanal oder Zugriff: im Event Viewer prüfen; keinen Befund erfinden.</li>
+</ul>
+<h2 id="6-dhcp-transaktion-l2-nur-nach-freigabe">6. DHCP-Transaktion (L2, nur nach Freigabe)</h2>
+<p><strong>Typische DHCPv4-Neuvergabe:</strong> Discover → Offer → Request → ACK. <strong>APIPA beweist allein nicht, welches Paket fehlt.</strong> Wireshark-Filter <code>dhcp</code> oder <code>udp.port == 67 || udp.port == 68</code>.</p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client sendet kein Discover → Captureort, Adapter-/DHCP-Clientzustand prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Discover am Client, nicht am Relay/Server → VLAN/NAC/Snooping/ACL/Relay.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Discover beim Server, kein Offer → Dienst/Scope/Policy/Bindung/Logs.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Offer am Server, nicht am Client → Rückweg/Relay/Filter.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>ACK kommt am Client an, APIPA bleibt → Client-/Adressübernahme, Ereignisse, Konflikt.</li>
+</ul>
+<p><strong>Sicherheitsgate:</strong> Mitschnitt nur genehmigt, interne IP/MAC und Nutzerdaten vertraulich. Kein Paketmitschnitt ohne ordnungsgemäße Freigabe.</p>
+<h2 id="7-korrekturpfad-und-stoppschwellen">7. Korrekturpfad und Stoppschwellen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>L1: Nur genehmigte gerätespezifische Korrektur nach Befund.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>L2/Owner: DHCP-Konfiguration, VLAN, Relay, NAC, DHCP-Scope/Serverlog nach Zuständigkeit prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong><code>ipconfig /release</code> oder <code>ipconfig /renew</code> ist ein aktiver Eingriff:</strong> über einzigen Fernzugang nur mit Rückweg und Freigabe.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine statische Ersatz-IP, kein ungeprüftes <code>netsh ... reset</code>, kein blindes DNS-Flush als „APIPA-Fix“.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Änderung an DHCP-/VLAN-/Security-Richtlinien ohne Change/Freigabe.</li>
+</ul>
+<h2 id="8-funktionstest-unter-originalbedingungen">8. Funktionstest unter Originalbedingungen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwartete dynamische IPv4-Adresse auf dem <strong>richtigen Adapter</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwartetes Präfix, Gateway, DNS, DHCP-Server und Leasezeiten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gateway und interne Ressource über <strong>den korrigierten Netzpfad</strong> erreichbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursprüngliche Anwenderfunktion läuft; der Test lief nicht versehentlich über WLAN/VPN.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Bedarf weitere betroffene Clients desselben Segments vergleichen.</li>
+</ul>
+<h2 id="9-eskalation-und-ticketabschluss">9. Eskalation und Ticketabschluss</h2>
+<p><strong>Übergabe an L2/Netzteam:</strong> Problembeginn, Schaden/Umfang, Adapter, Soll-VLAN, <code>ipconfig /all</code>, IP-/Routingtabelle, DHCP-Events, A/B-Matrix, Packet Trace (wenn genehmigt), Fallhypothesen und Freigabe-/Change-Status. Intern speichern, öffentlich anonymisieren.</p>
+<p><strong>Abschluss:</strong> Beleg der Ursache oder begründete Einschränkung, konkrete Maßnahme/Owner, Vorher-/Nachher-Werte, tatsächlicher Anwendungstest und Anwenderbestätigung. Wenn Ursache nicht nachgewiesen: als <strong>Workaround/ungeklärt</strong> kennzeichnen, nicht als gesichert repariert.</p>
+<h2 id="10-drei-satz-ticketkommentar-rein-fiktiv">10. Drei-Satz-Ticketkommentar (rein fiktiv)</h2>
+<blockquote>
+<p><strong>Sachverhalt:</strong> „Mehrere Clients in VLAN 120 erhielten statt einer IPv4-Adresse aus dem Sollnetz eine Autokonfigurationsadresse aus <code>169.254.0.0/16</code>.“<br/>
+<strong>Prüfung/Maßnahme:</strong> „Der Vergleich zwischen Client- und Netzwerkaufzeichnung zeigte, dass DHCP-Anfragen das VLAN-Gateway erreichten, aber wegen eines fehlenden Relay-Eintrags nicht zum DHCP-Server gelangten; der Netzwerk-Owner stellte die freigegebene Konfiguration wieder her.“<br/>
+<strong>Erfolg:</strong> „Die Clients erhielten Leases aus dem korrekten Scope; Standardgateway, DNS und die betroffene Anwendung wurden im ursprünglichen VLAN erfolgreich getestet.“</p>
+</blockquote>
+<p><strong>Quellen:</strong> [Q1–Q8] in <code>RB-036_Lernartikel.md</code>. <strong>Keine reale Störung bearbeitet; Laborvalidierung steht aus.</strong></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-036_Praxis-Runbook.md">RB-036_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-035/index.html">← Ticket 35</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-037/index.html">Ticket 37 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,174 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 25: Computer startet nicht | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 25: Computer startet nicht. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 25: Computer startet nicht</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketaufnahme-und-priorisierung-l1">1. Ticketaufnahme und Priorisierung (L1)</a></li><li><a href="#2-sicherheit-und-prufgrenzen-l1-l2">2. Sicherheit und Prüfgrenzen (L1/L2)</a></li><li><a href="#3-pfad-a-keine-reaktion-no-power-l1">3. Pfad A – Keine Reaktion / No Power (L1)</a></li><li><a href="#4-pfad-b-stromanzeichen-aber-kein-post-verdacht-hardware-l1-l2">4. Pfad B – Stromanzeichen, aber kein POST / Verdacht Hardware (L1 → L2)</a></li><li><a href="#5-pfad-c-no-video-sicher-gegen-no-post-abgrenzen-l1">5. Pfad C – No Video sicher gegen No POST abgrenzen (L1)</a></li><li><a href="#6-pfad-d-windows-erreicht-den-desktop-nicht-no-boot-l1-aufnahme-l2-recovery">6. Pfad D – Windows erreicht den Desktop nicht / No Boot (L1-Aufnahme, L2-Recovery)</a></li><li><a href="#7-lesende-windows-powershell-diagnose-nur-wenn-windows-lauft-l1-l2">7. Lesende Windows-/PowerShell-Diagnose – nur wenn Windows läuft (L1/L2)</a></li><li><a href="#8-massnahme-kontrolle-ruckfall-und-datenfreigabe">8. Maßnahme, Kontrolle, Rückfall und Datenfreigabe</a></li><li><a href="#9-eskalation-und-ticketdokumentation">9. Eskalation und Ticketdokumentation</a></li><li><a href="#10-lernkontrolle-offizielle-quellen-und-transparenz">10. Lernkontrolle, offizielle Quellen und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Zielumgebung:</strong> Windows-11-Arbeitsplätze (Notebook, Desktop, All-in-One), herstellerabhängige UEFI-/POST-Verfahren<br/>
+<strong>Level:</strong> L1/L2 · <strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Recherchierte Arbeitsanweisung; <strong>praktische Laborvalidierung ausstehend</strong>.</p>
+<blockquote>
+<p><strong>Einsatzregel:</strong> Erst dokumentieren, <strong>welche Startphase tatsächlich nicht funktioniert</strong>. Kein Windows-Recovery, wenn ein Strom- oder POST-Fehler wahrscheinlich ist. Bei Brand-/Flüssigkeitsschaden Tests abbrechen. Keine Neuinstallation, TPM-/Secure-Boot-Änderung oder Firmware-Reparatur ohne Freigabe.</p>
+</blockquote>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb025_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-025 – technischer Diagnosebaum" decoding="async" loading="lazy" src="assets/rb025_diagnosebaum.svg"/></a></div><figcaption>RB-025 – technischer Diagnosebaum</figcaption></figure>
+<h2 id="1-ticketaufnahme-und-priorisierung-l1">1. Ticketaufnahme und Priorisierung (L1)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwender, Standort, Inventarnummer, <strong>Hersteller/Modell</strong>, Desktop/Notebook, Zeitpunkt und Geschäftsbeeinträchtigung erfassen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wann startete der Rechner zuletzt erfolgreich? Gab es <strong>Update, Stromausfall, Sturz, Flüssigkeit, Transport, neue Peripherie</strong>?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Startbild wörtlich</strong> dokumentieren: keine Reaktion, Lüfter/LEDs, Beep-/Blinkcode, Herstellerlogo, Windows-Logo, Fehlermeldung, BitLocker-Abfrage oder Reparaturbildschirm.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist nur <strong>der Bildschirm</strong> schwarz oder fehlen alle Lebenszeichen? Internes Notebookdisplay und externer Monitor getrennt beobachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kritische lokale Daten, Datensicherung, Verschlüsselung, Ersatzarbeitsplatz und SLA/Priorität klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Wärme, Brandgeruch, aufgedunsenem Akku, Flüssigkeit: <strong>STOP</strong>, keine weiteren Startversuche, Gefahrenlage gemäß Unternehmensanweisung melden.</li>
+</ul>
+<p><strong>Startbild-Entscheidungsraster:</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Arbeitshypothese</th>
+<th>Direkt weiter zu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keine erkennbare Einschaltreaktion</td>
+<td>No Power</td>
+<td>Abschnitt 3</td>
+</tr>
+<tr>
+<td>LEDs/Lüfter; kein normaler Start; Beep-/Blinkmuster</td>
+<td>Verdacht No POST</td>
+<td>Abschnitt 4</td>
+</tr>
+<tr>
+<td>LEDs/Lüfter; kein Bild, aber möglicher Systemlauf</td>
+<td>No Video <strong>oder</strong> No POST unklar</td>
+<td>Abschnitt 5</td>
+</tr>
+<tr>
+<td>Firmware-/Herstellerphase wird verlassen; Windows startet nicht</td>
+<td>Verdacht No Boot</td>
+<td>Abschnitt 6</td>
+</tr>
+<tr>
+<td>Gerät startet, aber Benutzer kann sich nicht anmelden</td>
+<td><strong>Nicht</strong> RB-025, eher Identitäts-/Anmeldefall</td>
+<td>Bestehende Anmelde-Runbooks</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="2-sicherheit-und-prufgrenzen-l1-l2">2. Sicherheit und Prüfgrenzen (L1/L2)</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine elektrischen Arbeiten an offener PSU, keine improvisierten Adapter oder beschädigten Kabel.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine wiederholten Power-Cycles während möglichem BIOS-Flash, Windows-Update, Verschlüsselungs- oder Datenträgerreparaturvorgang.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Gehäuseöffnung, RAM-/SSD-Ausbau, BIOS-Reset, TPM-/Secure-Boot-Umschaltung oder Firmware-Update ohne Zuständigkeit und dokumentierte Freigabe.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>BitLocker-Recovery-Key nur im autorisierten Geheimnis-/Recovery-Prozess</strong> beschaffen; nicht ins Ticket kopieren. Vor schreibendem Recovery: Sicherungsstatus, Dateneigentümer und Freigabe klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei diagnostischen Ersatzteilen Modell, Spezifikationen, Seriennummer/Inventar, Zeitpunkt und Rückbau festhalten.</li>
+</ul>
+<p><strong>Abbruchbedingung:</strong> Unbekannte oder riskante Situation → sichere Beobachtungen dokumentieren und an L2/Security/Hardware eskalieren, nicht „noch etwas ausprobieren“.</p>
+<h2 id="3-pfad-a-keine-reaktion-no-power-l1">3. Pfad A – Keine Reaktion / No Power (L1)</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Äußere Schäden/Gefahren ausschließen. <strong>Steckdose, Netzleiste und Geräteschalter</strong> prüfen, ohne elektrische Messarbeiten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Originalnetzteil/Netzkabel und Anschlüsse auf festen Sitz und offensichtliche Schäden prüfen. Kein Universalladegerät auf Verdacht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur <strong>freigegebenes</strong>, kompatibles Vergleichsnetzteil bzw. andere belegbar funktionierende Stromquelle einsetzen; bei USB-C-Ladegeräten Unterstützung und Leistung beachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Notebook: Ladeanzeige, Akkustatus und Herstellerhinweise zum Laden beachten. Nicht entnehmbaren Akku nicht öffnen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Eine definierte Startprobe protokollieren: Reaktion, LED, Geräusch, Bildschirm – Zeitpunkt.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Kein Start</strong> trotz sicherer Versorgung oder Hersteller-Hardwarehinweis → an L2/Hardware mit Messwerten/Beobachtungen übergeben.</li>
+</ol>
+<p><strong>Nicht:</strong> pauschal Power-Reset am unbekannten Modell, keine manipulativen Eingriffe in das Netzteil. Ein OEM-spezifischer Entlade-Reset ist nur bei dokumentiertem Modell und Freigabe zu bewerten.</p>
+<h2 id="4-pfad-b-stromanzeichen-aber-kein-post-verdacht-hardware-l1-l2">4. Pfad B – Stromanzeichen, aber kein POST / Verdacht Hardware (L1 → L2)</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>LED-/Beep-Codes <strong>genau</strong> notieren: Anzahl, Farbe, Rhythmus und Wiederholung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exaktes OEM-Modell und zugehöriges Diagnosehandbuch ermitteln; <strong>kein Universalcode</strong> für HP, Dell, Lenovo usw.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Externe Geräte nach Gefahrenprüfung und Freigabe einzeln entfernen; anschließend genau eine Startprobe durchführen. Datenträger nicht während Schreibvorgängen abziehen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sofern zugänglich und freigegeben, OEM-Prebootdiagnose ausführen. Beispiel Dell: ePSA/SupportAssist Pre-boot (Startweg modellabhängig). <strong>Fehlercode und Validierungsnummer</strong> dokumentieren, keine vermutete Reparatur durchführen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>POST-Fehler oder unklarer schwarzer Bildschirm trotz Gegenproben → L2/Hersteller, Gehäuse und Firmware unangetastet lassen.</li>
+</ol>
+<p><strong>Fachhinweis:</strong> Stehenbleiben am Herstellerlogo kann <strong>in der Firmwareinitialisierung oder am Boot-Übergang</strong> liegen; nicht automatisch Windows als Ursache annehmen.</p>
+<h2 id="5-pfad-c-no-video-sicher-gegen-no-post-abgrenzen-l1">5. Pfad C – No Video sicher gegen No POST abgrenzen (L1)</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Prüfen, ob der Monitor <strong>eigenes Menü (OSD)</strong> anzeigt; dessen Strom und Eingangsquelle kontrollieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Signalweg mit bekannt gutem, zulässigem Kabel und ggf. direkter Verbindung prüfen, ohne Dock/KVM/Adapter.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei Notebook internen Bildschirm gegen externen vergleichen; bei Desktop anderes bekannt intaktes Display verwenden.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Verlässliche Hinweise auf laufendes Windows (z. B. Nutzeranmeldung auf internem Bildschirm) dokumentieren. Nur unter gültiger Berechtigung Netzwerk-/Remote-Erreichbarkeit prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wenn nur externer Bildschirm versagt → <strong>RB-022/RB-023</strong>; wenn kein Bild, aber Blink-/Beep-Codes vorhanden → <strong>L2-Hardware/POST</strong>.</li>
+</ol>
+<p><strong>Nicht:</strong> Der Satz „Lüfter läuft, also ist Windows gestartet“ ist falsch.</p>
+<h2 id="6-pfad-d-windows-erreicht-den-desktop-nicht-no-boot-l1-aufnahme-l2-recovery">6. Pfad D – Windows erreicht den Desktop nicht / No Boot (L1-Aufnahme, L2-Recovery)</h2>
+<ol>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Wörtliche Fehlermeldung</strong> aufnehmen: „No bootable device“, „Automatic Repair“, Bluescreen/Stopcode, Bootmanager, BitLocker; ggf. datenschutzkonformes Foto.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Prüfen, ob OEM-UEFI die SSD und ggf. den Windows-Boot-Eintrag <strong>lesend</strong> anzeigt. SSD fehlt oder Hardwaretest fehlerhaft: L2/Storage; <strong>nicht initialisieren</strong>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Vor jeder Reparatur:</strong> Backup-Status und autorisierten BitLocker-Schlüsselzugang prüfen. Ist beides unklar, keine schreibenden Schritte.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nach Freigabe: Microsoft <strong>WinRE → Problembehandlung → Erweiterte Optionen → Starthilfe</strong> als geeignete Standardoption prüfen. Starthilfe <strong>verändert</strong> das System; sie ist keine reine Diagnose.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Resultat dokumentieren. Bei anhaltendem Fehler an <strong>RB-026</strong> (Windows startet nicht korrekt) bzw. Endpoint/L2 übergeben.</li>
+</ol>
+<p><strong>Nicht ausführen ohne spezifisches Recovery-Verfahren:</strong> <code>diskpart clean</code>, <code>format</code>, <code>bcdedit</code>-Änderungen, <code>bootrec</code>-Befehlsserien, <code>chkdsk /f</code> oder Reset/Neuinstallation. Erst Datenrettungs-/Backup-Priorität klären.</p>
+<h2 id="7-lesende-windows-powershell-diagnose-nur-wenn-windows-lauft-l1-l2">7. Lesende Windows-/PowerShell-Diagnose – <strong>nur wenn Windows läuft</strong> (L1/L2)</h2>
+<p>Diese Kommandos dienen der nachträglichen <strong>Beweissicherung</strong> auf wieder gestarteten oder autorisiert zugänglichen Geräten. <strong>Bei No Power oder No POST nicht ausführbar.</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Hersteller und Modell für den OEM-Service bestimmen
+Get-CimInstance Win32_ComputerSystem |
+    Select-Object Manufacturer, Model, Name
+
+# Firmwarestand nur auslesen, niemals hierüber automatisch aktualisieren
+Get-CimInstance Win32_BIOS |
+    Select-Object SMBIOSBIOSVersion, ReleaseDate
+
+# Datenträgerinventar und gemeldeten Betriebsstatus auslesen
+Get-Disk |
+    Select-Object Number, FriendlyName, OperationalStatus, HealthStatus, Size
+
+# Hinweise auf unerwarteten Shutdown – KEINE automatische Ursachenfeststellung
+Get-WinEvent -FilterHashtable @{
+    LogName = 'System'; Id = 41,6008; StartTime = (Get-Date).AddDays(-7)
+} -ErrorAction SilentlyContinue |
+    Select-Object -First 15 TimeCreated, Id, ProviderName, Message
+
+# Status der Wiederherstellungsumgebung auf gestartetem Windows anzeigen
+reagentc /info
+</code></pre></div>
+<p><strong>Interpretation:</strong> Power-Event 41/6008 = möglicher Hinweis auf vorherigen ungeplanten Shutdown, <strong>nicht</strong> auf ein bestimmtes defektes Bauteil. „Healthy“ bei <code>Get-Disk</code> ist kein vollwertiger SSD-Funktionstest. Historische Gerätedaten aus Inventar/MDM dürfen nicht als <strong>live bestätigter</strong> Zustand ausgegeben werden.</p>
+<h2 id="8-massnahme-kontrolle-ruckfall-und-datenfreigabe">8. Maßnahme, Kontrolle, Rückfall und Datenfreigabe</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Eindeutigen Befund</strong> formulieren („Netzleiste ohne Spannung“, „Monitor-Eingang falsch“, „OEM-POST-Fehlercode X“, „SSD im UEFI nicht erkannt“, ...).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Nur passende, freigegebene</strong> Maßnahme durchführen; vorherige Konfiguration notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerät mindestens kontrolliert booten, erforderlichenfalls zweiter erfolgreicher Start nach Abstimmung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Windows-Login prüfen; Bildschirm, Eingabegeräte, ggf. Netzwerk und die tatsächlich benötigte Arbeitsanwendung testen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls System offen war/Hardware ersetzt wurde: Funktion und Inventar-/Garantieänderungen nach Vorgabe dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Benutzer bestätigen lassen, ob das ursprüngliche Problem behoben ist; Ticket erst nach nachvollziehbarem Abschluss schließen.</li>
+</ul>
+<p><strong>Rollback:</strong> Nach jedem A/B-Test Ausgangsverkabelung und Betriebskonfiguration dokumentiert wiederherstellen. Ein geplanter Recovery-Eingriff braucht eine eigene Rückfall-/Backup-Strategie und zuständige Person.</p>
+<h2 id="9-eskalation-und-ticketdokumentation">9. Eskalation und Ticketdokumentation</h2>
+<p><strong>Sofort L2/Hardware/Security:</strong> Schaden/Überhitzung; Stromversorgung trotz Vergleich erfolglos; wiederholter POST-Code; SSD fehlt/fehlerhaft; unbekannter BitLocker-Key; wichtige ungesicherte Daten; mehrfach gescheiterte Starthilfe; Vorgaben/Autorisierung fehlen.</p>
+<p><strong>Übergabecheckliste:</strong></p>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wer, wo, wann, Priorität, Auswirkungen, lokaler Datenbedarf.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hersteller, Modell, Serien-/Inventarnummer (gemäß Ticketvorgabe).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Fehlerklasse mit Beobachtung</strong>; bei unsicherem No POST/No Video Unsicherheit ausdrücklich notieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>LEDs, Blink- und Piepmuster, OEM-Diagnosecodes, vollständige Fehlermeldung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Steckdose, Netzteil, Kabel, Dock, Monitor, Peripherie: Welche Vergleichstests mit welchem Ergebnis?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Recovery/BitLocker: <strong>nur Status und autorisierte Stelle</strong>, keine Schlüssel im Ticket.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Letzte Änderung, Backup-Status, Maßnahmen und Ausgangskonfiguration.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nächster zuständiger Bearbeiter und konkrete offene Prüf-Hypothese.</li>
+</ul>
+<h3 id="kopierbarer-ticketkommentar-fiktives-beispiel">Kopierbarer Ticketkommentar (fiktives Beispiel)</h3>
+<blockquote>
+<p><strong>Symptom:</strong> Notebook startet am Arbeitsplatz nicht; Power-Taste ohne Reaktion, Lade-LED aus. <strong>Prüfung:</strong> Äußere Beschädigung ausgeschlossen. Notebook über Dock angeschlossen; mit freigegebenem Originalnetzteil direkt am Gerät erscheint die Lade-LED, Windows startet. <strong>Eingrenzung:</strong> Fehler liegt wahrscheinlich im Dock-/Versorgungsweg; konkrete Komponente noch nicht belegt. <strong>Maßnahme:</strong> Übergangsweise Direktnetzteil, Nutzerzugriff und Windows-Anmeldung geprüft. <strong>Weiteres Vorgehen:</strong> Dock-Netzteil und Hostkabel an L2/Hardware übergeben. Kein Firmware-/BIOS-/Recovery-Eingriff.</p>
+</blockquote>
+<h2 id="10-lernkontrolle-offizielle-quellen-und-transparenz">10. Lernkontrolle, offizielle Quellen und Transparenz</h2>
+<p><strong>Vorlagenfreie Selbstkontrolle:</strong></p>
+<ol>
+<li>Welche vier Fehlerklassen unterscheiden wir, und woran erkennst du sie?</li>
+<li>Warum darfst du bei einem schwarzen Bildschirm nicht sofort Windows neu installieren?</li>
+<li>Was ist die erste sichere Trennung zwischen „kein Strom“ und „kein Bild“?</li>
+<li>Was würdest du bei einem Hersteller-Blinkcode dokumentieren und <strong>wo</strong> nachschlagen?</li>
+<li>Welche Informationen müssen vor WinRE-/Starthilfe-Eingriffen geklärt sein?</li>
+<li>Welche minimalen Angaben braucht L2, um ohne Neustart der Fehlersuche fortfahren zu können?</li>
+</ol>
+<p><strong>Herstellerquellen (recherchiert am 22.11.2026):</strong></p>
+<ul>
+<li>Dell: Klassifikation No Power, No POST, No Boot, No Video: <a href="https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/kbdoc/en-us/000125609/resolve-no-power-no-post-no-boot-or-no-video-issues-with-your-dell-computer</a></li>
+<li>Dell: Stromversorgungsprobleme: <a href="https://www.dell.com/support/contents/en-ed/article/product-support/self-support-knowledgebase/fix-common-issues/no-power" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/contents/en-ed/article/product-support/self-support-knowledgebase/fix-common-issues/no-power</a></li>
+<li>HP: Startprobleme und Diagnose: <a href="https://support.hp.com/ch-de/document/ish_4120821-4027713-16" rel="noopener noreferrer" target="_blank">https://support.hp.com/ch-de/document/ish_4120821-4027713-16</a></li>
+<li>Microsoft Support: Windows-Wiederherstellungsumgebung: <a href="https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/backup-recovery/windows-recovery-environment</a></li>
+<li>Microsoft Support: Starthilfe: <a href="https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/startup-boot/startup-repair</a></li>
+<li>Microsoft Learn: Windows-Startphasen: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/windows-boot-issues-troubleshooting</a></li>
+<li>Microsoft Learn: BitLocker Recovery: <a href="https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-overview</a></li>
+</ul>
+<p><strong>Transparenz:</strong> Dies ist ein recherchiertes <strong>Arbeitsmuster</strong>, nicht das Protokoll einer tatsächlich abgeschlossenen Störungsbehebung. Die Diagnosezweige und Muster-Ticketkommentare wurden <strong>nicht praktisch getestet</strong>. OEM-Anleitungen haben bei modellbezogenen Schritten Vorrang; die betrieblichen Sicherheits- und Freigabeprozesse gelten immer. Grafik: Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-025_Praxis-Runbook.md">RB-025_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-024/index.html">← Ticket 24</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-026/index.html">Ticket 26 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

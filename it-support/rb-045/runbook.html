@@ -1,0 +1,143 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 45: Gerät wird nicht korrekt in Intune verwaltet | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 45: Gerät wird nicht korrekt in Intune verwaltet. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 45: Gerät wird nicht korrekt in Intune verwaltet</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticketannahme-betroffenheit-prazisieren">1. Ticketannahme – Betroffenheit präzisieren</a></li><li><a href="#2-sicherheits-und-freigabeprufung">2. Sicherheits- und Freigabeprüfung</a></li><li><a href="#3-gerateidentitat-lokal-lesend-prufen">3. Geräteidentität lokal lesend prüfen</a></li><li><a href="#4-enrollment-und-mdm-berechtigungen-im-portal-lesend-prufen">4. Enrollment und MDM-Berechtigungen im Portal lesend prüfen</a></li><li><a href="#5-windows-mdm-ereignisse-lesend-erfassen">5. Windows-MDM-Ereignisse lesend erfassen</a></li><li><a href="#6-check-in-und-geratekontakt-bewerten">6. Check-in und Gerätekontakt bewerten</a></li><li><a href="#7-policy-zuweisung-csp-und-compliance-getrennt-prufen">7. Policy-Zuweisung, CSP und Compliance getrennt prüfen</a></li><li><a href="#8-entscheidungsmatrix-passende-diagnose-statt-universalfix">8. Entscheidungsmatrix – passende Diagnose statt Universalfix</a></li><li><a href="#9-nur-genehmigte-korrektur-und-anschliessender-retest">9. Nur genehmigte Korrektur und anschließender Retest</a></li><li><a href="#10-dokumentation-eskalation-und-abschluss">10. Dokumentation, Eskalation und Abschluss</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 typische IT-Supportfälle · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Status:</strong> Technisch recherchiert; <strong>noch nicht praktisch validiert</strong>. Beispielwerte sind fiktiv. Keine produktiven Geräte wurden verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb045_henne_ei_intune_geraeteverwaltung.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-045 – Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb045_henne_ei_intune_geraeteverwaltung.webp"/></a></div><figcaption>RB-045 – Henne-und-Ei-Infografik</figcaption></figure>
+<p><strong>Ziel:</strong> Fehlerhafte Station <strong>Identität → MDM-Enrollment → Check-in → Richtlinien → Compliance</strong> nachweisen und kleinste freigegebene Korrektur anhand des echten Gerätestatus verifizieren.</p>
+<h2 id="1-ticketannahme-betroffenheit-prazisieren">1. Ticketannahme – Betroffenheit präzisieren</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hostname, Geräte- und Benutzerkontext, Tenant, Windows-Version/Edition, Standort/VPN dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Genaue Meldung, betroffene Richtlinie/App/Compliance, Zeitpunkt, Fehlercode vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein Gerät oder mehrere? Problem nach Neuinstallation/Join, Enrollment oder Policy-Änderung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bedroht die Störung Anmeldung, Zugang zu Ressourcen, Security-Compliance oder produktive Arbeit?</li>
+</ul>
+<p><strong>STOP:</strong> Keinen Geräteobjektnamen mit einer eindeutigen technischen Identität verwechseln. Ggf. mehrere alte/duplizierte Einträge sichern und korrekt zuordnen.</p>
+<h2 id="2-sicherheits-und-freigabeprufung">2. Sicherheits- und Freigabeprüfung</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerätetyp, Eigentümer, Zugriffsrecht auf Intune-/Entra-Portale, Recovery- und Rückfallweg geklärt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>BitLocker-/Gerätezertifikat-/VPN-/Autopilot-/Hybrid-Join-Risiken bewertet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Keine</strong> Remote-Wipe-/Retire-/Reset- oder Enrollment-Entfernung auf Verdacht.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Geplanter Sync mit Auswirkung auf ausstehende Konfigurationen mit Gerätebesitzer abgestimmt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur datensparsame Diagnoseauszüge; MDM-Protokolle geschützt ablegen.</li>
+</ul>
+<p><strong>Sofort eskalieren</strong>, wenn nur Fernzugriff, Benutzer ohne Wiederherstellungsweg, Security-Incident, fälschlich gelöschtes Geräteobjekt oder kritische Conditional-Access-Sperre vorliegt.</p>
+<h2 id="3-gerateidentitat-lokal-lesend-prufen">3. Geräteidentität lokal <strong>lesend</strong> prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">REM LESEND – Client-Konsole im aktuellen Benutzerkontext:
+dsregcmd /status
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>AzureAdJoined</code>, <code>DomainJoined</code> und ggf. <code>WorkplaceJoined</code> eingeordnet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>AzureAdPrt</code> (SSO, Kontext beachten) bei Bedarf geprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gerätekontext und Entra-Datensatz anhand sicherer Merkmale abgeglichen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Nicht</strong> aus <code>AzureAdJoined : YES</code> auf erfolgreiches Intune-Enrollment geschlossen?</li>
+</ul>
+<h2 id="4-enrollment-und-mdm-berechtigungen-im-portal-lesend-prufen">4. Enrollment und MDM-Berechtigungen im Portal <strong>lesend</strong> prüfen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><code>intune.microsoft.com → Geräte → Alle Geräte</code>: korrektes Gerät, <strong>MDM-Verwaltungsstatus</strong>, letzter Check-in?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Entra-Geräteobjekt (Join-Typ/Device-ID) mit Intune-Geräteobjekt verglichen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls <strong>nicht enrolled</strong>: Lizenz, MDM User Scope, Geräteobergrenze, Windows-Edition, Enrollment-Restriktion und Tenant überprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei hybrid-/GPO-Autoenrollment: GPO und <code>Microsoft\Windows\EnterpriseMgmt</code>-Aufgabe prüfen, nicht bei jeder Enrollmentart voraussetzen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei <code>already enrolled</code>: andere aktive MDM-Verwaltung oder alter Datensatz nachgewiesen, nichts gelöscht?</li>
+</ul>
+<h2 id="5-windows-mdm-ereignisse-lesend-erfassen">5. Windows-MDM-Ereignisse <strong>lesend</strong> erfassen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – ggf. erhöhte Berechtigung nötig; nicht den ganzen Log exportieren:
+$MdmLog = 'Microsoft-Windows-DeviceManagement-Enterprise-Diagnostics-Provider/Admin'
+Get-WinEvent -LogName $MdmLog -MaxEvents 40 |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message
+
+# Bei GPO-Autoenrollment: Erfolg 75 / Fehler 76 im Kontext:
+Get-WinEvent -FilterHashtable @{LogName=$MdmLog; Id=75,76} -MaxEvents 15 |
+  Select-Object TimeCreated, Id, Message
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fehlercode, Zeitpunkt und Enrollment-/Policy-Kontext dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein Ereignis 75/76: Automatik eventuell nicht gestartet – Trigger/GPO prüfen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine beliebige „MDM-Reparatur“ ohne nachgewiesene Ursache?</li>
+</ul>
+<h2 id="6-check-in-und-geratekontakt-bewerten">6. Check-in und Gerätekontakt bewerten</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Letzter Check-in und Gerätezustand im Portal mit aktuellem Datum verglichen?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Client erreichbar? Netzwerk, Uhrzeit, Proxy/DNS/TLS und erforderliche Microsoft-Endpunkte gemäß Netzrichtlinie überprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Check-in <strong>veraltet</strong> → zuerst Transport/MDM-Log prüfen, nicht Policy-Filter verändern.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls genehmigt: <em>Windows → Konten → Auf Arbeits- oder Schulkonto zugreifen → Info → Synchronisieren</em> bzw. Intune-Geräteaktion <em>Sync</em>; <strong>vorher</strong> betriebliche Auswirkungen klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Danach</strong> neue Check-in-Zeit, konkrete Statusmeldung und lokale Wirkung dokumentiert?</li>
+</ul>
+<h2 id="7-policy-zuweisung-csp-und-compliance-getrennt-prufen">7. Policy-Zuweisung, CSP und Compliance getrennt prüfen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwartete Policy wirklich zugewiesen? User-/Gerätegruppe, Filter, Ausschluss und Plattform geprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Policy-Status <strong>Pending / Not applicable / Conflict / Error / Succeeded</strong> mit Zeit und Fehlercode erfasst?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei <em>Conflict</em>: tatsächliche konkurrierende Einstellung und Quellprofile identifiziert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei <em>Error</em>: MDM-Event und unterstützte CSP-/Windows-Voraussetzungen geprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Bei <em>Not evaluated / Pending</em>: Reportzeit und Check-in geprüft; <strong>nicht</strong> automatisch als <em>Noncompliant</em> interpretiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Lokale Einstellung und tatsächliche Funktion gegen Portalbericht geprüft?</li>
+</ul>
+<h2 id="8-entscheidungsmatrix-passende-diagnose-statt-universalfix">8. Entscheidungsmatrix – passende Diagnose statt Universalfix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Belegter Zustand</th>
+<th>Nächster Pfad</th>
+<th>Unzulässiger Schnellschuss</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entra ja, Intune nicht enrolled</td>
+<td>Lizenz/Scope/Restriktion, Enrollment-Log</td>
+<td>Device aus Entra löschen</td>
+</tr>
+<tr>
+<td>Intune enrolled, letzter Check-in alt</td>
+<td>MDM-Events, Netzwerk, Proxy/TLS</td>
+<td>alle Profile neu anlegen</td>
+</tr>
+<tr>
+<td>Aktueller Check-in, Zielpolicy fehlt</td>
+<td>Gruppen, Assignment-Filter, Plattform</td>
+<td>MDM-Verbindung entfernen</td>
+</tr>
+<tr>
+<td>Zielpolicy <code>Conflict</code></td>
+<td>Konfliktquelle im Einstellungsreport</td>
+<td>Security-Baseline ausschalten</td>
+</tr>
+<tr>
+<td>Zielpolicy erfolgreich, lokal ohne Wirkung</td>
+<td>MDM-CSP-/Client-Log und reale Konfiguration</td>
+<td>Ticket ohne Funktionstest schließen</td>
+</tr>
+<tr>
+<td>Compliance unbekannt/ausstehend</td>
+<td>Letzter Status und Gerätekontext</td>
+<td>CA-Sicherheitskontrolle umgehen</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-nur-genehmigte-korrektur-und-anschliessender-retest">9. Nur genehmigte Korrektur und anschließender Retest</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache anhand <strong>mindestens zweier unabhängiger Befunde</strong> gestützt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zuweisungs-/Enrollment-/Proxy-/Policy-Änderung durch <strong>berechtigte Zuständige</strong> genehmigt und umgesetzt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein ungeprüfter <code>dsregcmd /leave</code>, kein Wipe/Retire/Reset/Device-Delete, keine Registry- oder Zertifikatslöschung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Richtige Identität weiterhin gültig, Intune enrolled, neue Check-in-Zeit sichtbar?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwartete Policy verarbeitet, Compliance gemeldet und lokale Einstellung/Arbeitsfunktion bestätigt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine ungeplanten Folgen für Anmeldung, VPN, Zertifikate, Sicherheitsmaßnahmen?</li>
+</ul>
+<h2 id="10-dokumentation-eskalation-und-abschluss">10. Dokumentation, Eskalation und Abschluss</h2>
+<p><strong>Minimale Ticketdokumentation:</strong> betroffenes Gerät (freigegebener Gerätebezeichner), Fehlercode/Zeit, Portalstatus, MDM-Event mit Zeit, Hypothese, trennender Test, genehmigte Maßnahme/Change, neuer Status, Erfolgstest, verbleibende Risiken.</p>
+<p><strong>Eskalation zu</strong> Endpoint Engineering / Identity / Security / Netzwerk / Microsoft Support, wenn Enrollmentzustand unklar, mehrfacher Widerspruch in Gerätestatistiken, Hybrid-Join/Autopilot/Co-Management, Security-/Conditional-Access-Problem, unklarer Datenrückfall oder MDM-Zertifikats-/Tokenkonflikt.</p>
+<p><strong>Musterkommentar – vollständig fiktiv:</strong></p>
+<blockquote>
+<p>Gerät sicher zugeordnet, Entra-Join bestätigt, Intune-Enrollment vorhanden; Check-in veraltet. MDM-Event-/Proxyfehler zeitlich korreliert und Netzteam eingeschaltet. Nach freigegebener Korrektur neuer Intune-Check-in und wirksame Zielrichtlinie nachgewiesen. Anmelde-/Sicherheitsstatus unverändert, keine Abmeldung oder neue Registrierung durchgeführt.</p>
+</blockquote>
+<p><strong>Transparenz:</strong> Kein hier dargestellter Test wurde an einem produktiven Gerät ausgeführt. Aktuelle Verwaltungs-UI und Berechtigungskonzepte im jeweiligen Tenant vor der Durchführung kontrollieren.</p>
+<h3 id="nachbereitung-fur-das-praxistraining">Nachbereitung für das Praxistraining</h3>
+<p>Ohne Runbook beantworten: <em>Ist das Problem Identität, Enrollment, Check-in, Targeting, CSP oder Compliance?</em> Erst drei Hypothesen aufstellen, dann zwei risikoarme Tests auswählen, danach die recherchierte Lösung vergleichen. Nach etwa 7 und 21 Tagen erneut an einem veränderten Testfall prüfen.</p>
+<h3 id="quellen-microsoft-learn">Quellen – Microsoft Learn</h3>
+<ol>
+<li><a href="https://learn.microsoft.com/en-us/windows/client-management/mdm-diagnose-enrollment" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/client-management/mdm-diagnose-enrollment</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-enrollment/troubleshoot-windows-enrollment-errors" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-enrollment/troubleshoot-windows-enrollment-errors</a></li>
+<li><a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/troubleshoot-policies-in-microsoft-intune" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/troubleshoot-policies-in-microsoft-intune</a></li>
+<li><a href="https://learn.microsoft.com/en-us/intune/device-security/compliance/monitor-policy" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-security/compliance/monitor-policy</a></li>
+<li><a href="https://learn.microsoft.com/en-us/windows/client-management/mdm-collect-logs" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows/client-management/mdm-collect-logs</a></li>
+<li><a href="https://learn.microsoft.com/en-us/intune/device-management/actions/sync" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/intune/device-management/actions/sync</a></li>
+</ol>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-045_Praxis-Runbook.md">RB-045_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-044/index.html">← Ticket 44</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-046/index.html">Ticket 46 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

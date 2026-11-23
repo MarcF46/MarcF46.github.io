@@ -1,0 +1,327 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 38: Bestimmter Server nicht erreichbar | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 38: Bestimmter Server nicht erreichbar. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 38: Bestimmter Server nicht erreichbar</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-szenario-ziel-und-abgrenzung">1. Ticket-Szenario, Ziel und Abgrenzung</a></li><li><a href="#2-das-schichtenmodell-als-diagnosekarte">2. Das Schichtenmodell als Diagnosekarte</a></li><li><a href="#3-fehlerbild-richtig-beschreiben">3. Fehlerbild richtig beschreiben</a></li><li><a href="#4-den-verbindungsweg-aufzeichnen">4. Den Verbindungsweg aufzeichnen</a></li><li><a href="#5-kontrollierte-a-b-tests-und-ihre-aussagekraft">5. Kontrollierte A/B-Tests und ihre Aussagekraft</a></li><li><a href="#6-dns-und-zieladresse-prufen-nur-lesend">6. DNS und Zieladresse prüfen (nur lesend)</a></li><li><a href="#7-clientadresse-adapter-und-routenauswahl-prufen">7. Clientadresse, Adapter und Routenauswahl prüfen</a></li><li><a href="#8-icmp-und-pfadtests-ohne-fehlschluss">8. ICMP- und Pfadtests ohne Fehlschluss</a></li><li><a href="#9-erreichbarkeit-auf-dem-tatsachlich-benotigten-tcp-port">9. Erreichbarkeit auf dem tatsächlich benötigten TCP-Port</a></li><li><a href="#10-gegenprobe-client-vlan-standort-und-vpn">10. Gegenprobe: Client, VLAN, Standort und VPN</a></li><li><a href="#11-zielsystem-prufen-nur-mit-berechtigung-und-sicherem-zugang">11. Zielsystem prüfen – nur mit Berechtigung und sicherem Zugang</a></li><li><a href="#12-wenn-standardtests-nicht-reichen-logs-und-paketpfad">12. Wenn Standardtests nicht reichen: Logs und Paketpfad</a></li><li><a href="#13-fiktiver-praxisfall-a-veralteter-dns-record">13. Fiktiver Praxisfall A: Veralteter DNS-Record</a></li><li><a href="#14-fiktiver-praxisfall-b-nur-ein-vlan-kommt-nicht-zum-server">14. Fiktiver Praxisfall B: Nur ein VLAN kommt nicht zum Server</a></li><li><a href="#15-wissensabruf-selbst-erklarung-und-transfer">15. Wissensabruf, Selbst-Erklärung und Transfer</a></li><li><a href="#quellen-und-transparenz">Quellen und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Bereich:</strong> Netzwerkdiagnose / Windows 11 / Windows Server / DNS / Routing / Firewall / VPN<br/>
+<strong>Level:</strong> L2 · <strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0<br/>
+<strong>Fachstatus:</strong> Offizielle Microsoft-Quellen recherchiert; <strong>nicht praktisch validiert</strong>. Beispiele, IP-Adressen, Uhrzeiten, Ergebnisse und Tickettexte sind ausdrücklich fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb038_henne_ei_server_erreichbarkeit.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-038 – Systematische Diagnose, wenn ein bestimmter Server nicht erreichbar ist" decoding="async" loading="lazy" src="assets/rb038_henne_ei_server_erreichbarkeit.webp"/></a></div><figcaption>RB-038 – Systematische Diagnose, wenn ein bestimmter Server nicht erreichbar ist</figcaption></figure>
+<blockquote>
+<p><strong>Leitsatz:</strong> „Server nicht erreichbar“ ist eine Anwenderbeschreibung. Ein fehlerhafter DNS-Eintrag, ein anderer Netzwerkpfad, eine Filterregel, ein ausgeschalteter Server oder eine gestörte Anwendung können denselben Eindruck erzeugen. Erst die Schicht und den Ausfallbereich isolieren, dann eingreifen.</p>
+</blockquote>
+<hr/>
+<h2 id="1-ticket-szenario-ziel-und-abgrenzung">1. Ticket-Szenario, Ziel und Abgrenzung</h2>
+<p><strong>Typische Meldung:</strong> „Seit dem Standortwechsel komme ich nicht mehr auf <code>fileserver01.firma.example</code>; meine Kollegin schon.“ Ein anderer Nutzer meldet hingegen: „Seit 09:20 erreicht niemand mehr den internen App-Server.“</p>
+<p><strong>Lernziel:</strong> Eigenständig und nachvollziehbar feststellen, ob der Fehler bei <strong>Namensauflösung, Client/IP-Konfiguration, Layer-3-Pfad, VPN/Firewall, Zielsystem oder Dienst</strong> liegt. Ein erfolgreicher Test soll den <em>tatsächlich benötigten Zugriff</em> nachweisen, nicht nur eine Ping-Antwort.</p>
+<ul>
+<li><strong>L1:</strong> Benutzer/Standort/Zeit, betroffenen Namen, Fehlermeldung, Zugriffsart und Auswirkungen erfassen; Standardtests ohne Änderung durchführen.</li>
+<li><strong>L2:</strong> DNS, IPv4/IPv6, Routing und TCP von mehreren Quellen vergleichen; Befunde mit Netzwerk-, Server- und Firewall-Teams korrelieren.</li>
+<li><strong>Owner:</strong> DNS-/Firewall-/Routing- oder Serverkonfiguration nur auf Basis eines bestätigten Befunds und mit autorisierter Freigabe ändern.</li>
+</ul>
+<p><strong>Abgrenzung:</strong> RB-034 = DNS-Problem als Hauptfall; RB-035/036 = DHCP/APIPA; RB-037 = zu geringe Performance; <strong>RB-038 = End-to-End-Erreichbarkeit eines bestimmten Servers</strong>; RB-039 vertieft anschließend einzelne TCP-Ports und Dienste.</p>
+<h2 id="2-das-schichtenmodell-als-diagnosekarte">2. Das Schichtenmodell als Diagnosekarte</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Abschnitt</th>
+<th>Typische Voraussetzung</th>
+<th>Prüffrage</th>
+<th>Beispielbefund</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anwendung</td>
+<td>gültiger URL-/UNC-/RDP-Pfad, Berechtigung, funktionsfähiger Dienst</td>
+<td>Funktioniert der echte Arbeitsvorgang?</td>
+<td>Browser zeigt HTTP 503 trotz offenem TCP-Port</td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>TCP-Zielport erreichbar, Rückweg vorhanden</td>
+<td>Kann ein TCP-Handshake hergestellt werden?</td>
+<td><code>TcpTestSucceeded: False</code> für 443</td>
+</tr>
+<tr>
+<td>Netzwerk</td>
+<td>passende IP-Adresse, Source-Route, Gateway, VPN, Firewall</td>
+<td>Gibt es einen zulässigen Hin- und Rückweg?</td>
+<td>Nur Subnetz A betroffen</td>
+</tr>
+<tr>
+<td>DNS</td>
+<td>korrekte A-/AAAA-Auflösung im richtigen Netz</td>
+<td>Zeigt der Name auf die beabsichtigte Adresse?</td>
+<td>veralteter A-Record</td>
+</tr>
+<tr>
+<td>Endsystem</td>
+<td>Server/VM online, NIC aktiv, Service bereit</td>
+<td>Ist Zielsystem aus dem richtigen Segment erreichbar?</td>
+<td>VM aus oder Dienst gestoppt</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> Diese Abschnitte sind diagnostisch miteinander verknüpft, aber nicht identisch. Ein erreichbares Gateway beweist <strong>nicht</strong> die Servererreichbarkeit. Eine korrekte DNS-Antwort beweist <strong>nicht</strong> die IP-/TCP-Erreichbarkeit. Ein erfolgreicher TCP-Test beweist <strong>nicht</strong> die korrekte Anwendung oder Zugriffsberechtigung. [Q1–Q3]</p>
+<h2 id="3-fehlerbild-richtig-beschreiben">3. Fehlerbild richtig beschreiben</h2>
+<p>Vor technischen Schritten klären:</p>
+<ol>
+<li><strong>Was ist „nicht erreichbar“?</strong> Servername, IP-Adresse, UNC-Freigabe <code>\\server\share</code>, URL, RDP oder API? Exakte Fehlermeldung oder Fehlercode dokumentieren.</li>
+<li><strong>Wer ist betroffen?</strong> Ein Benutzer, ein PC, ein VLAN, Homeoffice/VPN, ein Standort oder das gesamte Unternehmen?</li>
+<li><strong>Seit wann?</strong> Nach Firewallregel, DNS-Änderung, Migration, Wartung, Clientupdate, VPN-Wechsel oder Serverneustart?</li>
+<li><strong>Welche Dienste sind betroffen?</strong> Beispielsweise HTTPS (typisch TCP 443), SMB (typisch TCP 445), RDP (typisch TCP 3389). Immer den <strong>tatsächlich konfigurierten Port</strong> erfragen – Standardports sind nur Beispiele.</li>
+<li><strong>Wie kritisch?</strong> Produktionsdienst, Datenschutz, laufende Arbeit, Priorität/SLA und mögliche Alternativen.</li>
+</ol>
+<p><strong>Sicherheitsvorbedingung:</strong> Keine Firewall deaktivieren, keine produktive Route löschen, keine DNS-Zone ändern, keinen Server neu starten und keinen Dienst starten, bevor Zuständigkeit, Freigabe, möglicher Rückweg und Auswirkungen geklärt sind. Besonders keine Änderungen an der VPN-/Netzwerkverbindung über den einzigen Fernwartungszugang.</p>
+<h2 id="4-den-verbindungsweg-aufzeichnen">4. Den Verbindungsweg aufzeichnen</h2>
+<p>Beispiel für einen <strong>fiktiven</strong> Netzpfad:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Windows-Client (VLAN 20) → Access-Switch → Core/Router
+ → interne Firewall → Servernetz VLAN 120 → Server-VM
+                                      ↘ Dienst (SMB/HTTPS)
+            ↘ bei Homeoffice: VPN-Tunnel / VPN-Gateway ↗
+</code></pre></div>
+<p>Notiere die <strong>Quelle</strong>, Zielname und erwartete Ziel-IP, Quell- und Zielnetz, VPN-Status, ausgewählten Adapter, Default-Gateway, DNS-Server, Routingentscheidung und Sicherheitsübergänge. Prüfe, ob IPv4 oder IPv6 verwendet wird und ob der Name auf mehrere IPs zeigt (Round Robin/Load Balancer). [Q2, Q5]</p>
+<p><strong>Beweisstrategie:</strong> Vergleiche betroffenen mit funktionierendem Client <em>zum selben Ziel und Port</em>, möglichst zur selben Uhrzeit. Wenn nur ein Weg versagt, wird die Differenz – Interface, Subnetz, VPN, Route oder Policy – zum nächsten Prüfpunkt.</p>
+<h2 id="5-kontrollierte-a-b-tests-und-ihre-aussagekraft">5. Kontrollierte A/B-Tests und ihre Aussagekraft</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Aussage bei Erfolg</th>
+<th>Was Erfolg nicht beweist</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name in IP auflösbar</td>
+<td>DNS-Antwort vorhanden</td>
+<td>IP ist richtig oder aktuell</td>
+</tr>
+<tr>
+<td>IP-Ziel antwortet auf Ping</td>
+<td>ICMP-Echo möglich</td>
+<td>Dienst/Port oder Nutzerrecht funktionieren</td>
+</tr>
+<tr>
+<td><code>Test-NetConnection -Port 443</code> gelingt</td>
+<td>TCP-Verbindung auf Port 443 möglich</td>
+<td>HTTPS-Anwendung/Authentifizierung funktioniert</td>
+</tr>
+<tr>
+<td>Zweiter Client im selben VLAN kommt durch</td>
+<td>Ziel und gemeinsamer Pfad grundsätzlich erreichbar</td>
+<td>betroffener Client ist sicher schuld</td>
+</tr>
+<tr>
+<td>Anderes VLAN kommt durch, ursprüngliches nicht</td>
+<td>Problem möglicherweise segment-/richtlinienbezogen</td>
+<td>Welche Firewall-/ACL-Regel genau ursächlich ist</td>
+</tr>
+<tr>
+<td>Server lokal erreichbar, remote nicht</td>
+<td>Zielsystem reagiert lokal</td>
+<td>Rückweg, Routing und Filterung vom Quellnetz funktionieren</td>
+</tr>
+</tbody>
+</table></div>
+<p>Eine ICMP-Zeitüberschreitung ist <strong>kein Ausfallnachweis</strong>: ICMP kann auf Netzwerkgeräten und Hosts gefiltert oder ratenbegrenzt sein. Auch Zwischenhops bei <code>tracert</code> müssen nicht antworten. Das betrifft die <strong>Interpretation</strong>, nicht die sinnvolle Nutzung der Werkzeuge. [Q1, Q3, Q4]</p>
+<h2 id="6-dns-und-zieladresse-prufen-nur-lesend">6. DNS und Zieladresse prüfen (nur lesend)</h2>
+<p><strong>Beispielziele:</strong> <code>server01.firma.example</code> und <code>192.0.2.40</code> sind ausschließlich Dokumentationsbeispiele – <strong>niemals blind in einer Produktionsumgebung ausführen oder als echte Ergebnisse interpretieren</strong>. [Q5]</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Aktuell konfigurierte DNS-Server und relevante Schnittstellen
+Get-DnsClientServerAddress
+Get-NetIPConfiguration
+
+# Ergebnis der Namensauflösung (A-/AAAA-Einträge getrennt betrachten)
+Resolve-DnsName -Name 'server01.firma.example' -Type A
+Resolve-DnsName -Name 'server01.firma.example' -Type AAAA
+
+# Optional kontrollierter Vergleich mit einem freigegebenen internen Resolver:
+# Resolve-DnsName -Name 'server01.firma.example' -Server '192.0.2.53' -Type A
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>NXDOMAIN</code>/„nicht gefunden“ → Namen, Suchsuffix, Zone, VPN-DNS und Resolver prüfen. Eine <strong>abweichende IP</strong> → geplante Adress-/DNS-Änderung und DNS-Cache-/TTL-Situation vergleichen. Ein korrekter Record mit fehlender Verbindung → Netzwerk- und Diensttests fortsetzen. Nicht unkontrolliert öffentliche Resolver eintragen, vor allem nicht in AD-/Split-DNS-Netzen. [Q5]</p>
+<p><strong>IPv4/IPv6-Falle:</strong> Wenn ein FQDN A und AAAA liefert, kann ein Client einen anderen Zielpfad nehmen als ein Vergleichsgerät. Prüfe deshalb die tatsächlich verwendete Adresse im Testresultat; deaktiviere IPv6 nicht als „Schnellreparatur“.</p>
+<h2 id="7-clientadresse-adapter-und-routenauswahl-prufen">7. Clientadresse, Adapter und Routenauswahl prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-NetIPConfiguration
+Get-NetAdapter | Select-Object Name, Status, LinkSpeed, InterfaceDescription
+Get-NetRoute -AddressFamily IPv4 |
+  Sort-Object RouteMetric,InterfaceMetric |
+  Select-Object DestinationPrefix,NextHop,InterfaceAlias,RouteMetric,InterfaceMetric
+
+# Gewählte Route/Quelladresse zu einem Ziel (Diagnose, keine Änderung):
+Test-NetConnection -ComputerName '192.0.2.40' -DiagnoseRouting -InformationLevel Detailed
+
+# Lesende Basisabfragen in klassischer CMD-Syntax:
+ipconfig /all
+route print -4
+</code></pre></div>
+<p><strong>Interpretation:</strong> IP/Gateway/DNS plausibel? Liegt der Client im richtigen VLAN? Aktiviert ein VPN eine spezifische Route statt des Default-Gateways? Gibt es überlappende Netze (z. B. Heimnetz und Firmennetz) oder ungewöhnliche Metriken? <code>Get-NetRoute</code> zeigt Routen, aber ein Routenlisteneintrag allein beweist keine Paketzustellung. Die Zielnetz-Auswahl beruht insbesondere auf Präfixlänge und weiteren Auswahlregeln. [Q2]</p>
+<p><strong>Sonderfall:</strong> Kein Default-Gateway auf einem isolierten LAN muss nicht fehlerhaft sein, wenn das Ziel im selben Subnetz liegt. Eine APIPA-Adresse betrifft hingegen den DHCP-/Link-Local-Pfad (RB-036).</p>
+<h2 id="8-icmp-und-pfadtests-ohne-fehlschluss">8. ICMP- und Pfadtests ohne Fehlschluss</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Voraussetzung: tatsächlich freigegebene Testadresse einsetzen
+ping -n 4 192.0.2.40
+tracert -d 192.0.2.40
+Test-NetConnection -ComputerName '192.0.2.40' -TraceRoute
+</code></pre></div>
+<p><code>tracert -d</code> unterdrückt die <strong>Namensauflösung der Zwischenrouter</strong> und liefert Adressen in der Ausgabe, sofern Hops ICMP antworten. Hops können Sternchen anzeigen, ohne den Datenverkehr tatsächlich zu blockieren. <code>ping</code> testet ICMP; ein erfolgreiches Echo ist nur ein Teilbefund. [Q3, Q4]</p>
+<p><strong>Fehlertexte differenzieren:</strong></p>
+<ul>
+<li><code>Request timed out</code>: keine ICMP-Echoantwort innerhalb des Testfensters; kann auch an ICMP-Filterung liegen.</li>
+<li><code>Destination host unreachable</code>: ein Knoten meldet mangelnde Erreichbarkeit; Absender der Meldung und lokale/nächste Netzhops betrachten, nicht reflexartig „Server aus“ folgern.</li>
+<li><code>General failure</code>: möglicher lokaler Interface-/Stack-/Policyfehler; Treiber-/Adapterstatus prüfen.</li>
+<li>Route endet vor Ziel: mögliche Routing-/ACL-Störung – nur in Verbindung mit Diensttest und Netztelemetrie belastbar.</li>
+</ul>
+<p><strong>Kein pauschales „ping = Server lebt“</strong>. Einen deaktivierten Server, eine verweigerte ICMP-Antwort und einen aktiven Server mit geschlossenem Dienstport kann der Pingtest nicht sicher voneinander trennen.</p>
+<h2 id="9-erreichbarkeit-auf-dem-tatsachlich-benotigten-tcp-port">9. Erreichbarkeit auf dem tatsächlich benötigten TCP-Port</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># TCP-Verbindungstest mit dokumentiertem Ziel und Port
+Test-NetConnection -ComputerName 'server01.firma.example' -Port 443 -InformationLevel Detailed
+Test-NetConnection -ComputerName '192.0.2.40' -Port 443 -InformationLevel Detailed
+
+# Alternativer Dienstport nur wenn für das Ticket relevant:
+# Test-NetConnection -ComputerName 'server01.firma.example' -Port 445
+# Test-NetConnection -ComputerName 'server01.firma.example' -Port 3389
+</code></pre></div>
+<p><strong>Ergebnislogik:</strong></p>
+<ul>
+<li><strong>Name-Test negativ, IP-Test positiv:</strong> DNS, falsche Ziel-IP, IPv6-Auswahl, Namensbindung oder Name-basierte Anwendungslogik prüfen – nur dann als DNS-Problem bestätigen, wenn der falsche Adresspfad nachgewiesen ist.</li>
+<li><strong>Name und IP negativ:</strong> Zielport kann geschlossen sein, Firewall/Routing blockieren, Server offline sein oder Rückweg fehlen – noch keine einzelne Ursache bewiesen.</li>
+<li><strong>TCP erfolgreich, Anwendung scheitert:</strong> Server <strong>am getesteten Port</strong> erreichbar; HTTP/TLS, SMB, Authentifizierung, Applikationszustand oder Zielkonfiguration prüfen.</li>
+<li><strong>Port 443 erfolgreich, 445 fehlschlägt:</strong> Port- oder anwendungsspezifischer Pfad wahrscheinlich; keine Aussage, dass die gesamte Serververbindung gestört ist.</li>
+</ul>
+<p><code>TcpTestSucceeded : True</code> zeigt einen erfolgreichen TCP-Verbindungsaufbau – <strong>keine vollständige Prüfung der Anwendungsebene</strong>. <code>False</code> sagt nicht, welches Gerät oder welche Regel konkret blockiert. [Q2]</p>
+<h2 id="10-gegenprobe-client-vlan-standort-und-vpn">10. Gegenprobe: Client, VLAN, Standort und VPN</h2>
+<p>Nutze eine Messmatrix, die <strong>Quelle, Ziel, Port, Zeit und Kontext</strong> aufzeichnet:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Vergleich</th>
+<th>Ergebnis (Beispiel, fiktiv)</th>
+<th>Nächste Hypothese</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client A / VLAN 20 → Server TCP 443</td>
+<td><code>False</code></td>
+<td>Client/VLAN/Pfad oder Firewall</td>
+</tr>
+<tr>
+<td>Client B / VLAN 20 → gleicher Server TCP 443</td>
+<td><code>True</code></td>
+<td>clientnahe Unterschiede überprüfen</td>
+</tr>
+<tr>
+<td>Client C / VLAN 30 → gleicher Server TCP 443</td>
+<td><code>True</code></td>
+<td>Policy zwischen VLAN 20 und Ziel prüfen</td>
+</tr>
+<tr>
+<td>Client A / VPN verbunden → gleicher Server TCP 443</td>
+<td><code>True</code></td>
+<td>Split-Tunnel-/Quellnetzunterschiede prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p>Bei <strong>nur einem Client</strong>: Adapter, IP, DNS, VPN-Profil, Hosts-Datei, lokale Firewall-/EDR-Befunde und effektive Route ansehen. Bei <strong>einem VLAN</strong>: Segmentierung, Gateway, Inter-VLAN-Routing, Firewallregel, NAC oder ACL untersuchen. Bei <strong>allen Clients</strong>: Serverstatus, Zielnetz, Uplink, globale Firewall-Policy, Load Balancer sowie zentralen DNS prüfen. [Q1]</p>
+<p><strong>Nicht verwechseln:</strong> Eine passende Firewall-Regel in der Verwaltungskonsole ist noch kein Beweis, dass genau der betroffene Flow sie trifft. Für belastbare Zuordnung werden Quelle, Ziel, Port, Protokoll, Zeitsynchronisation und Hit-/Drop-Logs benötigt.</p>
+<h2 id="11-zielsystem-prufen-nur-mit-berechtigung-und-sicherem-zugang">11. Zielsystem prüfen – nur mit Berechtigung und sicherem Zugang</h2>
+<p>Wenn ein zuständiger Administrator den Server über Konsole oder Managementzugang erreichen kann:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Auf dem Zielserver – nur lesende Abfragen, kein Remote-Eingriff
+Get-NetAdapter | Select-Object Name,Status,LinkSpeed
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4 | Select-Object DestinationPrefix,NextHop,InterfaceAlias
+
+# Existiert ein Listener am erwarteten lokalen TCP-Port?
+Get-NetTCPConnection -LocalPort 443 -State Listen -ErrorAction SilentlyContinue
+
+# Dienste nur lesend abfragen, wenn der konkrete Dienstname bekannt ist:
+# Get-Service -Name 'W3SVC'
+</code></pre></div>
+<p>Prüfe, ob das Zielsystem/VM online, NIC und vSwitch verbunden, IP und Gateway korrekt, das Zielnetz nicht überlastet und der Listener am erwarteten Port vorhanden ist. Ein lokaler Listener beweist noch nicht die Erreichbarkeit <strong>aus dem betroffenen Quellnetz</strong>. Ein Dienst kann auch ohne erfolgreiche Anmeldung oder HTTP-Response TCP-Verbindungen akzeptieren. [Q1]</p>
+<p><strong>Hardware-/Hypervisor-Spezialfall:</strong> Ist die VM aus, muss zuerst Monitoring/Hypvervisor-Befund, geplante Wartung, Kapazität oder Hostausfall geklärt werden – kein spontaner Neustart und keine VM-Netzwerkänderung über den einzigen Managementpfad.</p>
+<h2 id="12-wenn-standardtests-nicht-reichen-logs-und-paketpfad">12. Wenn Standardtests nicht reichen: Logs und Paketpfad</h2>
+<p>Erweiterte Diagnose nur mit Auftrag, Netzwerkplan und abgestimmtem Messfenster:</p>
+<ol>
+<li><strong>Firewall-/ACL-/NAC-Logs:</strong> Quell-IP, Ziel-IP, Zielport, Regel, Action, Zeitstempel, NAT und mögliche asymmetrische Rückwege.</li>
+<li><strong>Server-Ereignisse:</strong> Listenerzustand, Windows Filtering Platform/Firewall, System-/Dienstereignisse; keine pauschale Deaktivierung von Filtern.</li>
+<li><strong>Zweiseitiger Mitschnitt:</strong> TCP-SYN verlässt Quelle? Kommt am Ziel an? SYN-ACK kommt zurück? RST vom Server? Wo gehen Pakete verloren? [Q1]</li>
+<li><strong>Datenschutz und Sicherheit:</strong> Traces können Verbindungsmetadaten und sensible Daten enthalten; Speicherort, Zugriff und Löschung nach interner Richtlinie.</li>
+</ol>
+<p><strong>TCP-Muster (vereinfachte Deutung):</strong></p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Verdacht</th>
+<th>Grenzen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SYN Quelle, kein SYN am Ziel</td>
+<td>vorgelagerte Filterung/Routing</td>
+<td>nur mit synchronen beidseitigen Captures belastbar</td>
+</tr>
+<tr>
+<td>SYN am Ziel, keine Antwort</td>
+<td>Zielhost-Firewall/Stack/Listener</td>
+<td>kann hostseitig oder durch Capture-Filter verdeckt sein</td>
+</tr>
+<tr>
+<td>SYN → RST</td>
+<td>aktive Zurückweisung / kein passender Listener / Policy</td>
+<td>Absender der RST-Antwort beachten</td>
+</tr>
+<tr>
+<td>SYN, SYN-ACK am Ziel, Antwort nicht am Client</td>
+<td>Rückweg/Filterung/asymmetrischer Pfad</td>
+<td>Captures auf beiden Seiten vergleichen</td>
+</tr>
+<tr>
+<td>TCP etabliert, Anwendung fehlerhaft</td>
+<td>TLS/Auth/App/Backend</td>
+<td>Anwendungsspezifische Logs nötig</td>
+</tr>
+</tbody>
+</table></div>
+<p>Microsoft empfiehlt bei komplexen TCP-Störungen <strong>korrelierte Netzwerk-Traces</strong> statt blindem Ändern des TCP-Stacks. [Q1]</p>
+<h2 id="13-fiktiver-praxisfall-a-veralteter-dns-record">13. Fiktiver Praxisfall A: Veralteter DNS-Record</h2>
+<p><strong>Meldung:</strong> „Vom PC im Büro öffnet sich die Weboberfläche des Dateiservers nicht; beim Kollegen funktioniert sie.“</p>
+<p><strong>Befund (vollständig erfunden):</strong> Client A löst <code>server01.firma.example</code> auf <code>192.0.2.41</code> auf, während die freigegebene aktuelle Zieladresse <code>192.0.2.40</code> ist. <code>Test-NetConnection</code> zu <code>.41:443</code> liefert <code>False</code>; zur <strong>autorisiert bestätigten</strong> <code>.40:443</code> ist <code>True</code>. Ein Client B mit korrekt aufgelöstem Namen verbindet sich erfolgreich.</p>
+<p><strong>Begründung:</strong> Der spezifische Namens-/Adresspfad ist die führende Hypothese. Erst A-/AAAA-Einträge, DNS-Quelle, TTL und Änderungshistorie vergleichen; anschließend autorisierte DNS-Korrektur durch den zuständigen Owner, Client-Caches nur gezielt und nach Sicherung der Befunde betrachten. <strong>Nicht</strong> pauschal öffentliche DNS-Server eintragen.</p>
+<p><strong>Retest:</strong> Gleicher FQDN, gewünschter Dienstport und vollständiger Anwendungsaufruf am ursprünglichen Client. Im Ticket: Vorher-/Nachherauflösung, Quelle und Freigabe dokumentieren.</p>
+<h2 id="14-fiktiver-praxisfall-b-nur-ein-vlan-kommt-nicht-zum-server">14. Fiktiver Praxisfall B: Nur ein VLAN kommt nicht zum Server</h2>
+<p><strong>Meldung:</strong> „Nach Umzug in eine andere Etage kann die gesamte Abteilung den internen Server nicht mehr öffnen.“</p>
+<p><strong>Befund (vollständig erfunden):</strong> Beide VLANs lösen den FQDN identisch auf. Betroffene Clients in VLAN 20 erreichen andere interne Ziele, nicht aber <code>192.0.2.40:445</code>. Ein autorisierter Vergleichsclient aus VLAN 30 erreicht denselben Port. Die zuständige Netzwerkadministration bestätigt nach Logvergleich eine nicht passende Quellnetz-ACL bei einer geplanten Migration.</p>
+<p><strong>Begründung:</strong> Die Störung ist <strong>nicht</strong> durch fehlende Namensauflösung oder einen generellen Serverausfall erklärt. Die Ursachenhypothese wird erst durch die korrelierte ACL-/Firewalltelemetrie bestätigt. Nach Change-Freigabe minimal notwendige Policy korrigieren, Log dokumentieren und Retest durchführen.</p>
+<p><strong>Retest:</strong> Ursprünglicher Benutzer aus VLAN 20, konkrete SMB-Freigabe und die berechtigte Aktion (z. B. Lesen) prüfen; keine Freigabe für ganze Netze oder unspezifizierte Ports einrichten.</p>
+<h2 id="15-wissensabruf-selbst-erklarung-und-transfer">15. Wissensabruf, Selbst-Erklärung und Transfer</h2>
+<p><strong>Wissenskarten (kurze Antworten):</strong></p>
+<ol>
+<li>Was zeigt <code>TcpTestSucceeded: True</code>? → Erfolgreicher TCP-Verbindungsaufbau auf dem getesteten Port.</li>
+<li>Beweist fehlender Ping einen Serverausfall? → Nein; ICMP kann gefiltert sein.</li>
+<li>Welche vier Ebenen unterscheiden wir zuerst? → Name, Pfad, Zielsystem, Dienst.</li>
+<li>Was zeigt <code>tracert -d</code>? → Antwortende Zwischenhops ohne Reverse-DNS-Abfrage.</li>
+</ol>
+<p><strong>Verständnisfragen:</strong></p>
+<ol start="5">
+<li>Warum ist ein TCP-443-Erfolg kein Beweis für eine funktionierende HTTPS-App? Begründe mit TLS, HTTP und Authentifizierung.</li>
+<li>Warum müssen IPv4 und IPv6 getrennt betrachtet werden, wenn der FQDN mehrere Records hat?</li>
+<li>Warum kann ein A/B-Test zwischen zwei VLANs den Suchraum verkleinern, aber nicht die genaue Firewallregel beweisen?</li>
+</ol>
+<p><strong>Diagnose-/Transferfragen (erst selbst beantworten):</strong></p>
+<ol start="8">
+<li><code>Resolve-DnsName</code> ist korrekt, aber TCP 445 ist aus nur einem VLAN nicht erreichbar: Welche drei nicht-invasiven Tests folgen?</li>
+<li>Ping scheitert, TCP 443 klappt: Was ist nachgewiesen und was nicht?</li>
+<li>Server antwortet lokal auf Port 3389, aber kein VPN-Client kommt durch: Welche Hin- und Rückwegshypothesen prüfst du?</li>
+</ol>
+<p><strong>Lernkontrolle:</strong> Erstelle eine Drei-Satz-Ticketnotiz: (1) reproduzierbarer Sachverhalt, (2) Hypothesen und unterscheidende Befunde, (3) freigegebene nächste Maßnahme inklusive Erfolgskriterium. Nach 7 und 21 Tagen neue Szenarien ohne Lösungsblatt bearbeiten.</p>
+<hr/>
+<h2 id="quellen-und-transparenz">Quellen und Transparenz</h2>
+<p>Diese Links sind <strong>Herstellerreferenzen</strong> für die <em>recherchierten</em> Verfahren; sie belegen keine erfolgreiche Ausführung in einer Laborumgebung. Die Kennziffern beziehen sich auf die Textstellen oben.</p>
+<ul>
+<li><strong>[Q1]</strong> Microsoft, „Guidance for troubleshooting TCP/IP communication“ (Server, Netzpfad, Vergleichs- und zweiseitige Traces): <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-tcp-ip-communication-guidance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-tcp-ip-communication-guidance</a></li>
+<li><strong>[Q2]</strong> Microsoft, <code>Test-NetConnection</code> (TCP-Test, Routing- und Traceroute-Diagnose): <a href="https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection?view=windowsserver2025-ps</a></li>
+<li><strong>[Q3]</strong> Microsoft, „TCP/IP connectivity issues troubleshooting“ (TCP-Resets, Firewall und Paketpfad): <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-connectivity-issues-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-connectivity-issues-troubleshooting</a></li>
+<li><strong>[Q4]</strong> Microsoft, <code>tracert</code>-Diagnose: <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/trace-route-troubleshoot-tcp-ip-problems" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/trace-route-troubleshoot-tcp-ip-problems</a></li>
+<li><strong>[Q5]</strong> Microsoft, DNS-Clientdiagnose: <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/troubleshoot-dns-client-resolution-issues</a></li>
+</ul>
+<p><strong>Prüfstatus:</strong> Recherchiert und als Lern-/Runbook formuliert; <strong>keine realen Tests, keine produktiven Änderungen, keine bestätigte Problemlösung</strong>. Bilder: „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT“.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-038_Lernartikel.md">RB-038_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-037/index.html">← Ticket 37</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-039/index.html">Ticket 39 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

@@ -1,0 +1,375 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 24: USB-Gerät, Maus oder Tastatur ausgefallen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</a></li><li><a href="#2-technik-verstehen-was-muss-funktionieren">2. Technik verstehen: Was muss funktionieren?</a></li><li><a href="#3-das-henne-und-ei-prinzip-ursache-und-folge-auseinanderhalten">3. Das Henne-und-Ei-Prinzip: Ursache und Folge auseinanderhalten</a></li><li><a href="#4-symptom-ursachen-matrix-hypothesen-statt-schnellurteile">4. Symptom-Ursachen-Matrix – Hypothesen statt Schnellurteile</a></li><li><a href="#5-sicherheit-und-betriebskontext-vor-jedem-test">5. Sicherheit und Betriebskontext vor jedem Test</a></li><li><a href="#6-der-a-b-test-die-ursache-beweisbar-eingrenzen">6. Der A/B-Test: Die Ursache beweisbar eingrenzen</a></li><li><a href="#7-diagnoseschritt-a-usb-kabelgerat-und-usb-hub-l1">7. Diagnoseschritt A – USB-Kabelgerät und USB-Hub (L1)</a></li><li><a href="#8-diagnoseschritt-b-funkmaus-tastatur-mit-usb-empfanger-l1">8. Diagnoseschritt B – Funkmaus/-tastatur mit USB-Empfänger (L1)</a></li><li><a href="#9-diagnoseschritt-c-bluetooth-eingabegerat-l1">9. Diagnoseschritt C – Bluetooth-Eingabegerät (L1)</a></li><li><a href="#10-diagnoseschritt-d-windows-geratestatus-und-fehlercodes">10. Diagnoseschritt D – Windows-Gerätestatus und Fehlercodes</a></li><li><a href="#11-lesende-windows-powershell-prufungen">11. Lesende Windows-/PowerShell-Prüfungen</a></li><li><a href="#12-gezielte-massnahmen-energieverwaltung-und-eskalation">12. Gezielte Maßnahmen, Energieverwaltung und Eskalation</a></li><li><a href="#13-zwei-fiktive-praxisfalle-fur-diagnose-und-transfer">13. Zwei fiktive Praxisfälle für Diagnose und Transfer</a></li><li><a href="#14-aktives-abrufen-und-selbstkontrolle">14. Aktives Abrufen und Selbstkontrolle</a></li><li><a href="#15-quellen-und-transparenz">15. Quellen und Transparenz</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische Supportfälle<br/>
+<strong>Kategorie:</strong> Hardware, Windows 11, USB und Eingabegeräte<br/>
+<strong>Support-Level:</strong> L1; L2 bei System-/Controller-/Treiberproblemen, Unternehmensrichtlinien, erhöhtem Risiko oder nicht aufklärbaren Hardwarefehlern<br/>
+<strong>Version:</strong> 1.0 · <strong>Recherche:</strong> 22.11.2026<br/>
+<strong>Status:</strong> Anhand offizieller Microsoft-, Dell- und Logitech-Quellen recherchiert. <strong>Keine praktische Validierung durchgeführt.</strong> Alle Musterfälle sind fiktiv.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb024_henne_ei_usb_geraete.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-024: Henne-und-Ei-Infografik" decoding="async" loading="lazy" src="assets/rb024_henne_ei_usb_geraete.webp"/></a></div><figcaption>RB-024: Henne-und-Ei-Infografik</figcaption></figure>
+<blockquote>
+<p><strong>Leitgedanke:</strong> „USB-Gerät funktioniert nicht“ ist ein Symptom, keine Diagnose. Hardware, Anschluss, Energieversorgung, USB-Erkennung, Funkverbindung und Anwendung sind verschiedene Fehlerdomänen. Erst das betroffene Glied <strong>beweisen</strong>, dann zielgerichtet handeln. Ein leuchtendes Gerät beweist nur einen Teil seiner Funktion; ein Eintrag im Geräte-Manager noch keine korrekte Bedienbarkeit.</p>
+</blockquote>
+<h2 id="1-das-supportticket-und-das-ziel">1. Das Supportticket und das Ziel</h2>
+<p><strong>INC-024 – fiktive Meldung:</strong> „Meine USB-Maus reagiert nicht mehr. Auch die Tastatur an der Dockingstation fällt manchmal aus. Gestern war noch alles in Ordnung.“</p>
+<p><strong>Ziel:</strong> Den betroffenen Fehlerpfad reproduzierbar eingrenzen, die benötigte Eingabe- beziehungsweise USB-Funktion mit dem geringsten vertretbaren Eingriff wiederherstellen und den Benutzer den Erfolg bestätigen lassen. Dabei Datenverlust, unnötige Ausfallzeiten und Richtlinienverletzungen verhindern.</p>
+<p><strong>Erstkontakt – sechs Fragen:</strong></p>
+<ol>
+<li><strong>Was genau?</strong> Maus, Tastatur, USB-Stick, Headset, Kartenleser oder mehrere Geräte? Keine Reaktion, Unterbrechungen, falsche Eingabe, Fehlermeldung oder Gerät gar nicht sichtbar?</li>
+<li><strong>Wie angeschlossen?</strong> Direkt per USB-Kabel, 2,4-GHz-USB-Empfänger, Bluetooth oder über Hub/Dockingstation/KVM? Ein <em>USB-Funkempfänger</em> bedeutet <strong>nicht</strong> automatisch Bluetooth.</li>
+<li><strong>Seit wann?</strong> Nach Umstecken, Rechnerwechsel, Standby, Update, Arbeitsplatzwechsel oder ohne bekannte Änderung?</li>
+<li><strong>Wie weit reicht der Fehler?</strong> Nur eine App? Auf Anmeldebildschirm? Nur ein USB-Port? Alle USB-Ports? Nur nach Energiesparmodus?</li>
+<li><strong>Arbeitsfähigkeit?</strong> Sind Maus <strong>und</strong> Tastatur ausgefallen? Gibt es eine bekannte funktionierende Ersatzmaus/-tastatur oder eine autorisierte andere Eingabemöglichkeit?</li>
+<li><strong>Risiken?</strong> Sind USB-Datenträger mit laufendem Kopier-/Schreibvorgang, sensible Geräte, Produktionssysteme oder andere aktive Peripherie betroffen?</li>
+</ol>
+<p><strong>Abgrenzung:</strong> Fällt eine USB-Maus ausschließlich über eine Dockingstation aus, siehe auch <strong>RB-023</strong>. Ein Computer, der überhaupt nicht startet, gehört nicht in dieses Runbook (siehe <strong>RB-025</strong>). Ein Datenträger mit vermutetem Datenverlust erfordert einen gesonderten Datensicherungs-/Datenträgerprozess und darf nicht wie eine unkritische Maus behandelt werden.</p>
+<h2 id="2-technik-verstehen-was-muss-funktionieren">2. Technik verstehen: Was muss funktionieren?</h2>
+<h3 id="kabelgebundenes-usb-gerat">Kabelgebundenes USB-Gerät</h3>
+<p>Vereinfachte Kette: <strong>Stromversorgung → mechanische Verbindung → USB-Hostcontroller/Hub → USB-Enumeration → Treiber/Geräteklasse → nutzbare Funktion</strong>. „Enumeration“ ist das Erkennen und Identifizieren eines Geräts durch den Host: Es wird adressiert, beschreibt seine Eigenschaften und bekommt passende Softwareunterstützung. Für einfache USB-Mäuse und -Tastaturen sind häufig Standardtreiber der <strong>Human Interface Device (HID)</strong>-Klasse zuständig.</p>
+<ul>
+<li><strong>Strom ≠ Daten:</strong> Eine Maus-LED kann leuchten, obwohl Kontakte, Datenpfad, Controller, Treiber oder eine Anwendung nicht funktionieren.</li>
+<li><strong>Gerät erkannt ≠ Eingabe erfolgreich:</strong> Ein PnP-Eintrag belegt nicht, dass Zeigerbewegung oder Tastatureingabe an der gewünschten Oberfläche funktioniert.</li>
+<li><strong>Ein Port ≠ alle Ports:</strong> Ports können an unterschiedlichen internen Hubs/Controllern hängen. Ein Portfehler kann lokal bleiben.</li>
+<li><strong>Hub/Dock ≠ Direktverbindung:</strong> Hub-Stromversorgung, Hostkabel und Dock-Controller sind zusätzliche Fehlerstellen.</li>
+</ul>
+<h3 id="funkgerat-mit-usb-empfanger-typisch-2-4-ghz">Funkgerät mit USB-Empfänger (typisch 2,4 GHz)</h3>
+<p>Die Kette lautet: <strong>Batterie/Schalter → Funkstrecke → passender, ggf. gekoppelter USB-Empfänger → USB-Port/Hub → Windows/HID → Eingabe</strong>. Anders als bei einer nativen Bluetooth-Maus erscheint die Verbindung häufig nicht als gekoppelte Bluetooth-Maus in den Windows-Bluetooth-Einstellungen. Logitech weist unter anderem auf schwache Batterien, ungünstige Empfängerposition und Funkstörungen hin [Q4, Q5].</p>
+<h3 id="bluetooth-maus-tastatur">Bluetooth-Maus/-Tastatur</h3>
+<p>Die Kette lautet: <strong>Batterie/Schalter → Bluetooth-Funkmodul → Bluetooth aktiviert und Pairing gültig → Windows-Bluetooth-Stack → Eingabe</strong>. Eine Bluetooth-Störung ist nicht allein durch Umstecken eines USB-Ports zu beheben, <em>außer</em> die Funkfunktion wird über einen USB-Bluetooth-Adapter bereitgestellt [Q3].</p>
+<h2 id="3-das-henne-und-ei-prinzip-ursache-und-folge-auseinanderhalten">3. Das Henne-und-Ei-Prinzip: Ursache und Folge auseinanderhalten</h2>
+<p><strong>Henne:</strong> „Windows hat meine Tastatur nicht erkannt.“<br/>
+<strong>Ei:</strong> „Die Tastatur braucht doch nur Strom – die LED leuchtet!“</p>
+<p>Beide Aussagen können gleichzeitig plausibel erscheinen und dennoch am eigentlichen Fehler vorbeigehen. Es gibt mehrere <strong>notwendige, aber nicht hinreichende</strong> Voraussetzungen:</p>
+<ol>
+<li>Das Gerät ist sicher versorgt und physisch verbunden.</li>
+<li>Der Übertragungsweg ist funktionstüchtig (USB-Daten bzw. Funk).</li>
+<li>Windows erkennt Gerät und erforderliche Schnittstelle ohne relevanten Fehler.</li>
+<li>Das gewünschte Eingabeereignis erreicht die Zieloberfläche.</li>
+</ol>
+<p><strong>Gegenprobe:</strong> Der beste nächste Test ist nicht „Treiber neu installieren“, sondern ein Vergleich, der zwischen zwei Hypothesen unterscheidet: dieselbe Maus an einem <strong>anderen direkten Port</strong>; eine <strong>bekannt funktionierende Vergleichsmaus</strong> am ursprünglichen Port; nach Möglichkeit dasselbe Gerät an einem anderen freigegebenen PC.</p>
+<p><strong>Merksatz:</strong> <em>Erkannt, versorgt und wirklich benutzbar sind drei unterschiedliche Aussagen.</em></p>
+<h2 id="4-symptom-ursachen-matrix-hypothesen-statt-schnellurteile">4. Symptom-Ursachen-Matrix – Hypothesen statt Schnellurteile</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung</th>
+<th>Erste plausible Hypothesen</th>
+<th>Trennender Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nur eine Maus/Tastatur ausgefallen</strong></td>
+<td>Gerät, Kabel, Akku, Schalter, Empfänger, Port</td>
+<td>Vergleichsgerät an demselben Port; betroffenes Gerät an anderem Port/PC</td>
+</tr>
+<tr>
+<td><strong>Nur ein bestimmter Port betroffen</strong></td>
+<td>Portverschleiß, mechanischer Schaden, lokaler Hubpfad</td>
+<td>dasselbe Gerät an geeignetem anderen direkten Port</td>
+</tr>
+<tr>
+<td><strong>Über Dock/Hub fehlerhaft, direkt am PC gut</strong></td>
+<td>Hub-/Dock-Port, Strombudget, Hostkabel, Dockelektronik</td>
+<td>direkte und indirekte Verbindung mit identischem Gerät vergleichen</td>
+</tr>
+<tr>
+<td><strong>Viele USB-Geräte zeitgleich ausgefallen</strong></td>
+<td>Controller, Hub, Treiber, Energieversorgung, Richtlinie</td>
+<td>unterschiedliche direkte Ports, Windows-Gerätestatus, L2-Eskalation</td>
+</tr>
+<tr>
+<td><strong>Maus bewegt sich sporadisch, Funkempfänger</strong></td>
+<td>Batterie, Abstand, RF-Störung, Empfängerposition</td>
+<td>Batterie/Position einzeln ändern und Stabilität prüfen</td>
+</tr>
+<tr>
+<td><strong>Bluetooth-Gerät fehlt</strong></td>
+<td>Bluetooth deaktiviert, Pairing, Reichweite, Treiber, Funkmodul</td>
+<td>Windows-Bluetooth-Status, Pairing und anderes BT-Gerät vergleichen</td>
+</tr>
+<tr>
+<td><strong>Nur nach Standby/Aufwachen</strong></td>
+<td>Energiestatus/Initialisierung, USB-Suspend, Treiber</td>
+<td>Zeitpunkt dokumentieren, Verhalten nach kontrolliertem Neuverbinden vergleichen</td>
+</tr>
+<tr>
+<td><strong>Windows zeigt Code 10 / 43</strong></td>
+<td>Treiber oder Gerät meldet Start-/Funktionsproblem; nicht automatisch physischer Defekt</td>
+<td>vollständigen Fehlertext, Hardware-ID, A/B-Tests und Änderungshistorie erfassen</td>
+</tr>
+<tr>
+<td><strong>Maus funktioniert, aber nur eine App reagiert nicht</strong></td>
+<td>Anwendung, Fokus, Remote-Desktop-Sitzung, Eingabespezialfall</td>
+<td>außerhalb der App und in anderem Fenster testen</td>
+</tr>
+<tr>
+<td><strong>USB-Speicher wird nicht angezeigt</strong></td>
+<td>Kabel, Datenleitung, Gerät, Erkennung, Berechtigung, Laufwerkszuordnung</td>
+<td>PnP/Geräte-Manager <strong>lesend</strong> prüfen; keinesfalls vorschnell initialisieren/formatieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Fallstrick:</strong> „Tastatur schreibt falsche Zeichen“ ist nicht unbedingt Hardwareausfall – Tastaturlayout, NumLock, Fn-Modus oder eine Anwendung können die sichtbaren Zeichen verändern.</p>
+<h2 id="5-sicherheit-und-betriebskontext-vor-jedem-test">5. Sicherheit und Betriebskontext vor jedem Test</h2>
+<ul>
+<li><strong>Beschädigung, Funken, Rauch, Brandgeruch, übermäßige Wärme oder Überstromwarnung?</strong> Betroffenen Anschluss <strong>nicht weiter belasten</strong>. Nur gefahrlos und nach lokalen Vorgaben trennen; Hardware-/Sicherheitsprozess auslösen.</li>
+<li><strong>USB-Speicher, externe SSD, Kartenleser:</strong> Vor dem Abziehen Schreib-/Kopiervorgänge stoppen und ein Laufwerk, soweit vom System angeboten, <strong>sicher entfernen</strong>. Bei nicht lesbarem Laufwerk <strong>nicht formatieren, initialisieren oder „reparieren“</strong>, bevor Datensicherung und Freigabe geklärt sind.</li>
+<li><strong>Beide Eingabegeräte weg:</strong> Eine <strong>bekannt funktionierende Ersatz-Eingabe</strong> oder autorisierte Fernunterstützung organisieren. Keine Controller-Treiberdeinstallation, die den letzten Eingabeweg beseitigen könnte. Bildschirmtastatur nur verwenden, wenn noch eine sichere Eingabemöglichkeit besteht.</li>
+<li><strong>Unternehmensgerät:</strong> USB-Device-Control, Endpoint-Management, DLP, Treiberbereitstellung und Sicherheitsvorgaben können absichtlich Anschlüsse/Geräte einschränken. Niemals Schutzfunktionen umgehen oder fremde, nicht freigegebene Datenträger als „Testgerät“ anstecken.</li>
+<li><strong>Vor jeder Unterbrechung:</strong> Nutzer informieren, laufende Arbeit sichern, Arbeitsplatz-/Produktionsimpact beachten.</li>
+</ul>
+<h2 id="6-der-a-b-test-die-ursache-beweisbar-eingrenzen">6. Der A/B-Test: Die Ursache beweisbar eingrenzen</h2>
+<p><strong>Ein A/B-Test verändert genau einen relevanten Faktor.</strong> Geeignete Vergleichskomponenten müssen nach Möglichkeit identisch oder nachweislich kompatibel und durch den Betrieb freigegeben sein.</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Test</th>
+<th>A – Ausgangszustand</th>
+<th>B – eine Änderung</th>
+<th>Befund / Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 – Port</td>
+<td>Betroffene USB-Maus an Port 1 ohne Funktion</td>
+<td>Dieselbe Maus an direktem Port 2</td>
+<td>Funktion an Port 2: Pfad Port 1/Hub wahrscheinlicher, noch kein sicherer Defektnachweis</td>
+</tr>
+<tr>
+<td>2 – Gerät</td>
+<td>Maus A an Port 1 ohne Funktion</td>
+<td>Bekannte funktionierende Maus B an <strong>demselben</strong> Port 1</td>
+<td>Maus B funktioniert: Maus A, deren Kabel/Empfänger wahrscheinlicher</td>
+</tr>
+<tr>
+<td>3 – Host</td>
+<td>Maus A an PC 1 ohne Funktion</td>
+<td>Maus A an freigegebenem PC 2</td>
+<td>PC 2 funktioniert: ursprünglicher Host/Port/OS/Richtlinie prüfen</td>
+</tr>
+<tr>
+<td>4 – Dock</td>
+<td>Maus A am Dock ohne Funktion</td>
+<td>Maus A direkt am geeigneten Notebookport</td>
+<td>Direkt funktioniert: Dock-/Hostpfad eingrenzen, RB-023</td>
+</tr>
+<tr>
+<td>5 – Funk</td>
+<td>Empfänger nah an störender USB-3.x-Peripherie</td>
+<td>Empfänger mit geeignetem Verlängerungskabel in Abstand</td>
+<td>Stabilität verbessert: Interferenz als Hypothese gestützt, reproduzieren</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Kontrolle:</strong> Welche Variable wurde geändert? Welche Beobachtung hat sich verändert? Wiederholt sich das Ergebnis bei Rückwechsel? Ein Einzelversuch ohne stabile Reproduzierbarkeit ist <strong>kein</strong> eindeutiger Ursachenbeweis.</p>
+<h2 id="7-diagnoseschritt-a-usb-kabelgerat-und-usb-hub-l1">7. Diagnoseschritt A – USB-Kabelgerät und USB-Hub (L1)</h2>
+<ol>
+<li><strong>Sichtprüfung:</strong> Originalkabel, Stecker und Buchse auf Schäden/lockeren Sitz prüfen. Keine Metallgegenstände in Buchsen einführen; bei Schäden nicht weiterprobieren.</li>
+<li><strong>Ab-/Anstecken:</strong> Bei unkritischem Eingabegerät nach Nutzerfreigabe trennen, kurz warten und erneut anschließen. Das kann den Erkennungsvorgang erneut auslösen [Q1]. <strong>Gilt nicht pauschal für Datenträger.</strong></li>
+<li><strong>Geeigneter direkter Port:</strong> Zwischenstecker/KVM/Hub/Dock vorübergehend umgehen. Microsoft empfiehlt dies ausdrücklich [Q1].</li>
+<li><strong>Gegenprobe:</strong> Bekannt funktionierendes Vergleichsgerät direkt am ursprünglichen Port verwenden. Bei wiederholtem Ausfall Portzustand und Modell notieren.</li>
+<li><strong>Strombudget:</strong> Bei stromhungrigen USB-Geräten beachten, dass passive Hubs begrenzte Leistung bereitstellen. Ein Gerät mit separatem Netzteil nach Herstelleranleitung prüfen – niemals improvisiert versorgen.</li>
+<li><strong>Verhalten:</strong> Eingabe an einer geeigneten lokalen Windows-Oberfläche testen; Funk, Remote-Desktop, eine eingefrorene Anwendung oder ein gesperrter Eingabefokus können sonst Fehldiagnosen erzeugen.</li>
+</ol>
+<p><strong>Wenn direkt am PC gut, nur über Dock schlecht:</strong> Den einzelnen Port und Hubpfad dokumentieren und nach RB-023 fortsetzen, statt sofort das Eingabegerät auszutauschen.</p>
+<h2 id="8-diagnoseschritt-b-funkmaus-tastatur-mit-usb-empfanger-l1">8. Diagnoseschritt B – Funkmaus/-tastatur mit USB-Empfänger (L1)</h2>
+<ol>
+<li>Modell und Verbindungstyp identifizieren: USB-Empfänger vs. integriertes Bluetooth. Ggf. Herstellerkennzeichnung des Empfängers notieren.</li>
+<li>Batterie/Akku, Ein-/Ausschalter und ggf. Gerätemodusschalter kontrollieren.</li>
+<li>USB-Empfänger direkt an einen geeigneten Host-Port statt an Dock/KVM/Hub stecken (nach Freigabe) und Reichweite reduzieren.</li>
+<li>Funkstörungen prüfen: USB-3.x-Geräte, Metallflächen, WLAN-/Funkgeräte oder große Distanz können stören; Empfängerposition einzeln verändern [Q4, Q5].</li>
+<li>Empfänger und Maus/Tastatur als <strong>Paar</strong> betrachten. Nicht jeder Empfänger ist universell. <strong>Nicht</strong> wahllos koppeln oder ein Firmengerät mit einem fremden Receiver verbinden.</li>
+<li>Wenn Hersteller eine Paarungssoftware vorsieht: nur freigegebene Anwendung und herstellerspezifischen Prozess verwenden. Bei weiterhin instabiler Verbindung A/B mit bekannt intakter Kombination und an L2/Hardware eskalieren.</li>
+</ol>
+<p><strong>Wichtig:</strong> Ein erkanntes USB-Empfängergerät belegt nicht automatisch eine funktionierende Funkverbindung zur Maus oder Tastatur.</p>
+<h2 id="9-diagnoseschritt-c-bluetooth-eingabegerat-l1">9. Diagnoseschritt C – Bluetooth-Eingabegerät (L1)</h2>
+<ol>
+<li>Kontrollieren, ob das Gerät Bluetooth statt USB-Dongle verwendet; Akku, Schalter, Reichweite und Gerätemodus prüfen.</li>
+<li><strong>Windows 11 → Einstellungen → Bluetooth &amp; Geräte:</strong> Bluetooth eingeschaltet? Gerät als verbunden oder gekoppelt angezeigt? [Q3]</li>
+<li>Ist Bluetooth <strong>allgemein verschwunden</strong> oder nur dieses eine Gerät ausgefallen? Ein anderes zugelassenes Bluetooth-Gerät kann den Fehler eingrenzen.</li>
+<li>Gerät aus-/einschalten und Windows-Bluetooth-Problembehandlung über <strong>Hilfe abrufen</strong> prüfen. Je nach Windows-Stand kann die Einstellungsnavigation variieren [Q3].</li>
+<li>Bei plausibel fehlerhafter Kopplung <strong>nach Freigabe</strong> Gerät entfernen und gezielt neu koppeln – nur wenn passende Ersatz-Eingabe/Pairing-Möglichkeit besteht.</li>
+<li>Interferenz mit nahe stehenden nicht ausreichend abgeschirmten USB-3.0-Geräten in Betracht ziehen; Microsoft nennt dies ausdrücklich [Q3].</li>
+<li>Falls Bluetooth-Adapter oder Treiber betroffen sind: Problemstatus dokumentieren und an Endpoint/L2 übergeben.</li>
+</ol>
+<p><strong>Abgrenzung:</strong> Die Windows-Anzeige „gekoppelt“ ist <strong>nicht</strong> derselbe Status wie „verbunden und Eingabe funktioniert“.</p>
+<h2 id="10-diagnoseschritt-d-windows-geratestatus-und-fehlercodes">10. Diagnoseschritt D – Windows-Gerätestatus und Fehlercodes</h2>
+<p><strong>Geräte-Manager:</strong> <code>Win + X</code> → <strong>Geräte-Manager</strong> (alternativ <code>devmgmt.msc</code>, wenn Eingabe möglich).</p>
+<p>Relevante Gruppen abhängig von Gerät und Treiber: <strong>Mäuse und andere Zeigegeräte</strong>, <strong>Tastaturen</strong>, <strong>Eingabegeräte (Human Interface Devices)</strong>, <strong>USB-Controller</strong>, <strong>Bluetooth</strong> sowie <strong>Andere Geräte</strong>. Beachten: zusammengesetzte Geräte können mehrere Instanzen haben; nicht jedes Gerät erscheint nur unter einer einzigen Rubrik.</p>
+<p><strong>Zu erheben:</strong> Gerätestatus, Warnsymbol, konkreter Fehlercode, Zeitpunkt, Hersteller-/Gerätemodell, Anschlussart, ggf. Hardware-ID und Zusammenhang mit USB-Ab-/Anstecken.</p>
+<ul>
+<li><strong>Code 10:</strong> Gerät kann nicht gestartet werden; mehrere Ursachen möglich.</li>
+<li><strong>Code 22:</strong> Gerät ist deaktiviert; <strong>vor einer Aktivierung Unternehmensrichtlinie/Grund prüfen</strong>.</li>
+<li><strong>Code 43:</strong> Windows hat das Gerät wegen eines vom Gerät oder Treiber gemeldeten Problems angehalten. <strong>Kein alleiniger Beweis</strong> für einen physischen Defekt.</li>
+</ul>
+<p>Microsoft dokumentiert die Fehlercodes und gerätespezifischen Maßnahmen [Q6]. Das Ereignis „Gerät nicht erkannt“ muss <strong>nicht</strong> mit der Ursache gleichgesetzt werden: Eine Descriptor-Anforderung kann beispielsweise an Gerät, Kabel, Port oder Hostpfad scheitern.</p>
+<p><strong>Windows vs. Anwendung:</strong> Funktionieren Maus/Tastatur in anderen lokalen Anwendungen, aber nicht in einer bestimmten App? Dann den Anwendungs-/Sitzungskontext eingrenzen. Funktionieren sie bereits vor Windows nicht, <em>kann</em> Hardware/Firmware infrage kommen; die Aussagekraft eines Pre-Boot-Tests ist geräte- und Firmwareabhängig.</p>
+<h2 id="11-lesende-windows-powershell-prufungen">11. Lesende Windows-/PowerShell-Prüfungen</h2>
+<p>Alle folgenden Befehle sind <strong>lesend</strong>; sie deaktivieren und entfernen keine Geräte und installieren nichts. PowerShell kann nur genutzt werden, wenn ein sicherer Eingabeweg vorhanden ist.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># A. Aktuell präsente USB-/HID-/Eingabegeräte einordnen.
+# Nicht jedes Bluetooth-Gerät erscheint als USB-Gerät.
+Get-PnpDevice -PresentOnly |
+  Where-Object { $_.Class -in @('USB','HIDClass','Keyboard','Mouse','Bluetooth') } |
+  Select-Object Class, Status, FriendlyName, InstanceId |
+  Sort-Object Class, FriendlyName
+
+# B. Präsente PnP-Geräte mit gemeldetem Problemstatus.
+Get-PnpDevice -PresentOnly |
+  Where-Object { $_.Status -ne 'OK' } |
+  Select-Object Class, Status, FriendlyName, InstanceId
+
+# C. Beispiel: Details eines konkret zuvor identifizierten Geräts.
+# &lt;INSTANCE-ID&gt; ist ein Platzhalter, kein echter Gerätebezeichner.
+Get-PnpDevice -InstanceId '&lt;INSTANCE-ID&gt;' |
+  Format-List *
+
+# D. Windows-Hardwareinventar: nur lesend, kann viele Einträge liefern.
+Get-CimInstance Win32_PnPEntity |
+  Where-Object { $_.PNPClass -in @('USB','HIDClass','Keyboard','Mouse') } |
+  Select-Object Name, PNPClass, Status, ConfigManagerErrorCode
+</code></pre></div>
+<p><strong>Auswertung:</strong></p>
+<ul>
+<li><strong>Kein Eintrag</strong> ist kein sicherer Beweis für defekte Hardware: Die Art der USB-Enumeration, Präsent-/Nichtpräsent-Filter und Treiberklassifizierung beeinflussen die Sichtbarkeit.</li>
+<li><strong><code>Status: OK</code></strong> beweist keine erfolgreiche Tasten- oder Zeigereingabe und keinen störungsfreien Funkpfad.</li>
+<li><strong><code>ConfigManagerErrorCode</code></strong> ist ein Windows-Konfigurationsfehlercode; nicht mit einem beliebigen Ereignisprotokollcode verwechseln.</li>
+<li><strong><code>InstanceId</code></strong> kann gerätespezifische Kennungen enthalten. Für Tickets nur erforderliche, datenschutzkonforme Ausschnitte übernehmen. Zur Weitergabe an Hersteller nur nach Freigabe.</li>
+<li>Falls das Cmdlet <code>Get-PnpDevice</code> in einer Umgebung nicht verfügbar ist, die Prüfung über den Geräte-Manager statt mit ungeprüften Internet-Skripten durchführen.</li>
+</ul>
+<h2 id="12-gezielte-massnahmen-energieverwaltung-und-eskalation">12. Gezielte Maßnahmen, Energieverwaltung und Eskalation</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Befund</th>
+<th>Geeignete Maßnahme</th>
+<th>Kontrolle / Zuständigkeit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Defektes oder unterbrochenes Eingabekabel; Vergleich bestätigt</td>
+<td>Freigegebenes Ersatzgerät bzw. Kabel</td>
+<td>Eingabe stabil, L1/Hardware</td>
+</tr>
+<tr>
+<td>Problem nur an einem Anschluss / über Hub</td>
+<td>Intakten Port nutzen, Kabel/Hub nach Vorgabe ersetzen</td>
+<td>Direkte und indirekte A/B-Werte, L1/L2</td>
+</tr>
+<tr>
+<td>Batterie leer, Gerät aus, Funkstrecke gestört</td>
+<td>Batterie wechseln, Schalter/RF-Position korrigieren</td>
+<td>Wiederholter Funktionstest, L1</td>
+</tr>
+<tr>
+<td>Bluetooth aus oder Gerät nicht verbunden</td>
+<td>Nach Freigabe Bluetooth aktivieren bzw. koppeln</td>
+<td>Verbunden <strong>und</strong> nutzbare Eingabe, L1</td>
+</tr>
+<tr>
+<td>Gerät laut Geräte-Manager deaktiviert</td>
+<td>Deaktivierungsursache/Richtlinie klären; nur nach Freigabe aktivieren</td>
+<td>Geräte- und Eingabetest, Endpoint/L2</td>
+</tr>
+<tr>
+<td>Fehler nach Standby / Energiesparzustand</td>
+<td>Zuerst Status-/Zeitkorrelation beweisen, ggf. gezielter OEM-/Endpoint-Prozess</td>
+<td>Re-Test nach Standby, L2</td>
+</tr>
+<tr>
+<td>Treiber-/Controllerfehlermeldung plausibel</td>
+<td>Herstellertreiber oder Treiberreparatur nach Change/Freigabe, Rollback planen</td>
+<td>Geräte- und Nutzbarkeitstest, L2</td>
+</tr>
+<tr>
+<td>Sicherheitsrichtlinie sperrt Gerät</td>
+<td>Richtlinie dokumentieren, berechtigte Stelle konsultieren</td>
+<td><strong>Keine Umgehung</strong>, Security/Endpoint</td>
+</tr>
+<tr>
+<td>Strom-/Überstromwarnung, thermischer Schaden</td>
+<td>Nicht weiter testen, sichere Isolation und Hardwareprozess</td>
+<td>Keine L1-Reparatur</td>
+</tr>
+<tr>
+<td>Datenträger nicht lesbar / möglicher Datenverlust</td>
+<td>Nichts formatieren/initialisieren; Datenträger-/Backup-/Recoveryprozess</td>
+<td>Datensicherheit priorisieren</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="selektives-usb-anhalten-selective-suspend">Selektives USB-Anhalten (Selective Suspend)</h3>
+<p>Windows kann inaktive USB-Ports oder Geräte zur Energieeinsparung gezielt in einen Ruhemodus versetzen. Ein Fehler, der <strong>nach Standby/Aufwachen</strong> auftritt, kann eine Energieverwaltungsursache nahelegen, beweist sie aber nicht. Microsoft beschreibt Selective Suspend als regulären Mechanismus und <strong>empfiehlt ausdrücklich, ihn nicht pauschal zu deaktivieren</strong> [Q7].</p>
+<p>Daher im L1-Standardpfad <strong>keine</strong> globalen Energieoptionen abschalten, USB-Controller serienweise deinstallieren, Registry-„Fixes“ ausführen oder ungeprüfte Treiberpakete installieren. Ein genehmigter, gezielter Test durch L2 kann gegebenenfalls mit Vorher/Nachher-Erfassung und Rückbauplan erfolgen.</p>
+<h3 id="wann-an-l2-endpoint-hardware-eskalieren">Wann an L2/Endpoint/Hardware eskalieren?</h3>
+<ul>
+<li>Mehrere direkte USB-Ports und mehrere bekannt funktionierende Geräte sind gleichzeitig betroffen.</li>
+<li>Wiederholte Fehlercodes, USB-Controllerfehler, Treiber-/Firmwareabhängigkeit oder reproduzierbarer Resume-Fehler.</li>
+<li>Unternehmensrichtlinie, Security-, BIOS-/UEFI- oder Endpoint-Management-Thema.</li>
+<li>Kein sicherer Eingabeweg, kritische Geräte, Gefahr, Datenträger-/Datenverlustproblem.</li>
+<li>Physischer Schaden, reproduzierbarer Portausfall oder Garantie-/Ersatzteilentscheidung.</li>
+</ul>
+<p><strong>Ticketübergabe:</strong> Gerät, Hostmodell, Port/Dock/Kabel, Verbindungstyp, Startzeit, Fehlertext, A/B-Tabelle, PnP-Daten, letzte Änderung, bereits ausgeführte Maßnahmen und Rollback-/Auswirkungsbedarf.</p>
+<h3 id="abschlussprufung-und-ticketkommentar">Abschlussprüfung und Ticketkommentar</h3>
+<p>Nur „im Geräte-Manager sichtbar“ reicht nicht. Nach erfolgreicher Maßnahme <strong>mit dem Benutzer</strong> testen:</p>
+<ul>
+<li>Maus: Bewegung, Klick, ggf. Scrollen an der relevanten lokalen Anwendung.</li>
+<li>Tastatur: Tastenanschläge, Sondertasten/Layout (falls gemeldet), erneute Funktion nach Sperren/Entsperren entsprechend Unternehmensvorgabe.</li>
+<li>Funk: stabile Eingabe über angemessene Dauer, ggf. nach mehreren Reconnects und nach Standby (wenn das ursprüngliche Symptom dies betrifft).</li>
+<li>USB-Gerät: <strong>tatsächliche Zielaufgabe</strong> testen (z. B. Headset-Audio, legitimer Zugriff auf einen genehmigten Datenträger) und nicht nur Anschluss-LED.</li>
+<li>Ticket dokumentiert: <strong>Symptom → Hypothesen → A/B-Tests → belegte Ursache → Maßnahme → Re-Test → Nutzerbestätigung</strong>.</li>
+</ul>
+<p><strong>Beispiel eines fiktiven Ticketkommentars:</strong></p>
+<blockquote>
+<p>USB-Funkmaus seit heute mit sporadischen Aussetzern. Batterie geprüft, Gerät an direktem Hostport getestet; am bisherigen Dockport reproduzierbare Störung. A/B-Test: Empfänger über zugelassene USB-Verlängerung vom störenden USB-3.x-Gerät entfernt; Eingabe blieb im Vergleichstest stabil. Keine Treiber-/Energiesparänderung. Funktion gemeinsam mit Anwender geprüft; Ursache „Funkinterferenz wahrscheinlich“, nicht als endgültig bewiesen deklariert.</p>
+</blockquote>
+<h2 id="13-zwei-fiktive-praxisfalle-fur-diagnose-und-transfer">13. Zwei fiktive Praxisfälle für Diagnose und Transfer</h2>
+<h3 id="fall-a-usb-maus-funktioniert-nur-an-port-2">Fall A – USB-Maus funktioniert nur an Port 2</h3>
+<p><strong>Meldung:</strong> Kabelgebundene Maus A funktioniert an Port 1 nicht, ihre LED leuchtet. An Port 2 funktioniert sie zuverlässig. Eine bekannte intakte Maus B funktioniert an Port 1 ebenfalls nicht; an Port 2 ja.</p>
+<p><strong>Interpretation:</strong> Das Muster spricht deutlich für einen Fehler im Pfad von <strong>Port 1</strong> (Buchse, interner Hub/Controller, Freigabe), <strong>nicht</strong> für Maus A. Ohne Geräte-Manager-/Sichtprüfung lässt sich noch nicht zwischen Portschaden, deaktiviertem Port und Richtlinie entscheiden.</p>
+<p><strong>L1-Vorgehen:</strong> Port 1 dokumentieren und bei sichtbarem Schaden nicht weiterverwenden; Port 2 gemäß Betriebsvorgabe als Übergang nutzen, Re-Test durchführen, bei reproduzierbarem Portproblem Hardware-/L2-Ticket eröffnen.</p>
+<h3 id="fall-b-funkmaus-stoppt-sporadisch-nach-arbeitsplatzwechsel">Fall B – Funkmaus stoppt sporadisch nach Arbeitsplatzwechsel</h3>
+<p><strong>Meldung:</strong> Maus über USB-Empfänger ist seit dem Umzug an einen anderen Schreibtisch unzuverlässig. Kabelmaus am PC funktioniert. Funkmaus reagiert besser, wenn ihr Empfänger direkt und mit etwas Abstand zu einer USB-3.x-SSD platziert wird.</p>
+<p><strong>Interpretation:</strong> Die USB-Host-/Eingabefunktion scheint grundsätzlich betriebsfähig; die <strong>Funkstrecke</strong> oder Empfängerposition ist wahrscheinlicher. Ein einmaliger erfolgreicher Test beweist jedoch nicht sicher RF-Interferenz: Batterie, Kopplung und Wiederholbarkeit separat prüfen.</p>
+<p><strong>L1-Vorgehen:</strong> Batterie und Receiver prüfen, Empfängerposition kontrolliert ändern, Fehlerhäufigkeit erneut testen, dokumentieren; bei weiterem Ausfall mit freigegebener Vergleichskombination testen.</p>
+<h2 id="14-aktives-abrufen-und-selbstkontrolle">14. Aktives Abrufen und Selbstkontrolle</h2>
+<p>Ohne Nachschlagen beantworten; anschließend mit dem Lernartikel abgleichen:</p>
+<p><strong>Wissensfragen</strong></p>
+<ol>
+<li>Was unterscheidet <strong>USB-Gerät erkannt</strong> von <strong>HID-Eingabe funktioniert</strong>?</li>
+<li>Was bedeutet <em>USB-Enumeration</em>?</li>
+<li>Ist ein USB-Empfänger immer Bluetooth? Begründe kurz.</li>
+<li>Was bedeuten die Geräte-Manager-Codes 22 und 43 – und was beweisen sie <strong>nicht</strong>?</li>
+</ol>
+<p><strong>Verständnisfragen</strong>
+5. Warum beweist eine leuchtende Maus-LED keine funktionierende USB-Verbindung?
+6. Weshalb sind <code>Status: OK</code> und eine funktionierende Bildschirmtastatur kein Beweis für intakte physische Tastatur-Hardware?
+7. Warum ist das pauschale Deaktivieren von USB Selective Suspend keine gute Erstmaßnahme?</p>
+<p><strong>Diagnosefragen</strong>
+8. Maus A an Port 1 ohne Funktion; Maus B funktioniert dort, Maus A funktioniert an Port 2 ebenfalls nicht. Welche Hypothese wird wahrscheinlicher – und welcher weitere Test wäre sinnvoll?
+9. Nach Standby fallen Tastatur und USB-Headset gleichzeitig aus. Formuliere <strong>zwei konkurrierende Hypothesen</strong> und einen Test, der sie unterscheidet.
+10. Ein USB-Stick ist im Geräte-Manager sichtbar, erscheint aber nicht im Explorer. Welche Handlungen sind <strong>vor</strong> jeder Datenträgeränderung zu unterlassen?
+11. Eine Funkmaus hängt, die USB-Tastatur funktioniert. Welche drei <strong>nicht-desktruktiven</strong> Prüfungen sind zuerst sinnvoll?
+12. Übe eine 30-Sekunden-Übergabe an L2: Symptom, Gegenproben, Befunde, Risiko und nächste offene Hypothese.</p>
+<p><strong>Lerntransfer:</strong> Nach etwa 7 und 21 Tagen einen neuen, nur teilweise beschriebenen USB-Fall ohne Runbook diagnostizieren. Die Trennschärfe des ersten A/B-Tests sowie den dokumentierten Nachweis bewerten. Keine Behauptung aufstellen, das Runbook sei bereits praktisch validiert.</p>
+<h2 id="15-quellen-und-transparenz">15. Quellen und Transparenz</h2>
+<p>Die folgenden Originalquellen wurden am <strong>22.11.2026</strong> für die Recherche gesichtet. Sie begründen die Prüfrichtungen, nicht die konkrete Ursache eines fiktiven Musterfalls. Abschnittsreihenfolge und A/B-Methodik sind eine <strong>didaktisch abgeleitete Supportstrategie</strong>, keine als Ganzes wörtlich übernommene Herstellervorschrift.</p>
+<ul>
+<li><strong>[Q1] Microsoft Support:</strong> „Probleme mit Maus und Tastatur unter Windows“ – Hardware-, Port-, Hub-, Kabel- und Batterieprüfung.<br/>
+<a href="https://support.microsoft.com/de-de/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/input-devices/mouse-and-keyboard-problems-in-windows</a></li>
+<li><strong>[Q2] Dell Support:</strong> „How to Fix USB Port Issues on Your Dell Computer“ – typische USB-Fehler, physische Prüfung, USB-Diagnose, sichere Entfernung von Speichermedien.<br/>
+<a href="https://www.dell.com/support/kbdoc/en-us/000132048/how-to-troubleshoot-usb-issues" rel="noopener noreferrer" target="_blank">https://www.dell.com/support/kbdoc/en-us/000132048/how-to-troubleshoot-usb-issues</a></li>
+<li><strong>[Q3] Microsoft Support:</strong> „Bluetooth-Probleme in Windows beheben“ – Bluetooth-Zustand, Kopplung, Interferenz, Problembehandlung.<br/>
+<a href="https://support.microsoft.com/de-de/windows/hardware/bluetooth/fix-bluetooth-problems-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/bluetooth/fix-bluetooth-problems-in-windows</a></li>
+<li><strong>[Q4] Logitech Support:</strong> „Wireless device does not work or is not recognized“ – Empfänger, Batterie, RF-Störung, Verbindung.<br/>
+<a href="https://support.logi.com/hc/en-150/articles/360023204454-Wireless-device-does-not-work-or-is-not-recognized" rel="noopener noreferrer" target="_blank">https://support.logi.com/hc/en-150/articles/360023204454-Wireless-device-does-not-work-or-is-not-recognized</a></li>
+<li><strong>[Q5] Logitech Support:</strong> „Wireless product not working properly when also using a USB 3.0 device“ – mögliche 2,4-GHz-Interferenz.<br/>
+<a href="https://support.logi.com/hc/en-in/articles/360023414273-Wireless-product-not-working-properly-when-also-using-a-USB-3-0-device" rel="noopener noreferrer" target="_blank">https://support.logi.com/hc/en-in/articles/360023414273-Wireless-product-not-working-properly-when-also-using-a-USB-3-0-device</a></li>
+<li><strong>[Q6] Microsoft Support:</strong> „Fehlercodes im Geräte-Manager in Windows“ – Bedeutung u. a. der Codes 10, 22 und 43.<br/>
+<a href="https://support.microsoft.com/de-de/windows/hardware/drivers/error-codes-in-device-manager-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/hardware/drivers/error-codes-in-device-manager-in-windows</a></li>
+<li><strong>[Q7] Microsoft Learn:</strong> „Selektives Anhalten per USB“ – Energieverwaltung und Empfehlung, den Mechanismus nicht pauschal zu deaktivieren.<br/>
+<a href="https://learn.microsoft.com/de-de/windows-hardware/drivers/usbcon/usb-selective-suspend" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/drivers/usbcon/usb-selective-suspend</a></li>
+</ul>
+<p><strong>Bildnachweis:</strong> Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT. Die Comic-Abbildung ist eine didaktische Illustration, kein Screenshot eines realen Kundenfalls.<br/>
+<strong>Validierungsstatus:</strong> Quellenrecherche und inhaltliche Plausibilisierung durchgeführt; <strong>keine Hardwaretests im Labor, keine echten Tickets und keine Produktivänderungen</strong>. Fehlerursachen aus den Musterfällen bleiben Hypothesen bis zum reproduzierbaren Nachweis.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-024_Lernartikel.md">RB-024_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-023/index.html">← Ticket 23</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-025/index.html">Ticket 25 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

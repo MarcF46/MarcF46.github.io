@@ -1,0 +1,253 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 43: Datenträger voll | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 43: Datenträger voll. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 43: Datenträger voll</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</a></li><li><a href="#2-technikgrundlagen-datentrager-volume-freier-platz-und-quota">2. Technikgrundlagen: Datenträger, Volume, freier Platz und Quota</a></li><li><a href="#3-fehlerbilder-unterscheiden-nicht-jedes-speicher-voll-ist-gleich">3. Fehlerbilder unterscheiden – nicht jedes „Speicher voll“ ist gleich</a></li><li><a href="#4-ticketaufnahme-und-baseline">4. Ticketaufnahme und Baseline</a></li><li><a href="#5-sicherheitsgate-erst-eigentumer-backup-und-betriebsfolgen">5. Sicherheitsgate: Erst Eigentümer, Backup und Betriebsfolgen</a></li><li><a href="#6-diagnose-a-volumes-und-freien-platz-lesend-messen">6. Diagnose A – Volumes und freien Platz lesend messen</a></li><li><a href="#7-diagnose-b-belegungsquelle-eingrenzen-ohne-zu-loschen">7. Diagnose B – Belegungsquelle eingrenzen, ohne zu löschen</a></li><li><a href="#8-diagnose-c-windows-komponentenspeicher-korrekt-beurteilen">8. Diagnose C – Windows-Komponentenspeicher korrekt beurteilen</a></li><li><a href="#9-diagnose-d-speicheroptimierung-cloud-dateien-und-temporare-kategorien">9. Diagnose D – Speicheroptimierung, Cloud-Dateien und temporäre Kategorien</a></li><li><a href="#10-diagnose-e-vss-quotas-virtuelle-datentrager-und-dateisystem">10. Diagnose E – VSS, Quotas, virtuelle Datenträger und Dateisystem</a></li><li><a href="#11-entscheidungsmatrix-befund-risikoarmster-nachster-schritt">11. Entscheidungsmatrix: Befund → risikoärmster nächster Schritt</a></li><li><a href="#12-durchfuhrung-und-retest-was-gilt-als-gelost">12. Durchführung und Retest: Was gilt als gelöst?</a></li><li><a href="#13-fiktiver-praxisfall-a-einzelner-windows-11-client">13. Fiktiver Praxisfall A – Einzelner Windows-11-Client</a></li><li><a href="#14-fiktiver-praxisfall-b-vdi-profil-quota-statt-vollem-clientlaufwerk">14. Fiktiver Praxisfall B – VDI-Profil-Quota statt vollem Clientlaufwerk</a></li><li><a href="#15-active-recall-diagnosekarten-und-transfertraining">15. Active Recall, Diagnosekarten und Transfertraining</a></li><li><a href="#herstellerquellen-und-quellenabgleich">Herstellerquellen und Quellenabgleich</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0 · <strong>Plattform:</strong> Windows 11, ergänzend Windows Server und VDI<br/>
+<strong>Status:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse; <strong>keine praktische Validierung</strong>. Alle Beispiele, Speicherwerte, Geräte und Namen sind <strong>fiktiv</strong>.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb043_henne_ei_datentraeger_voll.webp" rel="noopener noreferrer" target="_blank"><img alt="Henne-und-Ei-Infografik: Datenträger voll" decoding="async" loading="lazy" src="assets/rb043_henne_ei_datentraeger_voll.webp"/></a></div><figcaption>Henne-und-Ei-Infografik: Datenträger voll</figcaption></figure>
+<h2 id="1-storungsbild-lernziel-und-abgrenzung">1. Störungsbild, Lernziel und Abgrenzung</h2>
+<p><strong>Muster-Ticket:</strong> „Auf meinem Windows-PC ist Laufwerk C: rot. Outlook kann Dateien nicht mehr speichern und Windows Update meldet zu wenig Speicherplatz.“<br/>
+<strong>Ziel:</strong> Speicherengpass reproduzierbar messen, dessen <strong>tatsächliche Ursache</strong> eingrenzen, die <strong>kleinste zulässige Maßnahme</strong> auswählen und Erfolg sowohl technisch als auch aus Anwendersicht bestätigen.</p>
+<p>Dieses Ticket ist kein pauschaler „Aufräumauftrag“. Große Dateien können legitime Arbeitsunterlagen, Wiederherstellungsdaten oder Bestandteile des Betriebssystems sein. Änderungen, die vermeintlich Gigabytes freigeben, können Datenverlust, Ausfall einer Sicherung oder fehlende Rollbackfähigkeit bewirken.</p>
+<p><strong>Abgrenzung:</strong> RB-007 (PC langsam), RB-016 (OneDrive), RB-027 (Windows Update), RB-042 (Benutzerprofil), RB-044 (BitLocker) können Folgeprobleme mitbringen. Hier liegt der Fokus auf <strong>Kapazität, Belegungsquelle und datenschonender Entscheidung</strong>.</p>
+<h2 id="2-technikgrundlagen-datentrager-volume-freier-platz-und-quota">2. Technikgrundlagen: Datenträger, Volume, freier Platz und Quota</h2>
+<ul>
+<li><strong>Physischer Datenträger:</strong> SSD/HDD mit bestimmter nutzbarer Kapazität, möglicherweise mit mehreren Partitionen.</li>
+<li><strong>Partition und Volume:</strong> Logische Speicherbereiche; Windows-Laufwerksbuchstaben sind Zuordnungen zu Volumes, nicht zwangsläufig zu einer ganzen SSD.</li>
+<li><strong>Freie Kapazität:</strong> Für das jeweilige Volume verfügbarer Platz. Prozentwerte müssen stets mit <strong>absoluten GiB</strong> und dem benötigten freien Platz verglichen werden.</li>
+<li><strong>Quota:</strong> Eine benutzer- oder containerspezifische Grenze kann bereits erreicht sein, obwohl das übergeordnete Volume noch freien Platz hat.</li>
+<li><strong>Reservierte Nutzung:</strong> Systemdateien, Auslagerungsdatei, Ruhezustandsdatei, Wiederherstellung, Schattenkopien, Update-Komponentenspeicher sowie Anwendungen können legitimen Platz belegen.</li>
+<li><strong>Logische Dateigröße vs. physisch belegter Platz:</strong> Kompression, Sparse-Dateien, Hardlinks und Clusterbelegung können dafür sorgen, dass Verzeichnisgrößen und belegte Bytes voneinander abweichen.</li>
+</ul>
+<p><strong>Fachlicher Merksatz:</strong> „Volume voll“ beschreibt die beobachtete <strong>Kapazitätssituation</strong>; „Benutzerdaten zu groß“ ist nur eine von mehreren möglichen Ursachen.</p>
+<h2 id="3-fehlerbilder-unterscheiden-nicht-jedes-speicher-voll-ist-gleich">3. Fehlerbilder unterscheiden – nicht jedes „Speicher voll“ ist gleich</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Mögliche Ursache</th>
+<th>Nächster Prüfpunkt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>C:</code> nahezu voll</td>
+<td>Downloads, Anwendungscaches, Windows-Daten, Wiederherstellungsdaten</td>
+<td>Volumes und Windows-Speicherübersicht</td>
+</tr>
+<tr>
+<td>Datei lässt sich auf Netzlaufwerk nicht speichern</td>
+<td>Freigabe-/Serverquota, NAS/Server-Volume voll, Berechtigungen</td>
+<td>Zielsystem und Quota, nicht nur lokales <code>C:</code></td>
+</tr>
+<tr>
+<td>VDI-Profil meldet „nicht genügend Speicher“</td>
+<td>FSLogix/VHDX-Container, Quota, Host-/Share-Kapazität</td>
+<td>Container- und Hoststorage; nicht blind lokalen Cache löschen</td>
+</tr>
+<tr>
+<td>Windows Update scheitert</td>
+<td>Temporär fehlende Kapazität für Download/Installation/Rollback</td>
+<td>Konkretes Update und benötigte Reserve ermitteln</td>
+</tr>
+<tr>
+<td>Volumebelegung steigt stetig</td>
+<td>Logwachstum, Backup-/Sync-Schleife, Anwendungen, ungewöhnliche Prozesse</td>
+<td>Trend, Besitzer und Erzeuger dokumentieren</td>
+</tr>
+<tr>
+<td>Anzeige widersprüchlich</td>
+<td>Shadowstorage, Reservierungen, Dateisystemfehler, Hardlinks</td>
+<td>VSS-/Komponentenspeicher-Analyse, Systemereignisse</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Schweregrad:</strong> Datenverlustgefahr, ausgefallene Geschäftsanwendung oder produktives Servervolume priorisieren; nicht allein aufgrund einer roten Leiste einen kritischen Incident behaupten.</p>
+<h2 id="4-ticketaufnahme-und-baseline">4. Ticketaufnahme und Baseline</h2>
+<p>Erfasse <strong>bevor irgendetwas verändert wird</strong>:</p>
+<ol>
+<li>Betroffener Rechner, Volume/Buchstabe/UNC-Pfad und exakte Meldung, Zeitpunkt und seit wann der Platz knapp wird.</li>
+<li>Einzelbenutzer oder mehrere? Windows-PC, Server, VDI/FSLogix, Hyper-V-Host oder Netzfreigabe?</li>
+<li>Gesamtvolumen, freier Platz (GiB und %), jüngste Veränderungen und beobachtete Probleme mit Anwendungen/Updates.</li>
+<li>Speicherort der betroffenen Dokumente, Datenbesitzer, Backup-/Retentionstatus und bestehende Richtlinien.</li>
+<li>Remotezugriff und Rückfallplan: Auch Diagnoseprogramme können ein fast volles Volume mit Logs oder Reports weiter belasten.</li>
+</ol>
+<p><strong>Schreibziel:</strong> Ausgangszustand wie „C: 238 GiB gesamt, 3,1 GiB frei um 14:00 Uhr“ plus Quelle der Messung, statt „Festplatte ziemlich voll“.</p>
+<h2 id="5-sicherheitsgate-erst-eigentumer-backup-und-betriebsfolgen">5. Sicherheitsgate: Erst Eigentümer, Backup und Betriebsfolgen</h2>
+<p><strong>Nicht auf Verdacht löschen:</strong> Benutzerprofile und Downloads, <code>C:\Windows</code>, <code>C:\Windows\WinSxS</code>, <code>C:\Windows\Installer</code>, ProgramData, Backup-Repositories, Wiederherstellungspunkte/Schattenkopien, <code>pagefile.sys</code>, <code>hiberfil.sys</code>, VHD/VHDX, Datenbankdateien oder produktive Logs.</p>
+<ul>
+<li>Kläre <strong>Aufbewahrungsfristen, Legal Hold, Datenschutz, Backup und Datenbesitz</strong>; Administratorrechte sind <strong>keine</strong> pauschale Löschfreigabe.</li>
+<li>Automatische Speicheroptimierung kann je nach Einstellungen <strong>Papierkorb, Downloads und lokale Cloud-Dateien</strong> einbeziehen. Einstellungen vor dem Start prüfen.</li>
+<li>Eine OneDrive-Datei „Speicherplatz freigeben“ nur nach Sync-Status, Offlinebedarf und Richtlinien prüfen; <strong>nicht</strong> mit dem <strong>Löschen</strong> des Cloudobjekts verwechseln.</li>
+<li>Vor Änderungen an produktiven Servern/VMs: Auswirkungen auf laufende Dienste, Quotas, Sicherungen und Wartungsfenster klären.</li>
+<li><strong>Nie</strong> ein Volume nur deshalb bis auf 0 freie Bytes füllen, um ein Problem zu simulieren.</li>
+</ul>
+<h2 id="6-diagnose-a-volumes-und-freien-platz-lesend-messen">6. Diagnose A – Volumes und freien Platz lesend messen</h2>
+<p>Die folgenden PowerShell-Befehle <strong>ändern keine Konfiguration und löschen keine Dateien</strong>. Sie laufen lokal am betroffenen System; Leseberechtigungen können nötig sein.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Volumes, Dateisystem und freien Speicherplatz lesend erfassen:
+Get-Volume |
+  Select-Object DriveLetter, FileSystemLabel, FileSystemType,
+                Size, SizeRemaining, HealthStatus |
+  Sort-Object DriveLetter
+
+# Ein ausgewähltes Volume gezielt prüfen:
+Get-Volume -DriveLetter C |
+  Select-Object DriveLetter, Size, SizeRemaining, HealthStatus
+
+# Alternative aus Win32_LogicalDisk (lokale feste Datenträger):
+Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' |
+  Select-Object DeviceID, Size, FreeSpace, VolumeName
+</code></pre></div>
+<p><strong>Einordnung:</strong> <code>Get-Volume</code> misst den freien Speicher des Volumes, erklärt aber <strong>nicht</strong>, welcher Ordner ihn belegt. <code>HealthStatus</code> ist nur ein Indikator; er ersetzt weder Datenträgerdiagnose noch Datensicherung. Für Netzfreigaben ist eine reine lokale Volumenprüfung unzureichend.</p>
+<h2 id="7-diagnose-b-belegungsquelle-eingrenzen-ohne-zu-loschen">7. Diagnose B – Belegungsquelle eingrenzen, ohne zu löschen</h2>
+<p><strong>Windows 11:</strong> <em>Einstellungen → System → Speicher</em> für das richtige Volume öffnen. Kategorien wie installierte Apps, temporäre Dateien, Dokumente, „Andere“ und System/Reserviert vergleichen. Mit <em>Bereinigungsempfehlungen</em> nur Kandidaten identifizieren; Häkchen und Konsequenzen vor „Bereinigen“ prüfen.</p>
+<p><strong>Lesende Stichprobe nur im ausdrücklich freigegebenen Verzeichnis:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Nur Dateien DIREKT im Downloads-Ordner des aktuellen Kontos,
+# kein vollständiger Systemscan, kein Zugriff auf andere Benutzerprofile:
+$pfad = Join-Path $env:USERPROFILE 'Downloads'
+Get-ChildItem -LiteralPath $pfad -File -ErrorAction Stop |
+  Sort-Object Length -Descending |
+  Select-Object -First 15 Name, FullName, Length, LastWriteTime
+
+# Bei genehmigtem, kleinen Testordner kann man eine Summe bilden:
+# Nicht unkritisch auf C:\ oder produktive Freigaben erweitern.
+$testOrdner = Join-Path $env:TEMP 'RB043-Lab'
+if (Test-Path -LiteralPath $testOrdner) {
+  Get-ChildItem -LiteralPath $testOrdner -File -Recurse -ErrorAction Stop |
+    Measure-Object -Property Length -Sum
+}
+</code></pre></div>
+<p><strong>Grenzen dieser Messung:</strong> Die Summe der Dateilängen ist keine verlässliche Anzeige der <strong>physisch</strong> belegten Bytes (Kompression, Sparse-Dateien, Hardlinks, Cluster, Zugriffsausnahmen). Große rekursive Scans erzeugen I/O-Last und können in Dateiservern Ressourcen binden. Inventarisierung nur mit Berechtigung, angemessener Tiefe und Datenminimierung.</p>
+<h2 id="8-diagnose-c-windows-komponentenspeicher-korrekt-beurteilen">8. Diagnose C – Windows-Komponentenspeicher korrekt beurteilen</h2>
+<p>Der Ordner <code>WinSxS</code> gehört zur Windows-Komponentenwartung und verwendet Hardlinks; seine im Explorer scheinbare Größe ist <strong>nicht</strong> gleichbedeutend mit exklusiv belegtem Platz.</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">REM Diagnose des Komponentenspeichers; löst selbst keine Bereinigung aus:
+DISM.exe /Online /Cleanup-Image /AnalyzeComponentStore
+</code></pre></div>
+<p>Die Ausgabe nennt unter anderem die Einschätzung, ob eine Bereinigung empfohlen wird. <strong>Keine manuellen Löschungen im WinSxS-Ordner!</strong> Falls eine Komponentenbereinigung fachlich geeignet und freigegeben ist, erfolgt sie mit unterstützten Windows-Werkzeugen. <strong><code>/ResetBase</code> ist kein harmloser Schalter:</strong> Microsoft dokumentiert, dass nach dieser Ausführung vorhandene Updatepakete nicht mehr deinstalliert werden können. Daher <strong>nicht als Standardmaßnahme</strong> im L1-/L2-Runbook.</p>
+<h2 id="9-diagnose-d-speicheroptimierung-cloud-dateien-und-temporare-kategorien">9. Diagnose D – Speicheroptimierung, Cloud-Dateien und temporäre Kategorien</h2>
+<p><strong>Windows-Speicheroptimierung (Storage Sense):</strong> unterstützte Funktion für das Systemlaufwerk; die Konfiguration bestimmt, wann Papierkorbdateien, Downloads oder lokal vorgehaltene Cloudinhalte verwaltet werden. Erst die tatsächlichen Einstellungen lesen und die Vorschläge kategorieweise bewerten. Auf anderen Laufwerken gesonderte Belegungsanalyse durchführen.</p>
+<p><strong>OneDrive-Dateien bei Bedarf:</strong> Nur-online-Dateien verwenden lokale Platzhalter, lokal stets verfügbare Dateien brauchen Speicherplatz. Vor dem optionalen „Speicherplatz freigeben“ den <strong>Synchronisierungsstatus</strong>, die Cloudverfügbarkeit, Offline-Anforderungen und Unternehmensrichtlinien prüfen. Ein solcher Schritt ersetzt <strong>keine versionierte Datensicherung</strong>.</p>
+<p><strong>Temporäre Dateien:</strong> Nicht alles in <code>%TEMP%</code> oder <code>AppData</code> ist wertlos. Laufende Installationen, Browser- und Appdaten sowie Diagnoselogs können erforderlich sein; keine universellen <code>Remove-Item -Recurse -Force</code>-Rezepte.</p>
+<h2 id="10-diagnose-e-vss-quotas-virtuelle-datentrager-und-dateisystem">10. Diagnose E – VSS, Quotas, virtuelle Datenträger und Dateisystem</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">REM Lesende Abfrage: Schattenkopie-Speicherzuordnungen und Belegung
+vssadmin list shadowstorage
+</code></pre></div>
+<p><strong>Interpretation:</strong> Ein hoher VSS-Bedarf kann erklärbar sein, wenn Wiederherstellungspunkte, vorherige Versionen oder Backups betrieben werden. <strong>Schattenkopien nicht löschen oder Shadowstorage verkleinern</strong>, ohne den jeweiligen Backup-/Wiederherstellungsdienst zu verstehen und freigegebene Schutzanforderungen zu prüfen.</p>
+<p><strong>Server/VDI/Hyper-V:</strong> Host-Volume, virtuelle VHDX, dynamisch wachsende Datenträger, Snapshots/Checkpoints, Containerquoten und Freigabequoten sind verschiedene Kapazitätsgrenzen. Vor „Datenträger erweitern“ die gesamte Kette (Host/Datastore → VHDX → Partition → Dateisystem → Benutzerquota) prüfen; die Erweiterung benötigt eine Änderungsfreigabe.</p>
+<p><strong>Verdacht auf Disk-/Dateisystemfehler:</strong> Nicht nur „frei machen“: relevante Systemereignisse, I/O-Fehler und Datenträgerzustand dokumentieren. Vor jeder Reparatur Backup und Eskalation (siehe Kapitel 11).</p>
+<h2 id="11-entscheidungsmatrix-befund-risikoarmster-nachster-schritt">11. Entscheidungsmatrix: Befund → risikoärmster nächster Schritt</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gesicherter Befund</th>
+<th>Hypothese</th>
+<th>Maßnahme nach Freigabe</th>
+<th>Nachweis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bestätigte unbenötigte temporäre Windows-Dateien</td>
+<td>OS-/App-Caches belegen Platz</td>
+<td>Microsoft-Bereinigungsempfehlungen <strong>einzeln</strong> prüfen und genehmigte Kategorien bereinigen</td>
+<td>Freier Platz vorher/nachher; App-Test</td>
+</tr>
+<tr>
+<td>Große, vom Eigentümer freigegebene Downloads</td>
+<td>Legitime, aber nicht mehr benötigte Dateien</td>
+<td>Archivierung/Übertragung oder selektive Löschung mit dokumentierter Einwilligung</td>
+<td>Zielkopie geöffnet/Hash falls nötig, freier Platz</td>
+</tr>
+<tr>
+<td>Synchronisierte Cloudinhalte lokal in großem Umfang</td>
+<td>Offline-Kopien verbrauchen Platz</td>
+<td>Synchronisation/Offlinebedarf prüfen; danach selektiv „Speicherplatz freigeben“</td>
+<td>Cloud-Datei erreichbar; lokaler Verbrauch kleiner</td>
+</tr>
+<tr>
+<td>Wachsende Logs/Backups</td>
+<td>Anwendung, Agent oder Policy erzeugt Daten</td>
+<td>Herstellerkonformes Rotieren/Retention durch zuständige Administration</td>
+<td>Wachstum gestoppt; Funktion/Backup geprüft</td>
+</tr>
+<tr>
+<td>VSS groß</td>
+<td>Schattenkopiespeicher gebunden</td>
+<td>Backup-/VSS-Verantwortliche einbeziehen; keine pauschale Löschung</td>
+<td>Backup-/Restorepunkte weiter verfügbar</td>
+</tr>
+<tr>
+<td>„Volume hat Platz“, Nutzer erreicht Quota</td>
+<td>Quota-/Profilgrenze</td>
+<td>Eigene Quota prüfen; Anpassung nur nach Freigabe</td>
+<td>Speichern mit Zielkonto erfolgreich</td>
+</tr>
+<tr>
+<td>Diskfehler/SMART-Warnung/I/O-Ereignisse</td>
+<td>Integritätsproblem statt Kapazitätsproblem</td>
+<td>L2/L3-Storage-Pfad, unverzügliche Sicherung, Hardwareprüfung</td>
+<td>Gesundheitsbefund und Wiederherstellung dokumentiert</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="12-durchfuhrung-und-retest-was-gilt-als-gelost">12. Durchführung und Retest: Was gilt als gelöst?</h2>
+<ol>
+<li>Ein dokumentierter Befund muss zu <strong>genau benanntem</strong> Speicherverbrauch und einer genehmigten Aktion führen.</li>
+<li>Vorher/Nachher-Werte <strong>auf demselben Volume</strong> mit gleicher Messmethode festhalten; Erfolg ist ein ausreichender, betrieblich vereinbarter Puffer, nicht eine universelle Prozentzahl.</li>
+<li>Auslösende Tätigkeit wiederholen: Dokument speichern, Outlook starten, Windows Update oder Backup erfolgreich laufen lassen – je nach Ticket.</li>
+<li>Datenerhalt prüfen: exemplarische Benutzerdateien, OneDrive-Status, relevante App-Funktionen sowie ggf. Backup-/Restorefähigkeit.</li>
+<li>Wachstum/Trend beobachten: Falls der Speicher umgehend wieder vollläuft, nicht mehrfach reinigen, sondern den Verursacher weiter analysieren.</li>
+<li>Ticket schließen erst nach reproduzierbarem Funktionstest oder transparent an zuständige Stelle übergeben.</li>
+</ol>
+<h2 id="13-fiktiver-praxisfall-a-einzelner-windows-11-client">13. Fiktiver Praxisfall A – Einzelner Windows-11-Client</h2>
+<p><strong>Ausgangslage (erfunden):</strong> Ein Client meldet „C: voll“, freier Speicher 2,8 GiB auf 238 GiB, ein ca. 5 GiB großer Export kann nicht erstellt werden; ein anderer Client ist nicht betroffen.</p>
+<p><strong>Diagnosepfad:</strong> Volume-Lesetest → Windows-Speicherübersicht → genehmigte Stichprobe in <code>Downloads</code> → Abgleich mit Nutzer. Dort liegen drei alte, ausdrücklich entbehrliche ISO-Abbilder (zusammen etwa 24 GiB); Backups und OneDrive bleiben unberührt. <strong>Entscheidung:</strong> Benutzer bestätigt, dass die ISOs in einer überprüften Ablage bereits vorhanden sind und lokal nicht benötigt werden.</p>
+<p><strong>Fiktive Korrektur:</strong> Nach Freigabe selektives Entfernen/Archivieren genau dieser Dateien mit vorhandener Rückfallkopie. <strong>Retest:</strong> C: hat danach mehr freien Speicher; der zuvor blockierte Export gelingt; nach Neustart bestehen Dateien und Anwendung fort.</p>
+<p><strong>Sparringsfrage:</strong> Wieso ist das Löschen des kompletten Downloads-Ordners ohne Eigentümerprüfung fachlich falsch, auch wenn er groß ist?</p>
+<h2 id="14-fiktiver-praxisfall-b-vdi-profil-quota-statt-vollem-clientlaufwerk">14. Fiktiver Praxisfall B – VDI-Profil-Quota statt vollem Clientlaufwerk</h2>
+<p><strong>Ausgangslage (erfunden):</strong> Ein User meldet „Datenträger voll“ während Anmeldung in einer VDI-Umgebung. Der lokale VDI-Systemdatenträger zeigt noch ausreichend Platz; mehrere User sind nicht betroffen.</p>
+<p><strong>Diagnosepfad:</strong> Fehlermeldung und Speicherort unterscheiden → FSLogix-/Profilcontainer und Share-Kapazität prüfen → getrennt <strong>Containergröße/Quota, Netzfreigabe, Host-Storage</strong> und Anmeldeereignisse bewerten. Die Benutzerquota des Containers ist erreicht, obwohl die Share noch freien Platz hat.</p>
+<p><strong>Fiktive Korrektur:</strong> Zuständige VDI-Administration prüft Datenretention und eine freigegebene Container-/Quota-Maßnahme; <strong>kein</strong> Löschen von VHDX-Dateien. <strong>Retest:</strong> Anmeldung, Profilbestand, Anwendungsfunktion und Containerwachstum stimmen überein.</p>
+<p><strong>Transferfrage:</strong> Welche drei Messorte benötigen wir, um „Host voll“, „VHDX voll“ und „Benutzerquota voll“ auseinanderzuhalten?</p>
+<h2 id="15-active-recall-diagnosekarten-und-transfertraining">15. Active Recall, Diagnosekarten und Transfertraining</h2>
+<p><strong>Erst ohne Spickzettel beantworten.</strong></p>
+<h3 id="wissenskarten">Wissenskarten</h3>
+<ol>
+<li>Was misst <code>Get-Volume</code> – und was nicht? → <strong>Volumegröße und freien Platz; keinen Verursacher.</strong></li>
+<li>Wofür dient <code>DISM /Online /Cleanup-Image /AnalyzeComponentStore</code>? → <strong>Lesende Analyse des Windows-Komponentenspeichers.</strong></li>
+<li>Welche Gefahr birgt <code>/ResetBase</code>? → <strong>Vorhandene Updatepakete lassen sich danach nicht mehr deinstallieren.</strong></li>
+<li>Was zeigt <code>vssadmin list shadowstorage</code>? → <strong>Schattenkopie-Speicherzuordnungen und deren Verbrauch.</strong></li>
+</ol>
+<h3 id="verstandniskarten">Verständniskarten</h3>
+<ol start="5">
+<li>Warum stimmen Explorer-Ordnergrößen und tatsächliche Volume-Belegung nicht immer überein? → <strong>Hardlinks, Kompression, Sparse-Dateien, Zuordnung und Reservierungen.</strong></li>
+<li>Warum ist OneDrive-Synchronisierung kein Ersatz für ein versioniertes Backup? → <strong>Änderungen und Löschungen können synchronisiert werden; Wiederherstellbarkeit gesondert sichern.</strong></li>
+<li>Warum reicht eine einmalige Freiplatz-Messung nicht? → <strong>Wachstum, Arbeitslast und App-Validierung fehlen.</strong></li>
+</ol>
+<h3 id="diagnosekarten">Diagnosekarten</h3>
+<ol start="8">
+<li>C: frei, aber in einer App „Quota überschritten“ – was prüfen? → <strong>Zielvolume, Benutzer-/Containerquota und Share.</strong></li>
+<li><code>WinSxS</code> scheinbar sehr groß – nächster sicherer Schritt? → <strong>DISM-Analyse, keine manuelle Löschung.</strong></li>
+<li>Speicher steigt direkt nach Bereinigung wieder – Hypothese? → <strong>Aktiver Verursacher, Log-/Cache-/Sync-/Backupwachstum.</strong></li>
+<li>Welche Nachweise beenden das Ticket? → <strong>Vorher/Nachher, genehmigte Maßnahme, funktionierender Arbeitsschritt, Datenerhalt.</strong></li>
+</ol>
+<h3 id="transfer-und-zeitversetzter-abruf">Transfer und zeitversetzter Abruf</h3>
+<ul>
+<li><strong>Sofort:</strong> Aus einer Störungsmeldung allein drei konkurrierende Ursachen formulieren; den ersten <strong>lesenden</strong> Test für jede Hypothese wählen.</li>
+<li><strong>Nach etwa 7 Tagen:</strong> Einen neuen Fall ohne Runbook diagnostizieren und begründen, warum <strong>nicht</strong> gelöscht wird.</li>
+<li><strong>Nach etwa 21 Tagen:</strong> Eine Variante mit Netzfreigabe, OneDrive und virtueller Disk bearbeiten; korrekte Messorte, Eskalation und Re-Test aus dem Gedächtnis rekonstruieren.</li>
+</ul>
+<hr/>
+<h2 id="herstellerquellen-und-quellenabgleich">Herstellerquellen und Quellenabgleich</h2>
+<p><strong>Microsoft (Zugriff/Recherche: 22.11.2026):</strong></p>
+<ol>
+<li>Speicherplatz freigeben unter Windows: <a href="https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/free-up-drive-space-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/free-up-drive-space-in-windows</a></li>
+<li>Speicheroptimierung: <a href="https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/manage-drive-space-with-storage-sense" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/manage-drive-space-with-storage-sense</a></li>
+<li>Windows-Speichereinstellungen: <a href="https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/storage-settings-in-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/windows/experience/storage-filemanagement/storage-settings-in-windows</a></li>
+<li>OneDrive-Dateien bei Bedarf: <a href="https://support.microsoft.com/de-de/onedrive/save-disk-space-with-onedrive-files-on-demand-for-windows" rel="noopener noreferrer" target="_blank">https://support.microsoft.com/de-de/onedrive/save-disk-space-with-onedrive-files-on-demand-for-windows</a></li>
+<li>WinSxS-Bereinigung/<code>/ResetBase</code>-Warnung: <a href="https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder?view=windows-11" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/windows-hardware/manufacture/desktop/clean-up-the-winsxs-folder?view=windows-11</a></li>
+<li><code>Get-Volume</code>: <a href="https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/storage/get-volume?view=windowsserver2025-ps</a></li>
+<li><code>vssadmin list shadowstorage</code>: <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin-list-shadowstorage" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/vssadmin-list-shadowstorage</a></li>
+<li>Storage-/Dateisystemfehler (Windows Server): <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors</a></li>
+<li>Storage Sense/Quota-Kontexte (Windows Server): <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-windows-server-storage-sense" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-windows-server-storage-sense</a></li>
+</ol>
+<p><strong>Transparenz:</strong> Diese Darstellung ist eine didaktische Synthese aus Herstellerdokumentation und fachlichem Diagnosekonzept. Die fiktiven Fallverläufe sind <strong>keine</strong> Messdaten einer echten Umgebung. Befehle, Schritte und Randbedingungen müssen in einer isolierten Laborumgebung beziehungsweise am konkreten System geprüft werden.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-043_Lernartikel.md">RB-043_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-042/index.html">← Ticket 42</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-044/index.html">Ticket 44 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

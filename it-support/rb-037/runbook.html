@@ -1,0 +1,158 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 37: Netzwerkverbindung ungewöhnlich langsam | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 37: Netzwerkverbindung ungewöhnlich langsam. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 37: Netzwerkverbindung ungewöhnlich langsam</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-ticket-aufnehmen-symptom-reichweite-und-sollzustand">1. Ticket aufnehmen: Symptom, Reichweite und Sollzustand</a></li><li><a href="#2-messgrossen-und-erste-hypothesen">2. Messgrößen und erste Hypothesen</a></li><li><a href="#3-windows-basisdiagnose-nur-lesen">3. Windows-Basisdiagnose – nur lesen</a></li><li><a href="#4-vergleichsprufung-eine-variable-andern">4. Vergleichsprüfung: Eine Variable ändern</a></li><li><a href="#5-rtt-paketverlust-und-tcp-portfunktion-prufen">5. RTT, Paketverlust und TCP-Portfunktion prüfen</a></li><li><a href="#6-kontrollierter-durchsatztest-l2-nur-freigegeben">6. Kontrollierter Durchsatztest (L2, nur freigegeben)</a></li><li><a href="#7-befunde-verzweigen-und-sichere-massnahme-wahlen">7. Befunde verzweigen und sichere Maßnahme wählen</a></li><li><a href="#8-erfolgskontrolle-unter-originalbedingungen">8. Erfolgskontrolle unter Originalbedingungen</a></li><li><a href="#9-eskalation-ubergabedaten">9. Eskalation / Übergabedaten</a></li><li><a href="#10-muster-ticketkommentar-fiktiv-lernerfolg">10. Muster-Ticketkommentar (fiktiv) / Lernerfolg</a></li></ol></nav><div class="support-markdown">
+<p><strong>Version:</strong> 1.0 · <strong>Stand:</strong> 22.11.2026 · <strong>Fachstatus:</strong> recherchiert, <strong>nicht praktisch validiert</strong><br/>
+<strong>Ziel:</strong> Langsame Netzwerk- oder Anwendungsleistung messbar machen, Client/Access/Transport/Server voneinander trennen, ursachenbezogen korrigieren und die Wiederherstellung reproduzierbar bestätigen.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb037_henne_ei_netzwerk_langsam.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-037: Henne-und-Ei-Diagnose" decoding="async" loading="lazy" src="assets/rb037_henne_ei_netzwerk_langsam.webp"/></a></div><figcaption>RB-037: Henne-und-Ei-Diagnose</figcaption></figure>
+<h2 id="1-ticket-aufnehmen-symptom-reichweite-und-sollzustand">1. Ticket aufnehmen: Symptom, Reichweite und Sollzustand</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Was ist langsam?</strong> SMB-Kopie, Webanwendung, VPN, RDP, Video, nur Upload oder nur Download?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Seit wann?</strong> Dauerhaft, intermittierend oder nur unter Auslastung? Letzte Änderung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Wer ist betroffen?</strong> Einzelgerät, Port, SSID, VLAN, Standort oder ganze Organisation?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Pfad:</strong> Client → Ethernet/Dock/WLAN → Switch/AP → Router/Firewall/VPN → Dienst.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erwartung/Baseline sowie ein reproduzierbarer <strong>Anwendungsvorgang</strong> mit Uhrzeit dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fernzugang/Produktivsystem? Vor trennenden Änderungen Rückweg und Owner klären.</li>
+</ul>
+<h2 id="2-messgrossen-und-erste-hypothesen">2. Messgrößen und erste Hypothesen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gemessener Nutzdatendurchsatz (Mbit/s, Richtung, Zeitraum).</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>RTT in ms (Quelle/Ziel), ggf. Jitter und tatsächlicher Endpunktverlust.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendungszeit, CPU/RAM/Storage des Zielsystems falls verfügbar.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hypothese A Client/Link; B Transport/Netzpfad; C Server/Anwendung.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Für jede Hypothese einen <strong>trennenden A/B-Test</strong> festlegen.</li>
+</ul>
+<h2 id="3-windows-basisdiagnose-nur-lesen">3. Windows-Basisdiagnose – nur lesen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-NetAdapter |
+  Select-Object Name,InterfaceDescription,Status,LinkSpeed
+Get-NetAdapterStatistics -Name 'Ethernet' | Format-List *
+Get-NetIPConfiguration
+Get-NetRoute -AddressFamily IPv4 |
+  Select-Object InterfaceAlias,DestinationPrefix,NextHop,RouteMetric
+netsh wlan show interfaces
+</code></pre></div>
+<p><strong>Interpretation:</strong> <code>LinkSpeed</code> ≠ tatsächlicher Nutzdatendurchsatz; NIC-Counter als <strong>Delta</strong> zur Testzeit betrachten, nicht nur absolute Gesamtwerte. Die Befehle setzen keine Netzwerkeinstellung zurück. Ggf. Adaptername anpassen; WLAN-Befehl ist auf Ethernet-only-Systemen nicht aussagekräftig. [Q3,Q4]</p>
+<h2 id="4-vergleichsprufung-eine-variable-andern">4. Vergleichsprüfung: Eine Variable ändern</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>A/B-Test</th>
+<th>Ergebnis</th>
+<th>Priorisierte Fehlerdomäne</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zweiter Client, gleiches VLAN/Ziel</td>
+<td>Nur erster langsam</td>
+<td>Client/NIC/Dock/Port</td>
+</tr>
+<tr>
+<td>Gleicher Client LAN ↔ WLAN</td>
+<td>Nur WLAN langsam</td>
+<td>Funk/SSID/AP</td>
+</tr>
+<tr>
+<td>Gleiches Ziel mit/ohne VPN</td>
+<td>Nur VPN langsam</td>
+<td>VPN/WAN/Tunnelpfad</td>
+</tr>
+<tr>
+<td>Gleicher Client anderer Server</td>
+<td>Nur ein Server langsam</td>
+<td>Ziel-/Anwendungspfad</td>
+</tr>
+<tr>
+<td>Mehrere Clients im gleichen Segment langsam</td>
+<td>Gemeinsame Störung</td>
+<td>Access/Uplink/Firewall/Service</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht</strong> unterschiedliche Pfade/Zeiträume wie identische Messbedingungen behandeln.</p>
+<h2 id="5-rtt-paketverlust-und-tcp-portfunktion-prufen">5. RTT, Paketverlust und TCP-Portfunktion prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Fiktive TEST-NET-Adressen durch tatsächlich genehmigte Ziele ersetzen!
+ping -n 30 192.0.2.1
+ping -n 30 198.51.100.20
+tracert 198.51.100.20
+pathping 198.51.100.20
+Test-NetConnection -ComputerName 198.51.100.20 -Port 445 -InformationLevel Detailed
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Auf den <strong>Endpunkt</strong> und auf <strong>vergleichbare Testzeitpunkte</strong> achten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>ICMP-Firewall/Rate-Limit kann „Verlust“ vortäuschen; Hop-Antwort allein kein Ortsnachweis.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ein offener Port belegt <strong>Erreichbarkeit</strong>, nicht guten Durchsatz.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Werte im Ticket mit Quell-/Zieladresse und Uhrzeit festhalten.</li>
+</ul>
+<h2 id="6-kontrollierter-durchsatztest-l2-nur-freigegeben">6. Kontrollierter Durchsatztest (L2, nur freigegeben)</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text"># Freigegebener interner Testserver:
+iperf3 -s -p 5201
+# Freigegebener Client:
+iperf3 -c TESTSERVER -p 5201 -t 10
+iperf3 -c TESTSERVER -p 5201 -t 10 -R
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>iperf3 ist Zusatzsoftware, kein Windows-Standardbefehl. Installation/Firewallfreigabe durch Owner.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vorher Lastgrenze/Zeitraum/VPN-Pfad und Testserverkapazität klären.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Hin- und Gegenrichtung getrennt bewerten; CPU- und NIC-Auslastung beobachten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Kein ungebremster Massentest über kritischen WAN-/VPN-Uplink.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>iperf3 nicht mit einem SMB-Datei- oder Web-Anwendungstest gleichsetzen.</li>
+</ul>
+<h2 id="7-befunde-verzweigen-und-sichere-massnahme-wahlen">7. Befunde verzweigen und sichere Maßnahme wählen</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Nächster Prüfpunkt</th>
+<th>Maßnahme nur nach Beleg/Freigabe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Einzelgerät + unerwartete Linkrate</td>
+<td>Kabel, Dock, Port, Switchcounter</td>
+<td>Defektes Teil gezielt tauschen</td>
+</tr>
+<tr>
+<td>WLAN-only langsam</td>
+<td>Signal, Airtime, Interferenzen, AP-Last</td>
+<td>WLAN-Planung/Standort/Fehlerbehebung</td>
+</tr>
+<tr>
+<td>Viele Clients langsam</td>
+<td>Uplink-Last, Queue-Drops, QoS, Firewall</td>
+<td>Engpass-/Kapazitätsmaßnahme</td>
+</tr>
+<tr>
+<td>VPN-only langsam</td>
+<td>Pfad, Tunnel, MTU, Bandbreite</td>
+<td>VPN-/WAN-Ursache bearbeiten</td>
+</tr>
+<tr>
+<td>iperf3 normal, SMB langsam</td>
+<td>Server-Storage, SMB, AV/EDR</td>
+<td>Server-/Applikationsowner einbinden</td>
+</tr>
+<tr>
+<td>Eine Anwendung langsam</td>
+<td>Backend, DNS/DB, API</td>
+<td>App-/Serverlog und Transaktionszeit</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Verbotene Schnellschlüsse:</strong> Kein pauschales MTU-, Duplex-, Treiber-, Offload-, QoS-, Firewall-, EDR- oder SMB-Signierungs-Tuning.</p>
+<h2 id="8-erfolgskontrolle-unter-originalbedingungen">8. Erfolgskontrolle unter Originalbedingungen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ursache aus Vorher-Befund und kontrolliertem Vergleich plausibel hergeleitet?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gleiches Endgerät, Ziel, Methode, Richtung, Zeitfenster und vergleichbare Last?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendungsproblem <strong>wirklich</strong> behoben (nicht nur Ping besser)?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sicherheits-/Betriebsrichtlinien unverändert; keine unbeabsichtigte Nebenwirkung?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Messwerte/Beweismittel, Ursache und Freigabe im Ticket; Anwenderbestätigung.</li>
+</ul>
+<h2 id="9-eskalation-ubergabedaten">9. Eskalation / Übergabedaten</h2>
+<p>Bei fehlendem Zugriff auf Switch, Firewall, AP, VPN, Server oder Testsysteme zuständigen Owner hinzuziehen. <strong>Liefern:</strong> Ticket-ID; Betroffenheit; Quelle/Ziel; Dienst/Port; Lastzeit; A/B-Tabelle; RTT/Verlust; NIC-/Switch-Counter-Deltas; iperf3-Resultate (wenn freigegeben); Server-/Storage-Indizien; Sicherheitsgate und bisherige Maßnahmen.</p>
+<p><strong>Keine</strong> unautorisierten Netzwerktraces von Nutzdaten oder nicht benötigten personenbezogenen Informationen; Diagnosedaten geschützt ablegen.</p>
+<h2 id="10-muster-ticketkommentar-fiktiv-lernerfolg">10. Muster-Ticketkommentar (fiktiv) / Lernerfolg</h2>
+<blockquote>
+<p><strong>Befund:</strong> Nur der Beispielclient A zeigte beim Kopieren vom Fileserver reduzierte Leistung; das Vergleichssystem im selben VLAN war unauffällig. <strong>Eingrenzung:</strong> Die betroffene Ethernet-Verbindung handelte unerwartet 100 Mbit/s aus; nach freigegebenem Kabelvergleich war der Fehler reproduzierbar auf den Anschlussweg begrenzt. <strong>Ergebnis:</strong> Nach autorisiertem Austausch wurde die erwartete Rate ausgehandelt und die Anwendung unter gleichen Testbedingungen erneut erfolgreich geprüft.</p>
+</blockquote>
+<p><strong>Lernkontrolle:</strong> Was unterscheidet <code>LinkSpeed</code>, <code>iperf3</code>-TCP-Durchsatz, RTT und die Zeit für eine SMB-Kopie? Formuliere je einen Test, der zwei konkurrierende Ursachen voneinander trennt.</p>
+<p><strong>Quellen:</strong> [Q1] <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/overview-of-tcpip-performance" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/overview-of-tcpip-performance</a> · [Q2] <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/slow-smb-file-transfer" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-server/networking/slow-smb-file-transfer</a> · [Q3] <a href="https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/diagnose-packet-loss" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/de-de/troubleshoot/windows-client/networking/diagnose-packet-loss</a> · [Q4] <a href="https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapterstatistics?view=windowsserver2025-ps" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/netadapter/get-netadapterstatistics?view=windowsserver2025-ps</a> · [Q5] <a href="https://software.es.net/iperf/invoking.html" rel="noopener noreferrer" target="_blank">https://software.es.net/iperf/invoking.html</a></p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-037_Praxis-Runbook.md">RB-037_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-036/index.html">← Ticket 36</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-038/index.html">Ticket 38 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

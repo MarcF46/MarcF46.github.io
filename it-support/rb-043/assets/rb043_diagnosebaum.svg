@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1790" viewBox="0 0 1120 1790">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6 Z" fill="#12a99d"/></marker></defs>
+<rect x="0" y="0" width="1120" height="1790" rx="0" fill="#fff" stroke="#fff" stroke-width="0"/>
+<rect x="35" y="30" width="1050" height="68" rx="22" fill="#073d61" stroke="#073d61" stroke-width="2"/>
+<text x="560" y="72" font-family="DejaVu Sans,Arial,sans-serif" font-size="32" fill="#ffffff" font-weight="700" text-anchor="middle">RB-043 · Datenträger voll</text>
+<text x="560" y="125" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" fill="#386f84" font-weight="400" text-anchor="middle">L1/L2  ·  Diagnose-Entscheidungsbaum  ·  Recherchiert, nicht praktisch validiert</text>
+<path d="M560 220 V244" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 344 V371" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 472 V493" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 575 V602 H204 V622" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 575 V602 H560 V622" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 575 V602 H916 V622" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M204 748 V784" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 748 V765 H1090 V1327 H813 V1350" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<path d="M916 748 V757 H1104 V1313 H848 V1350" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<path d="M560 860 V894" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 860 V880 H288 V894" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 860 V880 H832 V894" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M288 1014 V1047" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M832 1014 V1047" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M288 1167 V1203 H560 V1227" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M832 1167 V1203 H560 V1227" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M560 1312 V1350" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M307 1480 V1542 H560 V1570" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<path d="M813 1480 V1542 H560 V1570" fill="none" stroke="#12a99d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"  marker-end="url(#arrow)"/>
+<rect x="198" y="145" width="724" height="76" rx="18" fill="#0b426b" stroke="#0b426b" stroke-width="2"/>
+<text x="560.0" y="176" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#ffffff" font-weight="700" text-anchor="middle">STÖRUNG ERFASSEN</text>
+<text x="560.0" y="207" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="white" font-weight="400" text-anchor="middle">Welches Volume / welcher Nutzer? Seit wann? Welche Aktion scheitert?</text>
+<rect x="198" y="245" width="724" height="100" rx="18" fill="#d9f5f2" stroke="#39b8a8" stroke-width="2"/>
+<text x="560.0" y="276" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">BASISMESSUNG – LESEND</text>
+<text x="560.0" y="307" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Get-Volume: Gesamtgröße, freie GiB und Prozent</text>
+<text x="560.0" y="332" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Windows → Einstellungen → System → Speicher</text>
+<rect x="198" y="372" width="724" height="100" rx="18" fill="#fff0c8" stroke="#e1b33e" stroke-width="2"/>
+<text x="560.0" y="403" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#735313" font-weight="700" text-anchor="middle">SICHERHEIT VOR BEREINIGUNG</text>
+<text x="560.0" y="434" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Datenbesitzer, Backup, Aufbewahrung und Freigabe klären</text>
+<text x="560.0" y="459" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Keine Löschung auf Verdacht!</text>
+<polygon points="560,492 686,535 560,578 434,535" fill="#e2f0ff" stroke="#4f92bb" stroke-width="3"/>
+<text x="560" y="529" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#073d61" font-weight="700" text-anchor="middle">Wo liegt der</text>
+<text x="560" y="552" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#073d61" font-weight="700" text-anchor="middle">Engpass?</text>
+<rect x="43" y="623" width="323" height="126" rx="18" fill="#d9f5f2" stroke="#39b8a8" stroke-width="2"/>
+<text x="204.5" y="654" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">LOKALER CLIENT</text>
+<text x="204.5" y="685" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Systemvolume / Benutzer</text>
+<text x="204.5" y="710" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Kategorien und Trend</text>
+<text x="204.5" y="735" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">separat analysieren</text>
+<rect x="399" y="623" width="323" height="126" rx="18" fill="#eaf8fb" stroke="#7cbcca" stroke-width="2"/>
+<text x="560.5" y="654" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">SERVER / VDI</text>
+<text x="560.5" y="685" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Quota, Share, VHDX</text>
+<text x="560.5" y="710" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Host-Kapazität und</text>
+<text x="560.5" y="735" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Storage getrennt prüfen</text>
+<rect x="755" y="623" width="323" height="126" rx="18" fill="#fff0ed" stroke="#d78076" stroke-width="2"/>
+<text x="916.5" y="654" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#78352f" font-weight="700" text-anchor="middle">I/O-/DISKFEHLER</text>
+<text x="916.5" y="685" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Fehlerereignisse sichern</text>
+<text x="916.5" y="710" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Datenschutz/Backup prüfen</text>
+<text x="916.5" y="735" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">an Storage eskalieren</text>
+<rect x="198" y="785" width="724" height="77" rx="18" fill="#0b426b" stroke="#0b426b" stroke-width="2"/>
+<text x="560.0" y="816" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#ffffff" font-weight="700" text-anchor="middle">BEI LOKALEM CLIENT: DATEITYP UND VERURSACHER EINGRENZEN</text>
+<text x="560.0" y="847" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="white" font-weight="400" text-anchor="middle">System, Benutzer, Cloud, VSS und Wachstum getrennt bewerten</text>
+<rect x="44" y="895" width="489" height="120" rx="18" fill="#eaf8fb" stroke="#7cbcca" stroke-width="2"/>
+<text x="288.5" y="926" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">BENUTZER-/ANWENDUNGSDATEN</text>
+<text x="288.5" y="957" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Downloads, Archive, Projektdaten:</text>
+<text x="288.5" y="982" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Eigentümer, Backup und Aufbewahrung</text>
+<text x="288.5" y="1007" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">vor jeder Aktion bestätigen</text>
+<rect x="587" y="895" width="489" height="120" rx="18" fill="#eaf8fb" stroke="#7cbcca" stroke-width="2"/>
+<text x="831.5" y="926" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">SYSTEM / WINSXS / VSS</text>
+<text x="831.5" y="957" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">WinSxS nicht manuell löschen;</text>
+<text x="831.5" y="982" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">DISM /AnalyzeComponentStore und</text>
+<text x="831.5" y="1007" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">vssadmin list shadowstorage nur LESEN</text>
+<rect x="44" y="1048" width="489" height="120" rx="18" fill="#eaf8fb" stroke="#7cbcca" stroke-width="2"/>
+<text x="288.5" y="1079" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">CLOUD / OFFLINEKOPIEN</text>
+<text x="288.5" y="1110" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">OneDrive-Synchronisation, Cloudkopie</text>
+<text x="288.5" y="1135" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">und benötigte Offline-Verfügbarkeit</text>
+<text x="288.5" y="1160" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">prüfen; kein Cloudobjekt löschen</text>
+<rect x="587" y="1048" width="489" height="120" rx="18" fill="#eaf8fb" stroke="#7cbcca" stroke-width="2"/>
+<text x="831.5" y="1079" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">UNERKLÄRTES WACHSTUM</text>
+<text x="831.5" y="1110" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Logs, Backup-/Syncagent und Updates</text>
+<text x="831.5" y="1135" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">über Zeit vergleichend untersuchen;</text>
+<text x="831.5" y="1160" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" fill="#193f57" font-weight="400" text-anchor="middle">Verursacher identifizieren</text>
+<rect x="198" y="1228" width="724" height="86" rx="18" fill="#d9f5f2" stroke="#39b8a8" stroke-width="2"/>
+<text x="560.0" y="1259" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">DIAGNOSEBEFUND ABSICHERN</text>
+<text x="560.0" y="1290" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Zwei nachvollziehbare Beobachtungen + erforderliche Freigabe</text>
+<text x="560.0" y="1315" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">vor jeder Änderung dokumentieren</text>
+<rect x="44" y="1350" width="510" height="130" rx="18" fill="#d9f5f2" stroke="#39b8a8" stroke-width="2"/>
+<text x="299.0" y="1381" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#073d61" font-weight="700" text-anchor="middle">GEZIELTE, GENEHMIGTE AKTION</text>
+<text x="299.0" y="1412" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Nur konkrete Dateikategorie bereinigen,</text>
+<text x="299.0" y="1437" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">mit Besitzer abgestimmt archivieren</text>
+<text x="299.0" y="1462" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">oder lokale Offlinekopie freigeben</text>
+<rect x="567" y="1350" width="509" height="130" rx="18" fill="#fff0ed" stroke="#d78076" stroke-width="2"/>
+<text x="821.5" y="1381" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#78352f" font-weight="700" text-anchor="middle">L2/L3: SERVER, BACKUP, STORAGE</text>
+<text x="821.5" y="1412" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Quota, VSS, VHDX, Logrotation,</text>
+<text x="821.5" y="1437" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">Datenträgergesundheit und Retention</text>
+<text x="821.5" y="1462" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#193f57" font-weight="400" text-anchor="middle">nur durch zuständige Administration</text>
+<rect x="190" y="1572" width="740" height="115" rx="18" fill="#0b426b" stroke="#0b426b" stroke-width="2"/>
+<text x="560.0" y="1603" font-family="DejaVu Sans,Arial,sans-serif" font-size="19" fill="#ffffff" font-weight="700" text-anchor="middle">RETEST – VORHER / NACHHER</text>
+<text x="560.0" y="1634" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="white" font-weight="400" text-anchor="middle">Gleiches Volume erneut messen; betroffene Anwendung testen</text>
+<text x="560.0" y="1659" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="white" font-weight="400" text-anchor="middle">Dateien, Sync- und Backup-Funktion sowie Ergebnis dokumentieren</text>
+<rect x="45" y="1714" width="1030" height="49" rx="13" fill="#fff2a3" stroke="#e7b930" stroke-width="1"/>
+<text x="560" y="1745" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" fill="#45330c" font-weight="700" text-anchor="middle">Keine Benutzer-, Windows-, Backup- oder Schattenkopiedaten auf Verdacht löschen.</text>
+</svg>

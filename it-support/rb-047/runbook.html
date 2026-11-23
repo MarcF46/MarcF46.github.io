@@ -1,0 +1,179 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 47: TLS-Zertifikat ungültig oder abgelaufen | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 47: TLS-Zertifikat ungültig oder abgelaufen. Praxis-Runbook, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Praxis-Runbook</p><h1>Ticket 47: TLS-Zertifikat ungültig oder abgelaufen</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html">Lernartikel</a><a href="runbook.html" aria-current="page">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-eingangsticket-und-auswirkung-erfassen">1. Eingangsticket und Auswirkung erfassen</a></li><li><a href="#2-stop-sicherheitskontrolle">2. STOP-/Sicherheitskontrolle</a></li><li><a href="#3-fehlerort-eingrenzen-dns-netzwerk-oder-tls">3. Fehlerort eingrenzen: DNS, Netzwerk oder TLS</a></li><li><a href="#4-remote-zertifikat-und-hostname-mit-sni-prufen">4. Remote-Zertifikat und Hostname mit SNI prüfen</a></li><li><a href="#5-clientvergleich-und-zertifikatskette">5. Clientvergleich und Zertifikatskette</a></li><li><a href="#6-serverseitige-bindung-und-private-schlussel-nur-lesend-prufen">6. Serverseitige Bindung und private Schlüssel nur lesend prüfen</a></li><li><a href="#7-schannel-und-tls-handshakes-bei-unklarem-befund-prufen">7. Schannel und TLS-Handshakes bei unklarem Befund prüfen</a></li><li><a href="#8-entscheidungsmatrix-und-eskalation">8. Entscheidungsmatrix und Eskalation</a></li><li><a href="#9-freigabe-korrektur-und-vollstandiger-retest">9. Freigabe, Korrektur und vollständiger Retest</a></li><li><a href="#10-ticketabschluss-fiktiver-kommentar-und-active-recall">10. Ticketabschluss, fiktiver Kommentar und Active Recall</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 typische IT-Supportfälle · <strong>Version:</strong> 1.0 · <strong>Stand:</strong> 23.11.2026<br/>
+<strong>Validierungsstatus:</strong> Recherche anhand Microsoft-/OpenSSL-/Let's-Encrypt-Quellen; <strong>noch nicht praktisch validiert</strong>. Alle Beispiele sind fiktiv. Lesende Schritte zuerst; jede Korrektur nur nach Freigabe.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb047_diagnosebaum.svg" rel="noopener noreferrer" target="_blank"><img alt="RB-047 – Technischer Entscheidungsbaum für TLS-Zertifikatsfehler" decoding="async" loading="lazy" src="assets/rb047_diagnosebaum.svg"/></a></div><figcaption>RB-047 – Technischer Entscheidungsbaum für TLS-Zertifikatsfehler</figcaption></figure>
+<h2 id="1-eingangsticket-und-auswirkung-erfassen">1. Eingangsticket und Auswirkung erfassen</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Exakte <strong>URL/FQDN</strong>, Port, Browser/Client, Uhrzeit/Zeitzone und <strong>Originalwarnung</strong> dokumentiert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Wann zuletzt erfolgreich? Seit wann Fehler? Gab es Zertifikatserneuerung, TLS-Proxy-, DNS-, IIS- oder LB-Change?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Nur ein Benutzer/Client oder viele? Intern vs. extern? Browser vs. API/Agent?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche Anwendungen und kritischen Dienste hängen von diesem Host ab?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine geheimen Schlüssel, <code>.pfx</code>-Kennwörter, Tokens oder Cookies im Ticket speichern.</li>
+</ul>
+<p><strong>Fiktives Meldungsbeispiel:</strong> „<code>https://portal.example.test/</code> zeigt eine Zertifikatswarnung seit 08:15 Uhr nach Zertifikatstausch.“</p>
+<h2 id="2-stop-sicherheitskontrolle">2. STOP-/Sicherheitskontrolle</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Liegen erlaubte Diagnosebefugnis und korrekte Geräte-/Domainzuordnung vor?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Warnung deutet auf unbekannte CA, unerwarteten Issuer, mögliche TLS-Manipulation oder kompromittierten Private Key? <strong>STOP → PKI/Security.</strong></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Kein</strong> <code>curl -k</code>, kein „trotzdem fortfahren“ als Problemlösung, kein blindes Importieren von Stammzertifikaten.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Keine Änderung an SNI/Binds/Trust-Stores, TLS-Algorithmen oder Schannel ohne Change-Freigabe, Sicherung und Rollback.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Vor produktivem Eingriff Zertifikatseigentümer, betroffene Front-/Backend-Endpunkte und Wartungsfenster klären.</li>
+</ul>
+<h2 id="3-fehlerort-eingrenzen-dns-netzwerk-oder-tls">3. Fehlerort eingrenzen: DNS, Netzwerk oder TLS</h2>
+<p><strong>Lesende Befehle</strong> am betroffenen Windows-Client:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell">Get-Date
+w32tm /query /status
+Resolve-DnsName portal.example.test
+Test-NetConnection portal.example.test -Port 443
+</code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li>Keine DNS-Auflösung → RB-034 (DNS), hier vorerst keine Zertifikatsthese als bestätigt betrachten.</li>
+<li>TCP 443 nicht erreichbar → RB-038/039 (Pfad/Listener/Firewall).</li>
+<li>TCP 443 erreichbar, Browser warnt → jetzt <strong>Remote-TLS-Zertifikat</strong> prüfen.</li>
+<li>TCP 443 erreichbar, aber Handshake ohne Zertifikat scheitert → TLS-Version, Cipher, Listener, SNI, Proxy und Schannel prüfen; nicht vorschnell „abgelaufen“ eintragen.</li>
+</ul>
+<h2 id="4-remote-zertifikat-und-hostname-mit-sni-prufen">4. Remote-Zertifikat und Hostname mit SNI prüfen</h2>
+<p><strong>Lesender OpenSSL-Test</strong> in dafür zugelassener Umgebung; Platzhalter ersetzen:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bash</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bash">openssl s_client -connect portal.example.test:443 \
+  -servername portal.example.test \
+  -verify_hostname portal.example.test \
+  -verify_return_error -showcerts &lt;/dev/null
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welches <strong>Leaf-Zertifikat</strong> wird tatsächlich präsentiert (Issuer, SAN, Fingerprint, Gültigkeit)?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist der FQDN im <strong>SAN</strong> passend abgedeckt, ohne unzulässige Wildcardannahme?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Stimmen <code>notBefore</code>, <code>notAfter</code> und verlässliche Uhrzeit?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind Intermediate(s) in der präsentierten Chain enthalten und kann der konkrete Client zu einer genehmigten Root-CA validieren?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Berücksichtigt: OpenSSL und Windows-/Browser-Trust können sich unterscheiden; der Test muss im passenden Clientkontext interpretiert werden.</li>
+</ul>
+<p><strong>Separat, lesend – nur aus bereits vorliegender öffentlicher PEM-Zertifikatsdatei:</strong></p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">bash</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-bash">openssl x509 -in server-leaf.pem -noout -subject -issuer -dates \
+  -ext subjectAltName -fingerprint -sha256
+</code></pre></div>
+<h2 id="5-clientvergleich-und-zertifikatskette">5. Clientvergleich und Zertifikatskette</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Gleicher FQDN und ungefähr gleicher Zeitpunkt an <strong>zwei unabhängigen</strong> genehmigten Clients (z. B. intern/extern) geprüft?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Unterscheiden sich <strong>Remote-Fingerprint</strong>, Zertifikatsketten, Proxy-Pfad, SNI oder IPv4/IPv6-Ziel?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls nur ein Client scheitert: Zeitquelle, Trust Store, lokale Sicherheitssoftware, Proxy-/TLS-Inspektion und ggf. Sperrprüfung untersuchen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls alle scheitern: Zertifikat der TLS-terminierenden Komponente und ihre Chain/Binds prüfen.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Fehlende Intermediate-CA nicht mit einer willkürlichen neuen Root-CA „reparieren“.</li>
+</ul>
+<p><strong>A/B-Test:</strong> Ein „Internet-Client scheitert, internes Gerät funktioniert“-Befund deutet auf unterschiedliche Vertrauensbedingungen oder Endpunkte, <strong>beweist aber ohne Fingerprintvergleich keine konkrete Ursache</strong>.</p>
+<h2 id="6-serverseitige-bindung-und-private-schlussel-nur-lesend-prufen">6. Serverseitige Bindung und private Schlüssel <em>nur lesend</em> prüfen</h2>
+<p>Auf autorisiertem Windows-/IIS-Server:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># Zertifikatsinventar; nicht die tatsächlich ausgelieferte Bindung:
+Get-ChildItem Cert:\LocalMachine\My -ErrorAction SilentlyContinue |
+  Select-Object Subject, Thumbprint, NotAfter, HasPrivateKey
+
+# Aktive HTTP.sys-Bindungen und zugeordnete Fingerprints:
+netsh http show sslcert
+
+# Falls WebAdministration/IIS verfügbar:
+Get-WebBinding -Protocol https |
+  Select-Object protocol, bindingInformation, sslFlags
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist das <strong>erneuerte</strong> Zertifikat im richtigen Store vorhanden?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ist der passende private Schlüssel im erforderlichen <strong>Sicherheitskontext</strong> verfügbar? Nicht exportieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Welche IIS-/HTTP.sys-/Proxy-/LB-/CDN-Bindung liefert <strong>tatsächlich</strong> für <code>Hostname:443</code> das Zertifikat?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Sind mehrere Nodes, SNI und unterschiedliche interne/externe TLS-Endpunkte berücksichtigt?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/><strong>Nicht</strong> SHA-1-Windows-Thumbprint und SHA-256-OpenSSL-Fingerprint unmittelbar vergleichen; Algorithmus angleichen oder Seriennummer/Issuer gegenüberstellen.</li>
+</ul>
+<h2 id="7-schannel-und-tls-handshakes-bei-unklarem-befund-prufen">7. Schannel und TLS-Handshakes bei unklarem Befund prüfen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – Ereignisse der letzten 24 Stunden:
+Get-WinEvent -FilterHashtable @{
+ LogName='System'; ProviderName='Schannel';
+ StartTime=(Get-Date).AddDays(-1)
+} -MaxEvents 40 -ErrorAction SilentlyContinue |
+ Select-Object TimeCreated, Id, LevelDisplayName, Message
+</code></pre></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Handshake-Fehler mit <strong>Testzeitpunkt und Ziel</strong> korreliert?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Zertifikatsbezogener Fehler oder TLS-Version/Cipher/SNI/Private-Key-Problematik?</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Falls TCP/TLS erfolgreich, aber HTTP/App fehlschlägt → Anwendungs- bzw. Backenddiagnose statt Zertifikatsfix.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Ausführliche Schannel-Protokollierung <strong>nicht</strong> ohne Genehmigung verändern.</li>
+</ul>
+<h2 id="8-entscheidungsmatrix-und-eskalation">8. Entscheidungsmatrix und Eskalation</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nachgewiesener Befund</th>
+<th>Zuständiger Korrekturpfad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Remote-Zertifikat abgelaufen</td>
+<td>Web/PKI: Erneuerung, richtige Bindung und vollständiger Rollout</td>
+</tr>
+<tr>
+<td>FQDN im SAN nicht passend</td>
+<td>Web/PKI: korrekter Hostname, SAN, SNI/Binding</td>
+</tr>
+<tr>
+<td>Unvollständige Chain</td>
+<td>PKI/Web: Intermediate korrekt am Server/Proxy bereitstellen</td>
+</tr>
+<tr>
+<td>Nicht genehmigter Issuer oder möglicher MITM</td>
+<td><strong>STOP:</strong> Security/PKI Incident-Bewertung</td>
+</tr>
+<tr>
+<td>Nur Client A betroffen</td>
+<td>Endpoint/PKI: Uhrzeit, Trust, Proxy, Richtlinie vergleichen</td>
+</tr>
+<tr>
+<td>Nur ein Reverse-Proxy-Node betroffen</td>
+<td>Plattform/Web-Team: Endpoint-/Listener-Konfigurationsdrift</td>
+</tr>
+<tr>
+<td>TLS erfolgreich, App defekt</td>
+<td>Applikations-/Backend-Team: HTTP/Auth/Dienstzustand</td>
+</tr>
+<tr>
+<td>TLS-Aushandlung ohne Zertifikat scheitert</td>
+<td>Server/Netz: Protokoll, Cipher, Listener/Proxy, Schannel</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>L2-Grenze:</strong> Genehmigte, reversible Konfigurationsänderung durch zuständiges Betriebsteam. Root-CA-Rollout, kompromittierter Schlüssel, öffentliches Zertifikatsmanagement und Massenrollout können PKI-/Security-/L3-Aufgaben sein.</p>
+<h2 id="9-freigabe-korrektur-und-vollstandiger-retest">9. Freigabe, Korrektur und <strong>vollständiger</strong> Retest</h2>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Erst Diagnosebefund mit überprüfbarer Kette aus <strong>Fehlermeldung → Remote-Zertifikat → Ursache</strong> dokumentieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Minimale Änderung nach Freigabe, Backup/Export des <strong>Konfigurationszustands</strong> und Rückfallplan; private Schlüssel sicher behandeln.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Neuerlicher Aufruf mit <strong>exaktem FQDN</strong> und SNI, <strong>ohne</strong> Vertrauens-Bypass.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Remote präsentes Leaf/Fingerprint, SAN, Gültigkeit, Chain und Vertrauensentscheidung kontrollieren.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Mindestens ein unabhängiger Client und ggf. jede relevante Node/Region/Frontend-Backend-Route getestet.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Anwendung selbst mit geschützter Sitzung testen (z. B. genehmigte GET-Anfrage, Anmeldung, Fachfunktion), nicht nur TCP-Connect.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox"/>Monitoring/Automatisierung zur Zertifikatserneuerung und rechtzeitiger Ablaufwarnung als Präventionspunkt an Betriebsteam übergeben.</li>
+</ul>
+<p><strong>Erfolg erst dann:</strong> erwartete Zertifikatsidentität, kein Warnhinweis, notwendige Anwendung funktioniert, Änderung und Nachtest dokumentiert.</p>
+<h2 id="10-ticketabschluss-fiktiver-kommentar-und-active-recall">10. Ticketabschluss, fiktiver Kommentar und Active Recall</h2>
+<p><strong>Ticketbelege:</strong> Host/FQDN, URL/Port, Datum/Zeitzone, Clients/Standort, exakte Warnung, Name/SAN/Issuer, <code>notBefore/notAfter</code>, Remote-Fingerprint, Chainbefund, gegebenenfalls Listener-/LB-Fingerprint, Testbefehle und relevante Ergebnisse, Ursache, Change-Freigabe, neue Bindung/Version, unabhängiger Retest.</p>
+<p><strong>Muster-Ticketkommentar – ausdrücklich fiktiv:</strong></p>
+<blockquote>
+<p>„RB-047, <code>portal.example.test</code> meldet seit 08:15 Zertifikatswarnung. Vergleich am Client mit Host-SNI ergibt remote <code>notAfter</code> überschritten; IIS-Inventar enthält bereits erneuertes Zertifikat, aber die aktive HTTPS-Bindung referenziert noch das ältere Zertifikat. Abweichung samt Endpoint-Fingerprint dokumentiert und an zuständiges Web-/PKI-Team zur genehmigten Änderung übergeben. Nach dem Change sind Remote-Zertifikatsprüfung, Chain-/SAN-Validierung und Anwendungstest von zwei Clients als Retest erforderlich. <strong>Bis dahin nicht als gelöst markiert.</strong>“</p>
+</blockquote>
+<p><strong>Active Recall:</strong></p>
+<ol>
+<li>Weshalb reicht <code>Test-NetConnection -Port 443</code> als Erfolgskriterium nicht?</li>
+<li>Welche <strong>zwei verschiedenen</strong> Zwecke erfüllen <code>-servername</code> und <code>-verify_hostname</code>?</li>
+<li>Woran erkennst du „erneuert, aber alte TLS-Bindung“?</li>
+<li>Warum ist ein fehlendes Intermediate etwas anderes als eine nicht vertrauenswürdige Root-CA?</li>
+<li>Welche Art von Änderung wäre ohne Freigabe besonders riskant?</li>
+</ol>
+<h3 id="quellen-offizielle-dokumentationen-recherchiert-23-11-2026">Quellen – offizielle Dokumentationen (recherchiert 23.11.2026)</h3>
+<ul>
+<li>[Q1] Microsoft Learn – Azure Application Gateway: <a href="https://learn.microsoft.com/en-us/troubleshoot/azure/application-gateway/application-gateway-backend-health-troubleshooting" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/azure/application-gateway/application-gateway-backend-health-troubleshooting</a></li>
+<li>[Q3] Let's Encrypt – Zertifikatsketten: <a href="https://letsencrypt.org/certificates/" rel="noopener noreferrer" target="_blank">https://letsencrypt.org/certificates/</a></li>
+<li>[Q4] Microsoft Learn – Schannel Event Logging: <a href="https://learn.microsoft.com/en-us/troubleshoot/developer/webapps/iis/health-diagnostic-performance/enable-schannel-event-logging" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/troubleshoot/developer/webapps/iis/health-diagnostic-performance/enable-schannel-event-logging</a></li>
+<li>[Q5] Microsoft Learn – PowerShell Zertifikatsanbieter: <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-7.5" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/about/about_certificate_provider?view=powershell-7.5</a></li>
+<li>[Q6] OpenSSL – <code>s_client</code>: <a href="https://docs.openssl.org/3.4/man1/openssl-s_client/" rel="noopener noreferrer" target="_blank">https://docs.openssl.org/3.4/man1/openssl-s_client/</a></li>
+<li>[Q7] OpenSSL – <code>x509</code>: <a href="https://docs.openssl.org/3.4/man1/openssl-x509/" rel="noopener noreferrer" target="_blank">https://docs.openssl.org/3.4/man1/openssl-x509/</a></li>
+<li>[Q8] Microsoft Learn – IIS SSL einrichten: <a href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/how-to-set-up-ssl-on-iis" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/iis/manage/configuring-security/how-to-set-up-ssl-on-iis</a></li>
+<li>[Q9] Microsoft Learn – CA-Pfadprüfung: <a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-certificate-path-validation-revocation-policy" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-certificate-path-validation-revocation-policy</a></li>
+<li>[Q10] Microsoft Learn – <code>netsh http</code>: <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-http" rel="noopener noreferrer" target="_blank">https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh-http</a></li>
+</ul>
+<p><strong>Validierung:</strong> Die genannten Verfahren sind recherchiert und theoretisch nachvollzogen, <strong>nicht praktisch im Zielnetz getestet</strong>. Die verwendeten Daten sind fiktiv; produktive Änderungen nicht allein anhand dieses Musters ausführen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-047_Praxis-Runbook.md">RB-047_Praxis-Runbook.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-046/index.html">← Ticket 46</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-048/index.html">Ticket 48 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>

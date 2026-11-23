@@ -1,0 +1,328 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ticket 45: Gerät wird nicht korrekt in Intune verwaltet | Marc Fahlbusch</title><meta name="description" content="Supportfall Ticket 45: Gerät wird nicht korrekt in Intune verwaltet. Lernartikel, Grundlagen und strukturierte Diagnose."><link rel="stylesheet" href="../../assets/styles.css?v=20261108-8"><link rel="stylesheet" href="../../assets/support.css?v=20261108-3"><script src="../../assets/support.js?v=20261108-3" defer></script></head><body id="top"><header class="site-header"><nav class="nav" aria-label="Hauptnavigation"><a class="logo" href="../../index.html#topics"><span class="logo-mark">MF</span><span>Marc Fahlbusch · IT-Praxis</span></a><div class="nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer" aria-label="Mein LinkedIn-Profil öffnen">LinkedIn</a></div><details class="mobile-menu"><summary aria-label="Navigationsmenü öffnen">Menü <span aria-hidden="true">☰</span></summary><div class="mobile-nav-links"><a href="../../index.html#topics">Projekte</a><a href="../../index.html#about">Über mich</a><a href="../../index.html#contact">Kontakt</a><a class="nav-button" href="https://github.com/MarcF46" target="_blank" rel="noopener noreferrer">GitHub</a><a class="nav-button" href="https://www.linkedin.com/in/marc-fahlbusch-1762b3335" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></details></nav></header><main><section class="section support-case-hero"><p class="eyebrow">IT-Support · L1/L2 · Lernartikel</p><h1>Ticket 45: Gerät wird nicht korrekt in Intune verwaltet</h1><p class="project-date">Dokumentationsstand: <time datetime="2026-11-23">23.11.2026</time> · Recherche dokumentiert · Praxisvalidierung ausstehend</p><p class="support-backline"><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">← Projektübersicht</a></p><nav class="support-subnav" aria-label="Dokumente des Supportfalls"><a href="index.html" aria-current="page">Lernartikel</a><a href="runbook.html">Praxis-Runbook</a></nav></section><section class="section support-case-main"><div class="support-case-layout"><article class="project-card lab-intro-article support-case-text"><p class="support-disclaimer"><strong>Transparenz:</strong> Recherchierte und theoretisch nachvollzogene Fallanalyse. Eine vollständige praktische Validierung der beschriebenen Maßnahmen ist nicht belegt. Genannte Muster-Tickets und Beispielsysteme sind fiktiv; Änderungen an produktiven Systemen setzen Berechtigung, Freigabe und Risikoprüfung voraus.</p><nav class="support-page-toc" aria-label="Inhaltsverzeichnis"><strong>In diesem Dokument</strong><ol><li><a href="#1-storungsbild-abgrenzung-und-lernziel">1. Störungsbild, Abgrenzung und Lernziel</a></li><li><a href="#2-architektur-funf-voneinander-zu-trennende-stationen">2. Architektur: Fünf voneinander zu trennende Stationen</a></li><li><a href="#3-typische-fehlerbilder-und-die-jeweils-erste-hypothese">3. Typische Fehlerbilder und die jeweils erste Hypothese</a></li><li><a href="#4-ticketaufnahme-eine-eindeutige-geratezuordnung-herstellen">4. Ticketaufnahme: Eine eindeutige Gerätezuordnung herstellen</a></li><li><a href="#5-sicherheitsgate-vor-anderungen-an-verwaltung-und-identitat">5. Sicherheitsgate – vor Änderungen an Verwaltung und Identität</a></li><li><a href="#6-diagnose-a-entra-registrierungszustand-lokal-lesend-prufen">6. Diagnose A – Entra-Registrierungszustand lokal lesend prüfen</a></li><li><a href="#7-diagnose-b-enrollment-und-berechtigungspfad-im-portal-prufen">7. Diagnose B – Enrollment und Berechtigungspfad im Portal prüfen</a></li><li><a href="#8-diagnose-c-mdm-logs-und-ereignisse-lesend-korrelieren">8. Diagnose C – MDM-Logs und Ereignisse lesend korrelieren</a></li><li><a href="#9-diagnose-d-fehlenden-check-in-von-fehlender-policy-trennen">9. Diagnose D – Fehlenden Check-in von fehlender Policy trennen</a></li><li><a href="#10-diagnose-e-policies-compliance-und-csp-getrennt-bewerten">10. Diagnose E – Policies, Compliance und CSP getrennt bewerten</a></li><li><a href="#11-hypothesen-systematisch-testen-entscheidungsmatrix">11. Hypothesen systematisch testen – Entscheidungsmatrix</a></li><li><a href="#12-massnahmen-nach-ursache-jeweils-nach-freigabe">12. Maßnahmen nach Ursache, jeweils nach Freigabe</a></li><li><a href="#13-zwei-realistische-ausdrucklich-fiktive-supportfalle">13. Zwei realistische, ausdrücklich fiktive Supportfälle</a></li><li><a href="#14-erfolgskontrolle-eskalation-und-ticketdokumentation">14. Erfolgskontrolle, Eskalation und Ticketdokumentation</a></li><li><a href="#15-active-recall-self-explanation-und-spateres-training">15. Active Recall, Self-Explanation und späteres Training</a></li><li><a href="#quellen-offizielle-microsoft-dokumentation-abgerufen-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (abgerufen 22.11.2026)</a></li></ol></nav><div class="support-markdown">
+<p><strong>Projekt:</strong> 50 Tickets – 50 typische IT-Supportfälle<br/>
+<strong>Stand:</strong> 22.11.2026 · <strong>Version:</strong> 1.0 · <strong>Systeme:</strong> Windows 11, Microsoft Entra ID, Microsoft Intune<br/>
+<strong>Status:</strong> Offizielle Microsoft-Quellen recherchiert, theoretisch nachvollzogen; <strong>noch nicht praktisch validiert</strong>. Alle Namen, IDs, Fehlerzustände und Störungsfälle sind <strong>fiktiv</strong>. Keine produktiven Geräte wurden verändert.</p>
+<figure class="support-image-figure"><div class="support-image-viewport"><a href="assets/rb045_henne_ei_intune_geraeteverwaltung.webp" rel="noopener noreferrer" target="_blank"><img alt="RB-045 – Die fünf Stationen der Intune-Geräteverwaltung" decoding="async" loading="lazy" src="assets/rb045_henne_ei_intune_geraeteverwaltung.webp"/></a></div><figcaption>RB-045 – Die fünf Stationen der Intune-Geräteverwaltung</figcaption></figure>
+<blockquote>
+<p><strong>Merksatz:</strong> <strong>Entra-Geräteidentität ≠ Intune-MDM-Enrollment ≠ erfolgreicher Check-in ≠ wirksame Richtlinie ≠ bestätigte Compliance.</strong> Erst feststellen, auf welcher Ebene die Kette scheitert.</p>
+</blockquote>
+<hr/>
+<h2 id="1-storungsbild-abgrenzung-und-lernziel">1. Störungsbild, Abgrenzung und Lernziel</h2>
+<p><strong>Muster-Ticket:</strong> „Mein Windows-11-Arbeitsgerät taucht in Entra ID auf, aber im Intune Admin Center fehlen die Einstellungen; die Geräte-Compliance ist unbekannt und die neue Unternehmensrichtlinie kommt nicht an.“</p>
+<p><strong>Ziel:</strong> Eindeutig die Geräteidentität und das betroffene Verwaltungssymptom bestimmen; Enrollment, letzte Meldung, Zuweisung, Konfigurationsstatus und tatsächliche Clientwirkung mit unabhängigen Befunden abgleichen. Erst danach eine freigegebene Korrektur wählen und verifizieren.</p>
+<p><strong>Weitere Fehlermeldungen:</strong> „Gerät wird bereits verwaltet“, „Ihr Unternehmen kann das Gerät nicht verwalten“, „Richtlinie ausstehend“, „Nicht konform“, „Synchronisierung fehlgeschlagen“, „Konfiguration in Intune erfolgreich, lokal nicht sichtbar“.</p>
+<p><strong>Abgrenzung:</strong> RB-029 behandelt Lizenzfehler, RB-040 klassische AD-GPO-Verarbeitung und RB-046 das eigentliche Softwaredeployment. RB-045 behandelt <strong>den MDM-Verwaltungszustand als Ganzes</strong>. Ein Gerät kann korrekt eingeschrieben sein und dennoch bei einzelnen Apps/Policies Probleme haben.</p>
+<p><strong>L2-Arbeitsziel:</strong> Zwei getrennte Belege anfertigen: <strong>Intune-Cloudstatus</strong> und <strong>Client-Befund</strong>; anschließend Ursache, konkrete Maßnahme und erfolgreichen Retest dokumentieren. [Q1–Q6]</p>
+<h2 id="2-architektur-funf-voneinander-zu-trennende-stationen">2. Architektur: Fünf voneinander zu trennende Stationen</h2>
+<div class="code-block"><div class="code-caption"><span class="code-lang">text</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-text">Microsoft Entra: eindeutige Geräteidentität (Join/Registrierung)
+            ↓
+MDM-Enrollment: Gerät wird tatsächlich in Intune verwaltet
+            ↓
+Check-in: Gerät verbindet sich, verarbeitet Aufgaben und meldet Status
+            ↓
+Zuweisung + Verarbeitung: Policies, CSP, Gruppen, Filter, Konflikte
+            ↓
+Compliance: Gerät bewertet und Status an Intune zurückgemeldet
+            ↓
+Geschäftsprüfung: erwartete Einstellung vorhanden, Zugriff funktioniert
+</code></pre></div>
+<ul>
+<li><strong>Microsoft Entra Join/Registrierung:</strong> Identität und Vertrauenszustand im Verzeichnis; nicht automatisch der Nachweis, dass Intune MDM-Richtlinien verwaltet.</li>
+<li><strong>MDM-Enrollment:</strong> Eigenständige Registrierung beim MDM-Dienst; berechtigter MDM-Provider, Geräte-/Benutzerkontext und unterstützte Betriebssystemedition erforderlich.</li>
+<li><strong>Check-in:</strong> Austausch mit Intune. Fehlender aktueller Check-in kann neue Zuweisungen und Statusmeldungen verhindern; <strong>ein vergangener erfolgreicher Check-in beweist nicht die aktuelle Verarbeitung jeder Policy</strong>.</li>
+<li><strong>Policy-Verarbeitung:</strong> Eine bestimmte Policy kann <em>Pending</em>, <em>Error</em>, <em>Conflict</em>, <em>Not applicable</em> oder erfolgreich sein; Scope, Gruppen und CSP-Eignung getrennt prüfen.</li>
+<li><strong>Compliance:</strong> Bewerteter und gemeldeter Gerätezustand, oft mit Einfluss auf Conditional Access. <strong>„Nicht konform“ ist nicht dasselbe wie „nicht registriert“</strong>. [Q1, Q2, Q4]</li>
+</ul>
+<h2 id="3-typische-fehlerbilder-und-die-jeweils-erste-hypothese">3. Typische Fehlerbilder und die jeweils erste Hypothese</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Befund</th>
+<th>Denkbare Ursachen</th>
+<th>Erste gezielte Prüfung</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entra-Eintrag existiert, aber kein aktuelles Intune-Gerät</td>
+<td>Kein MDM-Enrollment, falscher Tenant, falscher Datensatz, Restriktion, fehlende Lizenz</td>
+<td>Identität, MDM-Status, Enrollment-Fehlercode</td>
+</tr>
+<tr>
+<td>Enrollment bricht ab</td>
+<td>Lizenz, MDM-User-Scope, Geräteobergrenze, Windows-Edition, Enrollment-Restriktion, vorhandene Verwaltung</td>
+<td>Intune-/Entra-Vorgaben und MDM-Admin-Log</td>
+</tr>
+<tr>
+<td>Letzter Intune-Check-in alt</td>
+<td>Gerät offline, Proxy/TLS/DNS, Dienst-/Konto-/Enrollment-Problem</td>
+<td>Gerätezeitstempel, Client-Netzwerk, MDM-Ereignisse</td>
+</tr>
+<tr>
+<td>Check-in aktuell, bestimmte Policy fehlt</td>
+<td>Gruppenzuweisung, Filter, Scope, Plattform, CSP nicht anwendbar</td>
+<td>Policy-Assignment und Geräte-Policy-Report</td>
+</tr>
+<tr>
+<td>Policy meldet <em>Conflict</em></td>
+<td>Zwei Konfigurationen widersprechen sich</td>
+<td>Konkrete kollidierende Einstellung und Quellprofile</td>
+</tr>
+<tr>
+<td>Status <em>Pending</em> oder <em>Not evaluated</em></td>
+<td>Noch keine Meldung, ausstehende Evaluierung, Datenaktualisierung</td>
+<td>Letzte Meldung und zeitlicher Verlauf</td>
+</tr>
+<tr>
+<td>Portal sagt „konform“, Gerät zeigt falsches Verhalten</td>
+<td>Bericht verzögert, andere Policy, lokale Wirkung fehlerhaft</td>
+<td>Gerätestatus + lokale Einstellung nachmessen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Nicht aus einem einzelnen Portalstatus schließen</strong>, dass Hardware, Benutzerkonto oder gesamte Richtlinienplattform defekt ist. [Q1, Q4]</p>
+<h2 id="4-ticketaufnahme-eine-eindeutige-geratezuordnung-herstellen">4. Ticketaufnahme: Eine eindeutige Gerätezuordnung herstellen</h2>
+<ol>
+<li><strong>Benutzer und Gerät:</strong> Hostname, Windows-Version/-Edition, Gerätetyp, Standort/VPN, betroffener Benutzer, UPN (datensparsam).</li>
+<li><strong>Identifikatoren:</strong> Entra Device ID und Intune Device ID dort abgleichen, wo verfügbar; Seriennummer kann als Vergleichshinweis dienen. <strong>Hostname allein ist nicht eindeutig.</strong></li>
+<li><strong>Tenant und Enrollment-Pfad:</strong> Entra joined, hybrid joined, registered/BYOD, Autopilot oder GPO-Autoenrollment? Erneute Enrollmentversuche, Gerätewechsel, Imaging oder Klonen?</li>
+<li><strong>Fehlerbild:</strong> Welches Policy-Profil / welcher Compliance-Check / welcher Zugriff fehlt? Wortlaut, Code, Zeit und letzte erfolgreiche Verarbeitung.</li>
+<li><strong>Ausmaß:</strong> Ein Gerät, eine Nutzergruppe, ein bestimmter Gerätesatz oder ganzer Standort? Vergleich mit bekannt intaktem, gleichartig zugewiesenem Gerät.</li>
+<li><strong>Impact:</strong> Conditional Access blockiert Ressourcen? Security-Baseline fehlt? Produktions-/Datenverlustgefahr oder lediglich Portalverzögerung?</li>
+</ol>
+<p><strong>Schreibregel:</strong> „Gerät nicht verwaltet“ ist zu unpräzise; besser: „Entra-Join vorhanden, kein Intune-MDM-Enrollment nachweisbar“ oder „Enrollment vorhanden, letzter Check-in 72 h alt“.</p>
+<h2 id="5-sicherheitsgate-vor-anderungen-an-verwaltung-und-identitat">5. Sicherheitsgate – <strong>vor</strong> Änderungen an Verwaltung und Identität</h2>
+<ul>
+<li>Vorhandene Geräte-/Entra-Objekte <strong>nicht auf Verdacht löschen</strong>; <strong>kein Wipe, Retire, Fresh Start, Autopilot Reset, Zurücksetzen, MDM-Abmelden oder <code>dsregcmd /leave</code></strong> ohne Change, Eigentümer, Daten- und Wiederherstellungsplan.</li>
+<li>Keine ungezielten <strong>MDM-Zertifikate/Registry-Profile</strong> entfernen. Einzelne Microsoft-Artikel beschreiben solche Eingriffe für <strong>spezifische Fehlercodes</strong>; sie sind keine Standardreparatur.</li>
+<li>Bei Remotezugriff sicherstellen, dass VPN, Anmeldung, BitLocker-Schlüssel, Gerätezertifikate, Wiederaufnahme der Verwaltung und Fernzugang geklärt sind.</li>
+<li>Intune-<strong>Sync ist eine Zustandsänderung</strong>: Er kann ausstehende Richtlinien, Skripte und Appaktionen anstoßen. Nur mit Einwilligung/Berechtigung und bekannter Auswirkung durchführen.</li>
+<li>Ausgaben von <code>dsregcmd</code>, Logdateien und MDM-Diagnosepaketen können Tenant-, Nutzer-, Device-ID- und andere sensible Details enthalten; nur erforderliche Auszüge geschützt ablegen.</li>
+<li>Compliance-/Security-Richtlinien <strong>niemals abschalten</strong>, nur damit die Anzeige „grün“ wird. [Q2–Q6]</li>
+</ul>
+<h2 id="6-diagnose-a-entra-registrierungszustand-lokal-lesend-prufen">6. Diagnose A – Entra-Registrierungszustand lokal <strong>lesend</strong> prüfen</h2>
+<p>Auf dem <strong>betroffenen</strong> Windows-PC in einer <strong>gewöhnlichen Benutzerkonsole</strong> für den Benutzerkontext (bei Bedarf gezielte Gegenprüfung als Admin, aber nicht die Kontexte verwechseln):</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">cmd</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-cmd">REM LESEND: Windows-Geräteregistrierungszustand untersuchen.
+dsregcmd /status
+</code></pre></div>
+<p>Relevante Abschnitte und Interpretationsgrenzen:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Feld (Beispiel)</th>
+<th>Bedeutung im passenden Kontext</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AzureAdJoined : YES</code></td>
+<td>Das Gerät ist Microsoft Entra joined; <strong>nicht automatisch Intune enrolled</strong></td>
+</tr>
+<tr>
+<td><code>DomainJoined : YES</code></td>
+<td>Lokale AD-Domänenmitgliedschaft; zusammen mit Entra Join Hinweis auf Hybrid Join</td>
+</tr>
+<tr>
+<td><code>WorkplaceJoined : YES</code></td>
+<td>Benutzerseitige Arbeitsplatzregistrierung möglich; kein allgemeiner MDM-Nachweis</td>
+</tr>
+<tr>
+<td><code>AzureAdPrt : YES</code></td>
+<td>Hinweis auf nutzerbezogene SSO-Sitzung im passenden Kontext; sagt allein nichts über jede MDM-Policy</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Wichtig:</strong> <code>dsregcmd /status</code> ersetzt nicht den <strong>Intune-Enrollmentstatus</strong> im Admin Center und auch nicht den MDM-Ereignisnachweis. Je nach Anmeldekontext können bestimmte User-State-Felder abweichen. Vollständige Ausgaben nicht ungefiltert ins Ticket kopieren. [Q2, Q3]</p>
+<h2 id="7-diagnose-b-enrollment-und-berechtigungspfad-im-portal-prufen">7. Diagnose B – Enrollment und Berechtigungspfad im Portal prüfen</h2>
+<p>Bei berechtigtem Zugriff auf <code>https://intune.microsoft.com</code> und Entra-Portal:</p>
+<ol>
+<li>Gerät im <strong>Intune Admin Center → Geräte → Alle Geräte</strong> anhand sicherer Merkmale suchen; Status, Verwaltungstyp und <strong>letzten Check-in</strong> notieren.</li>
+<li>Das passende Entra-Geräteobjekt mit Join-Typ, Geräte-ID und Aktivität korrelieren. Ein ähnlich benanntes altes/dupliziertes Objekt nicht vorschnell verwenden.</li>
+<li>Bei <strong>fehlendem Enrollment</strong> prüfen: korrekter <strong>Tenant</strong>, Benutzerlizenz und Enrollmentberechtigung, <strong>MDM User Scope</strong>, unterstützte Windows-Edition, Geräteobergrenze und Enrollment-Restriktionen (Plattform/Besitz).</li>
+<li>Bei <strong>hybrid-joined GPO-Autoenrollment</strong>: Join-Zustand, einschlägige GPO, Aufgabenplanung unter <code>Microsoft\Windows\EnterpriseMgmt</code> und MDM-Log prüfen. GPO-Autoenrollment ist nicht der gleiche Pfad wie jede BYOD-Registrierung.</li>
+<li>Wenn <strong>anderes MDM</strong> oder eine bestehende Registrierung gemeldet wird: genaue Fehlermeldung und Organisationseigentümer ermitteln; keine vorhandene Verbindung entfernen, bevor der Übergangsprozess feststeht.</li>
+</ol>
+<p><strong>Beispiel:</strong> „Entra-Geräteobjekt vorhanden“ + „kein Intune-Enrollment“ → zuerst <strong>Registrierungsursache</strong> untersuchen; Policy-Konflikte sind hier noch keine sinnvolle erste Hypothese. [Q2, Q3]</p>
+<h2 id="8-diagnose-c-mdm-logs-und-ereignisse-lesend-korrelieren">8. Diagnose C – MDM-Logs und Ereignisse <strong>lesend</strong> korrelieren</h2>
+<p>Die Windows-Ereignisanzeige enthält MDM-Verarbeitungsdaten unter:</p>
+<p><code>Anwendungs- und Dienstprotokolle → Microsoft → Windows → DeviceManagement-Enterprise-Diagnostics-Provider → Admin</code></p>
+<p>Die folgenden PowerShell-Abfragen lesen vorhandene Ereignisse; lokale Administratorrechte können je nach Umgebung nötig sein:</p>
+<div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># LESEND – die 30 jüngsten MDM-Admin-Ereignisse:
+$Log = 'Microsoft-Windows-DeviceManagement-Enterprise-Diagnostics-Provider/Admin'
+Get-WinEvent -LogName $Log -MaxEvents 30 |
+  Select-Object TimeCreated, Id, LevelDisplayName, Message
+
+# LESEND – spezifische Enrollment-Ereignisse mit Zeitstempel:
+Get-WinEvent -FilterHashtable @{LogName=$Log; Id=75,76} -MaxEvents 20 |
+  Select-Object TimeCreated, Id, Message
+</code></pre></div>
+<ul>
+<li>Bei <strong>GPO-Autoenrollment</strong> ist Ereignis <strong>75</strong> ein Hinweis auf erfolgreiches, <strong>76</strong> auf fehlgeschlagenes Autoenrollment. Fehlen beide, kann die Einschreibung möglicherweise gar nicht gestartet worden sein; geplante Aufgabe und GPO prüfen.</li>
+<li><strong>Nicht</strong> jede Intune-Konfiguration nutzt genau diese Enrollment-Events; Codes und Ereignistext stets im konkreten Registrierungspfad interpretieren.</li>
+<li>MDM-Diagnoseexport (z. B. <code>mdmdiagnosticstool.exe</code>) nur nach Freigabe und mit geeigneter sicherer Ablage; der Export schreibt Dateien und ist daher <strong>nicht</strong> als rein lesender Befehl kategorisiert. [Q3, Q5]</li>
+</ul>
+<h2 id="9-diagnose-d-fehlenden-check-in-von-fehlender-policy-trennen">9. Diagnose D – Fehlenden Check-in von fehlender Policy trennen</h2>
+<p><strong>Wenn bereits enrolled:</strong> Letzten Check-in im Intune-Geräteobjekt und Zustand zum Fehlerzeitpunkt vergleichen. Kontrolliere Datum/Uhrzeit, grundlegende Verbindung zur erlaubten Intune-Infrastruktur, Proxy und TLS-Zertifikatskette; keine Firewall pauschal deaktivieren.</p>
+<ul>
+<li><strong>Portal zuletzt aktuell?</strong> Das Gerät kommuniziert offenbar mit Intune, trotzdem können einzelne Zuweisungen fehlerhaft sein.</li>
+<li><strong>Letzter Check-in lange zurück?</strong> Lokalen Netzpfad und MDM-Ereignisse prüfen; weitere Policies können nicht zuverlässig zugestellt werden.</li>
+<li><strong>Sync</strong>: <em>Windows → Einstellungen → Konten → Auf Arbeits- oder Schulkonto zugreifen → entsprechende Verbindung → Informationen → Synchronisieren</em>; alternativ die autorisierte Geräteaktion <strong>Sync</strong> im Intune Admin Center. <strong>Vorher</strong> Auswirkungen und Berechtigung prüfen.</li>
+<li>Ein Sync fordert einen Check-in an, <strong>garantiert aber keinen sofortigen Erfolg aller Richtlinien</strong>. Nach dem Sync Statuszeit und lokalen Befund erneut erheben. [Q1, Q4]</li>
+</ul>
+<h2 id="10-diagnose-e-policies-compliance-und-csp-getrennt-bewerten">10. Diagnose E – Policies, Compliance und CSP getrennt bewerten</h2>
+<p>Bei einem Gerät mit aktueller MDM-Verbindung:</p>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Policy-/Reportstatus</th>
+<th>Plausible Einordnung</th>
+<th>Nächste Maßnahme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Not applicable</strong></td>
+<td>Einstellung nicht für OS, Edition oder Gerät relevant</td>
+<td>Plattform, Voraussetzungen, CSP prüfen</td>
+</tr>
+<tr>
+<td><strong>Pending / Not evaluated</strong></td>
+<td>Gerät hat noch nicht zugestellt, ausgewertet oder zurückgemeldet</td>
+<td>Check-in und Reportzeit prüfen</td>
+</tr>
+<tr>
+<td><strong>Conflict</strong></td>
+<td>Gegensätzliche Einstellungen aus mehreren Profilen</td>
+<td>Betroffene Einstellung und Profile korrelieren</td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>Fehler bei spezifischer Anwendung / CSP</td>
+<td>Fehlercode, MDM-Event, unterstützte CSP-Option vergleichen</td>
+</tr>
+<tr>
+<td><strong>Succeeded / Compliant</strong></td>
+<td>Bericht bestätigt den gemeldeten Zustand (zu diesem Zeitpunkt)</td>
+<td><strong>Tatsächliche Einstellung und Funktion</strong> am Client prüfen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Zuweisungslogik:</strong> Benutzer- vs. Gerätegruppe, Include-/Exclude-Gruppen, Assignment-Filter, richtige Plattform, vorhandene Lizenz, korrekter Policy-Typ, Scope-Tags und Berechtigungen unterscheiden. „In der richtigen Gruppe“ beweist noch nicht, dass Filter und Plattformbedingungen passen.</p>
+<p><strong>Compliance ist ein eigenes Prüffeld</strong>: Reporting kann vom letzten Check-in oder Nutzerkontext abhängen; <em>Not evaluated</em> ist nicht zwingend <em>Noncompliant</em>. Bei Conditional Access betroffenes Gerät und konkrete CA-Entscheidung über zuständige Security-Admins prüfen. [Q1, Q4]</p>
+<h2 id="11-hypothesen-systematisch-testen-entscheidungsmatrix">11. Hypothesen systematisch testen – Entscheidungsmatrix</h2>
+<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Beobachtung A</th>
+<th>Gegenprobe B</th>
+<th>Diagnoserichtung</th>
+<th>Nicht direkt tun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entra vorhanden, Intune nicht enrolled</td>
+<td>MDM-Enrollment-Ereignis / Nutzerlizenz / Scope</td>
+<td>Enrollmentpfad</td>
+<td>Gerät löschen, wieder neu joinen</td>
+</tr>
+<tr>
+<td>Enrolled, letzter Check-in veraltet</td>
+<td>Lokales MDM-Log, Proxy, Uhrzeit</td>
+<td>Kommunikations-/Sync-Problem</td>
+<td>Alle Policies neu anlegen</td>
+</tr>
+<tr>
+<td>Check-in aktuell, Policy gar nicht zugewiesen</td>
+<td>Gruppe, Filter, Plattform</td>
+<td>Targetingproblem</td>
+<td>MDM-Dienst neu installieren</td>
+</tr>
+<tr>
+<td>Richtlinie zugewiesen, <code>Conflict</code></td>
+<td>Andere Profile mit gleicher Einstellung</td>
+<td>Konflikt auf Einstellungsniveau</td>
+<td>Sicherheitsrichtlinien abschalten</td>
+</tr>
+<tr>
+<td>Richtlinie meldet Erfolg, lokale Einstellung fehlt</td>
+<td>Eventlog, tatsächlichen CSP-/Registry-Wert prüfen</td>
+<td>Abweichung zwischen Report und Wirkung</td>
+<td>Bericht allein als Beweis akzeptieren</td>
+</tr>
+<tr>
+<td>Nur einzelne Benutzer auf Shared Device</td>
+<td>Benutzer-/Gerätezuordnung, letzter Report-Kontext</td>
+<td>Kontext und Reporting</td>
+<td>Auf Verdacht alle Benutzerprofile entfernen</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Stop-Punkt:</strong> Fehlen sichere Geräteidentität, Berechtigung oder Rückfallweg, erst weitere Belege bzw. verantwortliche Administration einschalten. Keine Reparatur als Selbstzweck. [Q1–Q6]</p>
+<h2 id="12-massnahmen-nach-ursache-jeweils-nach-freigabe">12. Maßnahmen nach Ursache, jeweils nach Freigabe</h2>
+<p><strong>L2, kontrolliert:</strong> Fehlende Lizenz oder Enrollment-Restriktion durch berechtigtes Team beheben lassen; korrekte Policy-Zielgruppe/Filter prüfen; CSP-Fehler gezielt anhand des konkreten Codes beheben; autorisierten Sync auslösen, Erfolg zeitversetzt vergleichen.</p>
+<p><strong>Endpoint-/Identity-/Security-Owner:</strong> MDM-Enrollment und Vertrauensstatus nach firmenspezifischem Verfahren wiederherstellen; defekte Geräte-/Zertifikatsidentität korrigieren; Hybrid Join/Autopilot/Co-Management koordiniert reparieren. Erneutes Enrollment nur bei nachgewiesener Notwendigkeit und dokumentiertem Sicherungs-/Recoveryplan.</p>
+<p><strong>Nicht als Universalreparatur:</strong> <code>dsregcmd /leave</code>, Registry- oder MDM-Zertifikatlöschung, Gerät aus Entra/Intune entfernen, Autopilot Reset/Wipe/Retire, GPO/CA-/Defender-Richtlinien ausschalten. Microsoft beschreibt solche Operationen teils für konkrete Spezialfälle; ohne passende Diagnose und Freigabe sind sie riskant. [Q2, Q5]</p>
+<h2 id="13-zwei-realistische-ausdrucklich-fiktive-supportfalle">13. Zwei realistische, ausdrücklich <strong>fiktive</strong> Supportfälle</h2>
+<h3 id="fall-a-entra-gerateobjekt-aber-keine-intune-verwaltung">Fall A – Entra-Geräteobjekt, aber keine Intune-Verwaltung</h3>
+<p><strong>Ticket:</strong> „Auf dem neuen Firmennotebook steht beim Start ein Unternehmenskonto, aber die Intune-Geräterichtlinien fehlen.“<br/>
+<strong>Befund 1:</strong> <code>dsregcmd /status</code> zeigt <code>AzureAdJoined : YES</code>.<br/>
+<strong>Befund 2:</strong> Für die konkret abgeglichene Geräteidentität wird <strong>kein aktuelles MDM-Enrollment</strong> nachgewiesen.<br/>
+<strong>Hypothesen:</strong> fehlende automatische Einschreibung, Lizenz-/MDM-Scope-/Restriktionsproblem oder falscher Tenant.<br/>
+<strong>Lesende Tests:</strong> Intune-Geräteliste und Entra-Objekt zuordnen, Enrollment-Fehlercodes und Geltungsbereich prüfen.<br/>
+<strong>Musterlösung:</strong> Ein <strong>fiktiv</strong> nachgewiesener MDM-Scope-Ausschluss wird durch berechtigten Admin freigegeben korrigiert; Gerät registriert sich kontrolliert.<br/>
+<strong>Retest:</strong> Intune-Geräteobjekt mit korrekter Identität, neuer Check-in und konkret erwartete Test-Policy nachgewiesen.</p>
+<h3 id="fall-b-enrollment-vorhanden-aber-compliance-dauerhaft-ausstehend">Fall B – Enrollment vorhanden, aber Compliance dauerhaft „ausstehend“</h3>
+<p><strong>Ticket:</strong> „Gerät erscheint in Intune, Zugriff auf Unternehmensressourcen bleibt aber gesperrt.“<br/>
+<strong>Befund 1:</strong> Intune zeigt Enrollment vorhanden, aber alten letzten Check-in.<br/>
+<strong>Befund 2:</strong> Im lokalen MDM-Admin-Log stehen zeitgleiche Kommunikationsfehler.<br/>
+<strong>Hypothesen:</strong> Proxy/TLS-/DNS-Problem, Gerätezertifikat oder MDM-Verbindung.<br/>
+<strong>Lesende Tests:</strong> Gültige Uhrzeit, MDM-Ereignisse, Netz-/Proxyvorgaben, Vergleichsgerät am selben Standort.<br/>
+<strong>Musterlösung:</strong> Ein <strong>fiktiver</strong> fehlerhafter Proxyweg wird durch Netzteam gezielt korrigiert.<br/>
+<strong>Retest:</strong> Check-in wird wieder aktuell, Compliance-Report verarbeitet, betroffene Ressource wird bei erfüllten Richtlinien zugänglich.</p>
+<p><strong>Keine dieser Ursachen wurde in einer realen Laborumgebung nachgestellt.</strong> Der Übungswert liegt in der Auswahl trennscharfer Tests, nicht im schnellen Erraten der Musterlösung.</p>
+<h2 id="14-erfolgskontrolle-eskalation-und-ticketdokumentation">14. Erfolgskontrolle, Eskalation und Ticketdokumentation</h2>
+<p><strong>Erfolg erfordert mehrere übereinstimmende Belege:</strong></p>
+<ol>
+<li>Richtige Geräteidentität/Tenant, erwarteter Join- und MDM-Enrollmentzustand.</li>
+<li>Erfolgreicher <strong>neuer</strong> Check-in mit dokumentiertem Zeitpunkt.</li>
+<li>Konkrete erwartete Policy/Compliance-Status nach relevanter Verarbeitungsdauer.</li>
+<li><strong>Wirkung vor Ort</strong> nachweisbar (z. B. geforderte Gerätekonfiguration oder genehmigter Zugriff).</li>
+<li>Keine unbeabsichtigten Folgen für VPN, Zertifikate, BitLocker, Benutzeranmeldung, Sicherheit oder andere Apps.</li>
+</ol>
+<p><strong>Eskalation:</strong> mehrere Geräte betroffen, MDM-Service-Incident, widersprüchliche Compliance-Sicherheitsentscheidung, Autopilot/Hybrid Join, Identitätskonflikt, ausstehender Wipe/Retire, Zertifikats-/CA-Fehler, unklarer Rückfallweg → Endpoint Engineering, Identity, Security oder Microsoft Support.</p>
+<p><strong>Muster-Ticketkommentar (fiktiv):</strong></p>
+<blockquote>
+<p>RB-045: Windows-11-Gerät und Entra-/Intune-Geräteidentität korreliert; Enrollment vorhanden, letzter Check-in veraltet. Lokale MDM-Ereignisse und Proxykonfiguration geprüft, keine Änderung ohne Freigabe. Nach genehmigter Korrektur durch Netzteam neuer Check-in erfolgt, Zielrichtlinie gemeldet und lokale Wirkung bestätigt. Kein Reset/Re-Enrollment durchgeführt. Referenzen: Ereigniszeit und genehmigtes Change-Ticket.</p>
+</blockquote>
+<h2 id="15-active-recall-self-explanation-und-spateres-training">15. Active Recall, Self-Explanation und späteres Training</h2>
+<p><strong>Wissensfragen:</strong></p>
+<ol>
+<li>Wieso ist <code>AzureAdJoined : YES</code> kein MDM-Enrollmentbeweis?</li>
+<li>Welche zwei Nachweise benötigst du für eine erfolgreiche Richtlinienübertragung?</li>
+<li>Wo befindet sich das MDM-Admin-Ereignisprotokoll in Windows?</li>
+<li>Worin unterscheiden sich <code>Pending</code>, <code>Conflict</code>, <code>Not applicable</code> und <code>Noncompliant</code>?</li>
+</ol>
+<p><strong>Verständnisfragen:</strong>
+5. Weshalb kann ein Intune-Portalbericht hinter dem lokalen Gerätestatus zurückliegen?
+6. Warum kann das Auslösen eines Sync trotz „nur Diagnose“ Auswirkungen auf das Gerät haben?
+7. Wieso ist das Löschen eines Entra-Geräteobjekts keine harmlose Standardreparatur?</p>
+<p><strong>Diagnosekarten:</strong>
+8. Entra-Gerät vorhanden, kein Intune-Datensatz: Nenne drei Hypothesen und je einen trennenden Test.
+9. Letzter Check-in aktuell, eine Policy meldet <code>Conflict</code>: Was prüfst du <strong>vor</strong> Netzwerk und Enrollment?
+10. Intune meldet „Compliant“, Benutzer bleibt gesperrt: Welche weitere Ebene muss geprüft werden?</p>
+<p><strong>Training:</strong> In einer <strong>isolierten, ausdrücklich freigegebenen Testumgebung</strong> zunächst einen gesunden MDM-Verwaltungszustand dokumentieren, dann einen <strong>simulierten</strong> Fall mit fehlender Policy-Zuweisung oder veralteter Statusmeldung behandeln – ohne produktive Geräte aus der Verwaltung zu entfernen. Den eigenen Diagnoseweg vor dem Vergleich mit dem Runbook aufschreiben; nach ca. <strong>7 und 21 Tagen</strong> mit verändertem Fehlerbild abrufen.</p>
+<hr/>
+<h2 id="quellen-offizielle-microsoft-dokumentation-abgerufen-22-11-2026">Quellen – offizielle Microsoft-Dokumentation (abgerufen 22.11.2026)</h2>
+<ul>
+<li><strong>[Q1]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-configuration/troubleshoot-policies-in-microsoft-intune" rel="noopener noreferrer" target="_blank">Troubleshoot policies and configuration profiles in Intune</a></li>
+<li><strong>[Q2]</strong> <a href="https://learn.microsoft.com/en-us/windows/client-management/mdm-diagnose-enrollment" rel="noopener noreferrer" target="_blank">Diagnose MDM enrollment failures</a></li>
+<li><strong>[Q3]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-enrollment/troubleshoot-windows-enrollment-errors" rel="noopener noreferrer" target="_blank">Troubleshooting Windows device enrollment errors</a></li>
+<li><strong>[Q4]</strong> <a href="https://learn.microsoft.com/en-us/intune/device-security/compliance/monitor-policy" rel="noopener noreferrer" target="_blank">Monitor device compliance policy results</a></li>
+<li><strong>[Q5]</strong> <a href="https://learn.microsoft.com/en-us/windows/client-management/mdm-collect-logs" rel="noopener noreferrer" target="_blank">Collect MDM logs</a></li>
+<li><strong>[Q6]</strong> <a href="https://learn.microsoft.com/en-us/intune/device-management/actions/sync" rel="noopener noreferrer" target="_blank">Intune device action: Sync</a></li>
+<li><strong>[Q7]</strong> <a href="https://learn.microsoft.com/en-us/intune/device-enrollment/windows/guide" rel="noopener noreferrer" target="_blank">Windows device enrollment guide</a></li>
+<li><strong>[Q8]</strong> <a href="https://learn.microsoft.com/en-us/troubleshoot/mem/intune/device-enrollment/troubleshoot-device-enrollment-in-intune" rel="noopener noreferrer" target="_blank">Troubleshoot device enrollment in Intune</a></li>
+</ul>
+<p><strong>Transparenz:</strong> „Eigene Konzeption, KI-gestützte Visualisierung mit ChatGPT.“ Die technische Dokumentation ist eine <strong>recherchierte Arbeitsvorlage</strong>, kein Beleg erfolgreich durchgeführter Supportmaßnahmen.</p>
+</div><div class="support-source-path">Vollständiger Markdown-Originaltext: <a href="source/RB-045_Lernartikel.md">RB-045_Lernartikel.md</a></div><nav class="support-bottom-nav" aria-label="Weitere Supportfälle"><a href="../rb-044/index.html">← Ticket 44</a><a href="../../it-support-troubleshooting-50-tickets.html#supportfaelle">Alle 50 Fälle</a><a href="../rb-046/index.html">Ticket 46 →</a></nav></article></div></section></main><footer class="site-footer"><span>Marc Fahlbusch · Technische Dokumentation</span><div class="footer-links"><a href="../../impressum.html">Impressum</a><a href="../../datenschutz.html">Datenschutz</a><a href="../../index.html#contact">Kontakt</a><a href="#top">Nach oben ↑</a></div></footer></body></html>
