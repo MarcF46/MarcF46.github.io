@@ -306,12 +306,6 @@ Disconnect-ExchangeOnline -Confirm:$false
 <li>Was beweist <code>Get-EXOMailboxPermission</code> bei Gruppendelegation <strong>nicht</strong>?</li>
 <li>Welchen sichtbaren Unterschied zwischen Send As und Send on Behalf müsste eine Testnachricht zeigen?</li>
 </ol>
-<h3 id="lernkarten-drei-kategorien">Lernkarten – drei Kategorien</h3>
-<ul>
-<li><strong>Wissen:</strong> „Welches Recht erlaubt das Öffnen eines Shared Mailbox?“ → <em>Full Access.</em></li>
-<li><strong>Verständnis:</strong> „Warum erscheint ein über Gruppe berechtigtes Postfach nicht automatisch?“ → <em>Automapping bindet solche Gruppenberechtigungen nicht automatisch ein.</em></li>
-<li><strong>Diagnose:</strong> „Web ja, klassisches Outlook nein – erste Hypothese?“ → <em>Client/Automapping/Einbindemethode; Rechte dennoch dokumentieren.</em></li>
-</ul>
 <h3 id="praxisubungen-im-genehmigten-testtenant">Praxisübungen im genehmigten Testtenant</h3>
 <p><strong>Szenario 1:</strong> Shared Mailbox mit direktem Full Access im klassischen Outlook, Sichtbarkeit/Neustart prüfen. <strong>Szenario 2:</strong> Full Access über mailaktivierte Sicherheitsgruppe und manuelle Einbindung vergleichen. <strong>Szenario 3:</strong> Vollzugriff und Send As getrennt testen, mit einer autorisierten Testnachricht. In jedem Versuch zuerst <strong>Hypothese und Prüfplan selbst schreiben</strong>, danach die tatsächlichen Befunde kontrollieren. Anschließend ohne Vorlagen mit neuen Benutzern/Postfächern wiederholen (z. B. nach 7 und 21 Tagen).</p>
 <p><strong>Validierungsstatus:</strong> Anleitungen und Befehle sind recherchiert, nicht in diesem Projekt auf einem produktiven Exchange-Tenant ausgeführt. Kein erfolgreicher Test oder Berechtigungswechsel wird behauptet.</p>
