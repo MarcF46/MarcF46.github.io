@@ -308,10 +308,7 @@ Get-SmbMapping -LocalPath 'Z:'</code></pre></div>
 <strong>Ergebnis:</strong> <code>Z:</code> zeigt auf <code>\\FS01\Projekte</code>; berechtigte Projektdatei geöffnet; Fehler nicht mehr reproduzierbar.<br/>
 <strong>Status:</strong> Gelöst. <strong>Hinweis:</strong> Dieses Ticket beschreibt <strong>kein tatsächlich ausgeführtes Ereignis</strong>.</p>
 <h3 id="lernkontrolle--active-recall">Lernkontrolle – Active Recall</h3>
-<p><strong>Wissenskarte:</strong> Was ist ein UNC-Pfad? – Ein Netzwerkpfad im Format <code>\\Server\Freigabe</code>.<br/>
-<strong>Verständniskarte:</strong> Warum kann <code>Z:</code> fehlen, obwohl die Freigabe funktioniert? – Weil die Laufwerkszuordnung unabhängig von der Freigabe existiert.<br/>
-<strong>Diagnosekarte:</strong> <code>Z:</code> fehlt, UNC funktioniert; welche zwei Prüfungen folgen? – Mapping im Benutzerkontext und GPO/Drive Maps.<br/>
-<strong>Transferkarte:</strong> UNC erreichbar, aber „Zugriff verweigert“; welchen Abschnitt aus Ticket 5 brauchst du? – Zusammenspiel von SMB-Freigabe- und NTFS-Rechten.</p>
+
 <p><strong>Übung ohne Musterlösung:</strong> Drei Mitarbeiter derselben Abteilung melden ein fehlendes Laufwerk, eine vierte Person nicht. Der UNC-Pfad ist erreichbar, <code>Get-SmbMapping</code> zeigt bei den drei Mitarbeitern kein <code>Z:</code>. Welche drei Diagnosehypothesen prüfst du in welcher Reihenfolge und welche Ergebnisse würden sie widerlegen?</p>
 <h2 id="15-quellen-und-pruefstatus">15. Quellen und Prüfstatus</h2>
 <p>Die Quellen stützen die beschriebenen <strong>Verfahren</strong>, nicht ein tatsächlich durchgeführtes Testprotokoll. Herstellerseiten können sich ändern.</p>
