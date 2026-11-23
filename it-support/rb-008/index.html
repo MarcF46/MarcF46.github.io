@@ -438,48 +438,6 @@ Direkter Netzwerkdruck            Gemeinsame Druckerfreigabe
 <p><strong>Maßnahme:</strong> Betroffenen Auftrag nach Rücksprache mit dem Benutzer gezielt entfernt und Testdruck erneut gesendet.</p>
 <p><strong>Ergebnis:</strong> Testseite sowie Testdokument aus der ursprünglichen Anwendung wurden erfolgreich am richtigen Drucker ausgegeben. Keine weitere Blockierung während der Kontrolle festgestellt.</p>
 <p><strong>Wichtig:</strong> Die Ursache wird <strong>nicht erfunden</strong>: Wenn nur das Symptom behoben und die tieferliegende Ursache unklar blieb, muss das Ticket dies offen benennen.</p>
-<h3 id="drei-kartentypen-fuer-spaetere-anki-uebernahme">Drei Kartentypen für spätere Anki-Übernahme</h3>
-<div aria-label="Tabelle horizontal scrollbar" class="support-table-scroll" role="region" tabindex="0"><table>
-<thead>
-<tr>
-<th>Typ</th>
-<th>Frage</th>
-<th>Kurze Antwort</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Wissen</td>
-<td>Wofür steht „Spooler“ im Druckpfad?</td>
-<td>Windows-Dienst zur Verwaltung von Druckaufträgen.</td>
-</tr>
-<tr>
-<td>Wissen</td>
-<td>Welcher Befehl zeigt lokale Druckjobs?</td>
-<td><code>Get-PrintJob -PrinterName 'Name'</code></td>
-</tr>
-<tr>
-<td>Verständnis</td>
-<td>Warum reicht „Port 9100 offen“ nicht als Drucknachweis?</td>
-<td>TCP erreichbar ≠ korrekte Druckverarbeitung/Papierausgabe.</td>
-</tr>
-<tr>
-<td>Verständnis</td>
-<td>Warum ist ein Printserver-Spooler-Neustart riskant?</td>
-<td>Er betrifft möglicherweise Druckaufträge vieler Benutzer.</td>
-</tr>
-<tr>
-<td>Diagnose</td>
-<td>Client-Job vorhanden, Server-Job fehlt: Wo prüfen?</td>
-<td>Client-Warteschlange und Verbindung zum Printserver.</td>
-</tr>
-<tr>
-<td>Diagnose</td>
-<td>Nur Word scheitert, Editor druckt: erste Hypothese?</td>
-<td>Anwendung, Dokument oder deren Treiberinteraktion.</td>
-</tr>
-</tbody>
-</table></div>
 <h3 id="offene-diagnoseuebung-ohne-loesungsvorgabe">Offene Diagnoseübung (ohne Lösungsvorgabe)</h3>
 <p>Ein Mitarbeiter meldet: „Der Druckauftrag verschwindet nach drei Sekunden aus meiner Warteschlange. Das Druckerdisplay meldet ‚Bereit‘. Zwei Kollegen erhalten Druckausgaben, allerdings erst, nachdem sie ihren Mitarbeiterausweis am Drucker benutzen.“</p>
 <p><strong>Aufgabe:</strong> Welche <strong>drei Prüfungen</strong> führst du zuerst durch? Formuliere die erste Hypothese und einen professionellen Ticket-Zwischenstand. Prüfe dabei, ob die Sicherheitsrichtlinie der Druckumgebung eine Rolle spielt.</p>
