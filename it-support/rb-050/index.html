@@ -230,15 +230,19 @@ Get-Mailbox -Identity 'mira.seidel@firma.example' |
 </tbody>
 </table></div>
 <h2 id="13-fiktiver-praxisfall-a-geplanter-austritt">13. Fiktiver Praxisfall A – geplanter Austritt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage:</strong> Mira Seidel verlässt die fiktive Firma am 30.11.2026 um 17:00 Uhr. Ihr Postfach enthält noch laufende Projektkommunikation; OneDrive hat genehmigt zu übertragende Projektdokumente. Das Notebook <code>LT-050</code> wird zurückgegeben.</p>
 <p><strong>Diagnosehypothesen:</strong> (H1) HR-Termin und Accountzuordnung sind eindeutig. (H2) Cloud-only oder Hybrid ist geklärt. (H3) Berechtigungen auf Fachsysteme können nach Kontosperre separat weiterbestehen. (H4) Mail-/OneDrive-Aufbewahrung muss vor Lizenzentzug geklärt sein.</p>
 <p><strong>Musterplan (nicht ausgeführt):</strong> Termin/Person/Freigabe bestätigen → Besitz/Abhängigkeiten inventarisieren → zum Termin im maßgeblichen Verzeichnis sperren → Sitzungseinträge und externe Anwendungen nach Verfahren behandeln → Geräte entgegennehmen → freigegebenes Shared-Mailbox-/Datenübergabekonzept umsetzen → später Lizenz- und Löschentscheid gesondert freigeben → Audit-/Statusprüfungen protokollieren.</p>
 <p><strong>Erwartete Nachweise:</strong> Nach Ablauf der notwendigen Replikations-/Token-Zeiten blockierte Anmeldung, behandelte externe Zugänge, vollständige Assetliste, datenschutzkonforme Übergabe und offene Retention-Entscheide mit Owner/Termin. <strong>Keine echte Maßnahme oder Validierung durchgeführt.</strong></p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-sicherheitskritischer-sofortaustritt">14. Fiktiver Praxisfall B – sicherheitskritischer Sofortaustritt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage:</strong> Fiktiver Benutzer <code>paul.becker@firma.example</code> scheidet mit sofortiger Wirkung aus; ein Firmenlaptop ist nicht zurückgegeben, und eine SaaS-Anwendung nutzt eigene Sitzungen.</p>
 <p><strong>Entscheidender Unterschied:</strong> Hier hat <strong>schnelle Zugriffssperrung und Incident-Eskalation</strong> Vorrang; Datenlösch- und Lizenzarbeiten werden nicht improvisiert. Das verantwortliche Team verhindert neue Sign-ins, widerruft Entra-Sitzungen und koordiniert die getrennte SaaS-/VPN-Sessionsperre sowie Geräteschutz. Ein ggf. geplanter Intune-Wipe darf nicht blind auf ein möglicherweise privates Gerät angewendet werden.</p>
 <p><strong>Testfrage:</strong> Warum wäre „Entra <code>AccountEnabled=False</code>“ allein kein Abschlussnachweis? <strong>Antwort:</strong> Weil bereits bestehende App-Sitzungen, unabhängige Fachanmeldungen, API-Zugänge und offline gespeicherte Daten gesondert geprüft werden müssen. [Q2]</p>
 <p><strong>Ticketabschluss:</strong> Erst mit nachvollziehbaren Logs, ausdrücklich dokumentierten Risiken/Restzugängen und verantwortlichen Nacharbeiten. <strong>Alle Ergebnisse sind rein fiktiv.</strong></p>
+</div></details>
 <h2 id="15-active-recall-selbst-erklarung-und-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
