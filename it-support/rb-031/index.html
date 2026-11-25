@@ -278,6 +278,7 @@ Disconnect-ExchangeOnline -Confirm:$false
 </tbody>
 </table></div>
 <h2 id="14-zwei-fiktive-supportfalle-erst-selbst-analysieren">14. Zwei fiktive Supportfälle – erst selbst analysieren</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-in-outlook-weg-im-web-verfugbar">Fall A – „In Outlook weg, im Web verfügbar“</h3>
 <p><strong>Meldung:</strong> Eine Mitarbeiterin sieht <code>team@beispiel.de</code> seit ihrem Gerätewechsel nicht mehr im <strong>klassischen Outlook</strong>. In Outlook im Web kann sie die Shared Mailbox über „Weiteres Postfach öffnen“ erreichen. Im Exchange Admin Center steht Full Access für die mailaktivierte Sicherheitsgruppe <code>SG-Team-Mail</code>; die Mitarbeiterin ist nachweislich Mitglied.</p>
 <p><strong>Deine Aufgabe vor dem Lesen der Lösung:</strong> Welche Fehlerhypothese ist durch den Webtest schwächer geworden? Warum kann das Postfach trotzdem im Desktop fehlen? Welche minimalinvasive Maßnahme würdest du im Rahmen des Unternehmensstandards vorschlagen?</p>
@@ -287,6 +288,7 @@ Disconnect-ExchangeOnline -Confirm:$false
 <p><strong>Deine Aufgabe:</strong> Ist die ursprüngliche Meldung „gemeinsames Postfach fehlt“ hier überhaupt zutreffend? Was ist die kleinste passende Korrektur? Welchen Test brauchst du zur Bestätigung?</p>
 <p><strong>Auswertung:</strong> Nein, <strong>Lesen geht</strong>, damit ist die Sichtbarkeit nicht das eigentliche Problem. Für den geforderten Versand ist nach Fachfreigabe eine separate <strong>Send-As-Delegation</strong> durch autorisierte Administration nötig. Danach Test mit korrekter <strong>Von:</strong>-Adresse und sichtbarem Absender beim Empfänger. Ein zusätzlicher Outlook-Profilreset ist sachlich unbegründet [Q2].</p>
 <p><strong>Hinweis:</strong> Beide Fälle sind <strong>modellierte Übungen</strong>, keine tatsächlich ausgeführten Tickets. Ihre Befunde sind zur Schulung vorgegeben, nicht im Labor nachgewiesen.</p>
+</div></details>
 <h2 id="15-erfolgskontrolle-active-recall-transfer-und-spaterer-praxistest">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
