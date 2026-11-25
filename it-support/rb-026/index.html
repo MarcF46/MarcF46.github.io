@@ -307,18 +307,22 @@ manage-bde -status
 </table></div>
 <p><strong>Grundregel:</strong> Eine Fehlermeldung darf auch <strong>mehrere Ursachen gleichzeitig</strong> haben. Beispielsweise kann ein Speicherfehler Windows-Dateien beschädigen; eine einmalige Dateireparatur beseitigt dann nicht unbedingt die Hardwareursache.</p>
 <h2 id="13-fiktiver-ubungsfall-a-update-neustartschleife-safe-mode">13. Fiktiver Übungsfall A: Update, Neustartschleife, Safe Mode</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage:</strong> Windows-11-Notebook startet nach einem geplanten Update nur bis zur Neustartschleife. Firmware erkennt die SSD, keine Hardware-Fehlercodes. WinRE ist verfügbar; Backupstatus und BitLocker-Keyzugriff werden von der zuständigen Stelle bestätigt.</p>
 <p><strong>Hypothese 1:</strong> Das Update oder eine damit ausgelöste Treiberänderung korreliert mit dem Fehler. <strong>Noch kein Beweis</strong>, dass das Update selbst defekt ist.</p>
 <p><strong>Test:</strong> Ein autorisierter Safe-Mode-Start gelingt. Im Ereignisverlauf zeigen sich Hinweise auf einen kürzlich aktualisierten Drittanbietertreiber. Der Befund spricht <strong>für</strong> eine Treiber-/Softwarekomponente, nicht für einen gesicherten Hardwaredefekt.</p>
 <p><strong>Maßnahme (fiktiv):</strong> Nach Freigabe wird <strong>genau der betroffene Treiber</strong> auf die freigegebene vorherige Version zurückgesetzt; übrige Updates bleiben unangetastet.</p>
 <p><strong>Validierung (fiktiv):</strong> Zwei normale Starts, Windows-Anmeldung, VPN/Netzwerk und betroffene Fachanwendung funktionieren. Das Ticket enthält Treiberversionen, Tests und die Freigabe.</p>
 <p><strong>Transferfrage:</strong> Warum wäre das pauschale Entfernen sämtlicher Updates in diesem Fall eine schlechter begründete Maßnahme?</p>
+</div></details>
 <h2 id="14-fiktiver-ubungsfall-b-bcd-meldung-aber-ssd-problem">14. Fiktiver Übungsfall B: BCD-Meldung, aber SSD-Problem</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage:</strong> Rechner meldet sinngemäß eine beschädigte Startkonfiguration. Ein zuvor geplanter Neustart war abrupt. Im UEFI wird die SSD zeitweise <strong>nicht</strong> erkannt; OEM-Diagnose meldet einen Laufwerksfehler.</p>
 <p><strong>Hypothese:</strong> Der Bootfehler könnte <strong>Folge</strong> einer instabilen SSD sein – nicht primär ein isolierter BCD-Defekt.</p>
 <p><strong>Test:</strong> OEM-Befund und Sichtbarkeit des Laufwerks werden dokumentiert, ohne schreibenden Dateisystemtest. Das Team prüft Backup, lokale Daten und den autorisierten Verschlüsselungszugang.</p>
 <p><strong>Entscheidung:</strong> <strong>Keine</strong> <code>bootrec</code>-/<code>bcdboot</code>-/<code>chkdsk /f</code>-Experimente. Übergabe an Storage/Endpoint/L2 mit Datenrettungspriorität.</p>
 <p><strong>Lehrpunkt:</strong> Selbst eine „reparaturbedürftig“ aussehende Startdatei darf nicht automatisch repariert werden, wenn die zugrunde liegende Speicherebene instabil ist.</p>
+</div></details>
 <h2 id="15-diagnosekompetenz-selbsttest-und-quellen">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
