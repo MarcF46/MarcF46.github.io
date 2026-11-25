@@ -221,17 +221,21 @@ Get-ADUser -Identity 'jweber' -Properties Enabled,UserPrincipalName,MemberOf,Whe
 </table></div>
 <p><strong>Diagnoselogik:</strong> Immer feststellen, an welcher Stelle <strong>Soll und Ist erstmals auseinanderlaufen</strong>. Ein „grüner“ Portalstatus ist nur ein Teilnachweis und kein Ersatz für den Benutzer-Funktionstest. [Q10][Q12][Q13]</p>
 <h2 id="12-fiktiver-praxisfall-a-konto-und-lizenz-vorhanden-mail-fehlt">12. Fiktiver Praxisfall A – Konto und Lizenz vorhanden, Mail fehlt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ticket:</strong> <code>HR-ONB-1049</code> – Jana Weber beginnt heute; Entra-Konto vorhanden, Windows-Anmeldung erfolgreich, Outlook meldet fehlendes Postfach.</p>
 <p><strong>Erste Hypothesen:</strong> (H1) Exchange-Online-Serviceplan nicht aktiv; (H2) gruppenbasierte Lizenzzuweisung fehlgeschlagen; (H3) Postfachprovisionierung verzögert; (H4) falscher Benutzer/Tenant.</p>
 <p><strong>Prüfweg:</strong> UPN/Benutzer-ID aus HR-Auftrag → eindeutige Identität → Nutzungsstandort und Lizenzdetails → Servicepläne und Zuweisungsfehler → Exchange-Empfängerstatus und Zeitpunkt der Zuweisung → ggf. Service Health/Exchange-Support. Vergleich mit genehmigtem Referenznutzer der gleichen Rolle, ohne dessen Rechte zu kopieren.</p>
 <p><strong>Fiktiver Befund:</strong> Die gruppenbasierte Zuweisung steht auf Fehler, weil der Nutzungsstandort nicht gepflegt ist. <strong>Freigegebene Maßnahme</strong> des Lizenzteams: Nutzungsstandort nach HR-Standortdaten korrigieren, Zuweisung erneut verarbeiten lassen, Exchange-Provisionierung abwarten und verifizieren.</p>
 <p><strong>Funktionstest:</strong> Die Kollegin öffnet Outlook, sendet eine Testmail an eine genehmigte Testadresse und empfängt die Antwort. Zeit und Ergebnis dokumentieren, keine Mailinhalte im allgemeinen Ticket speichern. <strong>Dies ist eine Übung, kein durchgeführter Test.</strong></p>
+</div></details>
 <h2 id="13-fiktiver-praxisfall-b-konto-und-laptop-bereit-fachapp-gesperrt">13. Fiktiver Praxisfall B – Konto und Laptop bereit, Fachapp gesperrt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ticket:</strong> <code>HR-ONB-1050</code> – Neue Mitarbeiterin kann Windows, Exchange und Teams benutzen, aber <code>Kundenportal</code> meldet „Access denied“.</p>
 <p><strong>Hypothesen:</strong> (H1) Ressourcengruppe fehlt; (H2) Gruppenänderung noch nicht im aktuellen Token; (H3) Fachapp benötigt eine zusätzliche Rollenvergabe; (H4) Conditional Access verlangt einen verwalteten/complianten Client.</p>
 <p><strong>Prüfweg:</strong> Fachbereichsfreigabe mit Rollenmatrix → erforderliche Gruppenzuordnung → App-spezifische Rollen → Entra-Sign-in-Log und angewendete CA-Policy → Gerätecompliance → benutzerseitiger Test nach kontrollierter Aktualisierung der Sitzung.</p>
 <p><strong>Fiktiver Befund:</strong> Zugriff ist an die genehmigte Sicherheitsgruppe gebunden, die im Auftrag fehlte. Nach dokumentierter Zustimmung des App-Eigners und Gruppenänderung ist erneute <strong>autorisierte Anmeldung</strong> nötig, bevor das neue Recht wirksam wird.</p>
 <p><strong>Retest:</strong> Die Mitarbeiterin kann die erlaubte Funktion öffnen; unzulässige Bereiche bleiben gesperrt. <strong>Nicht</strong> zusätzliche Administratorrechte als Schnelllösung zuweisen. Auch dieser Fall ist <strong>nicht real getestet</strong>.</p>
+</div></details>
 <h2 id="14-sicherer-abschluss-ticketkommentar-eskalation">14. Sicherer Abschluss, Ticketkommentar, Eskalation</h2>
 <p><strong>Abschlusskriterien:</strong> HR-/Fachfreigabe verknüpft, eindeutiger Benutzer, Soll- und Ist-Gruppen/Lizenzen abgeglichen, MFA erfolgreich, Gerät inventarisiert und verwaltet, geforderte Apps vorhanden, End-to-End-Test mit Benutzer bestätigt, Übergabe (Gerät/Zubehör/Einweisung) quittiert. Restpunkte mit Owner und Termin offen dokumentieren; bei ausstehenden Pflichtzugängen <strong>nicht</strong> „vollständig abgeschlossen“ melden.</p>
 <p><strong>Fiktiver Muster-Ticketkommentar:</strong></p>
