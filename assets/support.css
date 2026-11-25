@@ -118,3 +118,22 @@
 /* Drei gleichwertige Support-Level bleiben auf schmalen Ansichten scrollbar. */
 .support-table-scroll .support-level-table{min-width:780px;table-layout:fixed}
 .support-level-table th,.support-level-table td{width:33.333%;overflow-wrap:break-word}
+
+
+/* Einheitliche, aufklappbare Lernmodule der Support-Tickets (Pilot RB-021 erweitert). */
+.support-learning{margin:1rem 0 1.8rem}
+.support-learning .support-learning-case{border:1px solid var(--line);background:var(--surface-soft);border-radius:14px;padding:1rem 1.1rem;margin:1rem 0}
+.support-learning .support-learning-case h3{font-size:1.16rem;margin:.1rem 0 .5rem}
+.support-learning .support-learning-case p{margin:.45rem 0}
+.support-learning details,.support-code-explain{border:1px solid var(--line);border-radius:11px;margin:.75rem 0;background:#f9fbfe}
+.support-learning summary,.support-code-explain summary{cursor:pointer;color:var(--brand);font-weight:750;padding:.65rem .9rem}
+.support-learning summary:focus-visible,.support-code-explain summary:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.support-learning details[open],.support-code-explain[open]{background:#f4f9ff}
+.support-learning .support-learning-answer,.support-code-explain .support-learning-answer{padding:.4rem .9rem .8rem;border-top:1px solid var(--line)}
+.support-learning .support-learning-answer p{margin:.5rem 0}
+.support-learning .support-learning-memo{font-size:.92rem}
+.support-learning .support-learning-quiz{margin-top:.4rem}
+.support-learning .support-learning-quiz li{margin-bottom:.85rem}
+.support-code-explain{margin:.65rem 0 1.25rem}
+.support-code-explain ul{margin:.3rem 0}
+.support-code-explain li{margin:.4rem 0}
