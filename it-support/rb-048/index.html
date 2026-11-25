@@ -237,19 +237,23 @@ gpresult /r /scope computer
 </table></div>
 <p><strong>Keine Maßnahme vor dem Nachweis</strong>. Ein Dienstneustart kann produktive Remotesitzungen trennen und muss vorab organisatorisch geklärt werden.</p>
 <h2 id="12-fiktiver-musterfall-a-ein-benutzer-scheitert-nach-kennwortwechsel">12. Fiktiver Musterfall A – Ein Benutzer scheitert nach Kennwortwechsel</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Auf <code>ws-rdp-01.corp.example.test</code> kann ich mich nicht mehr anmelden; mein Kollege erreicht den Rechner.“</p>
 <p><strong>Befunde (fiktiv):</strong> DNS korrekt; <code>Test-NetConnection ... -Port 3389</code> zeigt <code>True</code>; Listener auf Ziel <code>Listen</code>; Vergleichskonto kann sich anmelden; beim betroffenen Konto Security-4625-Einträge mit zum Versuch passendem Zeitfenster.</p>
 <p><strong>Hypothesen:</strong> Veraltete lokal gespeicherte Anmeldeinformationen, falscher Benutzerpräfix, Passwortänderung noch nicht berücksichtigt, Kontosperr-/Richtlinienproblem.</p>
 <p><strong>Diagnoseplan:</strong> Benutzerpräfix und vorgesehenen Authentifizierungsweg abgleichen; Authentifizierungsstatus anhand Sicherheitsereignissen und Konto-/DC-Zustand prüfen; gespeicherte Credentials nur mit Benutzer und Richtlinie untersuchen; <strong>kein</strong> wahlloses Löschen anderer Einträge.</p>
 <p><strong>Korrekturbeispiel (nur nach Nachweis):</strong> Vorgesehenes Konto mit aktuellen Anmeldeinformationen nutzen, kontospezifische Fehlerursache durch berechtigte Stelle beseitigen. <strong>Validierung:</strong> Betroffener Benutzer erreicht RDP, meldet sich an, startet benötigte Anwendung; Eventlage und Ticket sind dokumentiert.</p>
 <p><strong>Lernfrage:</strong> Warum ist ein erneutes Öffnen von Port 3389 hier nicht begründbar?</p>
+</div></details>
 <h2 id="13-fiktiver-musterfall-b-rdp-geht-intern-uber-vpn-nicht">13. Fiktiver Musterfall B – RDP geht intern, über VPN nicht</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Aus dem Büro komme ich auf <code>rdsh-02.corp.example.test</code>, aus dem Homeoffice nur auf das VPN-Portal.“</p>
 <p><strong>Befunde (fiktiv):</strong> Interner Client erreicht Ziel-TCP-Port und meldet sich an. VPN-Client löst Zielhostname auf eine erwartete interne Adresse auf; Verbindungsversuch zum vorgesehenen TCP-Port scheitert; mehrere VPN-Nutzer betroffen. Gateway-/VPN-Design muss vor Porttests geklärt sein.</p>
 <p><strong>Hypothesen:</strong> Fehlende VPN-Route, Filter zwischen VPN-Pool und Servernetz, Gateway-Policy oder falscher Verbindungsweg. Ein RDP-Listener-Defekt ist angesichts funktionierender LAN-Verbindung weniger wahrscheinlich.</p>
 <p><strong>Diagnoseplan:</strong> Quell-/Zielnetz, beabsichtigten VPN-/Gatewaypfad, Routingtabellen und Firewall-/Gateway-Protokolle durch Netzteam vergleichen. Keine pauschale Regel und keine öffentliche Portweiterleitung.</p>
 <p><strong>Korrekturbeispiel (nur nach Nachweis):</strong> Eine konkrete, autorisierte Route/Policy korrigieren; vom VPN-Segment erneut TCP, Anmeldung und Anwendung prüfen.</p>
 <p><strong>Lernfrage:</strong> Welche Messung trennt RDP-Authentifizierung vom Netzwerkpfad?</p>
+</div></details>
 <h2 id="14-lernkontrolle-active-recall-verstandnis-und-transfer">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
