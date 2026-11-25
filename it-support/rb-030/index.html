@@ -320,6 +320,7 @@ Get-SPOSite -Identity 'https://beispiel.sharepoint.com/sites/Projekt' |
 </ol>
 <p>Wenn der Fehler bleibt: vorhandene Hypothese widerlegen, weitere Befunde sammeln und an passende L2-/Security-/Microsoft-365-Administration übergeben – nicht in Reparatur-Schleifen geraten.</p>
 <h2 id="14-zwei-fiktive-praxisfalle-diagnose-nicht-raten">14. Zwei fiktive Praxisfälle – Diagnose, nicht Raten</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-die-excel-datei-ist-verschwunden">Fall A – „Die Excel-Datei ist verschwunden“</h3>
 <p><strong>Fiktive Meldung:</strong> Eine Mitarbeiterin verwendet einen Teams-Chat-Link zu einer Tabelle. Seit heute erscheint <strong>404</strong>. Zwei Kolleginnen sehen die Tabelle weiterhin in der SharePoint-Dokumentbibliothek unter einem umbenannten Unterordner.</p>
 <p><strong>Hypothesen:</strong> Datei gelöscht? Link veraltet? Fehlende Berechtigung? <strong>Entscheidender Nachweis:</strong> Eigentümer findet dieselbe Datei am neuen Ort und kann sie regulär öffnen. Die bisherige URL wird nicht mehr aufgelöst; Rechte des ursprünglichen Nutzers waren nicht der nachgewiesene Fehler.</p>
@@ -330,6 +331,7 @@ Get-SPOSite -Identity 'https://beispiel.sharepoint.com/sites/Projekt' |
 <p><strong>Hypothesen:</strong> Falsche Anmeldung, noch nicht wirksame Berechtigung, Restricted Site Access, Conditional Access. <strong>Trennender Befund:</strong> SharePoint-Admin bestätigt eine aktive <strong>Site Access Restriction</strong> auf eine definierte Entra-Gruppe. Der Nutzer ist nicht in dieser Gruppe; die Datei selbst ist korrekt freigegeben.</p>
 <p><strong>Geeignete Reaktion:</strong> Berechtigung und Site-Restriktion als <strong>zwei getrennte Prüfungen</strong> dokumentieren. Zuständige Stelle klärt zunächst die <em>fachliche Berechtigung zur Mitgliedschaft</em>; falls genehmigt, Gruppenaufnahme über den regulären Rollenprozess. <strong>Nicht:</strong> Restricted Access global abschalten.</p>
 <p><strong>Dreisatz-Ticketkommentar – fiktiv:</strong> „Die Datei war vorhanden und direkt berechtigt; der Site-Zugriff wurde zusätzlich über eine eingeschränkte Zugriffskontrollgruppe gesteuert. Der Befund wurde an die verantwortliche SharePoint-/Security-Administration mit Anfrage zur Sollberechtigung übergeben. Eine Freigabeänderung erfolgte im L1 nicht; abschließende Verifikation steht nach der genehmigten Entscheidung aus.“</p>
+</div></details>
 <h2 id="15-selbsttest-transfer-und-lernkarten-anker">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
