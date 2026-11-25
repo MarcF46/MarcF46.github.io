@@ -916,5 +916,194 @@
       ]
     ],
     "check": "Eine passende Lease mit IP, Maske, Gateway und DNS erhalten sowie den beabsichtigten Netzwerkzugang prüfen."
+  },
+  "36": {
+    "cases": [
+      [
+        "Ein Windows-PC zeigt <code>169.254.42.17</code> statt der üblichen Firmenadresse.",
+        "Welche erste Hypothese ist sinnvoll?",
+        "Eine IPv4-Link-Local-Adresse deutet darauf hin, dass keine reguläre DHCP-Lease genutzt wird. DHCP-Erreichbarkeit, Adapter und VLAN kontrollieren.",
+        "169.254.x.x ist ein Hinweis auf fehlende reguläre IPv4-Zuweisung."
+      ],
+      [
+        "Alle Geräte an einem Switchsegment erhalten APIPA-Adressen, andere Segmente funktionieren.",
+        "Welche Ebene prüfst du zusätzlich?",
+        "VLAN-Zugehörigkeit, DHCP-Relay, Switch-/Uplink-Pfad und DHCP-Scope für das Segment vergleichen.",
+        "Gleiche APIPA-Symptome vieler Geräte deuten auf Segmentprobleme."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist der Unterschied zwischen APIPA und einer DHCP-Lease?",
+        "APIPA wird lokal für IPv4-Link-Local-Kommunikation gewählt, eine DHCP-Lease wird von einem DHCP-Server zugewiesen."
+      ],
+      [
+        "Dürfen aus <code>169.254/16</code> allein defekte DHCP-Server abgeleitet werden?",
+        "Nein. Kabel, Port, VLAN, Relay, Filter und Client können ebenfalls Ursachen sein."
+      ]
+    ],
+    "check": "Nach Ursachebehebung gültige Netzkonfiguration beziehen und einen vorgesehenen Dienst erreichen."
+  },
+  "37": {
+    "cases": [
+      [
+        "Ein Nutzer meldet „Netzwerk langsam“, ein Download erreicht jedoch die erwartete Bandbreite.",
+        "Welche andere Messgröße prüfst du?",
+        "Latenz, Paketverlust, Jitter und den tatsächlichen Anwendungsserver untersuchen. Hoher Durchsatz schließt Verzögerungen nicht aus.",
+        "Bandbreite und Reaktionszeit sind verschiedene Messgrößen."
+      ],
+      [
+        "Eine Dateiübertragung ist nur auf einem Client langsam.",
+        "Wie unterscheidest du Client- und Netzursache?",
+        "Gleiche Datei, Zielserver und Zeit mit einem Vergleichsclient testen; Adapterrate, lokale Auslastung und SMB/Datenträger prüfen.",
+        "Messungen brauchen eine vergleichbare Ausgangsbasis."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist Jitter?",
+        "Die Schwankung der Paketlaufzeiten zwischen aufeinanderfolgenden Übertragungen."
+      ],
+      [
+        "Warum sind ICMP-Pingwerte allein keine vollständige Netzwerkdiagnose?",
+        "Sie erfassen nicht alle Anwendungsprotokolle, Priorisierungen und möglichen Engpässe."
+      ]
+    ],
+    "check": "Die ursprüngliche Anwendung unter vergleichbaren Bedingungen erneut messen und den Zielwert dokumentieren."
+  },
+  "38": {
+    "cases": [
+      [
+        "Ein Server ist per IP erreichbar, über den Servernamen nicht.",
+        "Wo beginnt die Diagnose?",
+        "DNS-Auflösung und die vom Client verwendete Zieladresse prüfen, bevor Firewall- oder Dienständerungen erfolgen.",
+        "Name und Ziel-IP getrennt kontrollieren."
+      ],
+      [
+        "Nur ein bestimmtes VLAN kann denselben Server nicht erreichen.",
+        "Welche zentrale Ebene ist verdächtig?",
+        "Routing, Firewallregeln und VLAN-Zuordnung zwischen betroffenem Segment und Zielnetz vergleichen.",
+        "Unterschiede zwischen VLANs zeigen den Fehlerpfad."
+      ]
+    ],
+    "quiz": [
+      [
+        "Bedeutet ein fehlgeschlagener Ping, dass TCP 443 ebenfalls nicht funktioniert?",
+        "Nein. ICMP kann unabhängig von TCP blockiert sein."
+      ],
+      [
+        "Warum prüft man den tatsächlich benötigten Zielport?",
+        "Eine erreichbare IP beweist nicht, dass der betreffende Dienst verfügbar ist."
+      ]
+    ],
+    "check": "Die ursprüngliche Anwendung vom tatsächlich betroffenen Netzsegment aus erfolgreich nutzen."
+  },
+  "39": {
+    "cases": [
+      [
+        "Ein Windows-Dienst meldet „Running“, doch der Client erreicht seinen TCP-Port nicht.",
+        "Was prüfst du auf dem Server?",
+        "Ob auf der erwarteten IP und Portnummer tatsächlich ein Listener existiert; danach lokale und externe Porttests vergleichen.",
+        "Dienststatus beweist keinen erreichbaren Listener."
+      ],
+      [
+        "Ein Client kann TCP 443 verbinden, der Browser zeigt aber eine TLS-Warnung.",
+        "Welche Diagnoseebene ist jetzt betroffen?",
+        "Die TCP-Verbindung steht; HTTPS/TLS-Zertifikat, Hostname und Vertrauenskette prüfen statt weiter nur den Port zu testen.",
+        "Offener Port bedeutet nicht funktionierende Anwendung."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist der Unterschied zwischen Timeout und TCP-RST?",
+        "Timeout bedeutet, dass keine passende Antwort rechtzeitig eintrifft; ein RST ist eine explizite TCP-Zurückweisung beziehungsweise Verbindungsrücksetzung."
+      ],
+      [
+        "Warum genügt <code>127.0.0.1</code> als Listener-Test nicht?",
+        "Ein Dienst kann nur auf Loopback gebunden sein und dadurch aus dem Netzwerk unerreichbar bleiben."
+      ]
+    ],
+    "check": "Vom betroffenen Client den richtigen Port und anschließend die Anwendungsschicht erfolgreich testen."
+  },
+  "40": {
+    "cases": [
+      [
+        "Eine GPO ist an die OU verknüpft, wirkt auf einem Gerät aber nicht.",
+        "Welche drei Filter prüfst du zuerst?",
+        "Computer-/Benutzerobjekt, Verknüpfung und Vererbung sowie Security Filtering und WMI-Filter; danach das tatsächliche RSoP-Ergebnis.",
+        "GPO verknüpft heißt nicht GPO angewendet."
+      ],
+      [
+        "Die GPO ist angewendet, aber das gewünschte Netzlaufwerk erscheint nicht.",
+        "Welche Unterscheidung ist nötig?",
+        "GPO-Verarbeitung und einzelne Group-Policy-Preferences-Einstellung beziehungsweise deren Ereignisse separat untersuchen.",
+        "Angewendete GPO beweist nicht jede einzelne Einstellung."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wozu dient <code>gpresult</code>?",
+        "Es zeigt die für Computer oder Benutzer wirksamen beziehungsweise verarbeiteten Gruppenrichtlinien."
+      ],
+      [
+        "Warum ist DNS/SYSVOL bei GPO-Fehlern wichtig?",
+        "Der Client muss Domänencontroller und Richtliniendateien zuverlässig erreichen."
+      ]
+    ],
+    "check": "Im vorgesehenen Benutzer- oder Gerätekontext das tatsächlich gewünschte Richtlinienergebnis prüfen."
+  },
+  "41": {
+    "cases": [
+      [
+        "Ein Benutzer wurde einer AD-Gruppe hinzugefügt, kann den Share jedoch weiterhin nicht öffnen.",
+        "Welche beiden Sichten vergleichst du?",
+        "Aktuelle AD-Gruppenmitgliedschaft und den Sicherheitstoken der laufenden Sitzung; zusätzlich die Berechtigung auf der Freigabe.",
+        "Gruppenänderungen werden nicht zwingend sofort im vorhandenen Token wirksam."
+      ],
+      [
+        "Der Benutzer-Token enthält die richtige Gruppe, trotzdem fehlt der Dateizugriff.",
+        "Welche weitere Ursache prüfst du?",
+        "Freigabe- und NTFS-Rechte, Vererbung und gegebenenfalls explizite Verweigerungen auf dem Zielserver.",
+        "Richtige Gruppe allein garantiert keinen Ressourcen-Zugriff."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist ein Anmeldetoken?",
+        "Der bei der Anmeldung gebildete Sicherheitskontext einschließlich relevanter Gruppen und Berechtigungen."
+      ],
+      [
+        "Warum ist die Gruppenverschachtelung relevant?",
+        "Weil effektive Rechte auch über indirekte Gruppenmitgliedschaften entstehen können."
+      ]
+    ],
+    "check": "Den konkreten Ressourcen-Zugriff nach geeigneter Neuanmeldung mit dem tatsächlichen Benutzerkonto prüfen."
+  },
+  "42": {
+    "cases": [
+      [
+        "Nach der Anmeldung erscheint ein temporäres Windows-Profil statt des gewohnten Desktops.",
+        "Welche Daten schützt du vor einer Reparatur?",
+        "Benutzerdateien, vorhandene Profilpfade und Ereignisprotokolle sichern bzw. dokumentieren; insbesondere Speicherplatz und User Profile Service prüfen.",
+        "Ein beschädigtes Profil ist zuerst ein Datenrisiko."
+      ],
+      [
+        "Auf einem VDI-Host wird das FSLogix-Profil nicht eingebunden.",
+        "Welche zusätzliche Infrastruktur prüfst du?",
+        "Profilcontainer-VHDX, Speicherpfad, Berechtigungen, Sperren und FSLogix-Logs prüfen statt lokale Windows-Profile blind zu löschen.",
+        "VDI-Profilfehler können im externen Profilcontainer liegen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum ist ein sichtbarer Windows-Desktop kein vollständiger Profil-Retest?",
+        "Er kann zu einem temporären oder falschen Profil gehören; Pfad und Benutzerdaten müssen kontrolliert werden."
+      ],
+      [
+        "Welche Windows-Protokolle sind bei Profilfehlern hilfreich?",
+        "Ereignisse des User Profile Service, zeitlich mit dem Anmeldeversuch korreliert."
+      ]
+    ],
+    "check": "Im korrekten Profil anmelden, relevante Daten und Einstellungen prüfen und erneuten Login testen."
   }
 }
