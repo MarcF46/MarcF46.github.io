@@ -198,15 +198,19 @@ vssadmin list shadowstorage
 <li>Ticket schließen erst nach reproduzierbarem Funktionstest oder transparent an zuständige Stelle übergeben.</li>
 </ol>
 <h2 id="13-fiktiver-praxisfall-a-einzelner-windows-11-client">13. Fiktiver Praxisfall A – Einzelner Windows-11-Client</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage (erfunden):</strong> Ein Client meldet „C: voll“, freier Speicher 2,8 GiB auf 238 GiB, ein ca. 5 GiB großer Export kann nicht erstellt werden; ein anderer Client ist nicht betroffen.</p>
 <p><strong>Diagnosepfad:</strong> Volume-Lesetest → Windows-Speicherübersicht → genehmigte Stichprobe in <code>Downloads</code> → Abgleich mit Nutzer. Dort liegen drei alte, ausdrücklich entbehrliche ISO-Abbilder (zusammen etwa 24 GiB); Backups und OneDrive bleiben unberührt. <strong>Entscheidung:</strong> Benutzer bestätigt, dass die ISOs in einer überprüften Ablage bereits vorhanden sind und lokal nicht benötigt werden.</p>
 <p><strong>Fiktive Korrektur:</strong> Nach Freigabe selektives Entfernen/Archivieren genau dieser Dateien mit vorhandener Rückfallkopie. <strong>Retest:</strong> C: hat danach mehr freien Speicher; der zuvor blockierte Export gelingt; nach Neustart bestehen Dateien und Anwendung fort.</p>
 <p><strong>Sparringsfrage:</strong> Wieso ist das Löschen des kompletten Downloads-Ordners ohne Eigentümerprüfung fachlich falsch, auch wenn er groß ist?</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-vdi-profil-quota-statt-vollem-clientlaufwerk">14. Fiktiver Praxisfall B – VDI-Profil-Quota statt vollem Clientlaufwerk</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage (erfunden):</strong> Ein User meldet „Datenträger voll“ während Anmeldung in einer VDI-Umgebung. Der lokale VDI-Systemdatenträger zeigt noch ausreichend Platz; mehrere User sind nicht betroffen.</p>
 <p><strong>Diagnosepfad:</strong> Fehlermeldung und Speicherort unterscheiden → FSLogix-/Profilcontainer und Share-Kapazität prüfen → getrennt <strong>Containergröße/Quota, Netzfreigabe, Host-Storage</strong> und Anmeldeereignisse bewerten. Die Benutzerquota des Containers ist erreicht, obwohl die Share noch freien Platz hat.</p>
 <p><strong>Fiktive Korrektur:</strong> Zuständige VDI-Administration prüft Datenretention und eine freigegebene Container-/Quota-Maßnahme; <strong>kein</strong> Löschen von VHDX-Dateien. <strong>Retest:</strong> Anmeldung, Profilbestand, Anwendungsfunktion und Containerwachstum stimmen überein.</p>
 <p><strong>Transferfrage:</strong> Welche drei Messorte benötigen wir, um „Host voll“, „VHDX voll“ und „Benutzerquota voll“ auseinanderzuhalten?</p>
+</div></details>
 <h2 id="15-active-recall-diagnosekarten-und-transfertraining">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
