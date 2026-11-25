@@ -1105,5 +1105,113 @@
       ]
     ],
     "check": "Im korrekten Profil anmelden, relevante Daten und Einstellungen prüfen und erneuten Login testen."
+  },
+  "43": {
+    "cases": [
+      [
+        "Windows meldet „Datenträger voll“, obwohl der Benutzer nur wenige Dateien gespeichert hat.",
+        "Welche Speicherbereiche untersuchst du vor dem Löschen?",
+        "Volume-Füllstand, temporäre Dateien, Profile, Windows-Komponentenspeicher und gegebenenfalls Quotas getrennt prüfen. Keine fremden Dateien ungeprüft löschen.",
+        "Erst die belegte Kategorie finden, dann Platz freigeben."
+      ],
+      [
+        "Ein VDI-Benutzer erhält Speicherfehler, das lokale Systemlaufwerk zeigt ausreichend Platz.",
+        "Welchen anderen Grenzwert prüfst du?",
+        "Profil- oder FSLogix-Containergröße, Benutzerquota und zugrunde liegenden Netzspeicher prüfen.",
+        "Genug lokaler Platz heißt nicht genug Profilkapazität."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist der Unterschied zwischen Volumekapazität und Quota?",
+        "Volumekapazität betrifft den Datenträger insgesamt, Quota begrenzt die erlaubte Nutzung bestimmter Benutzer oder Container."
+      ],
+      [
+        "Warum sollte man <code>WinSxS</code> nicht manuell löschen?",
+        "Der Komponentenspeicher wird von Windows-Servicing verwaltet; manuelles Löschen kann Windows beschädigen."
+      ]
+    ],
+    "check": "Freien Speicher beziehungsweise wirksame Quota kontrollieren und die zuvor fehlgeschlagene Aktion wiederholen."
+  },
+  "44": {
+    "cases": [
+      [
+        "Ein Notebook fordert nach einem autorisierten Firmwareupdate einen BitLocker-Wiederherstellungsschlüssel.",
+        "Was überprüfst du vor der Entsperrung?",
+        "Geräteidentität, Recovery-Key-ID, autorisierte Schlüsselquelle und Freigabeprozess abgleichen. Schlüssel nie ungeschützt im Ticket notieren.",
+        "Recovery-Schlüssel nur nach Geräte- und Identitätsprüfung verwenden."
+      ],
+      [
+        "Bei jedem Neustart fordert das gleiche Gerät erneut BitLocker-Recovery.",
+        "Was wäre ein Fehler bei der Diagnose?",
+        "Den Wiederherstellungsschlüssel nur jedes Mal einzugeben und den Auslöser zu ignorieren. TPM-/Bootintegritätsänderungen, Firmware und Schutzstatus gezielt untersuchen.",
+        "Wiederholte Recovery erfordert Ursachenanalyse."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wozu dient die Recovery-Key-ID?",
+        "Sie hilft, den angeforderten Wiederherstellungsschlüssel dem richtigen verschlüsselten Gerät beziehungsweise Volume zuzuordnen."
+      ],
+      [
+        "Warum ist eine BitLocker-Recovery-Anforderung nicht automatisch ein Hardwaredefekt?",
+        "Auch legitime Änderungen an Firmware, Bootkonfiguration oder TPM-Messwerten können sie auslösen."
+      ]
+    ],
+    "check": "Gerät autorisiert entsperren und stabile Folgeneustarts ohne ungewollte erneute Recovery prüfen."
+  },
+  "45": {
+    "cases": [
+      [
+        "Ein Windows-PC erscheint in Microsoft Entra, aber nicht in der Intune-Geräteverwaltung.",
+        "Welche Zustände trennst du?",
+        "Entra-Join/Registrierung, MDM-Enrollment und Intune-Geräteobjekt getrennt prüfen; <code>AzureAdJoined : YES</code> beweist kein erfolgreiches MDM-Enrollment.",
+        "Geräteidentität ist nicht Geräteverwaltung."
+      ],
+      [
+        "Intune zeigt ein Gerät als „nicht konform“, die gewünschte Richtlinie wurde vor Kurzem zugewiesen.",
+        "Welche Nachweise brauchst du?",
+        "Letzten Check-in, tatsächliche Policy-Zuweisung, lokale CSP-/MDM-Ereignisse und gemeldeten Compliance-Status zeitlich vergleichen.",
+        "Richtlinie zugewiesen heißt nicht Richtlinie angewendet."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür ist <code>dsregcmd /status</code> hilfreich?",
+        "Zur lesenden Prüfung des Windows-Geräteidentitäts- und Registrierungszustands."
+      ],
+      [
+        "Warum ist das Löschen eines Entra-Geräteobjekts kein Standard-Fix?",
+        "Es kann Identität, Zugriff und Verwaltung des Geräts beeinträchtigen und erfordert einen geplanten Rückweg."
+      ]
+    ],
+    "check": "Erfolgreiches Enrollment, aktuellen Check-in, Richtlinienstatus und konkrete Wirkung am Gerät nachweisen."
+  },
+  "46": {
+    "cases": [
+      [
+        "Eine Intune-App wurde installiert, aber die Verwaltung meldet den Zustand „Fehlgeschlagen“.",
+        "Welche Entscheidungsebene prüfst du?",
+        "Installationsergebnis, Detection Rule und tatsächliche Version/Registry-/Dateipfade vergleichen. Der Installer kann erfolgreich sein, obwohl die Erkennung scheitert.",
+        "Installation und Detection sind unterschiedliche Schritte."
+      ],
+      [
+        "Die App wird nur auf Geräten mit einer bestimmten Architektur nicht bereitgestellt.",
+        "Welche Voraussetzungen untersuchst du?",
+        "Requirements, Gerätezielgruppen, Windows-Architektur, Abhängigkeiten und Installationskontext der Win32-App prüfen.",
+        "Vor dem Installer stehen Zuweisung und Gerätevoraussetzungen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist die Intune Management Extension?",
+        "Eine Windows-Komponente, die unter anderem die Verarbeitung bestimmter Intune-Skripte und Win32-App-Bereitstellungen unterstützt."
+      ],
+      [
+        "Warum ist ein Exitcode 0 kein vollständiger Nachweis für eine funktionierende App?",
+        "Er sagt primär etwas über den Installerlauf aus, nicht zwingend über Erkennung und tatsächlichen Programmstart."
+      ]
+    ],
+    "check": "Die App am Zielgerät starten, gewünschte Funktionen testen und den erwarteten Intune-Erkennungsstatus prüfen."
   }
 }
