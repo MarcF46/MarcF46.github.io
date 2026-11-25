@@ -236,8 +236,8 @@ Get-PnpDevice -PresentOnly |
 <p><strong>Interpretation:</strong> <code>Status = OK</code> zeigt eine erfolgreiche PnP-Initialisierung an, <strong>nicht</strong>, dass Teams das richtige Gerät gewählt hat oder eine verwendbare Aufnahme liefert. Fehlt ein erwartetes Gerät, Verbindung, Erkennung und Herstellerkonfiguration prüfen. Die Liste kann interne und virtuelle Audiogeräte enthalten.</p>
 <h3 id="11-2-windows-audiodienste-ohne-eingriff-lesen">11.2 Windows-Audiodienste ohne Eingriff lesen</h3>
 <div class="code-block"><div class="code-caption"><span class="code-lang">powershell</span><button aria-label="Code kopieren" class="code-copy" type="button">Kopieren</button></div><pre class="code-shell" tabindex="0"><code class="language-powershell"># -Name: zwei interne Windows-Dienstnamen abfragen, nicht verändern.
+# Select-Object begrenzt anschließend die Ausgabe auf vier Eigenschaften.
 Get-Service -Name 'Audiosrv', 'AudioEndpointBuilder' |
-    # Nur die vier für die Diagnose hilfreichen Eigenschaften anzeigen.
     Select-Object Name, DisplayName, Status, StartType
 </code></pre></div>
 <details class="rb21-syntax"><summary>Befehl im Detail verstehen</summary><div class="rb21-answer"><ul><li><code>Get-Service</code> fragt den Dienststatus ab; <code>-Name</code> benennt die zu untersuchenden Dienste.</li><li><code>Audiosrv</code> ist der Windows-Audiodienst, <code>AudioEndpointBuilder</code> ist der Dienst zur Verwaltung von Audio-Endpunkten.</li><li><code>Select-Object</code> gibt internen Namen, Anzeigenamen, Zustand (<code>Status</code>) und Startkonfiguration (<code>StartType</code>) aus.</li><li>Die Abfrage startet oder stoppt <strong>keinen</strong> Dienst.</li></ul></div></details>
