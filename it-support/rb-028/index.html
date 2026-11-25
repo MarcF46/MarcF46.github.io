@@ -346,6 +346,7 @@ Get-WinEvent -FilterHashtable @{
 </table></div>
 <p><strong>Diagnose ist ein Vergleichsverfahren:</strong> Jede Zeile ist eine Hypothese – erst der passende Test und sein Resultat können sie bestätigen oder verwerfen.</p>
 <h2 id="14-zwei-fiktive-praxisfalle-keine-laborergebnisse">14. Zwei fiktive Praxisfälle (keine Laborergebnisse)</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="musterfall-a-word-startet-nur-im-office-safe-mode">Musterfall A – Word startet nur im Office Safe Mode</h3>
 <p><strong>Ticket INC-028-A (fiktiv):</strong> In einer Buchhaltungsabteilung verschwindet Word direkt nach dem Splashscreen. Excel und PowerPoint öffnen sich. <code>winword /safe</code> funktioniert.</p>
 <p><strong>Hypothesen:</strong> COM-Add-in für DMS, globale Word-Vorlage, benutzerspezifische Startkomponente.</p>
@@ -374,6 +375,7 @@ Get-WinEvent -FilterHashtable @{
 </ol>
 <p><strong>Möglicher, rein hypothetischer Befund:</strong> Office-Dateien oder ein gemeinsam geladenes Modul sind beschädigt. <strong>Keine reale Validierung.</strong></p>
 <p><strong>Selbsterklärung:</strong> Warum ist „Safe Mode geht auch nicht“ allein noch kein Beweis für eine beschädigte Office-Installation?</p>
+</div></details>
 <h2 id="15-active-recall-transfer-und-praktische-validierung">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
