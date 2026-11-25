@@ -264,6 +264,7 @@ Get-Process | Sort-Object CPU -Descending |
 <p><strong>Nicht als Erstmaßnahme:</strong> NIC-/Netzwerktreiber neu installieren, MTU/Jumbo Frames ändern, Duplex hart festlegen, RSS/Offloads abschalten, QoS deaktivieren, VPN/EDR/Firewall ausschalten oder Internet-Speedtests massenhaft wiederholen.</p>
 <p><strong>Abnahme:</strong> Ursache durch Vorher-/Nachher-Befund plausibel belegt; Sollwert oder dokumentierte Baseline unter vergleichbaren Bedingungen erreicht; betroffene Anwendung funktioniert zuverlässig; Sicherheits- und Betriebsanforderungen weiterhin erfüllt.</p>
 <h2 id="13-zwei-fiktive-praxisfalle-keine-realen-messergebnisse">13. Zwei fiktive Praxisfälle (keine realen Messergebnisse)</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-dateiserver-langsam-bei-nur-einem-client">Fall A – „Dateiserver langsam“ bei nur einem Client</h3>
 <ul>
 <li><strong>Störungsmeldung:</strong> Nur Notebook A kopiert eine fiktive 1-GiB-Datei aus einem Share ungewöhnlich langsam.</li>
@@ -281,6 +282,7 @@ Get-Process | Sort-Object CPU -Descending |
 <li><strong>Fiktiver Abschluss:</strong> Nach autorisierter Behebung des Storage-Engpasses sinkt die Anwendungszeit; ein wiederholter realitätsnaher Dateitest bestätigt die Wirkung.</li>
 <li><strong>Transferfrage:</strong> Welchen Teil der Diagnose kann iperf3 hier gut abgrenzen, welchen gerade nicht?</li>
 </ul>
+</div></details>
 <h2 id="14-active-recall-self-explanation-und-diagnosetransfer">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
