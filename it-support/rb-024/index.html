@@ -324,6 +324,7 @@ Get-CimInstance Win32_PnPEntity |
 <p>USB-Funkmaus seit heute mit sporadischen Aussetzern. Batterie geprüft, Gerät an direktem Hostport getestet; am bisherigen Dockport reproduzierbare Störung. A/B-Test: Empfänger über zugelassene USB-Verlängerung vom störenden USB-3.x-Gerät entfernt; Eingabe blieb im Vergleichstest stabil. Keine Treiber-/Energiesparänderung. Funktion gemeinsam mit Anwender geprüft; Ursache „Funkinterferenz wahrscheinlich“, nicht als endgültig bewiesen deklariert.</p>
 </blockquote>
 <h2 id="13-zwei-fiktive-praxisfalle-fur-diagnose-und-transfer">13. Zwei fiktive Praxisfälle für Diagnose und Transfer</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-usb-maus-funktioniert-nur-an-port-2">Fall A – USB-Maus funktioniert nur an Port 2</h3>
 <p><strong>Meldung:</strong> Kabelgebundene Maus A funktioniert an Port 1 nicht, ihre LED leuchtet. An Port 2 funktioniert sie zuverlässig. Eine bekannte intakte Maus B funktioniert an Port 1 ebenfalls nicht; an Port 2 ja.</p>
 <p><strong>Interpretation:</strong> Das Muster spricht deutlich für einen Fehler im Pfad von <strong>Port 1</strong> (Buchse, interner Hub/Controller, Freigabe), <strong>nicht</strong> für Maus A. Ohne Geräte-Manager-/Sichtprüfung lässt sich noch nicht zwischen Portschaden, deaktiviertem Port und Richtlinie entscheiden.</p>
@@ -332,6 +333,7 @@ Get-CimInstance Win32_PnPEntity |
 <p><strong>Meldung:</strong> Maus über USB-Empfänger ist seit dem Umzug an einen anderen Schreibtisch unzuverlässig. Kabelmaus am PC funktioniert. Funkmaus reagiert besser, wenn ihr Empfänger direkt und mit etwas Abstand zu einer USB-3.x-SSD platziert wird.</p>
 <p><strong>Interpretation:</strong> Die USB-Host-/Eingabefunktion scheint grundsätzlich betriebsfähig; die <strong>Funkstrecke</strong> oder Empfängerposition ist wahrscheinlicher. Ein einmaliger erfolgreicher Test beweist jedoch nicht sicher RF-Interferenz: Batterie, Kopplung und Wiederholbarkeit separat prüfen.</p>
 <p><strong>L1-Vorgehen:</strong> Batterie und Receiver prüfen, Empfängerposition kontrolliert ändern, Fehlerhäufigkeit erneut testen, dokumentieren; bei weiterem Ausfall mit freigegebener Vergleichskombination testen.</p>
+</div></details>
 <h2 id="14-aktives-abrufen-und-selbstkontrolle">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
