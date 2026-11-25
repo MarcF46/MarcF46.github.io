@@ -272,17 +272,21 @@ Test-NetConnection -ComputerName 'fslogix-store.corp.example' -Port 445
 </ul>
 <p>Eine funktionsfähige temporäre Sitzung oder bloß ein neu angelegtes Profil ohne verifizierte Dateien gilt <strong>nicht</strong> als vollständig gelöst.</p>
 <h2 id="13-fiktiver-praxisfall-a-lokales-temp-profil-bei-vollem-systemlaufwerk">13. Fiktiver Praxisfall A – Lokales TEMP-Profil bei vollem Systemlaufwerk</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> Nach einem Neustart sieht der Benutzer einen leeren Desktop und eine Warnung zu einem temporären Profil. Die Sitzung läuft noch. <strong>Alle Daten/Ergebnisse in diesem Abschnitt sind erfunden.</strong></p>
 <p><strong>Hypothesen (vor Diagnose):</strong> Profilordner nicht vorhanden, Hive-Zugriff fehlerhaft, Datenträgerplatz erschöpft, Zugriffsrechte fehlerhaft.</p>
 <p><strong>Beobachtungen (fiktiv):</strong> <code>whoami</code> zeigt das korrekte Konto, <code>$env:USERPROFILE</code> zeigt ein TEMP-Verzeichnis, Ereignislog meldet ein Profilladeproblem und <code>Get-Volume</code> nur 80 MB frei. Der Originalordner <code>C:\Users\a.mustermann</code> ist lesbar. <strong>Das beweist noch nicht</strong>, dass Platzmangel die einzige Ursache ist.</p>
 <p><strong>Kontrollierte Vorgehensweise:</strong> Aktuelle TEMP-Arbeitsdateien sicher exportieren, ursprüngliche Daten gegenprüfen, belegte Systempartition und zeitlich passende Ereignisse korrelieren; genehmigte Speicherplatzbereinigung durch zuständigen Owner und anschließend kontrollierte Neuanmeldung mit Anwenderzustimmung. Keine Profil- oder Registry-Löschung.</p>
 <p><strong>Erfolgsnachweis (fiktiv):</strong> Anmeldung mit Originalpfad, lokale Dateien vorhanden, Testdatei über eine erneute Anmeldung erhalten; Ticket mit Ursache und kontrollierten Tests geschlossen.</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-fslogix-container-an-vdi-host-nicht-eingebunden">14. Fiktiver Praxisfall B – FSLogix-Container an VDI-Host nicht eingebunden</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> Mehrere Anwender erhalten auf einem VDI-Host temporäre Profile; andere VDI-Hosts sind unauffällig. Alle Angaben sind <strong>fiktiv</strong>.</p>
 <p><strong>Hypothesen:</strong> Serverübergreifende Berechtigungsabweichung, gesperrte VHD(X), Netz-/DNS-/SMB-Störung oder Speicherplatzproblem der Profilfreigabe.</p>
 <p><strong>Beobachtungen (fiktiv):</strong> Anmeldezeit 09:15; im FSLogix-Profillog steht ein Attach-Fehler und <code>Test-NetConnection</code> meldet vom betroffenen Host keine Verbindung zum Storage-Ziel über TCP 445. Ein Vergleichshost erreicht die Freigabe. <strong>Nicht ausgeschlossen:</strong> zusätzlicher Authentifizierungs- oder Storagefehler.</p>
 <p><strong>Vorgehen:</strong> VDI-/Storage-Team mit Befunden einbeziehen, DNS/Port/Firewallpfad und betroffene Freigabe eingrenzen; <strong>keine</strong> VHD(X)-Dateien entfernen und keine Container-Detach-Operation im laufenden Betrieb ausführen. Nach genehmigter Netzkorrektur Anmelde-/Profilattach auf Testhost und anschließend in der betroffenen Nutzerumgebung nachprüfen.</p>
 <p><strong>Erfolgsnachweis (fiktiv):</strong> Originalcontainer wird geladen, Anwendungszustand und Dateien vorhanden, keine erneuten Attach-Fehler, Freigabe und Regressionstest dokumentiert.</p>
+</div></details>
 <h2 id="15-active-recall-diagnosekarten-und-transfertraining">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
