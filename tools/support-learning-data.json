@@ -160,5 +160,194 @@
       ]
     ],
     "check": "Abgestimmte Testnachrichten im Web und im betroffenen Outlook-Client senden und empfangen."
+  },
+  "7": {
+    "cases": [
+      [
+        "Ein Windows-PC reagiert morgens extrem träge; die CPU zeigt im Task-Manager Spitzen.",
+        "Welche Messwerte brauchst du, bevor du einen Prozess als Ursache benennst?",
+        "CPU-Auslastung über einen Zeitraum, Arbeitsspeicher, Datenträgeraktivität und den tatsächlich betroffenen Prozess vergleichen. Einzelne Momentaufnahmen beweisen keine dauerhafte Überlast.",
+        "CPU-Zeit und aktuelle CPU-Auslastung nicht verwechseln."
+      ],
+      [
+        "Ein PC wird nur bei der Anmeldung langsam, danach arbeitet er normal.",
+        "Was grenzt du zuerst ein?",
+        "Autostart, Anmeldeprozesse, Profil- und Netzwerkabhängigkeiten sowie die Dauer bis zur Benutzbarkeit messen. Nicht pauschal Hardware austauschen.",
+        "Der Zeitpunkt des Fehlers ist ein Diagnosehinweis."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was misst die Eigenschaft <code>CPU</code> bei <code>Get-Process</code> häufig?",
+        "Die bisher akkumulierte Prozessorzeit des Prozesses; keine direkte Momentanauslastung in Prozent."
+      ],
+      [
+        "Warum ist wenig freier Speicherplatz nicht gleich hohe Datenträgerlast?",
+        "Kapazität und tatsächliche Lese-/Schreibaktivität sind unterschiedliche Größen."
+      ]
+    ],
+    "check": "Die ursprüngliche Arbeitsaufgabe wiederholen und Startzeit, Systemlast und Benutzerwahrnehmung vergleichen."
+  },
+  "8": {
+    "cases": [
+      [
+        "Ein Druckauftrag bleibt in der Warteschlange stehen, andere Geräte drucken ebenfalls nicht.",
+        "Welche gemeinsame Fehlerquelle prüfst du?",
+        "Die zuständige Druckwarteschlange, den Spooler und gegebenenfalls Printserver sowie Druckerport prüfen. Erst den Ausfallbereich klären.",
+        "Mehrere betroffene Nutzer deuten auf eine gemeinsame Komponente."
+      ],
+      [
+        "Nur aus einer Anwendung kommen leere Seiten, aus einer anderen wird korrekt gedruckt.",
+        "Was sagt der Vergleich?",
+        "Druckerhardware und genereller Druckweg sind zumindest teilweise funktionsfähig. Die Anwendung, Dokumentformatierung und ihren Druckdialog gezielt untersuchen.",
+        "Funktionierende Gegenprobe begrenzt den Fehler auf den verbleibenden Pfad."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist der Windows-Druckspooler?",
+        "Der Dienst, der Druckaufträge entgegennimmt und verarbeitet."
+      ],
+      [
+        "Warum sollte man nicht sofort die gesamte Warteschlange löschen?",
+        "Damit könnten fremde Druckaufträge und relevante Diagnosebelege verloren gehen."
+      ]
+    ],
+    "check": "Mit abgestimmtem Testdokument und betroffener Anwendung einen vollständigen Ausdruck bestätigen."
+  },
+  "9": {
+    "cases": [
+      [
+        "Das Notebook ist mit dem WLAN verbunden, interne Anwendungen sind dennoch nicht erreichbar.",
+        "Welchen nächsten Prüfschritt wählst du?",
+        "IP-Adresse, Gateway, DNS und Zielpfad prüfen. Eine WLAN-Assoziierung beweist noch keine funktionierende IP-Kommunikation.",
+        "WLAN verbunden ist nicht gleich Netzwerkzugriff."
+      ],
+      [
+        "Im Firmen-WLAN schlägt die Anmeldung fehl, im Gast-WLAN klappt die Verbindung.",
+        "Welche Ebene ist zusätzlich relevant?",
+        "Bei Unternehmens-WLAN die 802.1X-Authentifizierung, Zertifikate, NPS/RADIUS und zugelassene Geräteidentitäten prüfen.",
+        "Enterprise-WLAN hat eine eigene Authentifizierungsschicht."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wozu dient <code>netsh wlan show wlanreport</code>?",
+        "Es erzeugt einen WLAN-Verlaufsbericht zur Untersuchung von Verbindungen und Fehlerereignissen."
+      ],
+      [
+        "Warum löst ein erfolgreicher Ping nicht jedes WLAN-Problem?",
+        "Er testet nur eine bestimmte ICMP-Verbindung, nicht Authentifizierung und alle Anwendungen."
+      ]
+    ],
+    "check": "Verbindung, erhaltene IP-Konfiguration und Zugriff auf das ursprünglich benötigte Ziel prüfen."
+  },
+  "10": {
+    "cases": [
+      [
+        "Der Benutzer sagt: „Internet weg“, aber der lokale Server ist erreichbar.",
+        "Was untersuchst du statt eines Komplett-Resets?",
+        "Zielnamen, DNS-Auflösung, Gateway/Route, Proxy und den konkreten externen Dienst prüfen. Der lokale Netzwerkpfad funktioniert zumindest teilweise.",
+        "„Kein Internet“ beschreibt nur ein Symptom."
+      ],
+      [
+        "Eine Website ist per IP erreichbar, mit Hostnamen nicht.",
+        "Welche Fehlerklasse ist wahrscheinlich?",
+        "Namensauflösung beziehungsweise DNS-Konfiguration eingrenzen; gleiche Anfrage mit verschiedenen Resolvern und passenden Records vergleichen.",
+        "IP funktioniert, Name nicht: DNS zuerst prüfen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was sagt eine Adresse aus <code>169.254.0.0/16</code> häufig aus?",
+        "Windows verwendet eine IPv4-Link-Local-Adresse; typischerweise konnte keine DHCP-Lease bezogen werden."
+      ],
+      [
+        "Warum beweist ein erfolgreicher Ping keine funktionierende Webanwendung?",
+        "HTTP(S), DNS, Authentifizierung und anwendungsspezifische Ports sind damit nicht geprüft."
+      ]
+    ],
+    "check": "Den ursprünglich gemeldeten Dienst und zusätzlich einen definierten Vergleichsdienst erfolgreich testen."
+  },
+  "11": {
+    "cases": [
+      [
+        "Der VPN-Client zeigt „Verbunden“, doch die interne Dateifreigabe bleibt unerreichbar.",
+        "Was prüfst du zuerst?",
+        "Routen zum Zielnetz, DNS für interne Namen und den tatsächlichen Port des Dateidienstes prüfen. Ein bestehender Tunnel garantiert keinen Zugriff auf alle internen Ziele.",
+        "Tunnelaufbau ist nicht gleich Ressourcenzugriff."
+      ],
+      [
+        "Der VPN-Tunnel lässt sich seit einem Kennwortwechsel nicht aufbauen.",
+        "Welche Befunde trennen Konto- von Netzwerkproblemen?",
+        "Konkreten VPN-Fehlercode, Benutzeranmeldung/MFA, Zertifikatsstatus und Erreichbarkeit des Gateways abgleichen.",
+        "Erst Fehlermeldung und Authentifizierungsstufe bestimmen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Worin unterscheiden sich Split und Full Tunneling?",
+        "Beim Split Tunnel gehen nur definierte Routen über das VPN, beim Full Tunnel grundsätzlich der Standardverkehr ebenfalls über den Tunnel."
+      ],
+      [
+        "Warum ist ein TCP-Test zum VPN-Gateway nicht für jeden VPN-Typ aussagekräftig?",
+        "Manche VPN-Protokolle verwenden UDP oder weitere Aushandlungen; ein einzelner TCP-Porttest bildet sie nicht ab."
+      ]
+    ],
+    "check": "Tunnel und Zugriff auf die ursprüngliche interne Ressource unter realistischen Bedingungen prüfen."
+  },
+  "12": {
+    "cases": [
+      [
+        "Ein Benutzer bekommt keine Authenticator-Pushbenachrichtigung.",
+        "Was unterscheidest du zuerst?",
+        "Prüfen, ob tatsächlich eine Pushanforderung erwartet wird oder ein Code benötigt wird, sowie Gerät, Netzwerk und die Entra-Anmeldedetails ansehen.",
+        "Push und Einmalcode sind unterschiedliche MFA-Verfahren."
+      ],
+      [
+        "Nach einem Handywechsel kann der Mitarbeiter kein MFA-Verfahren mehr nutzen.",
+        "Was darfst du nicht vorschnell tun?",
+        "Keine Sicherheitsmaßnahmen pauschal abschalten. Identität sicher prüfen und einen autorisierten Wiederherstellungsweg wie registrierte Alternativmethoden oder Temporary Access Pass nutzen.",
+        "MFA-Wiederherstellung braucht einen geprüften Identitätsnachweis."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür helfen die Entra-Anmeldeprotokolle bei MFA-Fehlern?",
+        "Sie zeigen Anmeldeversuche, Fehlerhinweise und unter anderem ausgewertete Conditional-Access-Bedingungen."
+      ],
+      [
+        "Warum ist ein vorliegender Authenticator-Eintrag nicht automatisch ein funktionierendes MFA-Verfahren?",
+        "Registrierung, Erreichbarkeit und tatsächlicher Anmeldeversuch sind getrennt zu prüfen."
+      ]
+    ],
+    "check": "Eine erfolgreiche Anmeldung mit dem vorgesehenen MFA-Verfahren unter passenden Richtlinien bestätigen."
+  },
+  "13": {
+    "cases": [
+      [
+        "Ein Benutzer fordert eine Fachanwendung an, die auf dem Client fehlt.",
+        "Was prüfst du vor der Installation?",
+        "Freigabe, Lizenz, Geräteanforderungen und genehmigten Bereitstellungsweg, etwa Intune-Unternehmensportal oder Softwarekatalog.",
+        "Software bereitstellen beginnt mit Berechtigung und Voraussetzungen."
+      ],
+      [
+        "Intune meldet „Installation erfolgreich“, die App wird aber als nicht installiert gewertet.",
+        "Welche technische Ursache prüfst du?",
+        "Erkennungsregel (Detection Rule), Installationskontext, Version und tatsächliche Dateipfade/Registrywerte vergleichen.",
+        "Installer-Erfolg und Anwendungserkennung sind zwei getrennte Schritte."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum kann ein Nutzer nicht einfach beliebige Software installieren?",
+        "Lizenzierung, Sicherheitsrichtlinien und freigegebene Unternehmensprozesse müssen eingehalten werden."
+      ],
+      [
+        "Was zeigt ein MSI-Exitcode allein nicht?",
+        "Nicht zwingend, dass die Anwendung für den Benutzer funktionsfähig und korrekt erkannt wurde."
+      ]
+    ],
+    "check": "Die freigegebene Anwendung starten und ihre erforderliche Funktion sowie das Deployment-Ergebnis prüfen."
   }
 }
