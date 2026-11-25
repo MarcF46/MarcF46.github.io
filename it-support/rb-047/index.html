@@ -216,6 +216,7 @@ Get-WinEvent -FilterHashtable @{
 </table></div>
 <p><strong>Generell:</strong> Zertifikate mit privatem Schlüssel werden nur über die genehmigte PKI-/Secret-Verwaltung erneuert, verteilt und gebunden; niemals Schlüsselmaterial im Ticket ablegen. Rollback/Verfügbarkeit vor Aktivierung klären.</p>
 <h2 id="13-zwei-fiktive-praxisfalle-mit-diagnosebegrundung">13. Zwei fiktive Praxisfälle mit Diagnosebegründung</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="musterfall-a-zertifikat-erneuert-warnung-bleibt">Musterfall A: Zertifikat erneuert, Warnung bleibt</h3>
 <p><strong>Ticket:</strong> Nach Zertifikatstausch auf einem IIS-Server meldet <code>portal.example.test</code> weiterhin ein abgelaufenes Zertifikat. Die Administratorin zeigt, dass im lokalen Zertifikatsspeicher ein neues Zertifikat bis 2027 liegt.</p>
 <p><strong>Eigenständige Hypothese:</strong> Der Server <strong>hat</strong> ein neues Zertifikat, aber ein HTTPS-Binding oder vorgeschalteter Reverse Proxy liefert weiter das alte aus.</p>
@@ -226,6 +227,7 @@ Get-WinEvent -FilterHashtable @{
 <p><strong>Hypothesen:</strong> Fehlendes Intermediate, ausschließlich interne Root-CA, unterschiedliche Proxy-/TLS-Endpunkte oder TLS-Inspection.</p>
 <p><strong>A/B-Test:</strong> Beide Geräte mit identischem FQDN und Zeitpunkt prüfen; Zertifikats-Fingerprint/Issuer/Chain, Trust-Stores und Netzwerkpfad vergleichen. <strong>Mögliche Diagnose:</strong> Externe Gegenstelle sendet unvollständige Kette oder vertraut einer internen CA nicht. Beide Ausgänge werden separat belegt; der Unterschied allein beweist die genaue Ursache noch nicht.</p>
 <p><strong>Korrektur:</strong> PKI-/Webteam stellt die passende, vollständig ausgelieferte Vertrauenskette oder den genehmigten externen Zertifikatspfad sicher. <strong>Keine</strong> unkontrollierte Root-CA-Installation oder Umgehung des Browserwarnhinweises.</p>
+</div></details>
 <h2 id="14-active-recall-self-explanation-und-transfer">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
