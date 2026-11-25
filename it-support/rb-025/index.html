@@ -310,6 +310,7 @@ Windows-Anmeldung und Arbeitsplatz
 <p><strong>Eskalationsdaten mindestens:</strong> Ticketzeitpunkt; Hersteller/Modell/Inventarnummer; Beschreibung des letzten funktionierenden Zustands; Fehlerklasse plus Unsicherheit; LED-/Piepmuster; Bild-/Fehlermeldung; Versorgungs-/Kabel-/Monitor-/Peripherie-Gegenproben; OEM-Diagnosecode; Verschlüsselungs- und Sicherungsstatus <strong>ohne Schlüsselmaterial</strong>; bereits ausgeführte Veränderungen; betriebliche Auswirkung.</p>
 <p><strong>Rückfallstrategie:</strong> Ausgangskonfiguration notieren und nach jeder harmlosen Gegenprobe wiederherstellen. Bei freigegebenen Änderungen zuvor festhalten, wer sie zurücknehmen kann. Firmware-/TPM-/Bootkonfigurationsänderungen können BitLocker-Recovery auslösen und gehören nicht zu improvisierten L1-Maßnahmen.</p>
 <h2 id="13-zwei-fiktive-praxisfalle-diagnose-und-transfer">13. Zwei fiktive Praxisfälle – Diagnose und Transfer</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-toter-pc-trotz-funktionierendem-arbeitsplatzmonitor">Fall A – „Toter PC“ trotz funktionierendem Arbeitsplatzmonitor</h3>
 <p><strong>Ausgangslage:</strong> Nach Arbeitsplatzwechsel reagiert ein Notebook beim Druck auf die Power-Taste nicht; der Nutzer vermutet defektes Windows. Die Steckdosenleiste leuchtet. Ein Dock ist angeschlossen, aber die Lade-LED des Notebooks ist aus.</p>
 <p><strong>Eigenständige Hypothesenbildung:</strong> Ist die Leiste wirklich auf dieser Buchse unter Spannung? Liefert das Dock genügend/überhaupt Strom? Ist das Notebook über den richtigen Ladeanschluss verbunden? Ist der Akku tiefentladen?</p>
@@ -319,6 +320,7 @@ Windows-Anmeldung und Arbeitsplatz
 <p><strong>Ausgangslage:</strong> Notebook-Lüfter und Power-LED laufen, der externe Monitor zeigt „Kein Signal“. Nutzer meldet „Computer startet nicht“. Bei direkter Prüfung zeigt das interne Panel den Windows-Anmeldebildschirm.</p>
 <p><strong>Diagnose:</strong> Der Rechner startet nachweislich bis zur Anmeldung; dies ist ein <strong>Video-/Dock-/Signalproblem</strong>, kein nachgewiesener No-Boot-Fall. Direktes HDMI-Signal mit freigegebenem Kabel funktioniert, nur das Dock liefert kein externes Bild. Übergabe an Dock-/Videopfad (RB-022/RB-023).</p>
 <p><strong>Transferfrage:</strong> Welche Beobachtung hätte dir vor der Gegenprobe als <strong>vermeintlich</strong> starker Hinweis auf einen Rechnerdefekt erscheinen können, obwohl sie diesen nicht belegt?</p>
+</div></details>
 <h2 id="14-active-recall-self-explanation-und-spatere-validierung">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
