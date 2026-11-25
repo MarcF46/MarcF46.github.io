@@ -283,15 +283,19 @@ Get-NetTCPConnection -LocalPort 443 -State Listen -ErrorAction SilentlyContinue
 </table></div>
 <p>Microsoft empfiehlt bei komplexen TCP-Störungen <strong>korrelierte Netzwerk-Traces</strong> statt blindem Ändern des TCP-Stacks. [Q1]</p>
 <h2 id="13-fiktiver-praxisfall-a-veralteter-dns-record">13. Fiktiver Praxisfall A: Veralteter DNS-Record</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Vom PC im Büro öffnet sich die Weboberfläche des Dateiservers nicht; beim Kollegen funktioniert sie.“</p>
 <p><strong>Befund (vollständig erfunden):</strong> Client A löst <code>server01.firma.example</code> auf <code>192.0.2.41</code> auf, während die freigegebene aktuelle Zieladresse <code>192.0.2.40</code> ist. <code>Test-NetConnection</code> zu <code>.41:443</code> liefert <code>False</code>; zur <strong>autorisiert bestätigten</strong> <code>.40:443</code> ist <code>True</code>. Ein Client B mit korrekt aufgelöstem Namen verbindet sich erfolgreich.</p>
 <p><strong>Begründung:</strong> Der spezifische Namens-/Adresspfad ist die führende Hypothese. Erst A-/AAAA-Einträge, DNS-Quelle, TTL und Änderungshistorie vergleichen; anschließend autorisierte DNS-Korrektur durch den zuständigen Owner, Client-Caches nur gezielt und nach Sicherung der Befunde betrachten. <strong>Nicht</strong> pauschal öffentliche DNS-Server eintragen.</p>
 <p><strong>Retest:</strong> Gleicher FQDN, gewünschter Dienstport und vollständiger Anwendungsaufruf am ursprünglichen Client. Im Ticket: Vorher-/Nachherauflösung, Quelle und Freigabe dokumentieren.</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-nur-ein-vlan-kommt-nicht-zum-server">14. Fiktiver Praxisfall B: Nur ein VLAN kommt nicht zum Server</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Nach Umzug in eine andere Etage kann die gesamte Abteilung den internen Server nicht mehr öffnen.“</p>
 <p><strong>Befund (vollständig erfunden):</strong> Beide VLANs lösen den FQDN identisch auf. Betroffene Clients in VLAN 20 erreichen andere interne Ziele, nicht aber <code>192.0.2.40:445</code>. Ein autorisierter Vergleichsclient aus VLAN 30 erreicht denselben Port. Die zuständige Netzwerkadministration bestätigt nach Logvergleich eine nicht passende Quellnetz-ACL bei einer geplanten Migration.</p>
 <p><strong>Begründung:</strong> Die Störung ist <strong>nicht</strong> durch fehlende Namensauflösung oder einen generellen Serverausfall erklärt. Die Ursachenhypothese wird erst durch die korrelierte ACL-/Firewalltelemetrie bestätigt. Nach Change-Freigabe minimal notwendige Policy korrigieren, Log dokumentieren und Retest durchführen.</p>
 <p><strong>Retest:</strong> Ursprünglicher Benutzer aus VLAN 20, konkrete SMB-Freigabe und die berechtigte Aktion (z. B. Lesen) prüfen; keine Freigabe für ganze Netze oder unspezifizierte Ports einrichten.</p>
+</div></details>
 <h2 id="15-wissensabruf-selbst-erklarung-und-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
