@@ -179,6 +179,7 @@ Get-WinEvent -FilterHashtable @{
 </table></div>
 <p><code>gpupdate /force</code> nur als <strong>gezielten, genehmigten</strong> Folgetest verwenden (ggf. <code>/target:user</code> oder <code>/target:computer</code>) und berücksichtigen, dass An-/Abmeldung oder Neustart erforderlich sein kann. Der Befehl beweist <strong>nicht</strong>, weshalb die Richtlinie zuvor fehlte. [Q1, Q2]</p>
 <h2 id="13-fiktiver-praxisfall-a-gpo-durch-wmi-filter-ausgeschlossen">13. Fiktiver Praxisfall A – GPO durch WMI-Filter ausgeschlossen</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Die Computer-GPO für eine Desktop-Einstellung greift bei Notebook N-023 nicht.“</p>
 <p><strong>Fiktive Befunde:</strong></p>
 <ol>
@@ -189,7 +190,9 @@ Get-WinEvent -FilterHashtable @{
 </ol>
 <p><strong>Hypothese im Fall bestätigt:</strong> GPO wird wegen nicht passendem WMI-Filter ausgeschlossen; ein <code>gpupdate</code> ändert daran nichts. <strong>Geplante, nicht durchgeführte Maßnahme:</strong> Berechtigter GPO-Owner korrigiert nach Freigabe ausschließlich den WMI-Filter, testet zuerst am Pilotgerät, prüft <code>gpresult</code> und tatsächlichen Wert und kontrolliert unbeabsichtigte Ziele.</p>
 <p><strong>Transferfrage:</strong> Wäre dieselbe GPO nicht einmal im Geltungsbereich, wäre der WMI-Filter nicht der erste Diagnosezweig.</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-gpo-angewendet-gpp-laufwerkszuordnung-fehlt">14. Fiktiver Praxisfall B – GPO angewendet, GPP-Laufwerkszuordnung fehlt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Der Netzlaufwerksbuchstabe X: fehlt nur bei einem Benutzer, obwohl die GPO angewendet wird.“</p>
 <p><strong>Fiktive Befunde:</strong></p>
 <ol>
@@ -200,6 +203,7 @@ Get-WinEvent -FilterHashtable @{
 </ol>
 <p><strong>Belegte Ursache im fiktiven Fall:</strong> <strong>Korrektes Ausschließen</strong> der einzelnen GPP-Position durch Item-Level-Targeting – <em>kein Fehler des GPO-Links</em>. <strong>Ergebnis:</strong> Keine Freigabe zur Berechtigungsänderung erforderlich; dem Nutzer wird der beabsichtigte Rechteumfang erklärt und ein fachlicher Antrag vorgeschlagen. Kein Löschen oder Neuaufbau von Windows-Profilen.</p>
 <p><strong>Transferfrage:</strong> Was wäre anders, wenn <code>gpresult</code> die ganze GPO bereits als „Sicherheitsfilterung: ausgeschlossen“ ausweist?</p>
+</div></details>
 <h2 id="15-active-recall-diagnosekarten-und-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
