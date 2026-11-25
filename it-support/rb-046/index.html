@@ -253,6 +253,7 @@ Get-ItemProperty -Path $uninstall -ErrorAction SilentlyContinue |
 </ol>
 <p><strong>Dokumentationspflicht:</strong> Alte/neue Regel, Change-/Freigabe-ID, betroffene Zielgeräte, Testergebnis, Rollback-Möglichkeit, Uhrzeit und eventuell erforderlicher Neustart. Ein Startskript mit „exit 0“ ohne Installation wäre keine Lösung, sondern ein verfälschter Erfolgsnachweis.</p>
 <h2 id="13-zwei-realitatsnahe-ausdrucklich-fiktive-ubungsfalle">13. Zwei realitätsnahe, ausdrücklich fiktive Übungsfälle</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-installation-erfolgreich-intune-meldet-fehler-0x87d1041c">Fall A – Installation erfolgreich, Intune meldet Fehler <code>0x87D1041C</code></h3>
 <p><strong>Ticket:</strong> „Die Fachanwendung ist auf <code>CLIENT-046A</code> im Startmenü, aber Intune zeigt ‚Fehlgeschlagen‘.“</p>
 <p><strong>Befund (erfunden):</strong> <code>AppWorkload.log</code> zeigt einen als Erfolg gewerteten Installer-Exit. Die exe befindet sich unter <code>C:\Program Files\Contoso\FachApp\FachApp.exe</code>; die zugewiesene Detection Rule prüft jedoch die Datei unter <code>C:\Program Files (x86)\Contoso\FachApp\FachApp.exe</code>.</p>
@@ -262,6 +263,7 @@ Get-ItemProperty -Path $uninstall -ErrorAction SilentlyContinue |
 <p><strong>Befund (erfunden):</strong> Intune-Download abgeschlossen; Installer-Log zeigt Rückgabecode <code>1618</code>. Im Zeitfenster läuft auf den betroffenen PCs eine zweite MSI-Installation.</p>
 <p><strong>Hypothese:</strong> Gleichzeitige Windows-Installer-Aktionen kollidieren. <strong>Kontrolltest:</strong> MSI-/IME-Zeitstempel korrelieren, laufende Installation identifizieren, Change-Freigabe einholen, geordnetes Installationszeitfenster planen; keinen Installerprozess willkürlich beenden. <strong>Ergebnis:</strong> Im fiktiven Labor läuft eine freigegebene Testinstallation danach erfolgreich; Status, Detection und Anwendung werden getrennt geprüft.</p>
 <p><strong>Transferfrage:</strong> Was wäre anders, wenn beide Fälle denselben sichtbaren Company-Portal-Fehler zeigen, aber in unterschiedlichen Logs ihre erste Abweichung hätten?</p>
+</div></details>
 <h2 id="14-abschluss-und-nachweis-vier-kontrollen">14. Abschluss und Nachweis – vier Kontrollen</h2>
 <p>Ein Ticket ist erst nach <strong>vier separaten Prüfungen</strong> abgeschlossen:</p>
 <ul>
