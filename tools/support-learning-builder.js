@@ -11,6 +11,16 @@ ${spec.cases.map((t,i)=>`<section class="support-learning-case"><h3>Beispiel ${i
 ${[...spec.quiz,["Wie kontrollierst du nach der Maßnahme den Erfolg?",spec.check]].map(([q,a],i)=>`<li><p><strong>${q}</strong></p>${answer(a,i===2?"Ein dokumentierter Funktionstest ist wichtiger als eine bloße Erfolgsmeldung.":spec.cases[i][3])}</li>`).join("\n")}
 </ol></div>`;
   const commands={
+    "Get-Date":"Ermittelt Datum und Uhrzeit des Systems oder verarbeitet ausdrücklich angegebene Datumswerte.",
+    "Get-Tpm":"Liest den TPM-Status (unter anderem vorhanden, aktiviert und bereit); verändert das TPM nicht.",
+    "Get-SmbMapping":"Liest bestehende SMB-Laufwerkszuordnungen.",
+    "Get-SmbConnection":"Zeigt bestehende SMB-Verbindungen eines Clients zu Freigaben.",
+    "Get-SmbShare":"Liest die auf dem Rechner konfigurierten SMB-Freigaben.",
+    "Get-Module":"Zeigt PowerShell-Module an, abhängig von den angegebenen Optionen.",
+    "Get-FileHash":"Berechnet den kryptografischen Hashwert einer Datei mit dem gewählten Algorithmus.",
+    "Get-NetIPInterface":"Liest Eigenschaften von IP-Netzwerkschnittstellen, etwa Schnittstellenmetrik und DHCP-Status.",
+    "Get-NetFirewallProfile":"Liest Einstellungen der Windows-Firewallprofile.",
+    "Get-DnsClientCache":"Liest Einträge des lokalen DNS-Client-Caches, ohne ihn zu leeren.",
     "Get-PnpDevice":"Liest Plug-and-Play-Geräte und deren Status.",
     "Get-ADUser":"Liest Eigenschaften von Active-Directory-Benutzern.",
     "Get-ADGroup":"Liest eine Active-Directory-Gruppe.",
@@ -85,20 +95,23 @@ ${[...spec.quiz,["Wie kontrollierst du nach der Maßnahme den Erfolg?",spec.chec
   const explain=(raw,lang)=>{
     const plain=raw.replace(/<[^>]*>/g,"").replace(/&gt;/g,">").replace(/&lt;/g,"<").replace(/&amp;/g,"&");
     const program=plain.split("\n").filter(x=>!/^\s*(?:#|::|REM\s)/i.test(x)).join("\n");
+    // Reine Textdiagramme dürfen nicht als PowerShell interpretiert werden.
+    if(lang==="text" && !/^\s*(?:Get|Set|Test|Connect|Import|Resolve|Start|Stop|New|Remove|Enable|Disable|Restart|Select|Sort|Where|Format|Measure|Out|Invoke|Export|Find|Update|Clear)-[A-Za-z][\w-]*(?:\s|$|\|)/m.test(program))return "";
     const cmd=[...new Set((program.match(/\b(?:Get|Set|Test|Connect|Import|Resolve|Start|Stop|New|Remove|Enable|Disable|Restart|Select|Sort|Where|Format|Measure|Out|Invoke|Export|Find|Update|Clear)-[A-Za-z][\w-]*/g)||[]))].slice(0,4);
     if(cmd.length===0 && lang!=="powershell")return "";
     let notes=[];
     for(const c of cmd){
       let desc=commands[c];
-      if(!desc){
-        const verb=c.split("-")[0];
-        desc=verb==="Get"?"Fragt Daten zum angegebenen Objekt ab.":verb==="Set"||verb==="Remove"||verb==="New"?"Kann den Systemzustand verändern; vor Ausführung Berechtigungen und Auswirkungen prüfen.":"Verarbeitet Daten oder führt eine Aktion aus; Parameter und Ausführungsort bestimmen die genaue Wirkung.";
-      }
+      if(!desc)throw Error("Cmdlet "+c+" hat noch keine fachlich geprüfte Beschreibung; vor Generierung ergänzen.");
       notes.push(`<li><code>${htmlEscape(c)}</code>: ${desc}</li>`);
     }
     if(program.includes("|"))notes.push("<li><code>|</code> reicht Pipeline-Objekte an den nächsten Befehl weiter.</li>");
     if(program.includes("$_"))notes.push("<li><code>$_</code> ist das aktuelle Pipeline-Objekt; etwa <code>$_.Status</code> greift auf dessen Eigenschaft <code>Status</code> zu.</li>");
-    if(/\$[A-Za-z_]\w*/.test(program))notes.push("<li><code>$name</code> ist eine Variable; <code>=</code> weist ihr einen Wert zu.</li>");
+    // Nur tatsächlich auftretende Variablen erklären, keine erfundenen Platzhalter.
+    const envVar=program.match(/\$env:[A-Za-z_][\w]*/i);
+    if(envVar)notes.push(`<li><code>${htmlEscape(envVar[0])}</code> liest eine Windows-Umgebungsvariable.</li>`);
+    const regularVar=program.match(/\$(?!env:)[A-Za-z][\w]*/);
+    if(regularVar)notes.push(`<li><code>${htmlEscape(regularVar[0])}</code> ist eine PowerShell-Variable; ihre Bedeutung ergibt sich aus der vorherigen Zuweisung beziehungsweise Verwendung.</li>`);
     if(program.includes("@("))notes.push("<li><code>@(...)</code> definiert eine Sammlung (Array).</li>");
     if(program.includes("@{"))notes.push("<li><code>@{...}</code> erstellt eine Hashtabelle mit benannten Einträgen.</li>");
     if(/\s-in\s/.test(program))notes.push("<li><code>-in</code> prüft, ob der linke Wert in der rechts angegebenen Sammlung enthalten ist.</li>");
