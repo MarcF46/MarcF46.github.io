@@ -244,6 +244,7 @@ Fehlschlag: keine nutzbare DHCP-Konfiguration → ggf. APIPA
 </ul>
 <p><strong>Achtung:</strong> Wenn ein Laptop über WLAN erreichbar ist, obwohl Ethernet auf APIPA steht, ist ein allgemeiner Internet-Ping <strong>kein</strong> Beleg, dass Ethernet repariert wurde. Die Tests gezielt am richtigen Interface und mit dem richtigen Pfad ausführen.</p>
 <h2 id="13-zwei-fiktive-praxisfalle-zum-transfer">13. Zwei fiktive Praxisfälle zum Transfer</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="musterfall-a-nur-ein-arbeitsplatz-betroffen">Musterfall A – Nur ein Arbeitsplatz betroffen</h3>
 <p><strong>Meldung:</strong> Ein PC am freigegebenen Arbeitsplatzport hat <code>169.254.83.42</code>; zwei andere Geräte im selben VLAN erhalten reguläre DHCP-Leases.</p>
 <p><strong>Hypothesen:</strong> (1) Kabel/Dock/USB-Ethernet, (2) Clientkonfiguration, (3) Port-/NAC-Profil. <strong>Test:</strong> Ein bekannt intaktes Clientgerät wird nach Freigabe am gleichen Port geprüft, der betroffene PC am genehmigten Vergleichsport. <strong>Fiktiver Befund:</strong> Vergleichsgerät funktioniert am Originalport; betroffener PC bleibt auf APIPA, auch am Vergleichsport. Die lesende Kontrolle zeigt einen fehlerhaften lokalen Netzwerkadapterzustand. <strong>Korrektur:</strong> IT-Administration führt nach Freigabe gerätespezifische Maßnahme aus. <strong>Retest:</strong> Erwartete DHCP-Lease sowie Anwendungszugriff werden nachgewiesen.</p>
@@ -253,6 +254,7 @@ Fehlschlag: keine nutzbare DHCP-Konfiguration → ggf. APIPA
 <p><strong>Hypothesen:</strong> (1) DHCP-Relay fehlt, (2) Scope unbrauchbar, (3) DHCP-Snooping/ACL blockiert. <strong>Test:</strong> Zeitgleicher Client-/Relay-/Servermitschnitt nach Genehmigung. <strong>Fiktiver Befund:</strong> Discover erreicht das VLAN-Gateway, wird aber mangels dokumentiertem IP-Helper nicht an den DHCP-Server weitergeleitet. <strong>Korrektur:</strong> Netzwerk-Owner korrigiert Relay mit Change. <strong>Retest:</strong> Client erhält Lease aus <code>192.168.120.0/24</code>, interne Verbindung und DNS werden bestätigt.</p>
 <p><strong>Lernfrage:</strong> Was wäre anders zu prüfen, wenn der Server <em>sehr wohl</em> ein Offer sendet, der Client es jedoch nicht empfängt?</p>
 <p><strong>Alle Musterbefunde sind ausdrücklich erfunden und keine durchgeführten Labortests.</strong></p>
+</div></details>
 <h2 id="14-active-recall-self-explanation-und-diagnosekarten">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
