@@ -8,7 +8,7 @@ ${spec.cases.map((t,i)=>`<section class="support-learning-case"><h3>Beispiel ${i
 <h3>Wissenscheck</h3>
 <p>Beantworte die Fragen möglichst ohne Nachschlagen und kontrolliere anschließend deine Antwort.</p>
 <ol class="support-learning-quiz">
-${[...spec.quiz,["Wie kontrollierst du nach der Maßnahme den Erfolg?",spec.check]].map(([q,a],i)=>`<li><p><strong>${q}</strong></p>${answer(a,i===2?"Ein dokumentierter Funktionstest ist wichtiger als eine bloße Erfolgsmeldung.":"Erst eine begründete Antwort, dann die Musterlösung.")}</li>`).join("\n")}
+${[...spec.quiz,["Wie kontrollierst du nach der Maßnahme den Erfolg?",spec.check]].map(([q,a],i)=>`<li><p><strong>${q}</strong></p>${answer(a,i===2?"Ein dokumentierter Funktionstest ist wichtiger als eine bloße Erfolgsmeldung.":spec.cases[i][3])}</li>`).join("\n")}
 </ol></div>`;
   const commands={
     "Get-PnpDevice":"Liest Plug-and-Play-Geräte und deren Status.",
