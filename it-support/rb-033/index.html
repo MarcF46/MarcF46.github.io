@@ -317,17 +317,21 @@ Disconnect-ExchangeOnline -Confirm:$false
 </tbody>
 </table></div>
 <h2 id="13-fiktiver-fall-a-rechnung-in-quarantane-statt-posteingang">13. Fiktiver Fall A – Rechnung in Quarantäne statt Posteingang</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Muster-Ticket (frei erfunden):</strong> „Ein Dienstleister sagt, die Rechnung sei gestern verschickt worden, aber bei mir ist sie nicht angekommen.“</p>
 <p><strong>Beobachtung:</strong> L1 prüft Absender, Empfänger, UTC-/MEZ-Zeitbezug und Junk/OWA. Exchange-L2 findet im Trace eine Filteraktion; Defender zeigt für die Nachricht Quarantäne mit einer Phishing-Einstufung. Die Betroffene behauptet, der Absender sei „immer vertrauenswürdig“.</p>
 <p><strong>Hypothesen:</strong> echter Angriff durch Spoofing oder kompromittiertes Partnerpostfach; fehlklassifizierte legitime Rechnung; unerwartete Weiterleitung oder fehlerhafte Authentifizierung.</p>
 <p><strong>Sicherer Weg:</strong> Keine Mail öffnen, weiterleiten oder blind freigeben. Security prüft Header/Absenderkanal, Richtlinie, Detektionsgrund und ggf. direkt über bekannten Kommunikationsweg den Partner. Bei bestätigtem False Positive erfolgt der freigegebene Microsoft-Submission-/Freigabeprozess; sonst bleibt die Schutzmaßnahme bestehen.</p>
 <p><strong>Lernergebnis:</strong> „Geschäftskritisch“ ändert die Dringlichkeit, <strong>nicht</strong> automatisch die Vertrauenswürdigkeit.</p>
+</div></details>
 <h2 id="14-fiktiver-fall-b-kundenmail-wird-extern-mit-550-5-7-1-abgewiesen">14. Fiktiver Fall B – Kundenmail wird extern mit 550 5.7.1 abgewiesen</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Muster-Ticket (frei erfunden):</strong> „Die E-Mail an das externe Projektpostfach kommt mit Unzustellbarkeit zurück.“</p>
 <p><strong>Beobachtung:</strong> Absender zeigt NDR <code>550 5.7.1</code> mit einer spezifischen Empfängerrestriktion. Exchange-Trace bestätigt das Senden in Richtung Empfängersystem; die externe Gegenstelle lehnt mit genauer Diagnosezeile ab. Andere Empfänger funktionieren.</p>
 <p><strong>Hypothesen:</strong> Empfängergruppe akzeptiert keine externen Absender; Moderation/ACL; Anti-Spam-Policy auf der Fremdseite; Adress- oder Routingproblem.</p>
 <p><strong>Sicherer Weg:</strong> Fehlerdiagnose aus NDR statt pauschaler Spamannahme; Empfänger-/Partneradmin kontaktiert und Ursache mit dessen Berechtigung geklärt; keine eigene tenantweite Ausnahme. Anschließend kontrollierter Test an genau das Ziel und Vergleich von NDR/Trace/Empfängerbestätigung.</p>
 <p><strong>Lernergebnis:</strong> <code>5.7.1</code> ist eine <strong>Fehlerklasse mit mehreren Ursachen</strong>, kein Beweis für Spam [Q6].</p>
+</div></details>
 <h2 id="15-active-recall-self-explanation-und-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
