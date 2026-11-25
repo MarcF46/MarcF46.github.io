@@ -349,5 +349,194 @@
       ]
     ],
     "check": "Die freigegebene Anwendung starten und ihre erforderliche Funktion sowie das Deployment-Ergebnis prüfen."
+  },
+  "14": {
+    "cases": [
+      [
+        "Ein Mitarbeiter kann sich in Entra anmelden, aber die Fachanwendung meldet „Benutzer nicht zugewiesen“.",
+        "Welche Berechtigung prüfst du?",
+        "Die Enterprise-App-Zuweisung, Gruppen und die Einstellung, ob eine Zuweisung erforderlich ist. Ein erfolgreicher Entra-Login beweist keine Berechtigung für jede Anwendung.",
+        "Anmeldung und App-Autorisierung sind getrennt."
+      ],
+      [
+        "Eine Mitarbeiterin öffnet die CRM-Anwendung, sieht aber keine Kundendaten.",
+        "Wo liegt die nächste Prüfgrenze?",
+        "Erst die Zuweisung und Rollen in Entra, dann die interne CRM-Berechtigung prüfen. Die Anmeldung kann funktionieren, während anwendungseigene Rechte fehlen.",
+        "SSO erteilt nicht automatisch Fachanwendungsrechte."
+      ]
+    ],
+    "quiz": [
+      [
+        "Worauf deutet der Entra-Fehler AADSTS50105 häufig hin?",
+        "Die Anwendungszuweisung beziehungsweise die Berechtigung des Benutzers auf die Enterprise-App ist zu prüfen."
+      ],
+      [
+        "Warum muss eine neue Rollenvergabe genehmigt sein?",
+        "Sie erweitert Zugriffsrechte und muss dem Least-Privilege- und Freigabeprozess entsprechen."
+      ]
+    ],
+    "check": "Die konkrete fachliche Aktion in der Anwendung mit dem autorisierten Benutzerkonto prüfen."
+  },
+  "15": {
+    "cases": [
+      [
+        "Teams läuft im Browser, die Desktop-Anwendung startet aber nicht zuverlässig.",
+        "Was grenzt der Vergleich ein?",
+        "Den lokalen Teams-Client, seine Installation, WebView2-Abhängigkeiten, das Profil und Anmeldedaten untersuchen; einen organisationsweiten Ausfall nicht vorschnell annehmen.",
+        "Web gegen Desktop hilft, lokale Fehler zu isolieren."
+      ],
+      [
+        "Mehrere Nutzer können Teams nicht öffnen, auch im Browser nicht.",
+        "Welche zentrale Informationsquelle prüfst du?",
+        "Dienststatus und Microsoft-365-Service-Health sowie Entra-Anmeldeprotokolle prüfen, bevor bei jedem Client Cache und App repariert werden.",
+        "Gemeinsame Fehler verlangen zuerst gemeinsame Prüfungen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Beweist ein laufender Teams-Prozess die Funktion der Anwendung?",
+        "Nein; Start, Anmeldung, Chat und Besprechung müssen gezielt getestet werden."
+      ],
+      [
+        "Warum testet TCP 443 nicht die Teams-Anrufqualität?",
+        "Medienverkehr, Latenz, Paketverlust, UDP und die tatsächliche Anwendung werden damit nicht vollständig geprüft."
+      ]
+    ],
+    "check": "Die ursprünglich gestörte Teams-Funktion, nicht nur den App-Start, erneut ausführen und dokumentieren."
+  },
+  "16": {
+    "cases": [
+      [
+        "OneDrive zeigt dauerhaft „Änderungen werden verarbeitet“, die Weboberfläche funktioniert.",
+        "Was prüfst du zunächst?",
+        "Synchronisierungsstatus, betroffene Dateien, lokale Pfade, Konflikte und verfügbaren Speicher. Vor Reset oder Abmeldung lokale noch nicht hochgeladene Daten sichern.",
+        "Nicht synchronisierte Dateien vor Reparaturen schützen."
+      ],
+      [
+        "Eine Datei lässt sich im SharePoint-Web öffnen, im Explorer fehlt sie.",
+        "Welche Ebene untersuchst du?",
+        "OneDrive-Sync-Client, ausgewählte Bibliothek, Synchronisierung und lokale Platzhalter prüfen. Der Webzugriff deutet auf vorhandene Cloudressourcen hin.",
+        "Cloud vorhanden bedeutet nicht lokal synchronisiert."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bedeutet „Files On-Demand“?",
+        "Dateien können als Platzhalter erscheinen und erst bei Bedarf lokal heruntergeladen werden."
+      ],
+      [
+        "Warum ist ein ungeprüfter OneDrive-Reset riskant?",
+        "Er kann die Zuordnung und den Überblick über lokal noch nicht synchronisierte Änderungen erschweren."
+      ]
+    ],
+    "check": "Eine kontrollierte Teständerung vom betroffenen Gerät bis in die Weboberfläche und zurück verifizieren."
+  },
+  "17": {
+    "cases": [
+      [
+        "Das Netzlaufwerk Z: fehlt im Explorer, die Freigabe ist über UNC-Pfad erreichbar.",
+        "Welche Ursache ist plausibel?",
+        "Die Laufwerkszuordnung, GPO/GPP oder der Benutzeranmeldekontext ist betroffen, nicht unbedingt die Freigabe selbst.",
+        "UNC funktioniert, Laufwerksbuchstabe fehlt: Mapping prüfen."
+      ],
+      [
+        "Ein Netzlaufwerk ist im normalen Explorer sichtbar, aber nicht im erhöhten Terminal.",
+        "Was erklärt diesen Unterschied?",
+        "Laufwerkszuordnungen können an unterschiedliche Anmeldesitzungen beziehungsweise Tokens gebunden sein. Den jeweiligen Kontext getrennt überprüfen.",
+        "Gleicher Benutzer heißt nicht gleicher Sitzungskontext."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bezeichnet ein UNC-Pfad?",
+        "Den Netzwerkpfad zu einer Freigabe, beispielsweise <code>\\\\server\\freigabe</code>."
+      ],
+      [
+        "Was prüft ein Test des TCP-Ports 445?",
+        "Grundlegende SMB-TCP-Erreichbarkeit, nicht die tatsächliche Freigabe- oder NTFS-Berechtigung."
+      ]
+    ],
+    "check": "Den Netzlaufwerkszugriff nach Neuanmeldung mit dem betroffenen Benutzer und der Anwendung prüfen."
+  },
+  "18": {
+    "cases": [
+      [
+        "Ein Netzwerkdrucker fehlt bei allen Benutzern eines Teams.",
+        "Welche Bereitstellungsschicht prüfst du?",
+        "Druckerfreigabe am Printserver, GPO/GPP-Zuweisung und Zielgruppe überprüfen, bevor lokale Drucker einzeln eingerichtet werden.",
+        "Viele Betroffene: zentrale Bereitstellung prüfen."
+      ],
+      [
+        "Der Printserver ist erreichbar, aber ein Benutzer kann den Drucker nicht hinzufügen.",
+        "Welche zusätzliche Ursache kann vorliegen?",
+        "Treiberinstallation und Point-and-Print-Sicherheitsrichtlinien sowie Freigabeberechtigungen prüfen.",
+        "Server erreichbar bedeutet nicht Druckerinstallation erlaubt."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wie unterscheidest du lokalen Drucker und zentrale Freigabe?",
+        "Lokale Druckerliste und den Printserver beziehungsweise dessen Freigabe getrennt abfragen."
+      ],
+      [
+        "Warum ist eine manuelle Installation kein sicherer Dauerfix für GPO-Fehler?",
+        "Sie verdeckt die fehlgeschlagene automatische Bereitstellung und kann beim nächsten Richtlinienlauf scheitern."
+      ]
+    ],
+    "check": "Prüfen, ob der Drucker nach regulärer Anmeldung automatisch vorhanden ist und ein Testdruck funktioniert."
+  },
+  "19": {
+    "cases": [
+      [
+        "Outlook im Web funktioniert, klassisches Outlook bleibt beim Start hängen.",
+        "Was testest du möglichst risikoarm?",
+        "Outlook im abgesicherten Modus und ein neues Testprofil, um Add-ins und lokale Profilprobleme einzugrenzen.",
+        "Erst vergleichen, dann bestehendes Profil reparieren."
+      ],
+      [
+        "Eine Outlook-Datendatei gilt als beschädigt.",
+        "Warum darfst du sie nicht blind löschen?",
+        "Eine PST kann originäre lokale Daten enthalten. OST ist typischerweise ein synchronisierter Cache, muss aber vor Eingriffen ebenfalls hinsichtlich Synchronisation und Sonderfällen geprüft werden.",
+        "PST und OST haben unterschiedliche Datenrisiken."
+      ]
+    ],
+    "quiz": [
+      [
+        "Welcher Befehl startet klassisches Outlook häufig ohne Add-ins?",
+        "<code>outlook.exe /safe</code>, sofern die lokale Outlook-Installation diesen Modus unterstützt."
+      ],
+      [
+        "Was beweist ein erfolgreiches neues Outlook-Testprofil?",
+        "Es stützt die Hypothese eines lokalen Profilproblems; die genaue Ursache braucht gegebenenfalls weitere Abklärung."
+      ]
+    ],
+    "check": "Outlook mit dem freigegebenen Profil starten und den ursprünglichen Mail- beziehungsweise Kalenderablauf erfolgreich prüfen."
+  },
+  "20": {
+    "cases": [
+      [
+        "Ein Excel-Anhang öffnet nicht direkt aus Outlook, lokal gesichert jedoch schon.",
+        "Welche Schicht prüfst du zuerst?",
+        "Outlook-Vorschau, Dateizuordnung, Herkunftskennzeichnung und Sicherheitsmeldungen unterscheiden; nicht direkt Schutzmechanismen deaktivieren.",
+        "Vorschau und Öffnen sind zwei unterschiedliche Wege."
+      ],
+      [
+        "Ein Anhang wird wegen Sicherheitsrichtlinien blockiert.",
+        "Was ist der richtige nächste Schritt?",
+        "Blockierungsart, Dateiformat und eventuelle Defender-/Exchange-Quarantäne untersuchen. Keine ausführbare Datei nur zum Testen freigeben.",
+        "Sicherheitsblockaden nicht mit Komfortfehlern verwechseln."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was belegt ein gleicher SHA-256-Hash zweier Dateien?",
+        "Dass ihre Bytes mit sehr hoher Sicherheit übereinstimmen; nicht, dass die Datei sicher oder inhaltlich korrekt ist."
+      ],
+      [
+        "Wozu dient die geschützte Ansicht in Office?",
+        "Sie reduziert Risiken beim Öffnen potenziell unsicherer Dateien, etwa aus externen Quellen."
+      ]
+    ],
+    "check": "Den erwarteten Anhang im freigegebenen sicheren Verfahren öffnen und den ursprünglichen Vorgang bestätigen."
   }
 }
