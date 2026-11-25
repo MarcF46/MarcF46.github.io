@@ -304,6 +304,7 @@ Test-NetConnection -ComputerName 10.20.0.53 -Port 53
 </table></div>
 <p><strong>Priorisierung:</strong> Mit dem <strong>kleinsten, sichersten Test</strong> beginnen, der die meisten konkurrierenden Ursachen voneinander trennt. Problembehebung erst nach präziser Hypothese und angemessener Freigabe.</p>
 <h2 id="14-zwei-fiktive-storungsfalle-mit-hypothesen-und-prufpfaden">14. Zwei fiktive Störungsfälle – mit Hypothesen und Prüfpfaden</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-eine-mitarbeiterin-findet-files01-corp-example-nicht">Fall A: Eine Mitarbeiterin findet <code>files01.corp.example</code> nicht</h3>
 <p><strong>Meldung:</strong> „Die Freigabe geht nicht mehr; mein Kollege kommt hinein.“ Die direkte IP-Verbindung auf einen Testdienst klappt; die Kollegin hat eine alte Ziel-IP im DNS-Clientcache.</p>
 <p><strong>Denkweg:</strong> Ist DNS-Clientzuweisung richtig? Betrifft es denselben FQDN auf beiden Geräten? Antwortet ein autoritativer Server identisch? Wie lautet der Cacheeintrag? Eine neue IP wurde kürzlich zugewiesen.</p>
@@ -316,6 +317,7 @@ Test-NetConnection -ComputerName 10.20.0.53 -Port 53
 <p><strong>Schlussfolgerung:</strong> Ein Problem <strong>im serverseitigen Rekursions-/Forwardingpfad</strong> ist wahrscheinlich. Das Netzwerk-/DNS-Team prüft Forwarder-IP, Port 53 (UDP/TCP), DNS-Logs, Rekursionspolicy und Firewalländerung; nur autorisierte Konfigurationskorrektur, anschließend interner und externer Retest.</p>
 <p><strong>Transferfrage:</strong> Warum wäre <code>ipconfig /flushdns</code> auf sämtlichen Clients hier keine belastbare Reparatur?</p>
 <p><strong>Transparenz:</strong> Beide Fälle sind didaktische Beispiele. Es liegen keine echten Messungen aus einem Labor oder Kundennetz vor.</p>
+</div></details>
 <h2 id="15-active-recall-self-explanation-und-transfertraining">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
