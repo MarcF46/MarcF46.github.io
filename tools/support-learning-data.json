@@ -1213,5 +1213,113 @@
       ]
     ],
     "check": "Die App am Zielgerät starten, gewünschte Funktionen testen und den erwarteten Intune-Erkennungsstatus prüfen."
+  },
+  "47": {
+    "cases": [
+      [
+        "Ein Administrator hat ein TLS-Zertifikat erneuert, der Browser zeigt weiterhin das alte abgelaufene Zertifikat.",
+        "Welche Stelle prüfst du zuerst?",
+        "Das tatsächlich vom angesprochenen Endpunkt ausgelieferte Zertifikat und die Bindung am Reverse Proxy, IIS oder Load Balancer prüfen.",
+        "Zertifikat installiert ist nicht gleich Zertifikat ausgeliefert."
+      ],
+      [
+        "Intern funktioniert die HTTPS-Seite, extern erscheint eine Zertifikatswarnung.",
+        "Welche Erklärung ist plausibel?",
+        "Interne und externe DNS-Auflösung sowie unterschiedliche TLS-Endpunkte, SNI und Zertifikatsketten vergleichen.",
+        "Unterschiedliche Zugriffswege können verschiedene Zertifikate liefern."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was prüft die SAN-Erweiterung eines Zertifikats?",
+        "Die im Zertifikat eingetragenen gültigen Hostnamen beziehungsweise Identitäten."
+      ],
+      [
+        "Warum reicht ein erfolgreicher TCP-Test auf 443 für HTTPS nicht aus?",
+        "Er prüft weder TLS-Handshake noch Zertifikatsgültigkeit und Vertrauenskette."
+      ]
+    ],
+    "check": "Vom ursprünglichen Client den korrekten Hostnamen mit gültiger Zertifikatskette und funktionierender HTTPS-Anwendung testen."
+  },
+  "48": {
+    "cases": [
+      [
+        "RDP funktioniert im Firmennetz, über den genehmigten VPN-Zugang aber nicht.",
+        "Welche Ebene prüfst du zuerst?",
+        "Route, Firewall und Erreichbarkeit des RDP-Ziels beziehungsweise RD Gateway über den VPN-Pfad vergleichen.",
+        "Interner Erfolg und externer Fehler sprechen für den Zugriffsweg."
+      ],
+      [
+        "Der TCP-Port des RDP-Hosts ist erreichbar, die Anmeldung wird trotzdem abgelehnt.",
+        "Welche Ebene ist nun wichtig?",
+        "NLA, Benutzerrechte für Remoteanmeldung, Identität, Kennwortzustand und relevante RDP-/Security-Ereignisse prüfen.",
+        "Offener RDP-Port bedeutet nicht erfolgreiche Autorisierung."
+      ]
+    ],
+    "quiz": [
+      [
+        "Welcher TCP-Port wird für klassisches RDP standardmäßig genutzt?",
+        "TCP 3389, wobei andere Ports und RD Gateways möglich sind."
+      ],
+      [
+        "Was ist der Unterschied zwischen RDP und einem RD Gateway?",
+        "RDP ist das Remotedesktopprotokoll; ein RD Gateway vermittelt autorisierte Verbindungen über einen vorgeschalteten HTTPS-Dienst."
+      ]
+    ],
+    "check": "Die autorisierte Remotedesktopanmeldung aus dem ursprünglichen Netzwerk erfolgreich abschließen."
+  },
+  "49": {
+    "cases": [
+      [
+        "Ein neuer Mitarbeiter kann sich bei Microsoft 365 anmelden, hat aber noch kein Exchange-Postfach.",
+        "Welche Bereitstellungsschritte prüfst du?",
+        "Lizenz, Exchange-Serviceplan, Provisionierungsstatus und richtige Identität/UPN im Tenant prüfen.",
+        "Konto vorhanden heißt nicht Dienst bereitgestellt."
+      ],
+      [
+        "Der neue Laptop ist registriert, aber eine Fachanwendung bleibt gesperrt.",
+        "Welche Zugriffswege untersuchst du?",
+        "App-Zuweisung, Gruppenmitgliedschaft, Entra-Anmeldung, Conditional Access und anwendungseigene Rollen getrennt prüfen.",
+        "Arbeitsplatz-Onboarding endet erst beim nutzbaren Fachprozess."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum unterscheiden sich Cloud-only- und Hybrid-Onboarding?",
+        "Bei hybriden Identitäten können Benutzer und einige Attribute aus dem lokalen AD stammen; das Quellsystem bestimmt den Pflegeweg."
+      ],
+      [
+        "Wozu dient Temporary Access Pass in passenden Entra-Szenarien?",
+        "Als zeitlich beschränkte, administrativ gesteuerte Methode für initiale Registrierung oder Wiederherstellung nach den Sicherheitsrichtlinien."
+      ]
+    ],
+    "check": "Anmeldung, MFA, Postfach, freigegebene Apps und verwaltetes Gerät anhand einer definierten Onboarding-Checkliste durch den Testbenutzer prüfen."
+  },
+  "50": {
+    "cases": [
+      [
+        "Ein Mitarbeiter verlässt das Unternehmen mit sofortiger Wirkung.",
+        "Welche Handlung muss vor Lizenzentzug und Datenlöschung geklärt sein?",
+        "Autorisierter Zeitpunkt, Identität, Sperrung des richtigen Quellsystems und erforderlicher Sitzungswiderruf; Aufbewahrung und Übergabe der Daten separat freigeben.",
+        "Zuerst Zugang sicher sperren, Datenlebenszyklus getrennt behandeln."
+      ],
+      [
+        "Ein dienstliches Mobilgerät wird beim Offboarding aus Intune entfernt.",
+        "Warum ist „Retire“ nicht dasselbe wie „Wipe“?",
+        "Retire entfernt je nach Plattform bestimmte Unternehmensverwaltung und Geschäftsdaten, während Wipe eine weitreichende Zurücksetzung des Geräts auslösen kann. Wirkung und Eigentumsmodell vorab prüfen.",
+        "Geräteaktionen unterscheiden sich erheblich in ihren Folgen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum genügt es beim Offboarding nicht, nur das Kennwort zu ändern?",
+        "Bestehende Sessions, Tokens, separate SaaS-Zugänge und privilegierte Rollen können weiterhin Zugriff erlauben."
+      ],
+      [
+        "Warum darf das Postfach nicht automatisch zusammen mit dem Konto gelöscht werden?",
+        "Aufbewahrung, rechtliche Anforderungen, Übergabeprozesse und genehmigte Fristen müssen beachtet werden."
+      ]
+    ],
+    "check": "Sperre im richtigen Quellsystem, Sitzungswiderruf, verbliebene Berechtigungen und genehmigte Datenübergabe nachweisen."
   }
 }
