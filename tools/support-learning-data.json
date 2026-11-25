@@ -538,5 +538,194 @@
       ]
     ],
     "check": "Den erwarteten Anhang im freigegebenen sicheren Verfahren öffnen und den ursprünglichen Vorgang bestätigen."
+  },
+  "22": {
+    "cases": [
+      [
+        "Der zweite Monitor meldet „Kein Signal“, das eigene Bildschirmmenü lässt sich öffnen.",
+        "Welche Fehlerkette untersuchst du als Erstes?",
+        "Signalweg vom Ausgang über Kabel und Eingangswahl bis zu Windows-Anzeigeeinstellungen prüfen. Das Bildschirmmenü belegt nur, dass das Display selbst eingeschaltet ist.",
+        "Ein funktionierendes Monitormenü beweist kein Videosignal."
+      ],
+      [
+        "Ein USB-C-Dock lädt das Notebook, liefert aber kein Bild.",
+        "Welche Annahme darfst du nicht treffen?",
+        "Nicht annehmen, dass der USB-C-Port DisplayPort Alternate Mode oder entsprechende Bildübertragung unterstützt. Port- und Dock-Spezifikation sowie Direktanschluss vergleichen.",
+        "USB-C-Stecker bedeutet nicht automatisch Video-Unterstützung."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was unterscheidet Windows „Erkennen“ von „Identifizieren“?",
+        "Erkennen sucht angeschlossene Anzeigen, Identifizieren zeigt Nummern bereits erkannter Bildschirme."
+      ],
+      [
+        "Warum ist ein Direktanschluss eine hilfreiche Gegenprobe?",
+        "Er umgeht das Dock und grenzt dessen Signalweg als möglichen Fehlerbereich ein."
+      ]
+    ],
+    "check": "Das gewünschte Bild auf allen betroffenen Monitoren in der ursprünglichen Auflösung und Anordnung prüfen."
+  },
+  "23": {
+    "cases": [
+      [
+        "Am Dock funktionieren Maus und LAN, aber kein externer Monitor.",
+        "Was grenzt diese Teilfunktion ein?",
+        "USB-Daten und Netzwerk funktionieren teilweise. Video-Ausgang, Alt Mode/Thunderbolt, Kabel, DisplayLink und Monitor-Eingang gesondert prüfen.",
+        "Ein Dock kann teilweise funktionieren und trotzdem einen Fehler haben."
+      ],
+      [
+        "Das Notebook lädt am Dock, verliert aber sporadisch USB-Geräte.",
+        "Welche kontrollierte Gegenprobe ist sinnvoll?",
+        "Direktverbindung der USB-Geräte am Notebook und Vergleich mit geeignetem Netzteil/Hostkabel durchführen. Treiber, Firmware und Stromversorgung erst nach Beobachtung eingrenzen.",
+        "Eine saubere Direktverbindung trennt Dock und Endgerät."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was ist DisplayPort Alt Mode?",
+        "Ein USB-C-Betriebsmodus, der DisplayPort-Videosignale über geeignete Port-/Kabelkombinationen transportieren kann."
+      ],
+      [
+        "Warum kann ein Dock über USB funktionieren, ohne Bild auszugeben?",
+        "Daten- und Videofunktionen benötigen unterschiedliche Protokolle und Hardwareunterstützung."
+      ]
+    ],
+    "check": "Alle ursprünglich genutzten Dockfunktionen einzeln prüfen: Bild, USB, Netzwerk und gegebenenfalls Laden."
+  },
+  "24": {
+    "cases": [
+      [
+        "Eine USB-Maus funktioniert an einem anderen Port sofort.",
+        "Welche technische Hypothese liegt nahe?",
+        "Anschluss, Hub oder dessen Stromversorgung untersuchen und Gerätedefekt durch den funktionierenden Gegenport relativieren.",
+        "Portwechsel ist ein einfacher differenzierender Test."
+      ],
+      [
+        "Eine Bluetooth-Tastatur reagiert sporadisch, das Notebook selbst läuft normal.",
+        "Was prüfst du vor einer Treiberneuinstallation?",
+        "Batteriestand, Funkverbindung, Kopplungsstatus, Abstand und Störquellen prüfen; mit einem zweiten Eingabegerät vergleichen.",
+        "Funkproblem und Windows-Eingabestörung sauber trennen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bedeutet ein Gerätestatus <code>OK</code> in PnP nicht?",
+        "Nicht zwingend, dass Signale fehlerfrei beim Benutzer ankommen."
+      ],
+      [
+        "Warum sind USB-Hubs Teil der Diagnosekette?",
+        "Sie können Signal, Stromversorgung und Verbindung zwischen Endgerät und Host beeinflussen."
+      ]
+    ],
+    "check": "Das Eingabegerät im ursprünglichen Anschluss und über eine praxisnahe Testdauer verwenden."
+  },
+  "25": {
+    "cases": [
+      [
+        "Ein Rechner zeigt weder Lüfter noch Leuchten, der Monitor funktioniert an einer anderen Quelle.",
+        "Welche Fehlerklasse prüfst du zuerst?",
+        "„No Power“: Stromversorgung, Netzteil, Schalter und externe Verkabelung gemäß Sicherheitsvorgaben prüfen. Nicht mit Windows-Reparaturen beginnen.",
+        "Ohne Strom keine Windows-Startdiagnose."
+      ],
+      [
+        "Am Notebook leuchten LEDs und Lüfter laufen, aber der Bildschirm bleibt schwarz.",
+        "Welche Klassen musst du unterscheiden?",
+        "„No Video“ gegenüber „No POST“ abgrenzen: externe Anzeige/Grafikweg, Herstellerdiagnosen und Firmware-Reaktionen prüfen, soweit sicher möglich.",
+        "Schwarzer Bildschirm ist nicht automatisch ein Windows-Bootfehler."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bezeichnet POST?",
+        "Den Power-On Self-Test beziehungsweise die Initialisierung grundlegender Hardware vor dem Betriebssystemstart."
+      ],
+      [
+        "Was unterscheidet „No Boot“ von „No Power“?",
+        "Bei „No Boot“ läuft das Gerät an, kann aber das Betriebssystem nicht starten; bei „No Power“ fehlt schon die Einschaltfunktion."
+      ]
+    ],
+    "check": "Den vollständigen Start bis zur nutzbaren Windows-Anmeldung und die ursprüngliche Hardwarefunktion prüfen."
+  },
+  "26": {
+    "cases": [
+      [
+        "Windows hängt nach einem Update in der Neustartschleife, der abgesicherte Modus startet.",
+        "Was sagt der Vergleich?",
+        "Der reduzierte Startpfad funktioniert. Aktuelle Updates, Treiber und zusätzliche Dienste als Hypothesen prüfen; vor Reparaturen Daten, BitLocker und Rückweg berücksichtigen.",
+        "Abgesicherter Start grenzt ein, beweist aber keine konkrete Ursache."
+      ],
+      [
+        "Der Bootmanager meldet einen Fehler, zugleich wird die SSD sporadisch nicht erkannt.",
+        "Welche Ursache darfst du nicht übersehen?",
+        "Datenträgererkennung und Hardwarezustand prüfen, bevor BCD-Einträge verändert werden. Ein Startcode kann Folge eines physischen oder Firmware-Problems sein.",
+        "Bootfehlermeldung heißt nicht automatisch BCD-Schaden."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür steht WinRE?",
+        "Windows Recovery Environment, die Wiederherstellungsumgebung für Diagnose und Reparaturoptionen."
+      ],
+      [
+        "Warum nicht sofort pauschal <code>bootrec</code> oder <code>bcdedit</code> ausführen?",
+        "Falsche Eingriffe können Bootkonfiguration und Verschlüsselungszustand gefährden; erst Ursache, Systemlayout und Sicherung klären."
+      ]
+    ],
+    "check": "Mehrere reguläre Neustarts bis zur Anmeldung durchführen und ursprüngliche Fehlereignisse kontrollieren."
+  },
+  "27": {
+    "cases": [
+      [
+        "Ein einzelner Windows-Client installiert ein Qualitätsupdate nicht, andere Geräte sind aktuell.",
+        "Welche Daten sammelst du zuerst?",
+        "Exakte KB, Fehlercode, Zeitpunkt, WindowsUpdateClient- und gegebenenfalls CBS-Logs sowie freien Speicher prüfen.",
+        "Update-Fehlercode und Installationsphase gehören zusammen."
+      ],
+      [
+        "Sämtliche verwalteten Clients finden keine Updates, private Geräte funktionieren.",
+        "Welche zentrale Infrastruktur prüfst du?",
+        "GPO/WSUS, Intune-Updatekonfiguration, Erreichbarkeit der Updatequelle und organisationsweite Richtlinien prüfen.",
+        "Viele gleichartige Updatefehler deuten auf zentrale Ursachen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum ist ein identischer Windows-Update-Fehlercode nicht immer dieselbe Ursache?",
+        "Der Code braucht Kontext zu Phase, Systemzustand und Protokollen."
+      ],
+      [
+        "Was ist der Unterschied zwischen Download und Installation?",
+        "Herunterladen beschafft die Pakete; Installation verarbeitet sie im Windows-Servicing-System."
+      ]
+    ],
+    "check": "Das konkret fehlgeschlagene Update erfolgreich installieren und Status/Neustartverhalten bestätigen."
+  },
+  "28": {
+    "cases": [
+      [
+        "Word startet nicht normal, öffnet aber im Office Safe Mode.",
+        "Was testest du zunächst?",
+        "Add-ins und anwendungsspezifische Erweiterungen gezielt isolieren, statt die gesamte Office-Installation blind neu aufzusetzen.",
+        "Safe Mode grenzt Erweiterungen als Fehlerquelle ein."
+      ],
+      [
+        "Alle Office-Anwendungen scheitern gleichzeitig nach einer Konfigurationsänderung.",
+        "Welche Ebene prüfst du zusätzlich?",
+        "Gemeinsame Komponenten, Lizenz-/Aktivierungskontext, Updates und verwaltete Richtlinien untersuchen.",
+        "Mehrere betroffene Apps haben häufig eine gemeinsame Abhängigkeit."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was zeigt ein erfolgreicher Office-Safe-Mode-Start nicht sicher?",
+        "Er belegt nicht, welches konkrete Add-in oder welche Einstellung fehlerhaft ist."
+      ],
+      [
+        "Warum ist ein neues Dokument ein nützlicher Vergleich?",
+        "Es trennt ein dokumentbezogenes Problem von einem allgemeinen Anwendungsstartproblem."
+      ]
+    ],
+    "check": "Die betroffene Office-App normal starten und das ursprünglich relevante Dokument beziehungsweise den Arbeitsablauf erfolgreich nutzen."
   }
 }
