@@ -727,5 +727,194 @@
       ]
     ],
     "check": "Die betroffene Office-App normal starten und das ursprünglich relevante Dokument beziehungsweise den Arbeitsablauf erfolgreich nutzen."
+  },
+  "29": {
+    "cases": [
+      [
+        "Ein neuer Mitarbeiter kann Word im Browser verwenden, Desktop-Word meldet aber „Nicht lizenziertes Produkt“.",
+        "Welche Unterscheidung prüfst du?",
+        "Zugewiesene Microsoft-365-SKU, enthaltene Servicepläne und die Berechtigung für Desktop-Apps prüfen. Webnutzung ist nicht gleich Desktop-Lizenz.",
+        "Eine Lizenz besteht aus mehreren Dienstberechtigungen."
+      ],
+      [
+        "Eine Gruppe wurde für eine Lizenz zugewiesen, einzelne Mitglieder erhalten den Dienst dennoch nicht.",
+        "Welche Befunde helfen?",
+        "Lizenzverfügbarkeit, Nutzungsregion, Gruppenlizenzierungsfehler und den tatsächlichen Lizenzzuweisungsstatus des Benutzers prüfen.",
+        "Gruppenmitgliedschaft beweist keine erfolgreiche Lizenzierung."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bedeutet SKU im Microsoft-365-Lizenzkontext?",
+        "Ein konkretes Lizenzprodukt mit bestimmten enthaltenen Serviceplänen."
+      ],
+      [
+        "Warum ist „Nicht lizenziert“ kein Beweis für eine komplett fehlende Lizenz?",
+        "Möglicherweise ist nur der für die betroffene Anwendung benötigte Serviceplan nicht enthalten oder nicht aktiv."
+      ]
+    ],
+    "check": "Mit dem betroffenen Benutzer und der richtigen App die Aktivierung beziehungsweise den benötigten Dienst erneut prüfen."
+  },
+  "30": {
+    "cases": [
+      [
+        "Ein Mitarbeiter erhält bei einer SharePoint-Datei 403 Forbidden, andere können sie öffnen.",
+        "Welche Prüfungen folgen zuerst?",
+        "Anmeldekonto, tatsächliche Dateiberechtigung, Freigabelink und gegebenenfalls Conditional-Access-Regeln vergleichen. Rechte nicht pauschal ausweiten.",
+        "403 verlangt eine Zugriffsdiagnose, keinen pauschalen Rechte-Fix."
+      ],
+      [
+        "Die Datei ist über SharePoint im Browser vorhanden, aber nicht im Explorer.",
+        "Welche Komponente rückt in den Fokus?",
+        "Synchronisierungsclient, Bibliothekszuordnung und lokale OneDrive-Synchronisierung prüfen.",
+        "Web vorhanden, Explorer fehlt: Sync-Pfad eingrenzen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Bedeutet HTTP 404 zwingend, dass eine SharePoint-Datei endgültig gelöscht ist?",
+        "Nein. Verschiebung, Umbenennung, fehlerhafter Link oder Berechtigungskontext sind mögliche Ursachen."
+      ],
+      [
+        "Warum sollte man einen Freigabelink nicht vorschnell auf „Jeder mit dem Link“ ändern?",
+        "Weil dadurch unzulässig viele Personen Zugriff auf Unternehmensdaten erhalten könnten."
+      ]
+    ],
+    "check": "Die konkrete Datei im vorgesehenen Benutzerkontext über den ursprünglichen Zugriffsweg öffnen."
+  },
+  "31": {
+    "cases": [
+      [
+        "Ein gemeinsames Postfach fehlt in Outlook, ist aber in Outlook im Web zugänglich.",
+        "Welche Fehlerklasse prüfst du zuerst?",
+        "Lokale Outlook-Profil-/Automapping-Darstellung und den betreffenden Client untersuchen; die Postfachberechtigung scheint zumindest über OWA zu funktionieren.",
+        "Webzugriff grenzt einen Outlook-Anzeigefehler ein."
+      ],
+      [
+        "Ein Mitarbeiter kann im gemeinsamen Postfach lesen, aber nicht „Senden als“.",
+        "Welche Berechtigung fehlt möglicherweise?",
+        "Full Access und Send As getrennt kontrollieren; Leserechte erteilen nicht automatisch eine Sendeidentität.",
+        "Postfach öffnen ist nicht Postfachidentität verwenden."
+      ]
+    ],
+    "quiz": [
+      [
+        "Welche Aufgabe erfüllt Automapping?",
+        "Es sorgt bei passenden Konstellationen dafür, dass ein freigegebenes Postfach automatisch in Outlook eingebunden wird."
+      ],
+      [
+        "Warum sind Full Access und Send As getrennt zu betrachten?",
+        "Sie steuern unterschiedliche Zugriffsrechte und können unabhängig voneinander vergeben sein."
+      ]
+    ],
+    "check": "Das gemeinsame Postfach lesen und den ursprünglich gewünschten, freigegebenen Sendevorgang prüfen."
+  },
+  "32": {
+    "cases": [
+      [
+        "Ein Termin ist im Outlook-Webkalender sichtbar, auf einem einzelnen Laptop nicht.",
+        "Wo liegt die erste Prüfebene?",
+        "Lokalen Outlook-Client, Kalenderauswahl, Synchronisierung und Profil prüfen. Der serverseitige Termin ist offenbar vorhanden.",
+        "Web gegen Desktop trennt lokale Kalenderanzeige und Cloudbestand."
+      ],
+      [
+        "Ein Meeting verschiebt sich um eine Stunde, nachdem die Zeitzone gewechselt wurde.",
+        "Was kontrollierst du?",
+        "Zeitzonen, Sommerzeit, Terminserie und Veranstalter-/Teilnehmeransichten vergleichen, bevor du Termine änderst.",
+        "Kalenderzeit braucht Zeitzonenkontext."
+      ]
+    ],
+    "quiz": [
+      [
+        "Warum müssen Organisator und Teilnehmer bei fehlenden Terminen getrennt geprüft werden?",
+        "Sie können unterschiedliche Kalenderkopien, Berechtigungen oder Verarbeitungszustände sehen."
+      ],
+      [
+        "Was ist bei einem freigegebenen Kalender gesondert zu prüfen?",
+        "Die tatsächlichen Freigabe- beziehungsweise Stellvertretungsberechtigungen."
+      ]
+    ],
+    "check": "Den konkreten Termin im Web und auf dem betroffenen Endgerät mit korrekter Zeit und Berechtigung bestätigen."
+  },
+  "33": {
+    "cases": [
+      [
+        "Eine erwartete Rechnung fehlt im Posteingang, ist aber in Exchange-Online-Quarantäne zu sehen.",
+        "Was prüfst du vor einer Freigabe?",
+        "Erkennungsgrund, Absenderauthentifizierung, Nachrichteneigenschaften und Unternehmensfreigabeverfahren; keine verdächtige Datei blind freigeben.",
+        "Quarantäne ist ein Sicherheitsbefund, kein reiner Zustellfehler."
+      ],
+      [
+        "Ein externer Partner erhält beim Senden einen NDR mit 550 5.7.1.",
+        "Welche Informationen sind entscheidend?",
+        "Vollständigen NDR, Richtung des Nachrichtenflusses, Message Trace und beteiligte Transport-/Sicherheitsregeln auswerten.",
+        "SMTP-Code mit Zustellweg und Regelkontext lesen."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür dienen SPF, DKIM und DMARC?",
+        "Sie unterstützen die Authentifizierung beziehungsweise Richtlinienbewertung von E-Mail-Absendern."
+      ],
+      [
+        "Was unterscheidet Junk-Ordner und Quarantäne?",
+        "Junk liegt typischerweise im Benutzerpostfach, Quarantäne ist eine zentrale Schutzmaßnahme mit eigener Verwaltung."
+      ]
+    ],
+    "check": "Die erwartete Nachricht über einen genehmigten sicheren Test wieder korrekt zustellen und Schutzmaßnahmen beibehalten."
+  },
+  "34": {
+    "cases": [
+      [
+        "Ein Server ist per IP erreichbar, unter seinem DNS-Namen jedoch nicht.",
+        "Welche beiden Abfragen vergleichst du?",
+        "Namensauflösung über den konfigurierten Resolver und gegebenenfalls direkt über den autoritativen internen DNS-Server vergleichen.",
+        "DNS ist eine eigene Stufe vor der Verbindung."
+      ],
+      [
+        "Nur VPN-Nutzer bekommen für einen internen Host eine öffentliche oder falsche IP.",
+        "Welchen DNS-Sonderfall prüfst du?",
+        "Split DNS, DNS-Suffix, NRPT, VPN-DNS-Server und den tatsächlich benutzten Resolver untersuchen.",
+        "Der DNS-Kontext kann sich je nach Netz ändern."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was unterscheidet A- und AAAA-Records?",
+        "A liefert IPv4-Adressen, AAAA liefert IPv6-Adressen."
+      ],
+      [
+        "Bedeutet ein DNS-Timeout dasselbe wie NXDOMAIN?",
+        "Nein. Ein Timeout bedeutet keine rechtzeitige Antwort, NXDOMAIN ist eine negative Namensantwort."
+      ]
+    ],
+    "check": "Den korrekten Namen auflösen und den ursprünglich betroffenen Dienst anschließend tatsächlich erreichen."
+  },
+  "35": {
+    "cases": [
+      [
+        "Ein Notebook erhält im Firmen-LAN keine DHCP-Adresse, andere Geräte im selben Büro funktionieren.",
+        "Welchen Vergleich nutzt du?",
+        "Port, Kabel, Adapter und VLAN-Zuordnung des einzelnen Geräts mit einer funktionierenden Gegenprobe vergleichen; dann DHCP-Clientereignisse prüfen.",
+        "Einzelfehler und VLAN-Ausfall getrennt diagnostizieren."
+      ],
+      [
+        "Alle Geräte eines neuen VLANs bekommen keine DHCP-Lease.",
+        "Welche zentrale Verbindung prüfst du?",
+        "DHCP-Relay/IP-Helper, VLAN-Pfad, DHCP-Scope und Servererreichbarkeit untersuchen.",
+        "DHCP-Broadcasts passieren Router nicht ohne passenden Relay-Pfad."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür steht DORA im DHCPv4-Ablauf?",
+        "Discover, Offer, Request, Acknowledge."
+      ],
+      [
+        "Warum beweist ein laufender DHCP-Serverdienst keine erfolgreiche Adressvergabe?",
+        "Scope, Erreichbarkeit, Relay, Reservierungen und Filter können weiterhin fehlerhaft sein."
+      ]
+    ],
+    "check": "Eine passende Lease mit IP, Maske, Gateway und DNS erhalten sowie den beabsichtigten Netzwerkzugang prüfen."
   }
 }
