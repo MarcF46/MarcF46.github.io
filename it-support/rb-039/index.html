@@ -227,6 +227,7 @@ Get-NetFirewallPortFilter |
 </ul>
 <p><strong>Eskalationspaket:</strong> betroffene Quelle(n)/Ziel/Port, DNS-Ziel, Zeitfenster, lokale Bind-Adresse, Listener-PID, Service-Status, A/B-Tests, Regel-Owner, relevante Log-/Trace-Befunde, beobachtete Handshakephase und konkrete nächste Hypothese.</p>
 <h2 id="13-fiktiver-praxisfall-a-dienst-lauft-aber-listener-ist-falsch-gebunden">13. Fiktiver Praxisfall A: Dienst läuft, aber Listener ist falsch gebunden</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Nur das Webportal <code>app01.firma.example:8443</code> ist von den Arbeitsplätzen nicht erreichbar.“</p>
 <p><strong>Beobachtungen (erfunden):</strong></p>
 <ol>
@@ -239,7 +240,9 @@ Get-NetFirewallPortFilter |
 <strong>Freigegebene L2-Maßnahme (nicht ausgeführt):</strong> Verantwortlicher Applikations-Owner korrigiert die konfigurierte Bind-Adresse im Changefenster, prüft Abhängigkeiten und sichert Rollback.<br/>
 <strong>Erfolgskriterium:</strong> Listener auf Soll-IP und Soll-Port sichtbar, Remote-TCP-Test erfolgreich, authentifizierte Webfunktion bestätigt.</p>
 <p><strong>Transfer:</strong> Wäre ein lokaler Reverse Proxy vorgesehen, könnte dieselbe Loopback-Bindung korrekt sein – dann müsste stattdessen der Proxy-Eingangsport untersucht werden.</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-nur-aus-vpn-scheitert-der-tcp-verbindungsaufbau">14. Fiktiver Praxisfall B: Nur aus VPN scheitert der TCP-Verbindungsaufbau</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Meldung:</strong> „Port 8443 geht im Büro, im Homeoffice hängt die Verbindung.“</p>
 <p><strong>Beobachtungen (erfunden):</strong></p>
 <ol>
@@ -252,6 +255,7 @@ Get-NetFirewallPortFilter |
 <strong>Freigegebene Maßnahme (nicht ausgeführt):</strong> Security-/Netzwerk-Owner korrigiert ausschließlich die erforderliche Source-/Destination-/Port-Regel mit dokumentiertem Rollback.<br/>
 <strong>Retest:</strong> TCP, TLS/Anmeldung und tatsächliche Anwendung vom <strong>ursprünglichen VPN-Client</strong>, plus Negativtest mit nicht autorisiertem Quellnetz.<br/>
 <strong>Transfer:</strong> Ohne ein belegendes Deny-Log wären Rückroute, VPN-Split-Tunnel, Endpoint-Security und Filter auf dem Pfad weiterhin Hypothesen, keine Tatsachen.</p>
+</div></details>
 <h2 id="15-active-recall-diagnosekarten-und-selbststandiger-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
