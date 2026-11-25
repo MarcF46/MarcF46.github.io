@@ -1,0 +1,164 @@
+{
+  "1": {
+    "cases": [
+      [
+        "Eine Mitarbeiterin kann sich am Domänen-PC nicht anmelden; die Meldung nennt keine genaue Ursache.",
+        "Welche Daten grenzt du ab, bevor du das Kennwort zurücksetzt?",
+        "Fehlertext, Zeitpunkt, Kontotyp, Netzwerk-/VPN-Verbindung und Anmeldung desselben Benutzers auf einem anderen PC prüfen. Danach AD-Kontostatus und passende Anmeldeereignisse prüfen.",
+        "Erst Identität, Gerät und Verbindung trennen."
+      ],
+      [
+        "Nach dem Kennwortwechsel funktioniert die Anmeldung im Büro, am Homeoffice-Laptop offline aber nicht.",
+        "Was ist deine erste Hypothese?",
+        "Möglicherweise erreicht der Laptop keinen Domänencontroller und verwendet ältere zwischengespeicherte Anmeldedaten. Verbindungsweg und gegebenenfalls VPN vor der Anmeldung prüfen.",
+        "Eine geänderte Domänenanmeldung benötigt oft wieder Kontakt zur Domäne."
+      ]
+    ],
+    "quiz": [
+      [
+        "Wofür steht Sicherheitsereignis 4625?",
+        "Für einen fehlgeschlagenen Windows-Anmeldeversuch, dessen Statuscodes helfen können, den Grund einzugrenzen."
+      ],
+      [
+        "Was unterscheidet eine Windows-Hello-PIN vom Domänenkennwort?",
+        "Die PIN entsperrt lokal die gerätegebundene Anmeldeinformation und ist nicht das AD-Kennwort."
+      ]
+    ],
+    "check": "Die Anmeldung am betroffenen Gerät unter denselben Netzwerkbedingungen wiederholen und relevante Ereignisse kontrollieren."
+  },
+  "2": {
+    "cases": [
+      [
+        "Ein AD-Konto ist wenige Minuten nach dem Entsperren erneut gesperrt.",
+        "Was untersuchst du vor dem nächsten Entsperren?",
+        "Sperrereignis 4740 zeitlich einordnen und mögliche Quellgeräte prüfen. Dort gespeicherte alte Kennwörter in Aufgaben, Diensten oder der Anmeldeinformationsverwaltung untersuchen.",
+        "Eine wiederkehrende Sperre hat oft eine weiterhin aktive Anmeldequelle."
+      ],
+      [
+        "In Entra wird eine Anmeldung blockiert, während das lokale AD-Konto nicht gesperrt ist.",
+        "Was vergleichst du?",
+        "Entra-Sign-in-Logs und Smart Lockout getrennt vom lokalen AD-Sperrstatus prüfen. Die beiden Sperrmechanismen sind nicht identisch.",
+        "Gleiche Benutzerwirkung bedeutet nicht dieselbe Sperrursache."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was zeigt Ereignis 4740?",
+        "Die Sperre eines AD-Benutzerkontos; je nach Ereignisdaten auch Hinweise auf den aufrufenden Rechner."
+      ],
+      [
+        "Warum ist bloßes Entsperren keine nachhaltige Lösung?",
+        "Weil der ursprüngliche Fehlanmelder weiterhin Anfragen mit ungültigen Daten senden kann."
+      ]
+    ],
+    "check": "Mit autorisiertem Nutzer eine erfolgreiche Anmeldung kontrollieren und beobachten, ob weitere Sperrereignisse auftreten."
+  },
+  "3": {
+    "cases": [
+      [
+        "Ein Mitarbeiter bittet telefonisch um eine Kennwortrücksetzung.",
+        "Welche Prüfung ist zwingend zuerst nötig?",
+        "Die Identität anhand des genehmigten Prozesses verifizieren und das maßgebliche Identitätssystem bestimmen; erst dann eine Rücksetzung erwägen.",
+        "Identitätsprüfung geht jedem Kennwortreset voraus."
+      ],
+      [
+        "SSPR in Entra klappt, aber das lokale AD-Kennwort bleibt unverändert.",
+        "Welche Funktion grenzt du ein?",
+        "Bei hybrider Identität Password Writeback und seine Voraussetzungen prüfen. Password Hash Synchronization allein führt keine Kennwort-Rückschreibung ins AD aus.",
+        "Hash-Synchronisation ist nicht Password Writeback."
+      ]
+    ],
+    "quiz": [
+      [
+        "Was bewirkt <code>-WhatIf</code> bei unterstützten PowerShell-Cmdlets?",
+        "Die geplante Änderung wird angezeigt, aber nicht ausgeführt; das Cmdlet muss <code>-WhatIf</code> tatsächlich unterstützen."
+      ],
+      [
+        "Darf ein temporäres Kennwort in den Ticketkommentar?",
+        "Nein. Geheimnisse müssen über freigegebene sichere Übergabekanäle behandelt werden."
+      ]
+    ],
+    "check": "Die Anmeldung und den richtigen Kennwortkontext mit dem berechtigten Testkonto kontrollieren."
+  },
+  "4": {
+    "cases": [
+      [
+        "Eine Anwendung öffnet sich kurz und schließt sich sofort.",
+        "Wo suchst du erste belastbare Hinweise?",
+        "Im Windows-Zuverlässigkeitsverlauf und im Anwendungsereignisprotokoll nach Fehlern mit passender Zeit und Prozess-/Modulinformation suchen.",
+        "Zuerst den Absturz nachweisen, dann reparieren."
+      ],
+      [
+        "Die Anwendung funktioniert am zweiten PC, nicht am ersten.",
+        "Was sagt dir der A/B-Vergleich?",
+        "Er grenzt den Fehler auf Unterschiede zwischen den Geräten oder Benutzerkontexten ein: Profil, Installation, Add-ins, Berechtigungen oder lokale Abhängigkeiten.",
+        "Ein Vergleichsclient verkleinert den Suchraum."
+      ]
+    ],
+    "quiz": [
+      [
+        "Beweist ein laufender Prozess die Funktion der Anwendung?",
+        "Nein. Auch ein hängender Prozess kann vorhanden sein."
+      ],
+      [
+        "Wann ist eine globale Systemreparatur keine gute erste Maßnahme?",
+        "Wenn nur eine Anwendung betroffen ist und keine Hinweise auf beschädigte Windows-Komponenten vorliegen."
+      ]
+    ],
+    "check": "Den ursprünglichen Arbeitsablauf auf dem betroffenen PC wiederholen und dabei Ereignisse und Ergebnis dokumentieren."
+  },
+  "5": {
+    "cases": [
+      [
+        "Ein Benutzer öffnet einen Netzordner, kann aber keine Datei ändern.",
+        "Welche Berechtigungsschichten untersuchst du?",
+        "Sowohl SMB-Freigabe- als auch NTFS-Berechtigungen und den tatsächlichen Benutzerkontext kontrollieren.",
+        "Freigabe- und NTFS-Rechte wirken gemeinsam."
+      ],
+      [
+        "Ein Mitarbeiter wurde einer AD-Gruppe zugeordnet, sieht aber immer noch „Zugriff verweigert“.",
+        "Was ist eine mögliche Ursache?",
+        "Die neue Gruppenmitgliedschaft kann im bestehenden Anmeldetoken noch fehlen. Gruppenstatus, Sitzungstoken und Ressourcenrechte vergleichen.",
+        "AD-Gruppenänderung und Anmeldetoken sind nicht dasselbe."
+      ]
+    ],
+    "quiz": [
+      [
+        "Beweist TCP-Port 445 eine vorhandene Schreibberechtigung?",
+        "Nein. Die Portprüfung betrifft die Netzwerkverbindung, nicht SMB-/NTFS-Autorisierung."
+      ],
+      [
+        "Was gilt vor einer Berechtigungsänderung?",
+        "Fachliche Freigabe, Least Privilege und nachvollziehbare Dokumentation."
+      ]
+    ],
+    "check": "Den benötigten Zugriff mit genau dem betroffenen Benutzer erneut testen."
+  },
+  "6": {
+    "cases": [
+      [
+        "Outlook zeigt eine Nachricht nicht, die in Outlook im Web vorhanden ist.",
+        "Welche Fehlerklasse prüfst du zuerst?",
+        "Lokale Outlook-Konfiguration, Offline-Modus, Synchronisierung, Profil und Cache untersuchen. Die Nachricht ist bereits im Cloudpostfach angekommen.",
+        "Web gegen Desktop trennt Server- und Clientprobleme."
+      ],
+      [
+        "Mehrere Mitarbeiter erhalten beim Versand an denselben externen Partner denselben NDR.",
+        "Welche zentrale Diagnose ist sinnvoll?",
+        "NDR-Code und Exchange-Online-Nachrichtenverfolgung auswerten, um Ablehnung, Routing und Empfängerprobleme voneinander zu trennen.",
+        "Transportfehler werden nicht durch OST-Löschen repariert."
+      ]
+    ],
+    "quiz": [
+      [
+        "Beweist TCP 443 einen funktionierenden E-Mail-Versand?",
+        "Nein, nur einen grundlegenden TCP-Verbindungsaufbau."
+      ],
+      [
+        "Was bedeutet <code>Delivered</code> im Message Trace nicht automatisch?",
+        "Nicht zwingend, dass der Benutzer die Nachricht im sichtbaren Posteingang gefunden hat."
+      ]
+    ],
+    "check": "Abgestimmte Testnachrichten im Web und im betroffenen Outlook-Client senden und empfangen."
+  }
+}
