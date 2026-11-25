@@ -209,6 +209,7 @@ repadmin /showrepl dc02.corp.example
 <p><strong>Warnung:</strong> Nicht mit neuen Domänen-Administratorrechten, Registry-Hacks, <code>gpupdate /force</code>, SMB-Sitzungstrennung oder pauschalen ACL-Freigaben „abkürzen“. Alle Änderungen brauchen vorherige Sicherung des Ausgangszustands und eine mögliche Rücknahme.</p>
 <p><strong>Retest:</strong> Originalnutzer, Originalclient, Original-UNC-Pfad, erforderliche Operation. Danach mindestens ein <strong>Negativtest</strong>: Ein nicht berechtigter Testbenutzer darf die Ressource weiterhin nicht öffnen. Nachweis mit Zeitpunkt, erwartetem und tatsächlichem Ergebnis protokollieren.</p>
 <h2 id="13-fiktiver-praxisfall-a-neuer-gruppenstatus-alter-logon-token">13. Fiktiver Praxisfall A – Neuer Gruppenstatus, alter Logon-Token</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage (fiktiv):</strong> Mitarbeiter <code>max.mustermann</code> bekommt um 10:15 Uhr Zugriff auf <code>\\filesrv01\Projekte</code>. In AD ist seine Mitgliedschaft über <code>GG_TeamA</code> und <code>DL_Projekte_TeamA_Modify</code> nachweisbar. Windows ist aber seit 07:45 Uhr angemeldet, der Fehler lautet <code>Zugriff verweigert</code>.</p>
 <p><strong>Diagnosebeobachtungen:</strong></p>
 <ol>
@@ -218,7 +219,9 @@ repadmin /showrepl dc02.corp.example
 </ol>
 <p><strong>Hypothese:</strong> Die Sitzung beziehungsweise ihr Kerberos-Kontext ist veraltet. Nach Prüfung offener Arbeiten und zuverlässiger Domänenverbindung erfolgt <strong>mit Zustimmung</strong> eine vollständige Abmeldung und neue Anmeldung. Anschließend sind die erwarteten Tokeninformationen da, der Originalzugriff funktioniert, ein unberechtigtes Vergleichskonto bleibt ausgeschlossen.</p>
 <p><strong>Lernpunkt:</strong> AD war nicht falsch; ein ACL-Umbau oder breit angelegte Gruppenänderung hätte zusätzliche Risiken geschaffen. Die konkreten Messergebnisse sind <strong>nur Übungsdaten</strong>, kein Praxisnachweis.</p>
+</div></details>
 <h2 id="14-fiktiver-praxisfall-b-token-korrekt-ntfs-recht-fehlt">14. Fiktiver Praxisfall B – Token korrekt, NTFS-Recht fehlt</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <p><strong>Ausgangslage (fiktiv):</strong> Die Nutzerin <code>lena.beispiel</code> ist seit Tagen korrekt in <code>GG_ProjektB</code>, hat sich neu angemeldet und kann das SMB-Share öffnen, aber in <code>\\filesrv02\ProjektB\Vertraege</code> keine neue Datei speichern.</p>
 <p><strong>Diagnosebeobachtungen:</strong></p>
 <ol>
@@ -228,6 +231,7 @@ repadmin /showrepl dc02.corp.example
 </ol>
 <p><strong>Maßnahme:</strong> Der zuständige Owner korrigiert nach Freigabe <strong>nur</strong> die Berechtigung des autorisierten Zielordners. Test: Lesefunktion unverändert, Erstellen/Speichern mit dem berechtigten Konto erfolgreich, unberechtigte Testperson weiterhin abgewiesen.</p>
 <p><strong>Lernpunkt:</strong> „Mitglied und angemeldet“ beweist kein Recht auf <strong>jede</strong> Dateisystemoperation. Auch dies ist ein <strong>fiktives Szenario</strong>.</p>
+</div></details>
 <h2 id="15-active-recall-diagnosekarten-und-transfer">15. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
