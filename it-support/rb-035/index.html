@@ -307,6 +307,7 @@ Get-Service -Name DHCPServer
 </ul>
 <p><strong>Nicht als Schnelllösung:</strong> unkontrolliertes <code>ipconfig /release</code>, DHCP-Server-Neustart, Deaktivieren von DHCP-Snooping/NAC, blindes Ändern von Scopes, Ausschlüssen oder DHCP-Filterlisten, dauerhafte statische Notfalladresse ohne Change.</p>
 <h2 id="13-zwei-fiktive-musterfalle-diagnose-vor-losung">13. Zwei fiktive Musterfälle – Diagnose vor Lösung</h2>
+<details class="support-code-explain support-archive-case"><summary>Ausführliche Fallanalyse aufklappen (optional)</summary><div class="support-learning-answer">
 <h3 id="fall-a-nur-ein-notebook-in-besprechungsraum-betroffen">Fall A: Nur ein Notebook in Besprechungsraum betroffen</h3>
 <p><strong>Meldung:</strong> „Notebook NB-17 bekommt nach Anschluss an die Dockingstation keine Firmenadresse.“</p>
 <p><strong>Befunde (fiktiv):</strong> WLAN ist deaktiviert, USB-Ethernet-Adapter meldet Link <code>Up</code>, <code>ipconfig /all</code> zeigt DHCP aktiviert und APIPA; Nachbarclient am freigegebenen Port bekommt gültigen Lease. Vergleichsgerät am ursprünglichen Port erhält ebenfalls keine Adresse. Netzteam stellt fest: Der Port ist versehentlich dem Gast-VLAN zugeordnet, das in diesem Szenario keinen DHCP-Dienst anbietet.</p>
@@ -318,6 +319,7 @@ Get-Service -Name DHCPServer
 <p><strong>Hypothesenprüfung:</strong> Vergleich altes/neues VLAN, Client-/Servercapture und Sollkonfiguration weisen auf den fehlenden Relay-Pfad. <strong>Kein Serverdienst-Neustart erforderlich.</strong></p>
 <p><strong>Korrektur:</strong> Netzwerk-Owner setzt IP-Helper nach Change, prüft Paketfluss und gültige Leases sowie erreichbare Business-Dienste; Rollback und Zeitpunkt ins Ticket.</p>
 <p><strong>Beide Fälle sind ausschließlich Lernsimulationen und wurden nicht praktisch durchgeführt.</strong></p>
+</div></details>
 <h2 id="14-active-recall-diagnosekarten-und-transfer">14. Praxisbeispiele und Wissenscheck</h2>
 <p>Erst selbst überlegen, dann die Antwort aufklappen. Diese kurzen Übungsfälle sind <strong>fiktiv und noch nicht praktisch validiert</strong>.</p>
 <div class="support-learning">
